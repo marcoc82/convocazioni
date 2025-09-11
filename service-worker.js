@@ -1,5 +1,5 @@
 // Nome della cache
-const CACHE_NAME = 'polis-counter-v1';
+const CACHE_NAME = 'polis-convocazioni-v1';
 // File da mettere in cache
 const urlsToCache = [
   './index.html',
@@ -53,3 +53,4 @@ self.addEventListener('activate', event => {
     })
   );
 });
+
