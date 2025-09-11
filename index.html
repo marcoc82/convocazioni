@@ -16,42 +16,98 @@
         import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-       // Global variables for Firebase access, provided by the environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
-            authDomain: "polis-2013.firebaseapp.com",
-            projectId: "polis-2013",
-            storageBucket: "polis-2013.firebasestorage.app",
-            messagingSenderId: "607738543737",
-            appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
-            measurementId: "G-94FT2YQNBM"
-        };
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        let app = null;
-        let auth = null;
-        let db = null;
-        let currentUserId = null;
-        let currentAppId = null;
+       document.addEventListener('DOMContentLoaded', () => {
 
-        if (firebaseConfig.apiKey) {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-            setLogLevel('debug'); // Imposta il livello di log per il debug di Firestore
+            // Global variables for Firebase access, provided by the environment
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+                apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
+                authDomain: "polis-2013.firebaseapp.com",
+                projectId: "polis-2013",
+                storageBucket: "polis-2013.firebasestorage.app",
+                messagingSenderId: "607738543737",
+                appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
+                measurementId: "G-94FT2YQNBM"
+            };
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
             
-            // Autenticazione anonima
-            signInAnonymously(auth).then(() => {
-                currentUserId = auth.currentUser.uid;
-                initApp();
-            }).catch((error) => {
-                console.error("Errore durante l'autenticazione anonima:", error);
-                document.getElementById('name-entry-message-area').textContent = "Errore di connessione. Riprova più tardi.";
-                document.getElementById('name-entry-message-area').classList.remove('hidden');
-            });
-        } else {
-            console.error("Firebase configuration not available. Some features will not work.");
+            // Firebase service instances
+            let app = null;
+            let auth = null;
+            let db = null;
+            let currentUserId = null;
+            let currentAppId = null;
+            let userRole = ''; // 'Mister' or 'Marco'
+            let unsubscribeMatchData = null; // Listener for real-time match data
+            let unsubscribePlayers = null; // Listener for real-time player status
+
+            const messageArea = document.getElementById('message-area');
+            const nameEntryScreen = document.getElementById('name-entry-screen');
+            const startScreen = document.getElementById('start-screen');
+            const mainView = document.getElementById('main-view');
+            const historyView = document.getElementById('history-view');
+            const attendanceView = document.getElementById('attendance-view');
+
+            const players = [
+                "99-ALPA FEDERICO", "78-BECCARIS SEBASTIANO", "32-BEN MABROUK KEVIN", "23-BERLUSCONI NOAH",
+                "1-BERNUCCI ROMEO", "18-BOERO GUGLIELMO", "22-BRIANO COSTANTINO", "28-CABASSI ROBERTO",
+                "7-CALLIKU ANDREA", "4-CAZZULO MICHELE", "46-CONGIU ALESSIO", "20-DHAOUI OMAR",
+                "5-DI DATO SIMONE", "77-DONALD BRYAN", "6-ESPOSITO EMANUELE", "25-GARDELLA ANDREA",
+                "13-GENNARO EDOARDO", "91-GIOIA LEONARDO", "17-KHAY ADAM", "2-LAMKHAYAR AMIN",
+                "29-LANNA MARK", "19-MARCHESE MATTEO", "47-MELLO CHRISTIAN", "61-MELLUSO MATTIA",
+                "14-MONTEFIORI EDOARDO", "3-ODAGLIA ANDREA", "11-PELLICCI FRANCESCO", "90-PIGA GIOVANNI",
+                "45-PINASCO ALESSANDRO", "10-POLLIO CESARE", "9-SCALA FEDERICO", "16-STANCHI FEDERICO",
+                "21-TONINI LORENZO"
+            ];
+            
+            // Initialize Firebase
+            function initFirebase() {
+                if (!firebaseConfig.apiKey) {
+                    showMessage("La configurazione di Firebase non è disponibile. Alcune funzionalità non funzioneranno.", 'error');
+                    return;
+                }
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                setLogLevel('debug');
+                
+                // Handle authentication state changes
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        currentUserId = user.uid;
+                        const savedRole = localStorage.getItem('userRole');
+                        const savedAppId = localStorage.getItem('currentAppId');
+                        
+                        if (savedRole && savedAppId) {
+                            userRole = savedRole;
+                            currentAppId = savedAppId;
+                            showView('main');
+                            setupRealtimeListeners();
+                            updateAppInfoDisplay(currentAppId);
+                            renderPlayersList();
+                        } else {
+                            showView('name-entry');
+                        }
+                    } else {
+                        console.log("User is not signed in, attempting anonymous sign-in.");
+                        await signInAnonymously(auth);
+                    }
+                });
+            }
+            
+            // Function to handle authentication
+            async function handleAuth() {
+                try {
+                    if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (error) {
+                    console.error("Authentication error:", error);
+                    showMessage("Errore di connessione. Riprova più tardi.", 'error');
+                }
+            }
         }
 
         // Funzione per generare un ID app univoco
@@ -927,6 +983,7 @@
     </script>
 </body>
 </html>
+
 
 
 
