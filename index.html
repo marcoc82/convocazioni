@@ -11,27 +11,62 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Firebase SDKs -->
     <script type="module">
-        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         // Firebase configuration and initialization
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        // Only initialize Firebase if the config is available
         const firebaseConfig = {
-        apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
-        authDomain: "polis-2013.firebaseapp.com",
-        projectId: "polis-2013",
-        storageBucket: "polis-2013.firebasestorage.app",
-        messagingSenderId: "607738543737",
-        appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
-        measurementId: "G-94FT2YQNBM"
-          };
+            apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
+            authDomain: "polis-2013.firebaseapp.com",
+            projectId: "polis-2013",
+            storageBucket: "polis-2013.firebasestorage.app",
+            messagingSenderId: "607738543737",
+            appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
+            measurementId: "G-94FT2YQNBM"
+        };
+        
+        let app = null;
+        let auth = null;
+        let db = null;
+        let currentUserId = null;
+        let currentAppId = null;
+
+        if (firebaseConfig.apiKey) {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            setLogLevel('debug'); // Imposta il livello di log per il debug di Firestore
+            
+            // Autenticazione anonima
+            signInAnonymously(auth).then(() => {
+                currentUserId = auth.currentUser.uid;
+                initApp();
+            }).catch((error) => {
+                console.error("Errore durante l'autenticazione anonima:", error);
+                document.getElementById('name-entry-message-area').textContent = "Errore di connessione. Riprova più tardi.";
+                document.getElementById('name-entry-message-area').classList.remove('hidden');
+            });
         } else {
             console.error("Firebase configuration not available. Some features will not work.");
         }
+
+        // Funzione per generare un ID app univoco
+        window.generateAppId = () => {
+            return Math.random().toString(36).substring(2, 8).toUpperCase();
+        };
+
+        // Funzione per copiare l'ID dell'app
+        window.copyAppId = () => {
+            const appId = document.getElementById('app-id-display').textContent;
+            navigator.clipboard.writeText(appId).then(() => {
+                alert("ID app copiato negli appunti!");
+            }).catch(err => {
+                console.error('Errore nella copia:', err);
+                alert("Impossibile copiare l'ID app.");
+            });
+        };
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
@@ -890,6 +925,7 @@
     </script>
 </body>
 </html>
+
 
 
 
