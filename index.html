@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Convocazioni Polis 2013</title>
@@ -898,5 +899,19 @@
             window.copyAppId = copyAppId;
         });
     </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then((registration) => {
+            console.log('Service Worker registrato con successo:', registration);
+          })
+          .catch((error) => {
+            console.log('Registrazione Service Worker fallita:', error);
+          });
+      });
+    }
+</script>
 </body>
 </html>
+
