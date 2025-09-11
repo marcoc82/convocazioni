@@ -16,8 +16,9 @@
         import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase configuration and initialization
-        const firebaseConfig = {
+       // Global variables for Firebase access, provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
             authDomain: "polis-2013.firebaseapp.com",
             projectId: "polis-2013",
@@ -26,6 +27,7 @@
             appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
             measurementId: "G-94FT2YQNBM"
         };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
         
         let app = null;
         let auth = null;
@@ -925,6 +927,7 @@
     </script>
 </body>
 </html>
+
 
 
 
