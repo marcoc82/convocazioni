@@ -8,6 +8,18 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- BLOCCO CONFIGURAZIONE FIREBASE - INSERISCI QUI -->
+    <script>
+    window.__firebase_config = JSON.stringify({
+      apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
+      authDomain: "polis-2013.firebaseapp.com",
+      projectId: "polis-2013",
+      storageBucket: "polis-2013.firebasestorage.app",
+      messagingSenderId: "607738543737",
+      appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
+      measurementId: "G-94FT2YQNBM"
+    });
+    </script>
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -84,12 +96,12 @@
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci il tuo nome</h2>
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4">
-                    <input type="text" id="name-input" placeholder="Esempio: Mister o Marco" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                    <input type="text" id="name-input" placeholder="Esempio: Mister o Marco" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ri[...]
                     <div class="flex items-center gap-2">
                         <input type="checkbox" id="remember-me" class="rounded text-blue-500 focus:ring-blue-500">
                         <label for="remember-me" class="text-gray-700">Ricordami nome</label>
                     </div>
-                    <button id="enter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">
+                    <button id="enter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 f[...]
                         Entra
                     </button>
                 </div>
@@ -104,7 +116,7 @@
                 <p class="text-gray-600 mb-2">ID App attuale (il tuo ID):</p>
                 <div class="flex flex-col items-center">
                     <span id="app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
-                    <button id="create-team-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 shadow-md">
+                    <button id="create-team-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:[...]
                         Crea nuova squadra
                     </button>
                 </div>
@@ -112,8 +124,8 @@
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">Partecipa a una squadra esistente</h3>
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <input type="text" id="join-app-id-input" placeholder="Incolla l'ID app qui" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-                    <button id="join-team-button" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">
+                    <input type="text" id="join-app-id-input" placeholder="Incolla l'ID app qui" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focu[...]
+                    <button id="join-team-button" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none [...]
                         Partecipa
                     </button>
                 </div>
@@ -122,7 +134,7 @@
                         <label for="remember-team-id" class="text-gray-700">Ricorda ID squadra</label>
                 </div>
             </div>
-            <button id="forget-data-button" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 shadow-md">
+            <button id="forget-data-button" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-[...]
                 Dimentica i dati salvati
             </button>
             <div id="start-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -135,7 +147,7 @@
                 <p class="text-gray-600 mb-2">ID Squadra attuale:</p>
                 <div class="flex flex-col items-center">
                     <span id="current-app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
-                    <button id="change-team-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 shadow-md">
+                    <button id="change-team-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ri[...]
                         Cambia Squadra
                     </button>
                 </div>
@@ -157,23 +169,23 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="campo" class="block text-sm font-medium text-gray-700">Campo</label>
-                        <input type="text" id="campo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                        <input type="text" id="campo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-5[...]
                     </div>
                     <div>
                         <label for="avversario" class="block text-sm font-medium text-gray-700">Avversario</label>
-                        <input type="text" id="avversario" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                        <input type="text" id="avversario" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-b[...]
                     </div>
                     <div>
                         <label for="data-partita" class="block text-sm font-medium text-gray-700">Data Partita</label>
-                        <input type="date" id="data-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                        <input type="date" id="data-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border[...]
                     </div>
                     <div>
                         <label for="orario-convocazione" class="block text-sm font-medium text-gray-700">Orario Convocazione</label>
-                        <input type="time" id="orario-convocazione" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                        <input type="time" id="orario-convocazione" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus[...]
                     </div>
                     <div class="col-span-1">
                         <label for="orario-partita" class="block text-sm font-medium text-gray-700">Orario Partita</label>
-                        <input type="time" id="orario-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                        <input type="time" id="orario-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:bord[...]
                     </div>
                 </div>
             </div>
@@ -197,17 +209,17 @@
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button id="save-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 shadow-md">
+                <button id="save-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focu[...]
                     Salva
                 </button>
-                <button id="share-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">
+                <button id="share-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus[...]
                     Condividi le convocazioni
                 </button>
             </div>
-            <button id="history-button" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 shadow-md">
+            <button id="history-button" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 fo[...]
                 Storico Convocazioni
             </button>
-            <button id="attendance-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 shadow-md">
+            <button id="attendance-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ri[...]
                 Riepilogo Presenze
             </button>
             <div id="message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -219,7 +231,7 @@
             <div id="history-list" class="space-y-4">
                 <!-- History items will be populated here -->
             </div>
-            <button id="back-from-history-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 shadow-md">
+            <button id="back-from-history-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus[...]
                 Torna Indietro
             </button>
         </div>
@@ -240,7 +252,7 @@
                     </tbody>
                 </table>
             </div>
-            <button id="back-from-attendance-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 shadow-md">
+            <button id="back-from-attendance-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none fo[...]
                 Torna Indietro
             </button>
         </div>
@@ -900,3 +912,4 @@
     </script>
 </body>
 </html>
+
