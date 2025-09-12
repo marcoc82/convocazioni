@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- BLOCCO CONFIGURAZIONE FIREBASE - INSERISCI QUI -->
+    <!-- CONFIGURAZIONE FIREBASE -->
     <script>
     window.__firebase_config = JSON.stringify({
       apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
@@ -96,12 +96,12 @@
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci il tuo nome</h2>
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4">
-                    <input type="text" id="name-input" placeholder="Esempio: Mister o Marco" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ri[...]
+                    <input type="text" id="name-input" placeholder="Esempio: Mister o Marco" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <div class="flex items-center gap-2">
                         <input type="checkbox" id="remember-me" class="rounded text-blue-500 focus:ring-blue-500">
                         <label for="remember-me" class="text-gray-700">Ricordami nome</label>
                     </div>
-                    <button id="enter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 f[...]
+                    <button id="enter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Entra
                     </button>
                 </div>
@@ -116,7 +116,7 @@
                 <p class="text-gray-600 mb-2">ID App attuale (il tuo ID):</p>
                 <div class="flex flex-col items-center">
                     <span id="app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
-                    <button id="create-team-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:[...]
+                    <button id="create-team-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                         Crea nuova squadra
                     </button>
                 </div>
@@ -124,8 +124,8 @@
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">Partecipa a una squadra esistente</h3>
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <input type="text" id="join-app-id-input" placeholder="Incolla l'ID app qui" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focu[...]
-                    <button id="join-team-button" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none [...]
+                    <input type="text" id="join-app-id-input" placeholder="Incolla l'ID app qui" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <button id="join-team-button" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Partecipa
                     </button>
                 </div>
@@ -134,7 +134,7 @@
                         <label for="remember-team-id" class="text-gray-700">Ricorda ID squadra</label>
                 </div>
             </div>
-            <button id="forget-data-button" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-[...]
+            <button id="forget-data-button" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                 Dimentica i dati salvati
             </button>
             <div id="start-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -147,7 +147,7 @@
                 <p class="text-gray-600 mb-2">ID Squadra attuale:</p>
                 <div class="flex flex-col items-center">
                     <span id="current-app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
-                    <button id="change-team-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ri[...]
+                    <button id="change-team-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                         Cambia Squadra
                     </button>
                 </div>
@@ -169,23 +169,23 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label for="campo" class="block text-sm font-medium text-gray-700">Campo</label>
-                        <input type="text" id="campo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-5[...]
+                        <input type="text" id="campo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
                     <div>
                         <label for="avversario" class="block text-sm font-medium text-gray-700">Avversario</label>
-                        <input type="text" id="avversario" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-b[...]
+                        <input type="text" id="avversario" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
                     <div>
                         <label for="data-partita" class="block text-sm font-medium text-gray-700">Data Partita</label>
-                        <input type="date" id="data-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border[...]
+                        <input type="date" id="data-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
                     <div>
                         <label for="orario-convocazione" class="block text-sm font-medium text-gray-700">Orario Convocazione</label>
-                        <input type="time" id="orario-convocazione" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus[...]
+                        <input type="time" id="orario-convocazione" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
                     <div class="col-span-1">
                         <label for="orario-partita" class="block text-sm font-medium text-gray-700">Orario Partita</label>
-                        <input type="time" id="orario-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:bord[...]
+                        <input type="time" id="orario-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
                 </div>
             </div>
@@ -209,17 +209,17 @@
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button id="save-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focu[...]
+                <button id="save-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                     Salva
                 </button>
-                <button id="share-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus[...]
+                <button id="share-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     Condividi le convocazioni
                 </button>
             </div>
-            <button id="history-button" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 fo[...]
+            <button id="history-button" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                 Storico Convocazioni
             </button>
-            <button id="attendance-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ri[...]
+            <button id="attendance-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
                 Riepilogo Presenze
             </button>
             <div id="message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -231,7 +231,7 @@
             <div id="history-list" class="space-y-4">
                 <!-- History items will be populated here -->
             </div>
-            <button id="back-from-history-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus[...]
+            <button id="back-from-history-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                 Torna Indietro
             </button>
         </div>
@@ -252,7 +252,7 @@
                     </tbody>
                 </table>
             </div>
-            <button id="back-from-attendance-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none fo[...]
+            <button id="back-from-attendance-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                 Torna Indietro
             </button>
         </div>
@@ -681,235 +681,4 @@
                     selectedPlayersTitle.textContent = "Giocatori Convocati";
                     playersListMessage.textContent = "Clicca sui nomi per selezionare i convocati.";
                     roleMessage.textContent = "Sei entrato come Mister. Puoi creare e salvare le convocazioni.";
-                    roleMessage.classList.remove('hidden');
-                    saveButton.textContent = "Salva Convocazione";
-                    shareButton.disabled = false;
-                    historyButton.disabled = false;
-                    attendanceButton.disabled = false;
-                    shareButton.classList.replace('bg-gray-400', 'bg-blue-600');
-                    historyButton.classList.replace('bg-gray-400', 'bg-gray-600');
-                    attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
-                    unavailablePlayersView.classList.remove('hidden');
-
-                } else if (userRole === 'marco') {
-                    selectedPlayersTitle.textContent = "Giocatori Non Disponibili";
-                    playersListMessage.textContent = "Clicca sui nomi per segnalare la tua indisponibilità o quella degli altri.";
-                    roleMessage.textContent = "Sei entrato come Marco. Puoi salvare i giocatori non disponibili.";
-                    roleMessage.classList.remove('hidden');
-                    saveButton.textContent = "Salva Indisponibilità";
-                    shareButton.disabled = true;
-                    historyButton.disabled = false;
-                    attendanceButton.disabled = false;
-                    shareButton.classList.replace('bg-blue-600', 'bg-gray-400');
-                    historyButton.classList.replace('bg-gray-400', 'bg-gray-600');
-                    attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
-                    unavailablePlayersView.classList.add('hidden');
-                }
-            }
-
-            function updateUnavailablePlayersView() {
-                unavailablePlayersList.innerHTML = '';
-                if (unavailablePlayers.size === 0) {
-                    unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessun giocatore segnalato.</li>';
-                    return;
-                }
-                unavailablePlayers.forEach((status, player) => {
-                    const li = document.createElement('li');
-                    li.textContent = `${player}: ${status}`;
-                    li.className = 'font-medium';
-                    unavailablePlayersList.appendChild(li);
-                });
-            }
-
-            function showMessage(msg, colorClass) {
-                messageArea.textContent = msg;
-                messageArea.className = `mt-4 text-center text-sm font-medium ${colorClass}`;
-                messageArea.style.display = 'block';
-                setTimeout(() => {
-                    messageArea.style.display = 'none';
-                }, 5000);
-            }
-
-            function startApp(appId) {
-                currentAppId = appId;
-                
-                appIdDisplay.textContent = currentAppId;
-                currentAppIdDisplay.textContent = currentAppId;
-
-                startScreen.classList.add('hidden');
-                mainView.classList.remove('hidden');
-
-                setupFirestoreListeners(currentAppId);
-                renderPlayers();
-                updateUIForRole();
-            }
-
-            function forgetDataAndReset() {
-                localStorage.removeItem('convocazioniAppId');
-                localStorage.removeItem('userRole');
-                localStorage.removeItem('joinAppId');
-                window.location.reload(); 
-            }
-
-            // --- Modal Functions ---
-            function showModal() {
-                statusModal.classList.remove('hidden', 'opacity-0');
-                statusModal.classList.add('flex', 'opacity-100');
-            }
-
-            function hideModal() {
-                statusModal.classList.remove('flex', 'opacity-100');
-                statusModal.classList.add('hidden', 'opacity-0');
-            }
-
-            // Event listeners for view switching
-            enterButton.addEventListener('click', () => {
-                const name = nameInput.value.trim().toLowerCase();
-                if (name === 'mister' || name === 'marco') {
-                    userRole = name;
-                    
-                    if (rememberMeCheckbox.checked) {
-                        localStorage.setItem('userRole', userRole);
-                    } else {
-                        localStorage.removeItem('userRole');
-                    }
-                    
-                    nameEntryScreen.classList.add('hidden');
-                    const savedAppId = localStorage.getItem('convocazioniAppId');
-                    if (savedAppId) {
-                         startApp(savedAppId);
-                    } else {
-                         startScreen.classList.remove('hidden');
-                    }
-                } else {
-                    nameEntryMessageArea.textContent = "Nome non valido. Inserisci 'Mister' o 'Marco'.";
-                    nameEntryMessageArea.classList.remove('hidden');
-                    nameEntryMessageArea.classList.add('text-red-600');
-                    setTimeout(() => {
-                        nameEntryMessageArea.classList.add('hidden');
-                    }, 5000);
-                }
-            });
-            
-            const savedJoinAppId = localStorage.getItem('joinAppId');
-            if (savedJoinAppId) {
-                joinAppIdInput.value = savedJoinAppId;
-                rememberTeamIdCheckbox.checked = true;
-            }
-
-            createTeamButton.addEventListener('click', () => {
-                if (rememberMeCheckbox.checked) {
-                    localStorage.setItem('convocazioniAppId', window.appId);
-                } else {
-                    localStorage.removeItem('convocazioniAppId');
-                }
-                startApp(window.appId);
-            });
-
-            joinTeamButton.addEventListener('click', () => {
-                const joinedId = joinAppIdInput.value.trim();
-                if (joinedId.length > 0) {
-                     if (rememberTeamIdCheckbox.checked) {
-                        localStorage.setItem('joinAppId', joinedId);
-                    } else {
-                        localStorage.removeItem('joinAppId');
-                    }
-                     if (rememberMeCheckbox.checked) {
-                        localStorage.setItem('convocazioniAppId', joinedId);
-                    } else {
-                        localStorage.removeItem('convocazioniAppId');
-                    }
-                    startApp(joinedId);
-                } else {
-                    startMessageArea.textContent = "Per favore, inserisci un ID app valido.";
-                    startMessageArea.classList.remove('hidden');
-                    startMessageArea.classList.add('text-red-600');
-                    setTimeout(() => {
-                        startMessageArea.classList.add('hidden');
-                    }, 5000);
-                }
-            });
-
-            forgetDataButton.addEventListener('click', forgetDataAndReset);
-            changeTeamButton.addEventListener('click', forgetDataAndReset);
-            
-            saveButton.addEventListener('click', saveData);
-            shareButton.addEventListener('click', generateShareImage);
-            historyButton.addEventListener('click', () => {
-                mainView.classList.add('hidden');
-                historyView.classList.remove('hidden');
-                attendanceView.classList.add('hidden');
-            });
-            attendanceButton.addEventListener('click', () => {
-                mainView.classList.add('hidden');
-                historyView.classList.add('hidden');
-                attendanceView.classList.remove('hidden');
-            });
-            backFromHistoryButton.addEventListener('click', () => {
-                historyView.classList.add('hidden');
-                mainView.classList.remove('hidden');
-            });
-            backFromAttendanceButton.addEventListener('click', () => {
-                attendanceView.classList.add('hidden');
-                mainView.classList.remove('hidden');
-            });
-
-            closeModalButton.addEventListener('click', hideModal);
-
-            statusButtons.forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const status = event.target.dataset.status;
-                    const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
-                    
-                    if (status === 'Non disponibile') {
-                         unavailablePlayers.set(tempPlayerName, status);
-                    } else if (status === 'Solo 2 allenamenti') {
-                         unavailablePlayers.set(tempPlayerName, status);
-                    } else if (status === 'Solo 1 allenamento') {
-                         unavailablePlayers.set(tempPlayerName, status);
-                    } else {
-                        unavailablePlayers.delete(tempPlayerName);
-                    }
-                    
-                    if (unavailablePlayers.has(tempPlayerName)) {
-                        currentPlayerItem.classList.add('selected-marco');
-                    } else {
-                        currentPlayerItem.classList.remove('selected-marco');
-                    }
-                    
-                    updateUnavailablePlayersView();
-                    hideModal();
-                    tempPlayerName = null;
-                });
-            });
-
-            function copyAppId() {
-                const tempInput = document.createElement('textarea');
-                tempInput.value = appIdDisplay.textContent;
-                document.body.appendChild(tempInput);
-                tempInput.select();
-                try {
-                    const success = document.execCommand('copy');
-                    if (success) {
-                        const originalText = appIdDisplay.textContent;
-                        appIdDisplay.textContent = 'Copiato!';
-                        setTimeout(() => {
-                            appIdDisplay.textContent = originalText;
-                        }, 1000);
-                    } else {
-                        console.error('Errore nella copia: document.execCommand("copy") failed.');
-                        showMessage("Impossibile copiare. Il browser non lo supporta.", "text-red-600");
-                    }
-                } catch (err) {
-                    console.error('Errore nella copia: ', err);
-                    showMessage("Errore durante la copia. Controlla la console.", "text-red-600");
-                } finally {
-                    document.body.removeChild(tempInput);
-                }
-            }
-            window.copyAppId = copyAppId;
-        });
-    </script>
-</body>
-</html>
-
+                    roleMessage.classList.remove('hidden
