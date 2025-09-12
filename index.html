@@ -8,69 +8,38 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Firebase SDKs (modular) -->
+    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Configurazione Firebase
-            const firebaseConfig = {
-                apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
-                authDomain: "polis-2013.firebaseapp.com",
-                projectId: "polis-2013",
-                storageBucket: "polis-2013.appspot.com",
-                messagingSenderId: "607738543737",
-                appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
-                measurementId: "G-94FT2YQNBM"
-            };
-
-            // Inizializza Firebase
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
-
-            // Visualizza la main view solo se autenticato
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    document.getElementById('main-view').classList.remove('hidden');
-                    document.getElementById('start-screen').classList.add('hidden');
-                    renderPlayers();
-                } else {
-                    signInAnonymously(auth);
-                }
-            });
-
-            // Lista giocatori globale
-            window.players = [
-                "99-ALPA FEDERICO", "78-BECCARIS SEBASTIANO", "32-BEN MABROUK KEVIN", "23-BERLUSCONI NOAH",
-                "1-BERNUCCI ROMEO", "18-BOERO GUGLIELMO", "22-BRIANO COSTANTINO", "28-CABASSI ROBERTO",
-                "7-CALLIKU ANDREA", "4-CAZZULO MICHELE", "46-CONGIU ALESSIO", "20-DHAOUI OMAR",
-                "5-DI DATO SIMONE", "77-DONALD BRYAN", "6-ESPOSITO EMANUELE", "25-GARDELLA ANDREA",
-                "13-GENNARO EDOARDO", "91-GIOIA LEONARDO", "17-KHAY ADAM", "2-LAMKHAYAR AMIN",
-                "29-LANNA MARK", "19-MARCHESE MATTEO", "47-MELLO CHRISTIAN", "61-MELLUSO MATTIA",
-                "14-MONTEFIORI EDOARDO", "3-ODAGLIA ANDREA", "11-PELLICCI FRANCESCO", "90-PIGA GIOVANNI",
-                "45-PINASCO ALESSANDRO", "10-POLLIO CESARE", "9-SCALA FEDERICO", "16-STANCHI FEDERICO",
-                "21-TONINI LORENZO"
-            ];
-
-            // Funzione per renderizzare la lista giocatori
-            function renderPlayers() {
-                const playersList = document.getElementById('players-list');
-                playersList.innerHTML = '';
-                window.players.forEach(playerName => {
-                    const li = document.createElement('li');
-                    li.textContent = playerName;
-                    li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200 my-1';
-                    playersList.appendChild(li);
-                });
-            }
-
-            // Mostra start screen all'avvio (se main-view è nascosta)
-            document.getElementById('main-view').classList.add('hidden');
-            document.getElementById('start-screen').classList.remove('hidden');
-        });
+        // Firebase configuration and initialization
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        
+        // Only initialize Firebase if the config is available
+        let app, db, auth;
+        if (Object.keys(firebaseConfig).length > 0) {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            setLogLevel('Debug');
+            window.db = db;
+            window.auth = auth;
+            window.appId = appId;
+            window.onSnapshot = onSnapshot;
+            window.collection = collection;
+            window.addDoc = addDoc;
+            window.updateDoc = updateDoc;
+            window.doc = doc;
+            window.getDoc = getDoc;
+            window.setDoc = setDoc;
+            window.increment = increment;
+        } else {
+            console.error("Firebase configuration not available. Some features will not work.");
+        }
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
@@ -83,39 +52,851 @@
             user-select: none;
             transition: transform 0.1s ease-in-out, background-color 0.2s;
         }
-        .player-item:hover {
+        .player-item.selected-mister {
+            background-color: #d1e5f4;
+            color: #1e40af;
+            font-weight: bold;
+            border-color: #3b82f6;
+        }
+        .player-item.selected-marco {
+            background-color: #fecaca;
+            color: #b91c1c;
+            font-weight: bold;
+            border-color: #ef4444;
+        }
+        .player-item:hover:not(.selected-mister):not(.selected-marco) {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
+
     <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-2xl">
-        <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">Convocazioni Polis 2013!</h1>
+        <!-- Application Title -->
+        <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">Convocazioni Polis 2013</h1>
         
+        <!-- Name Entry Screen -->
+        <div id="name-entry-screen" class="hidden">
+            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci il tuo nome</h2>
+            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <div class="flex flex-col gap-4">
+                    <input type="text" id="name-input" placeholder="Esempio: Mister o Marco" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="remember-me" class="rounded text-blue-500 focus:ring-blue-500">
+                        <label for="remember-me" class="text-gray-700">Ricordami nome</label>
+                    </div>
+                    <button id="enter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">
+                        Entra
+                    </button>
+                </div>
+            </div>
+            <div id="name-entry-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
+        </div>
+
         <!-- Start Screen View -->
-        <div id="start-screen">
-            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Benvenuto! Attendi autenticazione...</h2>
+        <div id="start-screen" class="hidden">
+            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Seleziona una squadra</h2>
+            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200 text-center">
+                <p class="text-gray-600 mb-2">ID App attuale (il tuo ID):</p>
+                <div class="flex flex-col items-center">
+                    <span id="app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
+                    <button id="create-team-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 shadow-md">
+                        Crea nuova squadra
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Partecipa a una squadra esistente</h3>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <input type="text" id="join-app-id-input" placeholder="Incolla l'ID app qui" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                    <button id="join-team-button" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">
+                        Partecipa
+                    </button>
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                        <input type="checkbox" id="remember-team-id" class="rounded text-blue-500 focus:ring-blue-500">
+                        <label for="remember-team-id" class="text-gray-700">Ricorda ID squadra</label>
+                </div>
+            </div>
+            <button id="forget-data-button" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 shadow-md">
+                Dimentica i dati salvati
+            </button>
+            <div id="start-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
         </div>
 
         <!-- Main Form View -->
         <div id="main-view" class="hidden">
+            <!-- App Info Section -->
             <div class="bg-gray-50 p-4 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <p class="text-gray-600 mb-2">Lista Giocatori:</p>
+                <p class="text-gray-600 mb-2">ID Squadra attuale:</p>
+                <div class="flex flex-col items-center">
+                    <span id="current-app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
+                    <button id="change-team-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 shadow-md">
+                        Cambia Squadra
+                    </button>
+                </div>
             </div>
-            <ul id="players-list"></ul>
+
+            <div id="role-message" class="mt-4 p-3 bg-blue-100 border border-blue-200 rounded-lg text-blue-800 text-sm font-medium hidden"></div>
+
+            <!-- Mister's view of Marco's unavailable players -->
+            <div id="unavailable-players-view" class="bg-red-100 p-4 rounded-xl mb-6 shadow-sm border border-red-200 hidden">
+                <h2 class="text-lg font-semibold text-red-700 mb-2">Giocatori Non Disponibili (Segnalati da Marco)</h2>
+                <ul id="unavailable-players-list" class="space-y-1 text-red-600">
+                    <!-- Non-available players will be listed here -->
+                </ul>
+            </div>
+            
+            <!-- Match Details Section -->
+            <div class="bg-gray-50 p-4 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Dettagli Partita</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="campo" class="block text-sm font-medium text-gray-700">Campo</label>
+                        <input type="text" id="campo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                    </div>
+                    <div>
+                        <label for="avversario" class="block text-sm font-medium text-gray-700">Avversario</label>
+                        <input type="text" id="avversario" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                    </div>
+                    <div>
+                        <label for="data-partita" class="block text-sm font-medium text-gray-700">Data Partita</label>
+                        <input type="date" id="data-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                    </div>
+                    <div>
+                        <label for="orario-convocazione" class="block text-sm font-medium text-gray-700">Orario Convocazione</label>
+                        <input type="time" id="orario-convocazione" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                    </div>
+                    <div class="col-span-1">
+                        <label for="orario-partita" class="block text-sm font-medium text-gray-700">Orario Partita</label>
+                        <input type="time" id="orario-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Players List Section -->
+            <h2 class="text-lg font-semibold text-gray-700 mb-2">Lista Giocatori</h2>
+            <p class="text-sm text-gray-500 mb-4" id="players-list-message">Clicca sui nomi per selezionare i convocati.</p>
+            <div id="players-list-container" class="bg-gray-50 rounded-xl p-4 mb-6 shadow-sm border border-gray-200">
+                <ul id="players-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    <!-- Player items will be inserted here by JavaScript -->
+                </ul>
+            </div>
+            
+            <!-- Live Selected Players List -->
+            <div id="selected-players-container" class="bg-white rounded-xl p-4 mb-6 shadow-sm border border-gray-200">
+                <h2 id="selected-players-title" class="text-lg font-semibold text-gray-700 mb-2">Giocatori Convocati</h2>
+                <ul id="selected-players-live-list" class="space-y-2 text-gray-600">
+                    <!-- Selected players will appear here in real-time -->
+                </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button id="save-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 shadow-md">
+                    Salva
+                </button>
+                <button id="share-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">
+                    Condividi le convocazioni
+                </button>
+            </div>
+            <button id="history-button" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 shadow-md">
+                Storico Convocazioni
+            </button>
+            <button id="attendance-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 shadow-md">
+                Riepilogo Presenze
+            </button>
+            <div id="message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
+        </div>
+
+        <!-- Convocations History View (using Firestore) -->
+        <div id="history-view" class="hidden">
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Storico Convocazioni</h2>
+            <div id="history-list" class="space-y-4">
+                <!-- History items will be populated here -->
+            </div>
+            <button id="back-from-history-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 shadow-md">
+                Torna Indietro
+            </button>
+        </div>
+
+        <!-- Attendance Summary View -->
+        <div id="attendance-view" class="hidden">
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Riepilogo Presenze</h2>
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">Presenze</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-list" class="bg-white divide-y divide-gray-200">
+                        <!-- Attendance data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <button id="back-from-attendance-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 shadow-md">
+                Torna Indietro
+            </button>
+        </div>
+
+        <!-- Shareable View (Hidden for image generation) -->
+        <div id="share-view" class="absolute w-[600px] h-auto top-[-9999px] left-[-9999px] bg-white rounded-xl shadow-2xl p-6 border border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Convocazioni Ufficiali</h2>
+            
+            <div id="share-details" class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p class="text-gray-700 mb-2">Campo: <span id="share-campo" class="font-semibold"></span></p>
+                <p class="text-gray-700 mb-2">Avversario: <span id="share-avversario" class="font-semibold"></span></p>
+                <p class="text-gray-700 mb-2">Data Partita: <span id="share-data-partita" class="font-semibold"></span></p>
+                <p class="text-700 mb-2">Orario Convocazione: <span id="share-orario-convocazione" class="font-semibold"></span></p>
+                <p class="text-gray-700">Orario Partita: <span id="share-orario-partita" class="font-semibold"></span></p>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Giocatori Convocati:</h3>
+                <ul id="share-players-list" class="space-y-2 text-gray-600">
+                    <!-- Selected players will be inserted here -->
+                </ul>
+            </div>
+            <p class="text-sm text-gray-500 text-center mt-6">Convocazioni Polis 2013</p>
+        </div>
+
+        <!-- Modal for Marco's Status -->
+        <div id="status-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300">
+                <h2 class="text-xl font-bold mb-4">Seleziona lo stato del giocatore</h2>
+                <div class="space-y-4">
+                    <button data-status="Non disponibile" class="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                        Non disponibile
+                    </button>
+                    <button data-status="Solo 2 allenamenti" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                        Solo 2 allenamenti
+                    </button>
+                    <button data-status="Solo 1 allenamento" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                        Solo 1 allenamento
+                    </button>
+                </div>
+                <button id="close-modal" class="mt-6 w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                    Annulla
+                </button>
+            </div>
         </div>
     </div>
+
+    <!-- JavaScript for app logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const players = [
+                "99-ALPA FEDERICO", "78-BECCARIS SEBASTIANO", "32-BEN MABROUK KEVIN", "23-BERLUSCONI NOAH",
+                "1-BERNUCCI ROMEO", "18-BOERO GUGLIELMO", "22-BRIANO COSTANTINO", "28-CABASSI ROBERTO",
+                "7-CALLIKU ANDREA", "4-CAZZULO MICHELE", "46-CONGIU ALESSIO", "20-DHAOUI OMAR",
+                "5-DI DATO SIMONE", "77-DONALD BRYAN", "6-ESPOSITO EMANUELE", "25-GARDELLA ANDREA",
+                "13-GENNARO EDOARDO", "91-GIOIA LEONARDO", "17-KHAY ADAM", "2-LAMKHAYAR AMIN",
+                "29-LANNA MARK", "19-MARCHESE MATTEO", "47-MELLO CHRISTIAN", "61-MELLUSO MATTIA",
+                "14-MONTEFIORI EDOARDO", "3-ODAGLIA ANDREA", "11-PELLICCI FRANCESCO", "90-PIGA GIOVANNI",
+                "45-PINASCO ALESSANDRO", "10-POLLIO CESARE", "9-SCALA FEDERICO", "16-STANCHI FEDERICO",
+                "21-TONINI LORENZO"
+            ];
+
+            // UI Elements
+            const nameEntryScreen = document.getElementById('name-entry-screen');
+            const nameInput = document.getElementById('name-input');
+            const enterButton = document.getElementById('enter-button');
+            const nameEntryMessageArea = document.getElementById('name-entry-message-area');
+            const rememberMeCheckbox = document.getElementById('remember-me');
+
+            const startScreen = document.getElementById('start-screen');
+            const mainView = document.getElementById('main-view');
+            const historyView = document.getElementById('history-view');
+            const attendanceView = document.getElementById('attendance-view');
+            const playersList = document.getElementById('players-list');
+            const playersListMessage = document.getElementById('players-list-message');
+            const selectedPlayersLiveList = document.getElementById('selected-players-live-list');
+            const selectedPlayersTitle = document.getElementById('selected-players-title');
+
+            const saveButton = document.getElementById('save-button');
+            const shareButton = document.getElementById('share-button');
+            const historyButton = document.getElementById('history-button');
+            const attendanceButton = document.getElementById('attendance-button');
+            const backFromHistoryButton = document.getElementById('back-from-history-button');
+            const backFromAttendanceButton = document.getElementById('back-from-attendance-button');
+            const historyList = document.getElementById('history-list');
+            const attendanceList = document.getElementById('attendance-list');
+            const shareView = document.getElementById('share-view');
+            const messageArea = document.getElementById('message-area');
+            const startMessageArea = document.getElementById('start-message-area');
+            const appIdDisplay = document.getElementById('app-id-display');
+            const currentAppIdDisplay = document.getElementById('current-app-id-display');
+            const createTeamButton = document.getElementById('create-team-button');
+            const joinTeamButton = document.getElementById('join-team-button');
+            const joinAppIdInput = document.getElementById('join-app-id-input');
+            const rememberTeamIdCheckbox = document.getElementById('remember-team-id');
+            const changeTeamButton = document.getElementById('change-team-button');
+            const forgetDataButton = document.getElementById('forget-data-button');
+            const roleMessage = document.getElementById('role-message');
+            const unavailablePlayersView = document.getElementById('unavailable-players-view');
+            const unavailablePlayersList = document.getElementById('unavailable-players-list');
+            
+            // Modal Elements
+            const statusModal = document.getElementById('status-modal');
+            const closeModalButton = document.getElementById('close-modal');
+            const statusButtons = statusModal.querySelectorAll('[data-status]');
+
+            // --- App State ---
+            let userRole = null;
+            let currentAppId = window.appId;
+            let unavailablePlayers = new Map();
+            let tempPlayerName = null;
+            let unsubscribeListeners = [];
+
+            // Initial Firebase setup
+            async function initApp() {
+                if (window.auth) {
+                    try {
+                        const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                        if (token) {
+                            await signInWithCustomToken(window.auth, token);
+                        } else {
+                            await signInAnonymously(window.auth);
+                        }
+                        
+                        console.log("Firebase initialized and user authenticated.");
+                        const savedRole = localStorage.getItem('userRole');
+                        const savedAppId = localStorage.getItem('convocazioniAppId');
+                        const savedJoinAppId = localStorage.getItem('joinAppId');
+                        
+                        if (savedRole && savedAppId) {
+                            userRole = savedRole;
+                            startApp(savedAppId);
+                        } else if (savedRole) {
+                            userRole = savedRole;
+                            nameEntryScreen.classList.add('hidden');
+                            startScreen.classList.remove('hidden');
+                            if (savedJoinAppId) {
+                                joinAppIdInput.value = savedJoinAppId;
+                                rememberTeamIdCheckbox.checked = true;
+                            }
+                        } else {
+                            nameEntryScreen.classList.remove('hidden');
+                        }
+                    } catch (err) {
+                        console.error("Firebase authentication failed:", err);
+                        nameEntryScreen.classList.remove('hidden');
+                    }
+                } else {
+                    console.error("Firebase configuration not available. Some features will not work.");
+                    nameEntryScreen.classList.remove('hidden');
+                }
+            }
+
+            initApp();
+            
+            // Set up real-time listeners for all necessary data
+            function setupFirestoreListeners(appId) {
+                // Clear old listeners
+                unsubscribeListeners.forEach(unsub => unsub());
+                unsubscribeListeners = [];
+
+                // Listener for Mister's convocations history
+                const historyCollectionRef = window.collection(window.db, `artifacts/${appId}/public/data/convocations_history`);
+                const historyUnsub = window.onSnapshot(historyCollectionRef, (querySnapshot) => {
+                    loadHistory(querySnapshot);
+                });
+                unsubscribeListeners.push(historyUnsub);
+
+                // Listener for player attendance
+                const attendanceCollectionRef = window.collection(window.db, `artifacts/${appId}/public/data/player_attendance`);
+                const attendanceUnsub = window.onSnapshot(attendanceCollectionRef, (querySnapshot) => {
+                    loadAttendance(querySnapshot);
+                });
+                unsubscribeListeners.push(attendanceUnsub);
+                
+                // Listener for Marco's unavailable players list
+                const unavailableDocRef = window.doc(window.db, `artifacts/${appId}/public/data/availability`, "marco_unavailable");
+                const unavailableUnsub = window.onSnapshot(unavailableDocRef, (docSnap) => {
+                    if (docSnap.exists() && docSnap.data().players) {
+                        unavailablePlayers = new Map(Object.entries(docSnap.data().players));
+                    } else {
+                        unavailablePlayers = new Map();
+                    }
+                    renderPlayers(); // Re-render players with new unavailable status
+                    updateUnavailablePlayersView(); // Update Mister's view
+                });
+                unsubscribeListeners.push(unavailableUnsub);
+            }
+
+            // Function to save data based on role
+            async function saveData() {
+                if (!window.db || !window.auth.currentUser) {
+                    showMessage("Errore: Firebase non è ancora pronto. Riprova tra un attimo.", "text-red-600");
+                    return;
+                }
+
+                if (userRole === 'mister') {
+                    const matchDetails = getMatchDetails();
+                    const selectedPlayers = getSelectedPlayers();
+                    
+                    if (!matchDetails.avversario || selectedPlayers.length === 0) {
+                        showMessage("Inserisci l'avversario e seleziona almeno un giocatore per salvare.", "text-red-600");
+                        return;
+                    }
+
+                    try {
+                        await window.addDoc(window.collection(window.db, `artifacts/${currentAppId}/public/data/convocations_history`), {
+                            details: matchDetails,
+                            players: selectedPlayers,
+                            createdAt: new Date().toISOString()
+                        });
+
+                        for (const player of selectedPlayers) {
+                            const playerDocRef = window.doc(window.db, `artifacts/${currentAppId}/public/data/player_attendance`, player);
+                            await window.setDoc(playerDocRef, { count: window.increment(1) }, { merge: true });
+                        }
+
+                        showMessage("Convocazione salvata e presenze aggiornate!", "text-green-600");
+                    } catch (e) {
+                        console.error("Errore salvataggio su Firestore: ", e);
+                        showMessage("Errore durante il salvataggio. Controlla la console.", "text-red-600");
+                    }
+                } else if (userRole === 'marco') {
+                    const unavailablePlayersObject = Object.fromEntries(unavailablePlayers);
+                    const unavailableDocRef = window.doc(window.db, `artifacts/${currentAppId}/public/data/availability`, "marco_unavailable");
+                    
+                    try {
+                        await window.setDoc(unavailableDocRef, { players: unavailablePlayersObject }, { merge: true });
+                        showMessage("Lista di giocatori non disponibili salvata!", "text-green-600");
+                    } catch (e) {
+                        console.error("Errore salvataggio su Firestore: ", e);
+                        showMessage("Errore durante il salvataggio. Controlla la console.", "text-red-600");
+                    }
+                }
+            }
+
+            // Function to load and display history from Firestore
+            function loadHistory(querySnapshot) {
+                historyList.innerHTML = '';
+                if (querySnapshot.empty) {
+                    historyList.innerHTML = '<p class="text-center text-gray-500">Nessuna convocazione salvata.</p>';
+                    return;
+                }
+                const history = [];
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    history.push(data);
+                });
+                // Sort by createdAt descending
+                history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                history.forEach(data => {
+                    const item = document.createElement('div');
+                    item.className = 'bg-white p-4 rounded-lg shadow-md border border-gray-200';
+                    
+                    const createdAt = new Date(data.createdAt);
+                    const formattedDate = createdAt.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const formattedTime = createdAt.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+                    item.innerHTML = `
+                        <div class="font-bold text-lg mb-2 text-gray-800">${data.details.avversario}</div>
+                        <div class="text-sm text-gray-600 mb-2">
+                            <p>Salvataggio: ${formattedDate} alle ${formattedTime}</p>
+                            <p>Campo: ${data.details.campo}</p>
+                            <p>Data Partita: ${data.details.data}</p>
+                            <p>Orario Conv.: ${data.details.orarioConvocazione}</p>
+                            <p>Orario Partita: ${data.details.orarioPartita}</p>
+                        </div>
+                        <div class="text-sm text-gray-700">
+                            <p class="font-semibold mb-1">Giocatori:</p>
+                            <ul class="list-disc list-inside space-y-0.5">
+                                ${data.players.map(p => `<li>${p}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                    historyList.appendChild(item);
+                });
+            }
+
+            // Function to load and display attendance summary from Firestore
+            function loadAttendance(querySnapshot) {
+                attendanceList.innerHTML = '';
+                const attendanceData = {};
+                querySnapshot.forEach(doc => {
+                    attendanceData[doc.id] = doc.data().count;
+                });
+                
+                const sortedPlayers = players.map(p => ({
+                    name: p,
+                    count: attendanceData[p] || 0
+                })).sort((a, b) => b.count - a.count);
+
+                sortedPlayers.forEach(player => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${player.count}</td>
+                    `;
+                    attendanceList.appendChild(row);
+                });
+            }
+
+            // --- Existing app functions ---
+            function renderPlayers() {
+                playersList.innerHTML = '';
+                players.forEach(playerName => {
+                    const li = document.createElement('li');
+                    li.textContent = playerName;
+                    li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
+                    li.dataset.player = playerName;
+                    
+                    if (unavailablePlayers.has(playerName)) {
+                        li.classList.add('selected-marco');
+                    }
+
+                    li.addEventListener('click', () => {
+                        if (userRole === 'mister') {
+                            if (unavailablePlayers.has(playerName)) {
+                                const status = unavailablePlayers.get(playerName);
+                                showMessage(`Attenzione: questo giocatore è stato segnalato come '${status}' da Marco.`, "text-red-600");
+                            }
+                            li.classList.toggle('selected-mister');
+                            updateSelectedPlayersLiveList(playerName, li.classList.contains('selected-mister'));
+                        } else if (userRole === 'marco') {
+                            tempPlayerName = playerName;
+                            showModal();
+                        }
+                    });
+                    playersList.appendChild(li);
+                });
+            }
+
+            function updateSelectedPlayersLiveList(playerName, isSelected) {
+                const liveId = `live-${playerName.replace(/\s+/g, '-')}`;
+                if (isSelected) {
+                    const newLi = document.createElement('li');
+                    newLi.textContent = playerName;
+                    newLi.id = liveId;
+                    newLi.className = "font-medium p-1";
+                    selectedPlayersLiveList.appendChild(newLi);
+                } else {
+                    const playerToRemove = document.getElementById(liveId);
+                    if (playerToRemove) {
+                        playerToRemove.remove();
+                    }
+                }
+            }
+
+            function getSelectedPlayers() {
+                if (userRole === 'mister') {
+                    return Array.from(document.querySelectorAll('.player-item.selected-mister')).map(item => item.textContent);
+                }
+                return Array.from(unavailablePlayers.keys());
+            }
+
+            function getMatchDetails() {
+                return {
+                    campo: document.getElementById('campo').value || 'N/D',
+                    avversario: document.getElementById('avversario').value || 'N/D',
+                    data: document.getElementById('data-partita').value || 'N/D',
+                    orarioConvocazione: document.getElementById('orario-convocazione').value || 'N/D',
+                    orarioPartita: document.getElementById('orario-partita').value || 'N/D',
+                };
+            }
+
+            function generateShareImage() {
+                if (userRole !== 'mister') {
+                    showMessage("Solo il Mister può condividere le convocazioni.", "text-red-600");
+                    return;
+                }
+
+                const selectedPlayers = getSelectedPlayers();
+                const matchDetails = getMatchDetails();
+                const sharePlayersList = document.getElementById('share-players-list');
+                sharePlayersList.innerHTML = '';
+                document.getElementById('share-campo').textContent = matchDetails.campo;
+                document.getElementById('share-avversario').textContent = matchDetails.avversario;
+                
+                let formattedDate = 'N/D';
+                if (matchDetails.data !== 'N/D') {
+                    const dateObj = new Date(matchDetails.data + 'T00:00:00'); 
+                    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                    formattedDate = dateObj.toLocaleDateString('it-IT', options);
+                }
+                
+                document.getElementById('share-data-partita').textContent = formattedDate;
+                document.getElementById('share-orario-convocazione').textContent = matchDetails.orarioConvocazione;
+                document.getElementById('share-orario-partita').textContent = matchDetails.orarioPartita;
+
+                if (selectedPlayers.length === 0) {
+                    const li = document.createElement('li');
+                    li.textContent = "Nessun giocatore convocato.";
+                    li.className = "text-gray-500 italic text-center";
+                    sharePlayersList.appendChild(li);
+                } else {
+                    selectedPlayers.forEach(player => {
+                        const li = document.createElement('li');
+                        li.textContent = player;
+                        li.className = 'font-medium';
+                        sharePlayersList.appendChild(li);
+                    });
+                }
+                shareView.style.position = 'relative';
+                shareView.style.top = '0';
+                shareView.style.left = '0';
+                html2canvas(shareView, {
+                    scale: 2,
+                    backgroundColor: '#ffffff'
+                }).then(canvas => {
+                    const image = canvas.toDataURL("image/png");
+                    const link = document.createElement('a');
+                    link.href = image;
+                    link.download = `convocazioni-${matchDetails.avversario}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    shareView.style.position = 'absolute';
+                    shareView.style.top = '-9999px';
+                    shareView.style.left = '-9999px';
+                    showMessage("Immagine generata e scaricata!", "text-green-600");
+                });
+            }
+
+            function updateUIForRole() {
+                if (userRole === 'mister') {
+                    selectedPlayersTitle.textContent = "Giocatori Convocati";
+                    playersListMessage.textContent = "Clicca sui nomi per selezionare i convocati.";
+                    roleMessage.textContent = "Sei entrato come Mister. Puoi creare e salvare le convocazioni.";
+                    roleMessage.classList.remove('hidden');
+                    saveButton.textContent = "Salva Convocazione";
+                    shareButton.disabled = false;
+                    historyButton.disabled = false;
+                    attendanceButton.disabled = false;
+                    shareButton.classList.replace('bg-gray-400', 'bg-blue-600');
+                    historyButton.classList.replace('bg-gray-400', 'bg-gray-600');
+                    attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
+                    unavailablePlayersView.classList.remove('hidden');
+
+                } else if (userRole === 'marco') {
+                    selectedPlayersTitle.textContent = "Giocatori Non Disponibili";
+                    playersListMessage.textContent = "Clicca sui nomi per segnalare la tua indisponibilità o quella degli altri.";
+                    roleMessage.textContent = "Sei entrato come Marco. Puoi salvare i giocatori non disponibili.";
+                    roleMessage.classList.remove('hidden');
+                    saveButton.textContent = "Salva Indisponibilità";
+                    shareButton.disabled = true;
+                    historyButton.disabled = false;
+                    attendanceButton.disabled = false;
+                    shareButton.classList.replace('bg-blue-600', 'bg-gray-400');
+                    historyButton.classList.replace('bg-gray-400', 'bg-gray-600');
+                    attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
+                    unavailablePlayersView.classList.add('hidden');
+                }
+            }
+
+            function updateUnavailablePlayersView() {
+                unavailablePlayersList.innerHTML = '';
+                if (unavailablePlayers.size === 0) {
+                    unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessun giocatore segnalato.</li>';
+                    return;
+                }
+                unavailablePlayers.forEach((status, player) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${player}: ${status}`;
+                    li.className = 'font-medium';
+                    unavailablePlayersList.appendChild(li);
+                });
+            }
+
+            function showMessage(msg, colorClass) {
+                messageArea.textContent = msg;
+                messageArea.className = `mt-4 text-center text-sm font-medium ${colorClass}`;
+                messageArea.style.display = 'block';
+                setTimeout(() => {
+                    messageArea.style.display = 'none';
+                }, 5000);
+            }
+
+            function startApp(appId) {
+                currentAppId = appId;
+                
+                appIdDisplay.textContent = currentAppId;
+                currentAppIdDisplay.textContent = currentAppId;
+
+                startScreen.classList.add('hidden');
+                mainView.classList.remove('hidden');
+
+                setupFirestoreListeners(currentAppId);
+                renderPlayers();
+                updateUIForRole();
+            }
+
+            function forgetDataAndReset() {
+                localStorage.removeItem('convocazioniAppId');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('joinAppId');
+                window.location.reload(); 
+            }
+
+            // --- Modal Functions ---
+            function showModal() {
+                statusModal.classList.remove('hidden', 'opacity-0');
+                statusModal.classList.add('flex', 'opacity-100');
+            }
+
+            function hideModal() {
+                statusModal.classList.remove('flex', 'opacity-100');
+                statusModal.classList.add('hidden', 'opacity-0');
+            }
+
+            // Event listeners for view switching
+            enterButton.addEventListener('click', () => {
+                const name = nameInput.value.trim().toLowerCase();
+                if (name === 'mister' || name === 'marco') {
+                    userRole = name;
+                    
+                    if (rememberMeCheckbox.checked) {
+                        localStorage.setItem('userRole', userRole);
+                    } else {
+                        localStorage.removeItem('userRole');
+                    }
+                    
+                    nameEntryScreen.classList.add('hidden');
+                    const savedAppId = localStorage.getItem('convocazioniAppId');
+                    if (savedAppId) {
+                         startApp(savedAppId);
+                    } else {
+                         startScreen.classList.remove('hidden');
+                    }
+                } else {
+                    nameEntryMessageArea.textContent = "Nome non valido. Inserisci 'Mister' o 'Marco'.";
+                    nameEntryMessageArea.classList.remove('hidden');
+                    nameEntryMessageArea.classList.add('text-red-600');
+                    setTimeout(() => {
+                        nameEntryMessageArea.classList.add('hidden');
+                    }, 5000);
+                }
+            });
+            
+            const savedJoinAppId = localStorage.getItem('joinAppId');
+            if (savedJoinAppId) {
+                joinAppIdInput.value = savedJoinAppId;
+                rememberTeamIdCheckbox.checked = true;
+            }
+
+            createTeamButton.addEventListener('click', () => {
+                if (rememberMeCheckbox.checked) {
+                    localStorage.setItem('convocazioniAppId', window.appId);
+                } else {
+                    localStorage.removeItem('convocazioniAppId');
+                }
+                startApp(window.appId);
+            });
+
+            joinTeamButton.addEventListener('click', () => {
+                const joinedId = joinAppIdInput.value.trim();
+                if (joinedId.length > 0) {
+                     if (rememberTeamIdCheckbox.checked) {
+                        localStorage.setItem('joinAppId', joinedId);
+                    } else {
+                        localStorage.removeItem('joinAppId');
+                    }
+                     if (rememberMeCheckbox.checked) {
+                        localStorage.setItem('convocazioniAppId', joinedId);
+                    } else {
+                        localStorage.removeItem('convocazioniAppId');
+                    }
+                    startApp(joinedId);
+                } else {
+                    startMessageArea.textContent = "Per favore, inserisci un ID app valido.";
+                    startMessageArea.classList.remove('hidden');
+                    startMessageArea.classList.add('text-red-600');
+                    setTimeout(() => {
+                        startMessageArea.classList.add('hidden');
+                    }, 5000);
+                }
+            });
+
+            forgetDataButton.addEventListener('click', forgetDataAndReset);
+            changeTeamButton.addEventListener('click', forgetDataAndReset);
+            
+            saveButton.addEventListener('click', saveData);
+            shareButton.addEventListener('click', generateShareImage);
+            historyButton.addEventListener('click', () => {
+                mainView.classList.add('hidden');
+                historyView.classList.remove('hidden');
+                attendanceView.classList.add('hidden');
+            });
+            attendanceButton.addEventListener('click', () => {
+                mainView.classList.add('hidden');
+                historyView.classList.add('hidden');
+                attendanceView.classList.remove('hidden');
+            });
+            backFromHistoryButton.addEventListener('click', () => {
+                historyView.classList.add('hidden');
+                mainView.classList.remove('hidden');
+            });
+            backFromAttendanceButton.addEventListener('click', () => {
+                attendanceView.classList.add('hidden');
+                mainView.classList.remove('hidden');
+            });
+
+            closeModalButton.addEventListener('click', hideModal);
+
+            statusButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const status = event.target.dataset.status;
+                    const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
+                    
+                    if (status === 'Non disponibile') {
+                         unavailablePlayers.set(tempPlayerName, status);
+                    } else if (status === 'Solo 2 allenamenti') {
+                         unavailablePlayers.set(tempPlayerName, status);
+                    } else if (status === 'Solo 1 allenamento') {
+                         unavailablePlayers.set(tempPlayerName, status);
+                    } else {
+                        unavailablePlayers.delete(tempPlayerName);
+                    }
+                    
+                    if (unavailablePlayers.has(tempPlayerName)) {
+                        currentPlayerItem.classList.add('selected-marco');
+                    } else {
+                        currentPlayerItem.classList.remove('selected-marco');
+                    }
+                    
+                    updateUnavailablePlayersView();
+                    hideModal();
+                    tempPlayerName = null;
+                });
+            });
+
+            function copyAppId() {
+                const tempInput = document.createElement('textarea');
+                tempInput.value = appIdDisplay.textContent;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                try {
+                    const success = document.execCommand('copy');
+                    if (success) {
+                        const originalText = appIdDisplay.textContent;
+                        appIdDisplay.textContent = 'Copiato!';
+                        setTimeout(() => {
+                            appIdDisplay.textContent = originalText;
+                        }, 1000);
+                    } else {
+                        console.error('Errore nella copia: document.execCommand("copy") failed.');
+                        showMessage("Impossibile copiare. Il browser non lo supporta.", "text-red-600");
+                    }
+                } catch (err) {
+                    console.error('Errore nella copia: ', err);
+                    showMessage("Errore durante la copia. Controlla la console.", "text-red-600");
+                } finally {
+                    document.body.removeChild(tempInput);
+                }
+            }
+            window.copyAppId = copyAppId;
+        });
+    </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
