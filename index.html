@@ -24,15 +24,13 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        window.signInAnonymously = signInAnonymously; // <-- QUI
         // Firebase configuration and initialization
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        
-        // Only initialize Firebase if the config is available
+
         let app, db, auth;
         if (Object.keys(firebaseConfig).length > 0) {
             app = initializeApp(firebaseConfig);
@@ -50,6 +48,7 @@
             window.getDoc = getDoc;
             window.setDoc = setDoc;
             window.increment = increment;
+            window.deleteDoc = deleteDoc;
         } else {
             console.error("Firebase configuration not available. Some features will not work.");
         }
@@ -97,7 +96,7 @@
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci il tuo nome</h2>
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4">
-                    <input type="text" id="name-input" placeholder="inserisci nome.." class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <input type="text" id="name-input" placeholder="" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <div class="flex items-center gap-2">
                         <input type="checkbox" id="remember-me" class="rounded text-blue-500 focus:ring-blue-500">
                         <label for="remember-me" class="text-gray-700">Ricordami nome</label>
@@ -490,7 +489,7 @@
                 }
             }
 
-            // Function to load and display history from Firestore
+            // Function to load and display history from Firestore (MODIFICATA!)
             function loadHistory(querySnapshot) {
                 historyList.innerHTML = '';
                 if (querySnapshot.empty) {
@@ -500,7 +499,7 @@
                 const history = [];
                 querySnapshot.forEach(doc => {
                     const data = doc.data();
-                    history.push(data);
+                    history.push({ ...data, id: doc.id });
                 });
                 // Sort by createdAt descending
                 history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -508,7 +507,6 @@
                 history.forEach(data => {
                     const item = document.createElement('div');
                     item.className = 'bg-white p-4 rounded-lg shadow-md border border-gray-200';
-                    
                     const createdAt = new Date(data.createdAt);
                     const formattedDate = createdAt.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
                     const formattedTime = createdAt.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
@@ -528,9 +526,30 @@
                                 ${data.players.map(p => `<li>${p}</li>`).join('')}
                             </ul>
                         </div>
+                        ${userRole === 'marco' ? `<button class="delete-history-btn bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 mt-3 rounded" data-docid="${data.id}">Elimina</button>` : ''}
                     `;
                     historyList.appendChild(item);
                 });
+
+                // Listener sui pulsanti "Elimina"
+                if (userRole === 'marco') {
+                    const deleteButtons = historyList.querySelectorAll('.delete-history-btn');
+                    deleteButtons.forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            const docId = btn.getAttribute('data-docid');
+                            if (confirm('Vuoi davvero eliminare questa partita dallo storico?')) {
+                                try {
+                                    await window.deleteDoc(
+                                        window.doc(window.db, `artifacts/${currentAppId}/public/data/convocations_history`, docId)
+                                    );
+                                    showMessage('Partita eliminata!', 'text-green-600');
+                                } catch (err) {
+                                    showMessage('Errore eliminazione: ' + err, 'text-red-600');
+                                }
+                            }
+                        });
+                    });
+                }
             }
 
             // Function to load and display attendance summary from Firestore
@@ -912,5 +931,6 @@
 });
 </script>
 </body>
+
 
 
