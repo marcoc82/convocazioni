@@ -677,8 +677,237 @@
             }
 
             function updateUIForRole() {
-                if (userRole === 'mister') {
-                    selectedPlayersTitle.textContent = "Giocatori Convocati";
-                    playersListMessage.textContent = "Clicca sui nomi per selezionare i convocati.";
-                    roleMessage.textContent = "Sei entrato come Mister. Puoi creare e salvare le convocazioni.";
-                    roleMessage.classList.remove('hidden
+        if (userRole === 'mister') {
+            selectedPlayersTitle.textContent = "Giocatori Convocati";
+            playersListMessage.textContent = "Clicca sui nomi per selezionare i convocati.";
+            roleMessage.textContent = "Sei entrato come Mister. Puoi creare e salvare le convocazioni.";
+            roleMessage.classList.remove('hidden');
+            saveButton.textContent = "Salva Convocazione";
+            shareButton.disabled = false;
+            historyButton.disabled = false;
+            attendanceButton.disabled = false;
+            shareButton.classList.replace('bg-gray-400', 'bg-blue-600');
+            historyButton.classList.replace('bg-gray-400', 'bg-gray-600');
+            attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
+            unavailablePlayersView.classList.remove('hidden');
+
+        } else if (userRole === 'marco') {
+            selectedPlayersTitle.textContent = "Giocatori Non Disponibili";
+            playersListMessage.textContent = "Clicca sui nomi per segnalare la tua indisponibilità o quella degli altri.";
+            roleMessage.textContent = "Sei entrato come Marco. Puoi salvare i giocatori non disponibili.";
+            roleMessage.classList.remove('hidden');
+            saveButton.textContent = "Salva Indisponibilità";
+            shareButton.disabled = true;
+            historyButton.disabled = false;
+            attendanceButton.disabled = false;
+            shareButton.classList.replace('bg-blue-600', 'bg-gray-400');
+            historyButton.classList.replace('bg-gray-400', 'bg-gray-600');
+            attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
+            unavailablePlayersView.classList.add('hidden');
+        }
+    }
+
+    function updateUnavailablePlayersView() {
+        unavailablePlayersList.innerHTML = '';
+        if (unavailablePlayers.size === 0) {
+            unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessun giocatore segnalato.</li>';
+            return;
+        }
+        unavailablePlayers.forEach((status, player) => {
+            const li = document.createElement('li');
+            li.textContent = `${player}: ${status}`;
+            li.className = 'font-medium';
+            unavailablePlayersList.appendChild(li);
+        });
+    }
+
+    function showMessage(msg, colorClass) {
+        messageArea.textContent = msg;
+        messageArea.className = `mt-4 text-center text-sm font-medium ${colorClass}`;
+        messageArea.style.display = 'block';
+        setTimeout(() => {
+            messageArea.style.display = 'none';
+        }, 5000);
+    }
+
+    function startApp(appId) {
+        currentAppId = appId;
+        
+        appIdDisplay.textContent = currentAppId;
+        currentAppIdDisplay.textContent = currentAppId;
+
+        startScreen.classList.add('hidden');
+        mainView.classList.remove('hidden');
+
+        setupFirestoreListeners(currentAppId);
+        renderPlayers();
+        updateUIForRole();
+    }
+
+    function forgetDataAndReset() {
+        localStorage.removeItem('convocazioniAppId');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('joinAppId');
+        window.location.reload(); 
+    }
+
+    // --- Modal Functions ---
+    function showModal() {
+        statusModal.classList.remove('hidden', 'opacity-0');
+        statusModal.classList.add('flex', 'opacity-100');
+    }
+
+    function hideModal() {
+        statusModal.classList.remove('flex', 'opacity-100');
+        statusModal.classList.add('hidden', 'opacity-0');
+    }
+
+    // Event listeners for view switching
+    enterButton.addEventListener('click', () => {
+        const name = nameInput.value.trim().toLowerCase();
+        if (name === 'mister' || name === 'marco') {
+            userRole = name;
+            
+            if (rememberMeCheckbox.checked) {
+                localStorage.setItem('userRole', userRole);
+            } else {
+                localStorage.removeItem('userRole');
+            }
+            
+            nameEntryScreen.classList.add('hidden');
+            const savedAppId = localStorage.getItem('convocazioniAppId');
+            if (savedAppId) {
+                 startApp(savedAppId);
+            } else {
+                 startScreen.classList.remove('hidden');
+            }
+        } else {
+            nameEntryMessageArea.textContent = "Nome non valido. Inserisci 'Mister' o 'Marco'.";
+            nameEntryMessageArea.classList.remove('hidden');
+            nameEntryMessageArea.classList.add('text-red-600');
+            setTimeout(() => {
+                nameEntryMessageArea.classList.add('hidden');
+            }, 5000);
+        }
+    });
+    
+    const savedJoinAppId = localStorage.getItem('joinAppId');
+    if (savedJoinAppId) {
+        joinAppIdInput.value = savedJoinAppId;
+        rememberTeamIdCheckbox.checked = true;
+    }
+
+    createTeamButton.addEventListener('click', () => {
+        if (rememberMeCheckbox.checked) {
+            localStorage.setItem('convocazioniAppId', window.appId);
+        } else {
+            localStorage.removeItem('convocazioniAppId');
+        }
+        startApp(window.appId);
+    });
+
+    joinTeamButton.addEventListener('click', () => {
+        const joinedId = joinAppIdInput.value.trim();
+        if (joinedId.length > 0) {
+             if (rememberTeamIdCheckbox.checked) {
+                localStorage.setItem('joinAppId', joinedId);
+            } else {
+                localStorage.removeItem('joinAppId');
+            }
+             if (rememberMeCheckbox.checked) {
+                localStorage.setItem('convocazioniAppId', joinedId);
+            } else {
+                localStorage.removeItem('convocazioniAppId');
+            }
+            startApp(joinedId);
+        } else {
+            startMessageArea.textContent = "Per favore, inserisci un ID app valido.";
+            startMessageArea.classList.remove('hidden');
+            startMessageArea.classList.add('text-red-600');
+            setTimeout(() => {
+                startMessageArea.classList.add('hidden');
+            }, 5000);
+        }
+    });
+
+    forgetDataButton.addEventListener('click', forgetDataAndReset);
+    changeTeamButton.addEventListener('click', forgetDataAndReset);
+    
+    saveButton.addEventListener('click', saveData);
+    shareButton.addEventListener('click', generateShareImage);
+    historyButton.addEventListener('click', () => {
+        mainView.classList.add('hidden');
+        historyView.classList.remove('hidden');
+        attendanceView.classList.add('hidden');
+    });
+    attendanceButton.addEventListener('click', () => {
+        mainView.classList.add('hidden');
+        historyView.classList.add('hidden');
+        attendanceView.classList.remove('hidden');
+    });
+    backFromHistoryButton.addEventListener('click', () => {
+        historyView.classList.add('hidden');
+        mainView.classList.remove('hidden');
+    });
+    backFromAttendanceButton.addEventListener('click', () => {
+        attendanceView.classList.add('hidden');
+        mainView.classList.remove('hidden');
+    });
+
+    closeModalButton.addEventListener('click', hideModal);
+
+    statusButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            const status = event.target.dataset.status;
+            const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
+            
+            if (status === 'Non disponibile') {
+                 unavailablePlayers.set(tempPlayerName, status);
+            } else if (status === 'Solo 2 allenamenti') {
+                 unavailablePlayers.set(tempPlayerName, status);
+            } else if (status === 'Solo 1 allenamento') {
+                 unavailablePlayers.set(tempPlayerName, status);
+            } else {
+                unavailablePlayers.delete(tempPlayerName);
+            }
+            
+            if (unavailablePlayers.has(tempPlayerName)) {
+                currentPlayerItem.classList.add('selected-marco');
+            } else {
+                currentPlayerItem.classList.remove('selected-marco');
+            }
+            
+            updateUnavailablePlayersView();
+            hideModal();
+            tempPlayerName = null;
+        });
+    });
+
+    function copyAppId() {
+        const tempInput = document.createElement('textarea');
+        tempInput.value = appIdDisplay.textContent;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        try {
+            const success = document.execCommand('copy');
+            if (success) {
+                const originalText = appIdDisplay.textContent;
+                appIdDisplay.textContent = 'Copiato!';
+                setTimeout(() => {
+                    appIdDisplay.textContent = originalText;
+                }, 1000);
+            } else {
+                console.error('Errore nella copia: document.execCommand("copy") failed.');
+                showMessage("Impossibile copiare. Il browser non lo supporta.", "text-red-600");
+            }
+        } catch (err) {
+            console.error('Errore nella copia: ', err);
+            showMessage("Errore durante la copia. Controlla la console.", "text-red-600");
+        } finally {
+            document.body.removeChild(tempInput);
+        }
+    }
+    window.copyAppId = copyAppId;
+});
+</script>
+</body>
