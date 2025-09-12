@@ -8,45 +8,41 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs (modular) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, runTransaction, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Global variables for Firebase access, provided by the environment
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            // Configurazione Firebase
+            const firebaseConfig = {
                 apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
                 authDomain: "polis-2013.firebaseapp.com",
                 projectId: "polis-2013",
-                storageBucket: "polis-2013.firebasestorage.app",
+                storageBucket: "polis-2013.appspot.com",
                 messagingSenderId: "607738543737",
                 appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
                 measurementId: "G-94FT2YQNBM"
             };
-            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-            
-            // Firebase service instances
-            let app = null;
-            let auth = null;
-            let db = null;
-            let currentUserId = null;
-            let currentAppId = null;
-            let userRole = ''; // 'Mister' or 'Marco'
-            let unsubscribeMatchData = null; // Listener for real-time match data
-            let unsubscribePlayers = null; // Listener for real-time player status
 
-            const messageArea = document.getElementById('message-area');
-            const nameEntryScreen = document.getElementById('name-entry-screen');
-            const startScreen = document.getElementById('start-screen');
-            const mainView = document.getElementById('main-view');
-            const historyView = document.getElementById('history-view');
-            const attendanceView = document.getElementById('attendance-view');
+            // Inizializza Firebase
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
 
-            // Unica definizione dell'array players
+            // Visualizza la main view solo se autenticato
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    document.getElementById('main-view').classList.remove('hidden');
+                    document.getElementById('start-screen').classList.add('hidden');
+                    renderPlayers();
+                } else {
+                    signInAnonymously(auth);
+                }
+            });
+
+            // Lista giocatori globale
             window.players = [
                 "99-ALPA FEDERICO", "78-BECCARIS SEBASTIANO", "32-BEN MABROUK KEVIN", "23-BERLUSCONI NOAH",
                 "1-BERNUCCI ROMEO", "18-BOERO GUGLIELMO", "22-BRIANO COSTANTINO", "28-CABASSI ROBERTO",
@@ -58,73 +54,23 @@
                 "45-PINASCO ALESSANDRO", "10-POLLIO CESARE", "9-SCALA FEDERICO", "16-STANCHI FEDERICO",
                 "21-TONINI LORENZO"
             ];
-            
-            // Initialize Firebase
-            function initFirebase() {
-                if (!firebaseConfig.apiKey) {
-                    showMessage("La configurazione di Firebase non è disponibile. Alcune funzionalità non funzioneranno.", 'error');
-                    return;
-                }
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-                setLogLevel('debug');
-                
-                // Handle authentication state changes
-                auth.onAuthStateChanged(async (user) => {
-                    if (user) {
-                        currentUserId = user.uid;
-                        const savedRole = localStorage.getItem('userRole');
-                        const savedAppId = localStorage.getItem('currentAppId');
-                        
-                        if (savedRole && savedAppId) {
-                            userRole = savedRole;
-                            currentAppId = savedAppId;
-                            showView('main');
-                            // Now that the user is authenticated, set up the listeners
-                            setupRealtimeListeners();
-                            updateAppInfoDisplay(currentAppId);
-                            renderPlayersList();
-                        } else {
-                            showView('name-entry');
-                        }
-                    } else {
-                        console.log("User is not signed in, attempting anonymous sign-in.");
-                        await signInAnonymously(auth);
-                    }
+
+            // Funzione per renderizzare la lista giocatori
+            function renderPlayers() {
+                const playersList = document.getElementById('players-list');
+                playersList.innerHTML = '';
+                window.players.forEach(playerName => {
+                    const li = document.createElement('li');
+                    li.textContent = playerName;
+                    li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200 my-1';
+                    playersList.appendChild(li);
                 });
             }
-            
-            // Function to handle authentication
-            async function handleAuth() {
-                try {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                } catch (error) {
-                    console.error("Authentication error:", error);
-                    showMessage("Errore di connessione. Riprova più tardi.", 'error');
-                }
-            }
-        }
 
-        // Funzione per generare un ID app univoco
-        window.generateAppId = () => {
-            return Math.random().toString(36).substring(2, 8).toUpperCase();
-        };
-
-        // Funzione per copiare l'ID dell'app
-        window.copyAppId = () => {
-            const appId = document.getElementById('app-id-display').textContent;
-            navigator.clipboard.writeText(appId).then(() => {
-                alert("ID app copiato negli appunti!");
-            }).catch(err => {
-                console.error('Errore nella copia:', err);
-                alert("Impossibile copiare l'ID app.");
-            });
-        };
+            // Mostra start screen all'avvio (se main-view è nascosta)
+            document.getElementById('main-view').classList.add('hidden');
+            document.getElementById('start-screen').classList.remove('hidden');
+        });
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
@@ -137,195 +83,32 @@
             user-select: none;
             transition: transform 0.1s ease-in-out, background-color 0.2s;
         }
-        .player-item.selected-mister {
-            background-color: #d1e5f4;
-            color: #1e40af;
-            font-weight: bold;
-            border-color: #3b82f6;
-        }
-        .player-item.selected-marco {
-            background-color: #fecaca;
-            color: #b91c1c;
-            font-weight: bold;
-            border-color: #ef4444;
-        }
-        .player-item:hover:not(.selected-mister):not(.selected-marco) {
+        .player-item:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .modal {
-            background-color: rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
-
-    <!-- ... tutto il markup HTML rimane invariato ... -->
-
-    <!-- JavaScript for app logic -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Usa la variabile globale players
-            const players = window.players;
-
-            // ... tutto il resto del tuo script esistente qui ...
-
-            // Funzione renderPlayers
-            function renderPlayers() {
-                const playersList = document.getElementById('players-list');
-                playersList.innerHTML = '';
-                players.forEach(playerName => {
-                    const li = document.createElement('li');
-                    li.textContent = playerName;
-                    li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
-                    li.dataset.player = playerName;
-                    
-                    if (typeof unavailablePlayers !== 'undefined' && unavailablePlayers.has(playerName)) {
-                        li.classList.add('selected-marco');
-                    }
-
-                    li.addEventListener('click', () => {
-                        if (userRole === 'mister') {
-                            if (typeof unavailablePlayers !== 'undefined' && unavailablePlayers.has(playerName)) {
-                                const status = unavailablePlayers.get(playerName);
-                                showMessage(`Attenzione: questo giocatore è stato segnalato come '${status}' da Marco.`, "text-red-600");
-                            }
-                            li.classList.toggle('selected-mister');
-                            updateSelectedPlayersLiveList(playerName, li.classList.contains('selected-mister'));
-                        } else if (userRole === 'marco') {
-                            tempPlayerName = playerName;
-                            showModal();
-                        }
-                    });
-                    playersList.appendChild(li);
-                });
-            }
-
-            // Correzione: chiama renderPlayers() se la mainView è visibile dopo DOMContentLoaded
-            if (document.getElementById('main-view') && !document.getElementById('main-view').classList.contains('hidden')) {
-                renderPlayers();
-            }
-
-            // E assicurati che venga chiamata anche in startApp(appId) dopo mainView.classList.remove('hidden');
-            function startApp(appId) {
-                currentAppId = appId;
-                
-                appIdDisplay.textContent = currentAppId;
-                currentAppIdDisplay.textContent = currentAppId;
-
-                startScreen.classList.add('hidden');
-                mainView.classList.remove('hidden');
-
-                setupFirestoreListeners(currentAppId);
-                renderPlayers(); // <-- qui viene sempre chiamata!
-                updateUIForRole();
-            }
-
-             <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-2xl">
-        <!-- Application Title -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-2xl">
         <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">Convocazioni Polis 2013!</h1>
         
-        <!-- Name Entry Screen -->
-        <div id="name-entry-screen" class="hidden">
-            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci il tuo nome</h2>
-            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <div class="flex flex-col gap-4">
-                    <input type="text" id="name-input" placeholder="Esempio: Mister o Marco" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="remember-me" class="rounded text-blue-500 focus:ring-blue-500">
-                        <label for="remember-me" class="text-gray-700">Ricordami nome</label>
-                    </div>
-                    <button id="enter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">
-                        Entra
-                    </button>
-                </div>
-            </div>
-            <div id="name-entry-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
-        </div>
-
         <!-- Start Screen View -->
-        <div id="start-screen" class="hidden">
-            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Seleziona una squadra</h2>
-            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200 text-center">
-                <p class="text-gray-600 mb-2">ID App attuale (il tuo ID):</p>
-                <div class="flex flex-col items-center">
-                    <span id="app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
-                    <button id="create-team-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 shadow-md">
-                        Crea nuova squadra
-                    </button>
-                </div>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Partecipa a una squadra esistente</h3>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <input type="text" id="join-app-id-input" placeholder="Incolla l'ID app qui" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-                    <button id="join-team-button" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 shadow-md">
-                        Partecipa
-                    </button>
-                </div>
-                <div class="flex items-center gap-2 mt-2">
-                        <input type="checkbox" id="remember-team-id" class="rounded text-blue-500 focus:ring-blue-500">
-                        <label for="remember-team-id" class="text-gray-700">Ricorda ID squadra</label>
-                </div>
-            </div>
-            <button id="forget-data-button" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 shadow-md">
-                Dimentica i dati salvati
-            </button>
-            <div id="start-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
+        <div id="start-screen">
+            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Benvenuto! Attendi autenticazione...</h2>
         </div>
 
         <!-- Main Form View -->
         <div id="main-view" class="hidden">
-            <!-- App Info Section -->
             <div class="bg-gray-50 p-4 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <p class="text-gray-600 mb-2">ID Squadra attuale:</p>
-                <div class="flex flex-col items-center">
-                    <span id="current-app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
-                    <button id="change-team-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 shadow-md">
-                        Cambia Squadra
-                    </button>
-                </div>
+                <p class="text-gray-600 mb-2">Lista Giocatori:</p>
             </div>
-
-            <div id="role-message" class="mt-4 p-3 bg-blue-100 border border-blue-200 rounded-lg text-blue-800 text-sm font-medium hidden"></div>
-
-            <!-- Mister's view of Marco's unavailable players -->
-            <div id="unavailable-players-view" class="bg-red-100 p-4 rounded-xl mb-6 shadow-sm border border-red-200 hidden">
-                <h2 class="text-lg font-semibold text-red-700 mb-2">Giocatori Non Disponibili (Segnalati da Marco)</h2>
-                <ul id="unavailable-players-list" class="space-y-1 text-red-600">
-                    <!-- Non-available players will be listed here -->
-                </ul>
-            </div>
-            
-            <!-- Match Details Section -->
-            <div class="bg-gray-50 p-4 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-700 mb-4">Dettagli Partita</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="campo" class="block text-sm font-medium text-gray-700">Campo</label>
-                        <input type="text" id="campo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-                    </div>
-                    <div>
-                        <label for="avversario" class="block text-sm font-medium text-gray-700">Avversario</label>
-                        <input type="text" id="avversario" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-                    </div>
-                    <div>
-                        <label for="data-partita" class="block text-sm font-medium text-gray-700">Data Partita</label>
-                        <input type="date" id="data-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-                    </div>
-                    <div>
-                        <label for="orario-convocazione" class="block text-sm font-medium text-gray-700">Orario Convocazione</label>
-                        <input type="time" id="orario-convocazione" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-                    </div>
-                    <div class="col-span-1">
-                        <label for="orario-partita" class="block text-sm font-medium text-gray-700">Orario Partita</label>
-                        <input type="time" id="orario-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200">
-                    </div>
-                </div>
-        });
-    </script>
+            <ul id="players-list"></ul>
+        </div>
+    </div>
 </body>
 </html>
+
 
 
 
