@@ -101,7 +101,7 @@
                         <input type="checkbox" id="remember-me" class="rounded text-blue-500 focus:ring-blue-500">
                         <label for="remember-me" class="text-gray-700">Ricordami nome</label>
                     </div>
-                    <button id="enter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 f[...]
+                    <button id="enter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Entra
                     </button>
                 </div>
@@ -116,7 +116,7 @@
                 <p class="text-gray-600 mb-2">ID App attuale (il tuo ID):</p>
                 <div class="flex flex-col items-center">
                     <span id="app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
-                    <button id="create-team-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:[...]
+                    <button id="create-team-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Crea nuova squadra
                     </button>
                 </div>
@@ -124,8 +124,8 @@
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">Partecipa a una squadra esistente</h3>
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <input type="text" id="join-app-id-input" placeholder="Incolla l'ID app qui" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focu[...]
-                    <button id="join-team-button" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none [...]
+                    <input type="text" id="join-app-id-input" placeholder="Incolla l'ID app qui" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <button id="join-team-button" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Partecipa
                     </button>
                 </div>
@@ -134,7 +134,7 @@
                         <label for="remember-team-id" class="text-gray-700">Ricorda ID squadra</label>
                 </div>
             </div>
-            <button id="forget-data-button" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-[...]
+            <button id="forget-data-button" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Dimentica i dati salvati
             </button>
             <div id="start-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -147,7 +147,7 @@
                 <p class="text-gray-600 mb-2">ID Squadra attuale:</p>
                 <div class="flex flex-col items-center">
                     <span id="current-app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
-                    <button id="change-team-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ri[...]
+                    <button id="change-team-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Cambia Squadra
                     </button>
                 </div>
@@ -209,17 +209,17 @@
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button id="save-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focu[...]
+                <button id="save-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                     Salva
                 </button>
-                <button id="share-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus[...]
+                <button id="share-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                     Condividi le convocazioni
                 </button>
             </div>
-            <button id="history-button" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 fo[...]
+            <button id="history-button" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Storico Convocazioni
             </button>
-            <button id="attendance-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ri[...]
+            <button id="attendance-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Riepilogo Presenze
             </button>
             <div id="message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -231,7 +231,7 @@
             <div id="history-list" class="space-y-4">
                 <!-- History items will be populated here -->
             </div>
-            <button id="back-from-history-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus[...]
+            <button id="back-from-history-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Torna Indietro
             </button>
         </div>
@@ -252,7 +252,7 @@
                     </tbody>
                 </table>
             </div>
-            <button id="back-from-attendance-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none fo[...]
+            <button id="back-from-attendance-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Torna Indietro
             </button>
         </div>
@@ -292,7 +292,6 @@
                     <button data-status="Solo 1 allenamento" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Solo 1 allenamento
                     </button>
-                    <!-- NEW BUTTON FOR MARCO TO MARK PLAYER AS AVAILABLE -->
                     <button data-status="Disponibile" class="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Disponibile
                     </button>
@@ -493,7 +492,7 @@
                 }
             }
 
-            // Function to load and display history from Firestore (MODIFICATA!)
+            // Function to load and display history from Firestore
             function loadHistory(querySnapshot) {
                 historyList.innerHTML = '';
                 if (querySnapshot.empty) {
@@ -530,7 +529,7 @@
                                 ${data.players.map(p => `<li>${p}</li>`).join('')}
                             </ul>
                         </div>
-                        ${userRole === 'marco' ? `<button class="delete-history-btn bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 mt-3 rounded" data-docid="${data.id}">Elimina</button>` : '[...]
+                        ${userRole === 'marco' ? `<button class="delete-history-btn bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 mt-3 rounded" data-docid="${data.id}">Elimina</button>` : ''}
                     `;
                     historyList.appendChild(item);
                 });
@@ -579,7 +578,6 @@
                 });
             }
 
-            // --- Existing app functions ---
             function renderPlayers() {
                 playersList.innerHTML = '';
                 players.forEach(playerName => {
@@ -806,137 +804,126 @@
                          startScreen.classList.remove('hidden');
                     }
                 } else {
-                   
-            nameEntryMessageArea.textContent = "Nome non valido. Inserisci 'Mister' o 'Marco'.";
-            nameEntryMessageArea.classList.remove('hidden');
-            nameEntryMessageArea.classList.add('text-red-600');
-            setTimeout(() => {
-                nameEntryMessageArea.classList.add('hidden');
-            }, 5000);
-        }
-    });
-    
-    const savedJoinAppId = localStorage.getItem('joinAppId');
-    if (savedJoinAppId) {
-        joinAppIdInput.value = savedJoinAppId;
-        rememberTeamIdCheckbox.checked = true;
-    }
-
-    createTeamButton.addEventListener('click', () => {
-        if (rememberMeCheckbox.checked) {
-            localStorage.setItem('convocazioniAppId', window.appId);
-        } else {
-            localStorage.removeItem('convocazioniAppId');
-        }
-        startApp(window.appId);
-    });
-
-    joinTeamButton.addEventListener('click', () => {
-        const joinedId = joinAppIdInput.value.trim();
-        if (joinedId.length > 0) {
-             if (rememberTeamIdCheckbox.checked) {
-                localStorage.setItem('joinAppId', joinedId);
-            } else {
-                localStorage.removeItem('joinAppId');
-            }
-             if (rememberMeCheckbox.checked) {
-                localStorage.setItem('convocazioniAppId', joinedId);
-            } else {
-                localStorage.removeItem('convocazioniAppId');
-            }
-            startApp(joinedId);
-        } else {
-            startMessageArea.textContent = "Per favore, inserisci un ID app valido.";
-            startMessageArea.classList.remove('hidden');
-            startMessageArea.classList.add('text-red-600');
-            setTimeout(() => {
-                startMessageArea.classList.add('hidden');
-            }, 5000);
-        }
-    });
-
-    forgetDataButton.addEventListener('click', forgetDataAndReset);
-    changeTeamButton.addEventListener('click', forgetDataAndReset);
-    
-    saveButton.addEventListener('click', saveData);
-    shareButton.addEventListener('click', generateShareImage);
-    historyButton.addEventListener('click', () => {
-        mainView.classList.add('hidden');
-        historyView.classList.remove('hidden');
-        attendanceView.classList.add('hidden');
-    });
-    attendanceButton.addEventListener('click', () => {
-        mainView.classList.add('hidden');
-        historyView.classList.add('hidden');
-        attendanceView.classList.remove('hidden');
-    });
-    backFromHistoryButton.addEventListener('click', () => {
-        historyView.classList.add('hidden');
-        mainView.classList.remove('hidden');
-    });
-    backFromAttendanceButton.addEventListener('click', () => {
-        attendanceView.classList.add('hidden');
-        mainView.classList.remove('hidden');
-    });
-
-    closeModalButton.addEventListener('click', hideModal);
-
-    statusButtons.forEach(button => {
-        button.addEventListener('click', (event) => {
-            const status = event.target.dataset.status;
-            const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
+                    nameEntryMessageArea.textContent = "Nome non valido. Inserisci 'Mister' o 'Marco'.";
+                    nameEntryMessageArea.classList.remove('hidden');
+                    nameEntryMessageArea.classList.add('text-red-600');
+                    setTimeout(() => {
+                        nameEntryMessageArea.classList.add('hidden');
+                    }, 5000);
+                }
+            });
             
-            if (status === 'Non disponibile') {
-                 unavailablePlayers.set(tempPlayerName, status);
-            } else if (status === 'Solo 2 allenamenti') {
-                 unavailablePlayers.set(tempPlayerName, status);
-            } else if (status === 'Solo 1 allenamento') {
-                 unavailablePlayers.set(tempPlayerName, status);
-            } else {
-                unavailablePlayers.delete(tempPlayerName);
+            const savedJoinAppId = localStorage.getItem('joinAppId');
+            if (savedJoinAppId) {
+                joinAppIdInput.value = savedJoinAppId;
+                rememberTeamIdCheckbox.checked = true;
             }
+
+            createTeamButton.addEventListener('click', () => {
+                if (rememberMeCheckbox.checked) {
+                    localStorage.setItem('convocazioniAppId', window.appId);
+                } else {
+                    localStorage.removeItem('convocazioniAppId');
+                }
+                startApp(window.appId);
+            });
+
+            joinTeamButton.addEventListener('click', () => {
+                const joinedId = joinAppIdInput.value.trim();
+                if (joinedId.length > 0) {
+                     if (rememberTeamIdCheckbox.checked) {
+                        localStorage.setItem('joinAppId', joinedId);
+                    } else {
+                        localStorage.removeItem('joinAppId');
+                    }
+                     if (rememberMeCheckbox.checked) {
+                        localStorage.setItem('convocazioniAppId', joinedId);
+                    } else {
+                        localStorage.removeItem('convocazioniAppId');
+                    }
+                    startApp(joinedId);
+                } else {
+                    startMessageArea.textContent = "Per favore, inserisci un ID app valido.";
+                    startMessageArea.classList.remove('hidden');
+                    startMessageArea.classList.add('text-red-600');
+                    setTimeout(() => {
+                        startMessageArea.classList.add('hidden');
+                    }, 5000);
+                }
+            });
+
+            forgetDataButton.addEventListener('click', forgetDataAndReset);
+            changeTeamButton.addEventListener('click', forgetDataAndReset);
             
-            if (unavailablePlayers.has(tempPlayerName)) {
-                currentPlayerItem.classList.add('selected-marco');
-            } else {
-                currentPlayerItem.classList.remove('selected-marco');
+            saveButton.addEventListener('click', saveData);
+            shareButton.addEventListener('click', generateShareImage);
+            historyButton.addEventListener('click', () => {
+                mainView.classList.add('hidden');
+                historyView.classList.remove('hidden');
+                attendanceView.classList.add('hidden');
+            });
+            attendanceButton.addEventListener('click', () => {
+                mainView.classList.add('hidden');
+                historyView.classList.add('hidden');
+                attendanceView.classList.remove('hidden');
+            });
+            backFromHistoryButton.addEventListener('click', () => {
+                historyView.classList.add('hidden');
+                mainView.classList.remove('hidden');
+            });
+            backFromAttendanceButton.addEventListener('click', () => {
+                attendanceView.classList.add('hidden');
+                mainView.classList.remove('hidden');
+            });
+
+            closeModalButton.addEventListener('click', hideModal);
+
+            // PATCH: gestione status per Marco, incluso "Disponibile"
+            statusButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const status = event.target.dataset.status;
+                    const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
+                    
+                    if (status === 'Disponibile') {
+                        unavailablePlayers.delete(tempPlayerName);
+                        currentPlayerItem.classList.remove('selected-marco');
+                    } else {
+                        unavailablePlayers.set(tempPlayerName, status);
+                        currentPlayerItem.classList.add('selected-marco');
+                    }
+                    
+                    updateUnavailablePlayersView();
+                    hideModal();
+                    tempPlayerName = null;
+                });
+            });
+
+            function copyAppId() {
+                const tempInput = document.createElement('textarea');
+                tempInput.value = appIdDisplay.textContent;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                try {
+                    const success = document.execCommand('copy');
+                    if (success) {
+                        const originalText = appIdDisplay.textContent;
+                        appIdDisplay.textContent = 'Copiato!';
+                        setTimeout(() => {
+                            appIdDisplay.textContent = originalText;
+                        }, 1000);
+                    } else {
+                        console.error('Errore nella copia: document.execCommand("copy") failed.');
+                        showMessage("Impossibile copiare. Il browser non lo supporta.", "text-red-600");
+                    }
+                } catch (err) {
+                    console.error('Errore nella copia: ', err);
+                    showMessage("Errore durante la copia. Controlla la console.", "text-red-600");
+                } finally {
+                    document.body.removeChild(tempInput);
+                }
             }
-            
-            updateUnavailablePlayersView();
-            hideModal();
-            tempPlayerName = null;
+            window.copyAppId = copyAppId;
         });
-    });
-
-    function copyAppId() {
-        const tempInput = document.createElement('textarea');
-        tempInput.value = appIdDisplay.textContent;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        try {
-            const success = document.execCommand('copy');
-            if (success) {
-                const originalText = appIdDisplay.textContent;
-                appIdDisplay.textContent = 'Copiato!';
-                setTimeout(() => {
-                    appIdDisplay.textContent = originalText;
-                }, 1000);
-            } else {
-                console.error('Errore nella copia: document.execCommand("copy") failed.');
-                showMessage("Impossibile copiare. Il browser non lo supporta.", "text-red-600");
-            }
-        } catch (err) {
-            console.error('Errore nella copia: ', err);
-            showMessage("Errore durante la copia. Controlla la console.", "text-red-600");
-        } finally {
-            document.body.removeChild(tempInput);
-        }
-    }
-    window.copyAppId = copyAppId;
-});
-</script>
+    </script>
 </body>
-
-
-
-
+</html>
