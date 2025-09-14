@@ -483,7 +483,8 @@
                     const unavailableDocRef = window.doc(window.db, `artifacts/${currentAppId}/public/data/availability`, "marco_unavailable");
                     
                     try {
-                        await window.setDoc(unavailableDocRef, { players: unavailablePlayersObject }, { merge: true });
+                        // Overwrites the entire document to ensure removed players are actually deleted from Firestore
+                        await window.setDoc(unavailableDocRef, { players: unavailablePlayersObject });
                         showMessage("Lista di giocatori non disponibili salvata!", "text-green-600");
                     } catch (e) {
                         console.error("Errore salvataggio su Firestore: ", e);
