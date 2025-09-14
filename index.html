@@ -301,6 +301,21 @@
                 </button>
             </div>
         </div>
+
+        <!-- Modal for Mister's Unavailable Player Info -->
+        <div id="unavailable-player-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300">
+                <h2 class="text-xl font-bold mb-4 text-center text-red-600">Giocatore Non Disponibile</h2>
+                <div class="text-center mb-6">
+                    <p class="text-lg font-semibold text-gray-800 mb-2" id="unavailable-player-name">Nome Giocatore</p>
+                    <p class="text-gray-600">Motivo:</p>
+                    <p class="text-lg font-medium text-red-600" id="unavailable-player-reason">Motivo indisponibilità</p>
+                </div>
+                <button id="close-unavailable-modal" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                    Ok
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- JavaScript for app logic -->
@@ -361,6 +376,12 @@
             const statusModal = document.getElementById('status-modal');
             const closeModalButton = document.getElementById('close-modal');
             const statusButtons = statusModal.querySelectorAll('[data-status]');
+            
+            // Unavailable Player Modal Elements
+            const unavailablePlayerModal = document.getElementById('unavailable-player-modal');
+            const closeUnavailableModalButton = document.getElementById('close-unavailable-modal');
+            const unavailablePlayerName = document.getElementById('unavailable-player-name');
+            const unavailablePlayerReason = document.getElementById('unavailable-player-reason');
 
             // --- App State ---
             let userRole = null;
@@ -594,7 +615,8 @@
                         if (userRole === 'mister') {
                             if (unavailablePlayers.has(playerName)) {
                                 const status = unavailablePlayers.get(playerName);
-                                showMessage(`Attenzione: questo giocatore è stato segnalato come '${status}' da Marco.`, "text-red-600");
+                                showUnavailablePlayerModal(playerName, status);
+                                return; // Don't allow selection of unavailable players
                             }
                             li.classList.toggle('selected-mister');
                             updateSelectedPlayersLiveList(playerName, li.classList.contains('selected-mister'));
@@ -784,6 +806,18 @@
                 statusModal.classList.add('hidden', 'opacity-0');
             }
 
+            function showUnavailablePlayerModal(playerName, reason) {
+                unavailablePlayerName.textContent = playerName;
+                unavailablePlayerReason.textContent = reason;
+                unavailablePlayerModal.classList.remove('hidden', 'opacity-0');
+                unavailablePlayerModal.classList.add('flex', 'opacity-100');
+            }
+
+            function hideUnavailablePlayerModal() {
+                unavailablePlayerModal.classList.remove('flex', 'opacity-100');
+                unavailablePlayerModal.classList.add('hidden', 'opacity-0');
+            }
+
             // Event listeners for view switching
             enterButton.addEventListener('click', () => {
                 const name = nameInput.value.trim().toLowerCase();
@@ -877,6 +911,20 @@
             });
 
             closeModalButton.addEventListener('click', hideModal);
+            closeUnavailableModalButton.addEventListener('click', hideUnavailablePlayerModal);
+
+            // Close modals when clicking outside of them
+            statusModal.addEventListener('click', (e) => {
+                if (e.target === statusModal) {
+                    hideModal();
+                }
+            });
+
+            unavailablePlayerModal.addEventListener('click', (e) => {
+                if (e.target === unavailablePlayerModal) {
+                    hideUnavailablePlayerModal();
+                }
+            });
 
             // PATCH: gestione status per Marco, incluso "Disponibile"
             statusButtons.forEach(button => {
