@@ -574,10 +574,18 @@
                             const docId = btn.getAttribute('data-docid');
                             if (confirm('Vuoi davvero eliminare questa partita dallo storico?')) {
                                 try {
-                                    await window.deleteDoc(
-                                        window.doc(window.db, `artifacts/${currentAppId}/public/data/convocations_history`, docId)
-                                    );
-                                    showMessage('Partita eliminata!', 'text-green-600');
+                                    // Recupera i giocatori coinvolti e aggiorna le presenze
+                                    const docRef = window.doc(window.db, `artifacts/${currentAppId}/public/data/convocations_history`, docId);
+                                    const docSnap = await window.getDoc(docRef);
+                                    if (docSnap.exists()) {
+                                        const convocazione = docSnap.data();
+                                        for (const player of convocazione.players) {
+                                            const playerDocRef = window.doc(window.db, `artifacts/${currentAppId}/public/data/player_attendance`, player);
+                                            await window.setDoc(playerDocRef, { count: window.increment(-1) }, { merge: true });
+                                        }
+                                    }
+                                    await window.deleteDoc(docRef);
+                                    showMessage('Partita eliminata e presenze aggiornate!', 'text-green-600');
                                 } catch (err) {
                                     showMessage('Errore eliminazione: ' + err, 'text-red-600');
                                 }
