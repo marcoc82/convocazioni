@@ -117,7 +117,7 @@
                 <div class="flex flex-col items-center">
                     <span id="app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
                     <button id="create-team-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
-                        Crea nuova squadra
+                        Entra
                     </button>
                 </div>
             </div>
@@ -148,7 +148,7 @@
                 <div class="flex flex-col items-center">
                     <span id="current-app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
                     <button id="change-team-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
-                        Cambia Squadra
+                        Esci senza salvare
                     </button>
                 </div>
             </div>
@@ -331,15 +331,15 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const players = [
-                "99-ALPA FEDERICO", "78-BECCARIS SEBASTIANO", "32-BEN MABROUK KEVIN", "23-BERLUSCONI NOAH",
-                "1-BERNUCCI ROMEO", "18-BOERO GUGLIELMO", "22-BRIANO COSTANTINO", "28-CABASSI ROBERTO",
-                "7-CALLIKU ANDREA", "4-CAZZULO MICHELE", "46-CONGIU ALESSIO", "20-DHAOUI OMAR",
-                "5-DI DATO SIMONE", "77-DONALD BRYAN", "6-ESPOSITO EMANUELE", "25-GARDELLA ANDREA",
-                "13-GENNARO EDOARDO", "91-GIOIA LEONARDO", "17-KHAY ADAM", "2-LAMKHAYAR AMIN",
-                "29-LANNA MARK", "19-MARCHESE MATTEO", "47-MELLO CHRISTIAN", "61-MELLUSO MATTIA",
-                "14-MONTEFIORI EDOARDO", "3-ODAGLIA ANDREA", "11-PELLICCI FRANCESCO", "90-PIGA GIOVANNI",
-                "45-PINASCO ALESSANDRO", "10-POLLIO CESARE", "9-SCALA FEDERICO", "16-STANCHI FEDERICO",
-                "21-TONINI LORENZO"
+                "99 ALPA FEDERICO", "78 BECCARIS SEBASTIANO", "32 BEN MABROUK KEVIN", "23 BERLUSCONI NOAH",
+                "1 BERNUCCI ROMEO", "18 BOERO GUGLIELMO", "22 BRIANO COSTANTINO", "28 CABASSI ROBERTO",
+                "7 CALLIKU ANDREA", "4 CAZZULO MICHELE", "46 CONGIU ALESSIO", "20 DHAOUI OMAR",
+                "5 DI DATO SIMONE", "77 DONALD BRYAN", "6 ESPOSITO EMANUELE", "25 GARDELLA ANDREA",
+                "13 GENNARO EDOARDO", "91 GIOIA LEONARDO", "17 KHAY ADAM", "2 LAMKHAYAR AMIN",
+                "29 LANNA MARK", "19 MARCHESE MATTEO", "47 MELLO CHRISTIAN", "61 MELLUSO MATTIA",
+                "14 MONTEFIORI EDOARDO", "3 ODAGLIA ANDREA", "11 PELLICCI FRANCESCO", "90 PIGA GIOVANNI",
+                "45 PINASCO ALESSANDRO", "10 POLLIO CESARE", "9 SCALA FEDERICO", "16 STANCHI FEDERICO",
+                "21 TONINI LORENZO"
             ];
 
             // UI Elements
@@ -743,7 +743,7 @@
                 if (userRole === 'mister') {
                     selectedPlayersTitle.textContent = "Giocatori Convocati";
                     playersListMessage.textContent = "Clicca sui nomi per selezionare i convocati.";
-                    roleMessage.textContent = "Sei entrato come Mister. Puoi creare e salvare le convocazioni.";
+                    roleMessage.textContent = "Buongiorno Mister! Puoi creare e salvare le convocazioni.";
                     roleMessage.classList.remove('hidden');
                     saveButton.textContent = "Salva Convocazione";
                     shareButton.disabled = false;
@@ -859,7 +859,7 @@
                          startScreen.classList.remove('hidden');
                     }
                 } else {
-                    nameEntryMessageArea.textContent = "Nome non valido. Inserisci 'Mister' o 'Marco'.";
+                    nameEntryMessageArea.textContent = "Nome non valido.";
                     nameEntryMessageArea.classList.remove('hidden');
                     nameEntryMessageArea.classList.add('text-red-600');
                     setTimeout(() => {
@@ -1009,3 +1009,4 @@
     </script>
 </body>
 </html>
+
