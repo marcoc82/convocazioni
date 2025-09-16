@@ -4,6 +4,7 @@ const CACHE_NAME = 'polis-convocazioni-v1';
 const urlsToCache = [
   './index.html',
   './manifest.json',
+  './logo Rosterkick.jpg',
   'https://cdn.tailwindcss.com',
   'https://html2canvas.hertzen.com/dist/html2canvas.min.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap'
