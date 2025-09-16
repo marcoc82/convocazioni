@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convocazioni Polis 2013</title>
+    <title>Rosterkick</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for image generation -->
@@ -94,8 +94,20 @@
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
 
     <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-2xl">
+        <!-- Rosterkick Logo -->
+        <div class="text-center mb-4">
+            <svg class="mx-auto w-16 h-16 text-blue-600" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="30" fill="currentColor" opacity="0.1"/>
+                <circle cx="32" cy="32" r="20" fill="none" stroke="currentColor" stroke-width="2"/>
+                <path d="M22 32 L30 40 L42 28" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="32" cy="18" r="3" fill="currentColor"/>
+                <circle cx="18" cy="32" r="3" fill="currentColor"/>
+                <circle cx="46" cy="32" r="3" fill="currentColor"/>
+                <circle cx="32" cy="46" r="3" fill="currentColor"/>
+            </svg>
+        </div>
         <!-- Application Title -->
-        <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">Convocazioni Polis 2013</h1>
+        <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">Rosterkick</h1>
         
         <!-- Name Entry Screen -->
         <div id="name-entry-screen" class="hidden">
@@ -282,7 +294,7 @@
                     <!-- Selected players will be inserted here -->
                 </ul>
             </div>
-            <p class="text-sm text-gray-500 text-center mt-6">Convocazioni Polis 2013</p>
+            <p class="text-sm text-gray-500 text-center mt-6">Rosterkick</p>
         </div>
 
         <!-- Modal for Marco's Status -->
