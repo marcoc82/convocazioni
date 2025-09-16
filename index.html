@@ -835,7 +835,7 @@
                 if (userRole === 'mister') {
                     selectedPlayersTitle.textContent = "Giocatori Convocati";
                     playersListMessage.textContent = "Clicca sui nomi per selezionare i convocati.";
-                    roleMessage.textContent = "Buongiorno Mister! Puoi creare e salvare le convocazioni.";
+                    roleMessage.textContent = "Buongiorno Mister!! Puoi creare e salvare le convocazioni.";
                     roleMessage.classList.remove('hidden');
                     saveButton.textContent = "Salva Convocazione";
                     shareButton.disabled = false;
@@ -848,8 +848,8 @@
 
                 } else if (userRole === 'marco') {
                     selectedPlayersTitle.textContent = "Giocatori Non Disponibili";
-                    playersListMessage.textContent = "Clicca sui nomi per segnalare la tua indisponibilità o quella degli altri.";
-                    roleMessage.textContent = "Sei entrato come Marco. Puoi salvare i giocatori non disponibili.";
+                    playersListMessage.textContent = "Clicca sui nomi per segnalare l'indisponibilità.";
+                    roleMessage.textContent = "Sei entrato come Dirigente. Puoi segnare e salvare i giocatori non disponibili.";
                     roleMessage.classList.remove('hidden');
                     saveButton.textContent = "Salva Indisponibilità";
                     shareButton.disabled = true;
@@ -1106,5 +1106,6 @@
     </script>
 </body>
 </html>
+
 
 
