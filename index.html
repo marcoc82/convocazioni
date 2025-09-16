@@ -76,7 +76,13 @@
             font-weight: bold;
             border-color: #ef4444;
         }
-        .player-item:hover:not(.selected-mister):not(.selected-marco) {
+        .player-item.selected-marco-orange {
+            background-color: #fed7aa;
+            color: #ea580c;
+            font-weight: bold;
+            border-color: #f97316;
+        }
+        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange) {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
@@ -547,13 +553,23 @@
                     const formattedDate = createdAt.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
                     const formattedTime = createdAt.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
+                    // Format match date with uppercase day of week
+                    let formattedMatchDate = data.details.data;
+                    if (data.details.data !== 'N/D') {
+                        const matchDate = new Date(data.details.data + 'T00:00:00');
+                        const dayOfWeek = matchDate.toLocaleDateString('it-IT', { weekday: 'long' }).toUpperCase();
+                        const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+                        const dateString = matchDate.toLocaleDateString('it-IT', dateOptions);
+                        formattedMatchDate = `${dayOfWeek} ${dateString}`;
+                    }
+
                     item.innerHTML = `
                         <div class="font-bold text-lg mb-2 text-gray-800">${data.details.avversario}</div>
                         <div class="text-sm text-gray-600 mb-2">
                             <p>Salvataggio: ${formattedDate} alle ${formattedTime}</p>
                             <p>Campo: ${data.details.campo}</p>
-                            <p>Data Partita: ${data.details.data}</p>
-                            <p>Orario Conv.: ${data.details.orarioConvocazione}</p>
+                            <p>Data Partita: ${formattedMatchDate}</p>
+                            <p>Orario Convocazione: ${data.details.orarioConvocazione}</p>
                             <p>Orario Partita: ${data.details.orarioPartita}</p>
                         </div>
                         <div class="text-sm text-gray-700">
@@ -562,7 +578,10 @@
                                 ${data.players.map(p => `<li>${p}</li>`).join('')}
                             </ul>
                         </div>
-                        ${userRole === 'marco' ? `<button class="delete-history-btn bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 mt-3 rounded" data-docid="${data.id}">Elimina</button>` : ''}
+                        <div class="mt-3 flex gap-2">
+                            <button class="share-history-btn bg-blue-500 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded" data-convocation='${JSON.stringify(data)}'>Condividi</button>
+                            ${userRole === 'marco' ? `<button class="delete-history-btn bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 rounded" data-docid="${data.id}">Elimina</button>` : ''}
+                        </div>
                     `;
                     historyList.appendChild(item);
                 });
@@ -594,6 +613,15 @@
                         });
                     });
                 }
+
+                // Listener sui pulsanti "Condividi" per singole convocazioni
+                const shareButtons = historyList.querySelectorAll('.share-history-btn');
+                shareButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const convocationData = JSON.parse(btn.getAttribute('data-convocation'));
+                        generateHistoryShareImage(convocationData);
+                    });
+                });
             }
 
             // Function to load and display attendance summary from Firestore
@@ -628,7 +656,12 @@
                     li.dataset.player = playerName;
                     
                     if (unavailablePlayers.has(playerName)) {
-                        li.classList.add('selected-marco');
+                        const status = unavailablePlayers.get(playerName);
+                        if (status === 'Solo 2 allenamenti') {
+                            li.classList.add('selected-marco-orange');
+                        } else {
+                            li.classList.add('selected-marco');
+                        }
                     }
 
                     li.addEventListener('click', () => {
@@ -737,6 +770,60 @@
                     shareView.style.top = '-9999px';
                     shareView.style.left = '-9999px';
                     showMessage("Immagine generata e scaricata!", "text-green-600");
+                });
+            }
+
+            function generateHistoryShareImage(convocationData) {
+                const sharePlayersList = document.getElementById('share-players-list');
+                sharePlayersList.innerHTML = '';
+                document.getElementById('share-campo').textContent = convocationData.details.campo;
+                document.getElementById('share-avversario').textContent = convocationData.details.avversario;
+                
+                // Format match date with uppercase day of week for share image
+                let formattedDate = convocationData.details.data;
+                if (convocationData.details.data !== 'N/D') {
+                    const matchDate = new Date(convocationData.details.data + 'T00:00:00');
+                    const dayOfWeek = matchDate.toLocaleDateString('it-IT', { weekday: 'long' }).toUpperCase();
+                    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+                    const dateString = matchDate.toLocaleDateString('it-IT', dateOptions);
+                    formattedDate = `${dayOfWeek} ${dateString}`;
+                }
+                
+                document.getElementById('share-data-partita').textContent = formattedDate;
+                document.getElementById('share-orario-convocazione').textContent = convocationData.details.orarioConvocazione;
+                document.getElementById('share-orario-partita').textContent = convocationData.details.orarioPartita;
+
+                if (convocationData.players.length === 0) {
+                    const li = document.createElement('li');
+                    li.textContent = "Nessun giocatore convocato.";
+                    li.className = "text-gray-500 italic text-center";
+                    sharePlayersList.appendChild(li);
+                } else {
+                    convocationData.players.forEach(player => {
+                        const li = document.createElement('li');
+                        li.textContent = player;
+                        li.className = 'font-medium';
+                        sharePlayersList.appendChild(li);
+                    });
+                }
+                shareView.style.position = 'relative';
+                shareView.style.top = '0';
+                shareView.style.left = '0';
+                html2canvas(shareView, {
+                    scale: 2,
+                    backgroundColor: '#ffffff'
+                }).then(canvas => {
+                    const image = canvas.toDataURL("image/png");
+                    const link = document.createElement('a');
+                    link.href = image;
+                    link.download = `convocazioni-${convocationData.details.avversario}-${new Date(convocationData.createdAt).toLocaleDateString('it-IT')}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    shareView.style.position = 'absolute';
+                    shareView.style.top = '-9999px';
+                    shareView.style.left = '-9999px';
+                    showMessage("Immagine storico generata e scaricata!", "text-green-600");
                 });
             }
 
@@ -956,10 +1043,15 @@
                     
                     if (status === 'Disponibile') {
                         unavailablePlayers.delete(tempPlayerName);
-                        currentPlayerItem.classList.remove('selected-marco');
+                        currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange');
                     } else {
                         unavailablePlayers.set(tempPlayerName, status);
-                        currentPlayerItem.classList.add('selected-marco');
+                        currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange');
+                        if (status === 'Solo 2 allenamenti') {
+                            currentPlayerItem.classList.add('selected-marco-orange');
+                        } else {
+                            currentPlayerItem.classList.add('selected-marco');
+                        }
                     }
                     
                     updateUnavailablePlayersView();
