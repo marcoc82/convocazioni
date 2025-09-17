@@ -14,7 +14,7 @@
       apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
       authDomain: "polis-2013.firebaseapp.com",
       projectId: "polis-2013",
-      storageBucket: "polis-2013.firebasestorage.app",
+      storageBucket: "polis-2013.appspot.com",
       messagingSenderId: "607738543737",
       appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
       measurementId: "G-94FT2YQNBM"
@@ -27,10 +27,10 @@
         import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        +    // Espone le funzioni Firebase Auth globalmente per evitare ReferenceError
-    window.signInAnonymously = signInAnonymously;
-    window.signInWithCustomToken = signInWithCustomToken;
-    window.getAuth = getAuth;
+        // Espone le funzioni Firebase Auth globalmente per evitare ReferenceError
+        window.signInAnonymously = signInAnonymously;
+        window.signInWithCustomToken = signInWithCustomToken;
+        window.getAuth = getAuth;
 
         // Firebase configuration and initialization
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
