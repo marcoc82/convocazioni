@@ -172,7 +172,7 @@
 
             <!-- Notes section (editable by marco, viewable by mister) -->
             <div id="notes-section" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hidden">
-                <h3 class="text-lg font-semibold text-yellow-800 mb-2">Note</h3>
+                <h3 class="text-lg font-semibold text-yellow-800 mb-2">Note (Segnalati dal Dirigente)</h3>
                 <div id="notes-editable" class="hidden">
                     <textarea id="notes-textarea" placeholder="Inserisci le tue note qui..." class="w-full p-3 border border-yellow-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-yellow-500" rows="3"></textarea>
                     <button id="save-notes-button" class="mt-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
@@ -187,7 +187,6 @@
             <!-- View of unavailable players (visible to both Mister and Marco) -->
             <div id="unavailable-players-view" class="bg-red-100 p-4 rounded-xl mb-6 shadow-sm border border-red-200 hidden">
                 <h2 id="unavailable-players-title" class="text-lg font-semibold text-red-700 mb-2">Giocatori Non Disponibili (Segnalati dal Dirigente)</h2>
-                <u1 class="text-lg font-semibold text-red-700 mb-2">Kevin e Odaglia no doppia convocazione</u1>
                 <ul id="unavailable-players-list" class="space-y-1 text-red-600">
                     <!-- Non-available players will be listed here -->
                 </ul>
@@ -877,7 +876,7 @@
                 if (userRole === 'mister') {
                     selectedPlayersTitle.textContent = "Giocatori Convocati";
                     playersListMessage.textContent = "Clicca sui nomi per selezionare i convocati.";
-                    roleMessage.textContent = "Buongiorno Mister!! Puoi creare e salvare le convocazioni.";
+                    roleMessage.textContent = "Ciao Mister!! Qui puoi creare e salvare le convocazioni.";
                     roleMessage.classList.remove('hidden');
                     saveButton.textContent = "Salva Convocazione";
                     shareButton.disabled = false;
@@ -1204,6 +1203,7 @@
     </script>
 </body>
 </html>
+
 
 
 
