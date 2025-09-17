@@ -175,7 +175,7 @@
             </div>
             
             <!-- Match Details Section -->
-            <div class="bg-gray-50 p-4 rounded-xl mb-6 shadow-sm border border-gray-200">
+            <div id="match-details-section" class="bg-gray-50 p-4 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-700 mb-4">Dettagli Partita</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -392,6 +392,7 @@
             const unavailablePlayersView = document.getElementById('unavailable-players-view');
             const unavailablePlayersList = document.getElementById('unavailable-players-list');
             const unavailablePlayersTitle = document.getElementById('unavailable-players-title');
+            const matchDetailsSection = document.getElementById('match-details-section');
             
             // Modal Elements
             const statusModal = document.getElementById('status-modal');
@@ -846,7 +847,10 @@
                     historyButton.classList.replace('bg-gray-400', 'bg-gray-600');
                     attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
                     unavailablePlayersView.classList.remove('hidden');
+                    unavailablePlayersView.style.display = ''; // Show for Mister
                     unavailablePlayersTitle.textContent = "Giocatori Non Disponibili (Segnalati dal Dirigente)";
+                    matchDetailsSection.classList.remove('hidden');
+                    matchDetailsSection.style.display = ''; // Show match details for Mister
 
                 } else if (userRole === 'marco') {
                     selectedPlayersTitle.textContent = "Giocatori Non Disponibili";
@@ -860,8 +864,10 @@
                     shareButton.classList.replace('bg-blue-600', 'bg-gray-400');
                     historyButton.classList.replace('bg-gray-400', 'bg-gray-600');
                     attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
-                    unavailablePlayersView.classList.remove('hidden');
-                    unavailablePlayersTitle.textContent = "Giocatori che hai segnato come non disponibili";
+                    unavailablePlayersView.classList.add('hidden');
+                    unavailablePlayersView.style.display = 'none'; // Hide unavailable players view for Marco
+                    matchDetailsSection.classList.add('hidden');
+                    matchDetailsSection.style.display = 'none'; // Hide match details for Marco
                 }
             }
 
