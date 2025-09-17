@@ -27,6 +27,11 @@
         import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        +    // Espone le funzioni Firebase Auth globalmente per evitare ReferenceError
++    window.signInAnonymously = signInAnonymously;
++    window.signInWithCustomToken = signInWithCustomToken;
++    window.getAuth = getAuth;
++
         // Firebase configuration and initialization
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
@@ -1116,6 +1121,7 @@
     </script>
 </body>
 </html>
+
 
 
 
