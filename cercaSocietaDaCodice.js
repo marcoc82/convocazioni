@@ -398,11 +398,6 @@ export {
     verificaAccessoSocieta 
 };
 
-// Per utilizzo diretto in console o script
-window.cercaSocietaDaCodice = cercaSocietaDaCodice;
-window.cercaSocietaAvanzata = cercaSocietaAvanzata;
-window.esempiUtilizzo = esempiUtilizzo;
-
 // ============================
 // 6. AUTO-ESECUZIONE ESEMPI
 // ============================
@@ -410,8 +405,10 @@ window.esempiUtilizzo = esempiUtilizzo;
 // Decommentare la riga seguente per eseguire automaticamente gli esempi
 // esempiUtilizzo();
 
-console.log('✓ Snippet caricato correttamente. Funzioni disponibili:');
+console.log('✓ Modulo caricato correttamente. Funzioni disponibili:');
 console.log('  - cercaSocietaDaCodice(codice)');
 console.log('  - cercaSocietaAvanzata(codice, opzioni)');
 console.log('  - esempiUtilizzo()');
-console.log('\nPer testare, esegui: esempiUtilizzo()');
+console.log('  - verificaAccessoSocieta(codice)');
+console.log('\nQuando importato in demo-cercaSocietaDaCodice.html,');
+console.log('le funzioni sono esposte globalmente per debugging da console F12.');

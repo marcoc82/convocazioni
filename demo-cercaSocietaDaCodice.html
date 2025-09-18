@@ -165,6 +165,18 @@
             window.esempiUtilizzoFn = esempiUtilizzo;
             window.verificaAccessoSocietaFn = verificaAccessoSocieta;
             
+            // Esporre le funzioni direttamente per debugging da console F12
+            window.cercaSocietaDaCodice = cercaSocietaDaCodice;
+            window.cercaSocietaAvanzata = cercaSocietaAvanzata;
+            window.esempiUtilizzo = esempiUtilizzo;
+            window.verificaAccessoSocieta = verificaAccessoSocieta;
+            
+            console.log('🛠️ Funzioni esposte globalmente per debugging:');
+            console.log('  - window.cercaSocietaDaCodice(codice)');
+            console.log('  - window.cercaSocietaAvanzata(codice, opzioni)');
+            console.log('  - window.esempiUtilizzo()');
+            console.log('  - window.verificaAccessoSocieta(codice)');
+            
         } catch (error) {
             console.error('❌ Errore nel caricamento del modulo:', error);
             mostraRisultato(`Errore nel caricamento del modulo: ${error.message}`, 'error');
