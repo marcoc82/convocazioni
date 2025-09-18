@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esempio Uso cercaSocietaDaCodice.js</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            min-height: 50px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .code {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+        .society-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .society-info h4 {
+            margin: 0 0 10px 0;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 Demo: Ricerca Società in Firestore</h1>
+        <p>Questo esempio dimostra come utilizzare <code>cercaSocietaDaCodice.js</code> per cercare società nel database Firestore.</p>
+        
+        <div class="input-group">
+            <label for="codice-societa">Codice Società:</label>
+            <input type="text" id="codice-societa" placeholder="Inserisci il codice società (es. ABC123)" value="">
+        </div>
+        
+        <div>
+            <button onclick="cercaSocieta()">🔍 Cerca Società</button>
+            <button onclick="cercaAvanzata()">🔍 Ricerca Avanzata</button>
+            <button onclick="eseguiEsempi()">▶️ Esegui Esempi</button>
+            <button onclick="pulisciRisultati()">🗑️ Pulisci</button>
+        </div>
+        
+        <div id="risultato" class="result info" style="display: none;">
+            <h3>Risultato:</h3>
+            <div id="contenuto-risultato"></div>
+        </div>
+        
+        <div class="info">
+            <h3>📋 Istruzioni per l'uso:</h3>
+            <ol>
+                <li><strong>Configura Firebase:</strong> Modifica il file <code>cercaSocietaDaCodice.js</code> inserendo la tua configurazione Firebase reale.</li>
+                <li><strong>Struttura Dati:</strong> Assicurati che la collection "societa" contenga documenti con la struttura:
+                    <div class="code">{
+  "codici": "ABC123",
+  "nome": "Nome Società",
+  "config": { /* configurazioni */ },
+  "giocatori": [ /* array giocatori */ ],
+  "attiva": true
+}</div>
+                </li>
+                <li><strong>Test:</strong> Inserisci un codice società esistente e prova la ricerca.</li>
+            </ol>
+        </div>
+        
+        <div class="info">
+            <h3>🛠️ Funzioni Disponibili:</h3>
+            <ul>
+                <li><code>cercaSocietaDaCodice(codice)</code> - Ricerca diretta per codice</li>
+                <li><code>cercaSocietaAvanzata(codice, opzioni)</code> - Ricerca con opzioni avanzate</li>
+                <li><code>esempiUtilizzo()</code> - Esegue esempi di utilizzo</li>
+                <li><code>verificaAccessoSocieta(codice)</code> - Verifica accesso per codice</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Caricamento del modulo cercaSocietaDaCodice.js -->
+    <script type="module">
+        // Importa le funzioni dal modulo
+        let cercaSocietaDaCodice, cercaSocietaAvanzata, esempiUtilizzo, verificaAccessoSocieta;
+        
+        try {
+            // Carica il modulo
+            const module = await import('./cercaSocietaDaCodice.js');
+            
+            // Assegna le funzioni importate
+            cercaSocietaDaCodice = module.cercaSocietaDaCodice;
+            cercaSocietaAvanzata = module.cercaSocietaAvanzata;
+            esempiUtilizzo = module.esempiUtilizzo;
+            verificaAccessoSocieta = module.verificaAccessoSocieta;
+            
+            console.log('✅ Modulo cercaSocietaDaCodice.js caricato correttamente');
+            
+            // Rendi le funzioni globali per l'uso dai pulsanti HTML
+            window.cercaSocietaDaCodiceFn = cercaSocietaDaCodice;
+            window.cercaSocietaAvanzataFn = cercaSocietaAvanzata;
+            window.esempiUtilizzoFn = esempiUtilizzo;
+            window.verificaAccessoSocietaFn = verificaAccessoSocieta;
+            
+        } catch (error) {
+            console.error('❌ Errore nel caricamento del modulo:', error);
+            mostraRisultato(`Errore nel caricamento del modulo: ${error.message}`, 'error');
+        }
+        
+        // Funzioni per l'interfaccia utente
+        window.cercaSocieta = async function() {
+            const codice = document.getElementById('codice-societa').value.trim();
+            
+            if (!codice) {
+                mostraRisultato('Inserisci un codice società valido', 'error');
+                return;
+            }
+            
+            if (!window.cercaSocietaDaCodiceFn) {
+                mostraRisultato('Modulo non ancora caricato, riprova tra un momento', 'error');
+                return;
+            }
+            
+            try {
+                mostraRisultato('🔍 Ricerca in corso...', 'info');
+                
+                const societa = await window.cercaSocietaDaCodiceFn(codice);
+                
+                if (societa) {
+                    const html = `
+                        <div class="society-info">
+                            <h4>✅ Società Trovata</h4>
+                            <p><strong>Nome:</strong> ${societa.nome}</p>
+                            <p><strong>Codice:</strong> ${societa.codici}</p>
+                            <p><strong>ID Documento:</strong> ${societa.id}</p>
+                            <p><strong>Giocatori:</strong> ${societa.giocatori.length}</p>
+                            <p><strong>Configurazioni:</strong> ${Object.keys(societa.config).length}</p>
+                            <p><strong>Attiva:</strong> ${societa.attiva ? '✅ Sì' : '❌ No'}</p>
+                            ${societa.dataCreazione ? `<p><strong>Data Creazione:</strong> ${societa.dataCreazione}</p>` : ''}
+                        </div>
+                    `;
+                    mostraRisultato(html, 'success');
+                } else {
+                    mostraRisultato(`❌ Nessuna società trovata con codice: ${codice}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Errore nella ricerca:', error);
+                mostraRisultato(`❌ Errore durante la ricerca: ${error.message}`, 'error');
+            }
+        };
+        
+        window.cercaAvanzata = async function() {
+            const codice = document.getElementById('codice-societa').value.trim();
+            
+            if (!codice) {
+                mostraRisultato('Inserisci un codice società per la ricerca avanzata', 'error');
+                return;
+            }
+            
+            if (!window.cercaSocietaAvanzataFn) {
+                mostraRisultato('Modulo non ancora caricato, riprova tra un momento', 'error');
+                return;
+            }
+            
+            try {
+                mostraRisultato('🔍 Ricerca avanzata in corso...', 'info');
+                
+                const opzioni = {
+                    ricercaParziale: true,
+                    soloAttive: true,
+                    limite: 10
+                };
+                
+                const societa = await window.cercaSocietaAvanzataFn(codice, opzioni);
+                
+                if (societa && societa.length > 0) {
+                    let html = `<h4>✅ Trovate ${societa.length} società</h4>`;
+                    societa.forEach((s, index) => {
+                        html += `
+                            <div class="society-info">
+                                <h4>${index + 1}. ${s.nome}</h4>
+                                <p><strong>Codice:</strong> ${s.codici}</p>
+                                <p><strong>Giocatori:</strong> ${s.giocatori.length}</p>
+                                <p><strong>Attiva:</strong> ${s.attiva ? '✅ Sì' : '❌ No'}</p>
+                            </div>
+                        `;
+                    });
+                    mostraRisultato(html, 'success');
+                } else {
+                    mostraRisultato(`❌ Nessuna società trovata con ricerca parziale per: ${codice}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Errore nella ricerca avanzata:', error);
+                mostraRisultato(`❌ Errore durante la ricerca avanzata: ${error.message}`, 'error');
+            }
+        };
+        
+        window.eseguiEsempi = async function() {
+            if (!window.esempiUtilizzoFn) {
+                mostraRisultato('Modulo non ancora caricato, riprova tra un momento', 'error');
+                return;
+            }
+            
+            try {
+                mostraRisultato('▶️ Esecuzione esempi in corso... (vedi console)', 'info');
+                await window.esempiUtilizzoFn();
+                mostraRisultato('✅ Esempi eseguiti con successo! Controlla la console del browser per i dettagli.', 'success');
+            } catch (error) {
+                console.error('Errore negli esempi:', error);
+                mostraRisultato(`❌ Errore nell'esecuzione degli esempi: ${error.message}`, 'error');
+            }
+        };
+        
+        window.pulisciRisultati = function() {
+            document.getElementById('risultato').style.display = 'none';
+            document.getElementById('codice-societa').value = '';
+        };
+        
+        function mostraRisultato(contenuto, tipo) {
+            const risultato = document.getElementById('risultato');
+            const contenutoRisultato = document.getElementById('contenuto-risultato');
+            
+            // Rimuovi tutte le classi di stile
+            risultato.className = 'result';
+            
+            // Aggiungi la classe appropriata
+            risultato.classList.add(tipo);
+            
+            // Imposta il contenuto
+            contenutoRisultato.innerHTML = contenuto;
+            
+            // Mostra il risultato
+            risultato.style.display = 'block';
+            
+            // Scorri verso il risultato
+            risultato.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
