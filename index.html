@@ -9,6 +9,11 @@
     <!-- html2canvas for image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- CONFIGURAZIONE FIREBASE -->
+    <script type="module">
+  import { cercaSocietaDaCodice } from './cercaSocietaDaCodice.js';
+  window.cercaSocietaDaCodice = cercaSocietaDaCodice;
+</script>
+    <!-- debug -->
     <script>
     window.__firebase_config = JSON.stringify({
       apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
@@ -1842,6 +1847,7 @@
     </script>
 </body>
 </html>
+
 
 
 
