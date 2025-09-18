@@ -955,60 +955,109 @@
             }
             
             async function loadCompanyPlayers() {
-                if (!window.db || !currentCompanyCode) {
-                    // Demo mode fallback
-                    if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
-                        // Try to load from localStorage first
-                        const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
-                        if (savedPlayers) {
-                            try {
-                                return JSON.parse(savedPlayers);
-                            } catch (error) {
-                                console.error("Error parsing saved players from localStorage:", error);
-                            }
+                if (!currentCompanyCode) {
+                    return [];
+                }
+                
+                // Demo mode - load from localStorage or return defaults
+                if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                    // Try to load from localStorage first
+                    const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
+                    if (savedPlayers) {
+                        try {
+                            return JSON.parse(savedPlayers);
+                        } catch (error) {
+                            console.error("Error parsing saved players from localStorage:", error);
                         }
-                        // Return default demo players if nothing saved
-                        return [
-                            "1 ROSSI MARIO", "2 BIANCHI LUIGI", "3 VERDI GIUSEPPE", 
-                            "4 NERI ANTONIO", "5 GIALLI FRANCESCO", "6 BLU MARCO",
-                            "7 VIOLA STEFANO", "8 ROSA ANDREA", "9 GRIGIO PAOLO", "10 AZZURRI LUCA"
-                        ];
+                    }
+                    // Return default demo players if nothing saved
+                    return [
+                        "1 ROSSI MARIO", "2 BIANCHI LUIGI", "3 VERDI GIUSEPPE", 
+                        "4 NERI ANTONIO", "5 GIALLI FRANCESCO", "6 BLU MARCO",
+                        "7 VIOLA STEFANO", "8 ROSA ANDREA", "9 GRIGIO PAOLO", "10 AZZURRI LUCA"
+                    ];
+                }
+                
+                // Firebase mode - load from giocatori property in company document
+                if (!window.db) {
+                    // Firebase not available, fallback to localStorage
+                    const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
+                    if (savedPlayers) {
+                        try {
+                            return JSON.parse(savedPlayers);
+                        } catch (error) {
+                            console.error("Error parsing saved players from localStorage fallback:", error);
+                        }
                     }
                     return [];
                 }
                 
                 try {
-                    const playersDocRef = window.doc(window.db, "companies", currentCompanyCode, "data", "players");
-                    const playersDoc = await window.getDoc(playersDocRef);
+                    // Load giocatori from the main company document
+                    const companyDocRef = window.doc(window.db, "companies", currentCompanyCode);
+                    const companyDoc = await window.getDoc(companyDocRef);
                     
-                    if (playersDoc.exists() && playersDoc.data().list) {
-                        return playersDoc.data().list;
+                    if (companyDoc.exists()) {
+                        const data = companyDoc.data();
+                        // Return the giocatori array or empty array if not present
+                        return data.giocatori || [];
                     } else {
+                        console.log("Company document not found, returning empty players list");
                         return [];
                     }
                 } catch (error) {
-                    console.error("Errore nel caricamento giocatori:", error);
+                    console.error("Errore nel caricamento giocatori da Firebase:", error);
+                    // Fallback to localStorage if Firebase fails
+                    const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
+                    if (savedPlayers) {
+                        try {
+                            console.log("Loading players from localStorage fallback");
+                            return JSON.parse(savedPlayers);
+                        } catch (parseError) {
+                            console.error("Error parsing saved players from localStorage fallback:", parseError);
+                        }
+                    }
                     return [];
                 }
             }
             
             async function saveCompanyPlayers(playersList) {
-                if (!window.db || !currentCompanyCode) {
-                    // Demo mode - save to localStorage
-                    if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
-                        console.log("Demo mode: players saved locally", playersList);
-                        localStorage.setItem(`players_${currentCompanyCode}`, JSON.stringify(playersList));
-                        return;
-                    }
-                    throw new Error("Dati società non disponibili");
+                if (!currentCompanyCode) {
+                    throw new Error("Codice società non disponibile");
+                }
+                
+                // Demo mode - save to localStorage
+                if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                    console.log("Demo mode: players saved locally", playersList);
+                    localStorage.setItem(`players_${currentCompanyCode}`, JSON.stringify(playersList));
+                    return;
+                }
+                
+                // Firebase mode - update giocatori property in companies collection
+                if (!window.db) {
+                    // Firebase not available, fallback to localStorage
+                    console.log("Firebase not available, saving to localStorage as fallback");
+                    localStorage.setItem(`players_${currentCompanyCode}`, JSON.stringify(playersList));
+                    return;
                 }
                 
                 try {
-                    const playersDocRef = window.doc(window.db, "companies", currentCompanyCode, "data", "players");
-                    await window.setDoc(playersDocRef, { list: playersList }, { merge: true });
+                    // Update the giocatori property in the company document
+                    const companyDocRef = window.doc(window.db, "companies", currentCompanyCode);
+                    await window.setDoc(companyDocRef, { giocatori: playersList }, { merge: true });
+                    console.log("Players saved to Firebase successfully");
                 } catch (error) {
-                    console.error("Errore nel salvataggio giocatori:", error);
-                    throw error;
+                    console.error("Errore nel salvataggio giocatori su Firebase:", error);
+                    // Fallback to localStorage if Firebase fails
+                    console.log("Falling back to localStorage due to Firebase error");
+                    try {
+                        localStorage.setItem(`players_${currentCompanyCode}`, JSON.stringify(playersList));
+                        console.log("Players saved to localStorage as fallback");
+                        // Don't throw error since localStorage save succeeded
+                    } catch (fallbackError) {
+                        console.error("Fallback to localStorage also failed:", fallbackError);
+                        throw new Error("Salvataggio fallito sia su Firebase che su localStorage");
+                    }
                 }
             }
 
