@@ -510,6 +510,7 @@
             const passwordEntryMessageArea = document.getElementById('password-entry-message-area');
 
             let currentCompanyCode = null;
+            window.currentCompanyCode = currentCompanyCode;
             let currentCompanyData = null;
             let pendingRole = null;
 
@@ -571,6 +572,7 @@
                     const companyData = await verifyCompanyCode(companyCode);
                     if (companyData) {
                         currentCompanyCode = companyCode;
+                        window.currentCompanyCode = currentCompanyCode;
                         currentCompanyData = companyData;
                         
                         // Populate passwords from data.config if available
@@ -647,6 +649,7 @@
             
             if (savedCompanyCode && savedCompanyData) {
                 currentCompanyCode = savedCompanyCode;
+                window.currentCompanyCode = currentCompanyCode;
                 currentCompanyData = JSON.parse(savedCompanyData);
                 
                 // Populate passwords from data.config if available
@@ -774,6 +777,7 @@
             let userRole = null;
             let currentAppId = window.appId;
             let currentCompanyCode = null;
+            window.currentCompanyCode = currentCompanyCode;
             let currentCompanyData = null;
             let companyPlayers = [];
             let pendingRole = null; // for password verification
@@ -805,6 +809,7 @@
                         if (savedCompanyCode && savedCompanyData && savedRole && savedAppId) {
                             // Restore full session
                             currentCompanyCode = savedCompanyCode;
+                            window.currentCompanyCode = currentCompanyCode;
                             currentCompanyData = JSON.parse(savedCompanyData);
                             
                             // Populate passwords from data.config if available
@@ -823,6 +828,7 @@
                         } else if (savedCompanyCode && savedCompanyData) {
                             // Show welcome screen with company data
                             currentCompanyCode = savedCompanyCode;
+                            window.currentCompanyCode = currentCompanyCode;
                             currentCompanyData = JSON.parse(savedCompanyData);
                             
                             // Populate passwords from data.config if available
@@ -1750,6 +1756,7 @@
                     const companyData = await verifyCompanyCode(companyCode);
                     if (companyData) {
                         currentCompanyCode = companyCode;
+                        window.currentCompanyCode = currentCompanyCode;
                         currentCompanyData = companyData;
                         
                         // Populate passwords from data.config if available
@@ -1813,6 +1820,7 @@
                 localStorage.removeItem('userRole');
                 localStorage.removeItem('convocazioniAppId');
                 currentCompanyCode = null;
+                window.currentCompanyCode = currentCompanyCode;
                 currentCompanyData = null;
                 window.currentCompanyData = currentCompanyData;
                 companyPlayers = [];
