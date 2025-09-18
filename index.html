@@ -118,7 +118,89 @@
         <!-- Application Title -->
         <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">Rosterkick</h1>
         
-        <!-- Name Entry Screen -->
+        <!-- Company Code Entry Screen -->
+        <div id="company-entry-screen" class="hidden">
+            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci il codice società</h2>
+            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <div class="flex flex-col gap-4">
+                    <input type="text" id="company-code-input" placeholder="Codice società" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="remember-company" class="rounded text-blue-500 focus:ring-blue-500">
+                        <label for="remember-company" class="text-gray-700">Ricorda codice</label>
+                    </div>
+                    <button id="verify-company-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Verifica
+                    </button>
+                </div>
+            </div>
+            <div id="company-entry-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
+        </div>
+
+        <!-- Company Welcome Screen -->
+        <div id="company-welcome-screen" class="hidden">
+            <h2 class="text-xl font-semibold text-center text-gray-700 mb-4">Benvenuto</h2>
+            <div class="p-6 bg-blue-50 rounded-xl mb-6 shadow-sm border border-blue-200 text-center">
+                <h3 id="company-name-display" class="text-lg font-bold text-blue-800 mb-4"></h3>
+                <div class="grid grid-cols-1 gap-3">
+                    <button id="enter-mister-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Entra come Mister
+                    </button>
+                    <button id="enter-dirigente-button" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Entra come Dirigente
+                    </button>
+                    <button id="view-history-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Vedi Storico
+                    </button>
+                    <button id="manage-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Gestione Giocatori
+                    </button>
+                    <button id="company-logout-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Entry Screen -->
+        <div id="password-entry-screen" class="hidden">
+            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci la password</h2>
+            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <div class="flex flex-col gap-4">
+                    <p id="role-prompt" class="text-center text-gray-600"></p>
+                    <input type="password" id="password-input" placeholder="Password" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <div class="flex gap-2">
+                        <button id="confirm-password-button" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                            Conferma
+                        </button>
+                        <button id="cancel-password-button" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                            Annulla
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="password-entry-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
+        </div>
+
+        <!-- Player Management Screen -->
+        <div id="player-management-screen" class="hidden">
+            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Gestione Giocatori</h2>
+            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <div class="flex flex-col gap-4 mb-4">
+                    <input type="text" id="new-player-input" placeholder="Nome e numero giocatore (es. 10 ROSSI MARIO)" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <button id="add-player-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Aggiungi Giocatore
+                    </button>
+                </div>
+                <div id="company-players-list" class="space-y-2">
+                    <!-- Company players will be loaded here -->
+                </div>
+            </div>
+            <button id="back-from-players-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Torna al Menu
+            </button>
+        </div>
+
+        <!-- Name Entry Screen (deprecated, keeping for compatibility) -->
         <div id="name-entry-screen" class="hidden">
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci il tuo nome</h2>
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
@@ -403,6 +485,33 @@
             ];
 
             // UI Elements
+            const companyEntryScreen = document.getElementById('company-entry-screen');
+            const companyCodeInput = document.getElementById('company-code-input');
+            const verifyCompanyButton = document.getElementById('verify-company-button');
+            const companyEntryMessageArea = document.getElementById('company-entry-message-area');
+            const rememberCompanyCheckbox = document.getElementById('remember-company');
+            
+            const companyWelcomeScreen = document.getElementById('company-welcome-screen');
+            const companyNameDisplay = document.getElementById('company-name-display');
+            const enterMisterButton = document.getElementById('enter-mister-button');
+            const enterDirigenteButton = document.getElementById('enter-dirigente-button');
+            const viewHistoryButton = document.getElementById('view-history-button');
+            const managePlayersButton = document.getElementById('manage-players-button');
+            const companyLogoutButton = document.getElementById('company-logout-button');
+            
+            const passwordEntryScreen = document.getElementById('password-entry-screen');
+            const rolePrompt = document.getElementById('role-prompt');
+            const passwordInput = document.getElementById('password-input');
+            const confirmPasswordButton = document.getElementById('confirm-password-button');
+            const cancelPasswordButton = document.getElementById('cancel-password-button');
+            const passwordEntryMessageArea = document.getElementById('password-entry-message-area');
+            
+            const playerManagementScreen = document.getElementById('player-management-screen');
+            const newPlayerInput = document.getElementById('new-player-input');
+            const addPlayerButton = document.getElementById('add-player-button');
+            const companyPlayersList = document.getElementById('company-players-list');
+            const backFromPlayersButton = document.getElementById('back-from-players-button');
+            
             const nameEntryScreen = document.getElementById('name-entry-screen');
             const nameInput = document.getElementById('name-input');
             const enterButton = document.getElementById('enter-button');
@@ -466,6 +575,10 @@
             // --- App State ---
             let userRole = null;
             let currentAppId = window.appId;
+            let currentCompanyCode = null;
+            let currentCompanyData = null;
+            let companyPlayers = [];
+            let pendingRole = null; // for password verification
             let unavailablePlayers = new Map();
             let currentNotes = '';
             let tempPlayerName = null;
@@ -484,58 +597,136 @@
                         }
                         
                         console.log("Firebase initialized and user authenticated.");
+                        
+                        // Check for saved company data
+                        const savedCompanyCode = localStorage.getItem('companyCode');
+                        const savedCompanyData = localStorage.getItem('companyData');
                         const savedRole = localStorage.getItem('userRole');
                         const savedAppId = localStorage.getItem('convocazioniAppId');
-                        const savedJoinAppId = localStorage.getItem('joinAppId');
                         
-                        if (savedRole && savedAppId) {
+                        if (savedCompanyCode && savedCompanyData && savedRole && savedAppId) {
+                            // Restore full session
+                            currentCompanyCode = savedCompanyCode;
+                            currentCompanyData = JSON.parse(savedCompanyData);
                             userRole = savedRole;
+                            companyPlayers = await loadCompanyPlayers();
                             startApp(savedAppId);
-                        } else if (savedRole) {
-                            userRole = savedRole;
-                            nameEntryScreen.classList.add('hidden');
-                            startScreen.classList.remove('hidden');
-                            if (savedJoinAppId) {
-                                joinAppIdInput.value = savedJoinAppId;
-                                rememberTeamIdCheckbox.checked = true;
-                            }
+                        } else if (savedCompanyCode && savedCompanyData) {
+                            // Show welcome screen with company data
+                            currentCompanyCode = savedCompanyCode;
+                            currentCompanyData = JSON.parse(savedCompanyData);
+                            companyPlayers = await loadCompanyPlayers();
+                            showCompanyWelcome();
                         } else {
-                            nameEntryScreen.classList.remove('hidden');
+                            // Show company entry screen
+                            if (savedCompanyCode) {
+                                companyCodeInput.value = savedCompanyCode;
+                                rememberCompanyCheckbox.checked = true;
+                            }
+                            companyEntryScreen.classList.remove('hidden');
                         }
                     } catch (err) {
                         console.error("Firebase authentication failed:", err);
-                        nameEntryScreen.classList.remove('hidden');
+                        companyEntryScreen.classList.remove('hidden');
                     }
                 } else {
                     console.error("Firebase configuration not available. Some features will not work.");
-                    nameEntryScreen.classList.remove('hidden');
+                    companyEntryScreen.classList.remove('hidden');
                 }
             }
 
             initApp();
             
+            
+            // Company verification functions
+            async function verifyCompanyCode(companyCode) {
+                if (!window.db) {
+                    throw new Error("Firebase non è ancora pronto");
+                }
+                
+                try {
+                    const companyDocRef = window.doc(window.db, "companies", companyCode);
+                    const companyDoc = await window.getDoc(companyDocRef);
+                    
+                    if (companyDoc.exists()) {
+                        return companyDoc.data();
+                    } else {
+                        return null;
+                    }
+                } catch (error) {
+                    console.error("Errore nella verifica del codice società:", error);
+                    throw error;
+                }
+            }
+            
+            async function verifyPassword(role, password) {
+                if (!currentCompanyData) {
+                    return false;
+                }
+                
+                const passwords = currentCompanyData.passwords || {};
+                return passwords[role] === password;
+            }
+            
+            async function loadCompanyPlayers() {
+                if (!window.db || !currentCompanyCode) {
+                    return [];
+                }
+                
+                try {
+                    const playersDocRef = window.doc(window.db, "companies", currentCompanyCode, "data", "players");
+                    const playersDoc = await window.getDoc(playersDocRef);
+                    
+                    if (playersDoc.exists() && playersDoc.data().list) {
+                        return playersDoc.data().list;
+                    } else {
+                        return [];
+                    }
+                } catch (error) {
+                    console.error("Errore nel caricamento giocatori:", error);
+                    return [];
+                }
+            }
+            
+            async function saveCompanyPlayers(playersList) {
+                if (!window.db || !currentCompanyCode) {
+                    throw new Error("Dati società non disponibili");
+                }
+                
+                try {
+                    const playersDocRef = window.doc(window.db, "companies", currentCompanyCode, "data", "players");
+                    await window.setDoc(playersDocRef, { list: playersList }, { merge: true });
+                } catch (error) {
+                    console.error("Errore nel salvataggio giocatori:", error);
+                    throw error;
+                }
+            }
+
             // Set up real-time listeners for all necessary data
             function setupFirestoreListeners(appId) {
                 // Clear old listeners
                 unsubscribeListeners.forEach(unsub => unsub());
                 unsubscribeListeners = [];
 
+                // Use company-specific paths
+                const basePath = currentCompanyCode ? `companies/${currentCompanyCode}/data` : `artifacts/${appId}/public/data`;
+
                 // Listener for Mister's convocations history
-                const historyCollectionRef = window.collection(window.db, `artifacts/${appId}/public/data/convocations_history`);
+                const historyCollectionRef = window.collection(window.db, `${basePath}/convocations_history`);
                 const historyUnsub = window.onSnapshot(historyCollectionRef, (querySnapshot) => {
                     loadHistory(querySnapshot);
                 });
                 unsubscribeListeners.push(historyUnsub);
 
                 // Listener for player attendance
-                const attendanceCollectionRef = window.collection(window.db, `artifacts/${appId}/public/data/player_attendance`);
+                const attendanceCollectionRef = window.collection(window.db, `${basePath}/player_attendance`);
                 const attendanceUnsub = window.onSnapshot(attendanceCollectionRef, (querySnapshot) => {
                     loadAttendance(querySnapshot);
                 });
                 unsubscribeListeners.push(attendanceUnsub);
                 
                 // Listener for Marco's unavailable players list
-                const unavailableDocRef = window.doc(window.db, `artifacts/${appId}/public/data/availability`, "marco_unavailable");
+                const unavailableDocRef = window.doc(window.db, `${basePath}/availability`, "marco_unavailable");
                 const unavailableUnsub = window.onSnapshot(unavailableDocRef, (docSnap) => {
                     if (docSnap.exists() && docSnap.data().players) {
                         unavailablePlayers = new Map(Object.entries(docSnap.data().players));
@@ -548,7 +739,7 @@
                 unsubscribeListeners.push(unavailableUnsub);
                 
                 // Listener for notes
-                const notesDocRef = window.doc(window.db, `artifacts/${appId}/public/data/notes`, "marco_notes");
+                const notesDocRef = window.doc(window.db, `${basePath}/notes`, "marco_notes");
                 const notesUnsub = window.onSnapshot(notesDocRef, (docSnap) => {
                     if (docSnap.exists() && docSnap.data().content) {
                         currentNotes = docSnap.data().content;
@@ -567,6 +758,9 @@
                     return;
                 }
 
+                // Use company-specific paths
+                const basePath = currentCompanyCode ? `companies/${currentCompanyCode}/data` : `artifacts/${currentAppId}/public/data`;
+
                 if (userRole === 'mister') {
                     const matchDetails = getMatchDetails();
                     const selectedPlayers = getSelectedPlayers();
@@ -577,14 +771,14 @@
                     }
 
                     try {
-                        await window.addDoc(window.collection(window.db, `artifacts/${currentAppId}/public/data/convocations_history`), {
+                        await window.addDoc(window.collection(window.db, `${basePath}/convocations_history`), {
                             details: matchDetails,
                             players: selectedPlayers,
                             createdAt: new Date().toISOString()
                         });
 
                         for (const player of selectedPlayers) {
-                            const playerDocRef = window.doc(window.db, `artifacts/${currentAppId}/public/data/player_attendance`, player);
+                            const playerDocRef = window.doc(window.db, `${basePath}/player_attendance`, player);
                             await window.setDoc(playerDocRef, { count: window.increment(1) }, { merge: true });
                         }
 
@@ -595,7 +789,7 @@
                     }
                 } else if (userRole === 'marco') {
                     const unavailablePlayersObject = Object.fromEntries(unavailablePlayers);
-                    const unavailableDocRef = window.doc(window.db, `artifacts/${currentAppId}/public/data/availability`, "marco_unavailable");
+                    const unavailableDocRef = window.doc(window.db, `${basePath}/availability`, "marco_unavailable");
                     
                     try {
                         await window.setDoc(unavailableDocRef, { players: unavailablePlayersObject });
@@ -725,7 +919,8 @@
 
             function renderPlayers() {
                 playersList.innerHTML = '';
-                players.forEach(playerName => {
+                const playersToRender = companyPlayers.length > 0 ? companyPlayers : players;
+                playersToRender.forEach(playerName => {
                     const li = document.createElement('li');
                     li.textContent = playerName;
                     li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
@@ -996,7 +1191,8 @@
                 }
 
                 const notesContent = notesTextarea.value.trim();
-                const notesDocRef = window.doc(window.db, `artifacts/${currentAppId}/public/data/notes`, "marco_notes");
+                const basePath = currentCompanyCode ? `companies/${currentCompanyCode}/data` : `artifacts/${currentAppId}/public/data`;
+                const notesDocRef = window.doc(window.db, `${basePath}/notes`, "marco_notes");
                 
                 try {
                     await window.setDoc(notesDocRef, { content: notesContent });
@@ -1047,7 +1243,93 @@
                 localStorage.removeItem('convocazioniAppId');
                 localStorage.removeItem('userRole');
                 localStorage.removeItem('joinAppId');
+                localStorage.removeItem('companyCode');
+                localStorage.removeItem('companyData');
                 window.location.reload(); 
+            }
+
+            // --- Company Navigation Functions ---
+            function showCompanyWelcome() {
+                hideAllScreens();
+                companyNameDisplay.textContent = currentCompanyData.name;
+                companyWelcomeScreen.classList.remove('hidden');
+            }
+
+            function showPasswordEntry(role) {
+                hideAllScreens();
+                pendingRole = role;
+                rolePrompt.textContent = `Inserisci la password per ${role === 'mister' ? 'Mister' : 'Dirigente'}:`;
+                passwordInput.value = '';
+                passwordEntryScreen.classList.remove('hidden');
+                passwordInput.focus();
+            }
+
+            function showPlayerManagement() {
+                hideAllScreens();
+                playerManagementScreen.classList.remove('hidden');
+                renderCompanyPlayers();
+            }
+
+            function hideAllScreens() {
+                companyEntryScreen.classList.add('hidden');
+                companyWelcomeScreen.classList.add('hidden');
+                passwordEntryScreen.classList.add('hidden');
+                playerManagementScreen.classList.add('hidden');
+                nameEntryScreen.classList.add('hidden');
+                startScreen.classList.add('hidden');
+                mainView.classList.add('hidden');
+                historyView.classList.add('hidden');
+                attendanceView.classList.add('hidden');
+            }
+
+            function startApp(appId) {
+                currentAppId = appId;
+                
+                appIdDisplay.textContent = currentAppId;
+                currentAppIdDisplay.textContent = currentAppId;
+
+                hideAllScreens();
+                mainView.classList.remove('hidden');
+
+                setupFirestoreListeners(currentAppId);
+                renderPlayers();
+                updateUIForRole();
+            }
+
+            function renderCompanyPlayers() {
+                companyPlayersList.innerHTML = '';
+                
+                companyPlayers.forEach((player, index) => {
+                    const playerDiv = document.createElement('div');
+                    playerDiv.className = 'flex items-center justify-between p-2 bg-white border border-gray-300 rounded-lg';
+                    playerDiv.innerHTML = `
+                        <span class="text-gray-700">${player}</span>
+                        <button onclick="removePlayer(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
+                            Rimuovi
+                        </button>
+                    `;
+                    companyPlayersList.appendChild(playerDiv);
+                });
+            }
+
+            window.removePlayer = async function(index) {
+                companyPlayers.splice(index, 1);
+                try {
+                    await saveCompanyPlayers(companyPlayers);
+                    renderCompanyPlayers();
+                    showMessage("Giocatore rimosso con successo!", "text-green-600");
+                } catch (error) {
+                    showMessage("Errore nella rimozione del giocatore.", "text-red-600");
+                }
+            };
+
+            function showMessage(message, className) {
+                messageArea.textContent = message;
+                messageArea.className = `mt-4 text-center text-sm font-medium ${className}`;
+                messageArea.classList.remove('hidden');
+                setTimeout(() => {
+                    messageArea.classList.add('hidden');
+                }, 5000);
             }
 
             // --- Modal Functions ---
@@ -1074,6 +1356,137 @@
                 unavailablePlayerModal.classList.add('hidden', 'opacity-0');
                 tempUnavailablePlayerName = null;
             }
+
+            // Event listeners for new company-based navigation
+            verifyCompanyButton.addEventListener('click', async () => {
+                const companyCode = companyCodeInput.value.trim();
+                if (!companyCode) {
+                    companyEntryMessageArea.textContent = "Inserisci un codice società.";
+                    companyEntryMessageArea.classList.remove('hidden');
+                    companyEntryMessageArea.classList.add('text-red-600');
+                    setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 5000);
+                    return;
+                }
+
+                try {
+                    const companyData = await verifyCompanyCode(companyCode);
+                    if (companyData) {
+                        currentCompanyCode = companyCode;
+                        currentCompanyData = companyData;
+                        companyPlayers = await loadCompanyPlayers();
+                        
+                        if (rememberCompanyCheckbox.checked) {
+                            localStorage.setItem('companyCode', companyCode);
+                            localStorage.setItem('companyData', JSON.stringify(companyData));
+                        }
+                        
+                        showCompanyWelcome();
+                    } else {
+                        companyEntryMessageArea.textContent = "Codice società non valido.";
+                        companyEntryMessageArea.classList.remove('hidden');
+                        companyEntryMessageArea.classList.add('text-red-600');
+                        setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 5000);
+                    }
+                } catch (error) {
+                    companyEntryMessageArea.textContent = "Errore nella verifica. Riprova.";
+                    companyEntryMessageArea.classList.remove('hidden');
+                    companyEntryMessageArea.classList.add('text-red-600');
+                    setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 5000);
+                }
+            });
+
+            enterMisterButton.addEventListener('click', () => {
+                showPasswordEntry('mister');
+            });
+
+            enterDirigenteButton.addEventListener('click', () => {
+                showPasswordEntry('marco');
+            });
+
+            viewHistoryButton.addEventListener('click', () => {
+                // Use company-specific app ID or create one
+                const companyAppId = currentCompanyCode;
+                currentAppId = companyAppId;
+                setupFirestoreListeners(companyAppId);
+                hideAllScreens();
+                historyView.classList.remove('hidden');
+                loadHistory();
+            });
+
+            managePlayersButton.addEventListener('click', () => {
+                showPlayerManagement();
+            });
+
+            companyLogoutButton.addEventListener('click', () => {
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('convocazioniAppId');
+                currentCompanyCode = null;
+                currentCompanyData = null;
+                companyPlayers = [];
+                userRole = null;
+                showCompanyWelcome();
+            });
+
+            confirmPasswordButton.addEventListener('click', async () => {
+                const password = passwordInput.value.trim();
+                if (!password) {
+                    passwordEntryMessageArea.textContent = "Inserisci la password.";
+                    passwordEntryMessageArea.classList.remove('hidden');
+                    passwordEntryMessageArea.classList.add('text-red-600');
+                    setTimeout(() => passwordEntryMessageArea.classList.add('hidden'), 5000);
+                    return;
+                }
+
+                const isValid = await verifyPassword(pendingRole, password);
+                if (isValid) {
+                    userRole = pendingRole;
+                    localStorage.setItem('userRole', userRole);
+                    
+                    // Use company code as app ID
+                    const companyAppId = currentCompanyCode;
+                    localStorage.setItem('convocazioniAppId', companyAppId);
+                    startApp(companyAppId);
+                } else {
+                    passwordEntryMessageArea.textContent = "Password errata.";
+                    passwordEntryMessageArea.classList.remove('hidden');
+                    passwordEntryMessageArea.classList.add('text-red-600');
+                    setTimeout(() => passwordEntryMessageArea.classList.add('hidden'), 5000);
+                }
+            });
+
+            cancelPasswordButton.addEventListener('click', () => {
+                pendingRole = null;
+                passwordInput.value = '';
+                showCompanyWelcome();
+            });
+
+            addPlayerButton.addEventListener('click', async () => {
+                const playerName = newPlayerInput.value.trim();
+                if (!playerName) {
+                    showMessage("Inserisci il nome del giocatore.", "text-red-600");
+                    return;
+                }
+
+                if (companyPlayers.includes(playerName)) {
+                    showMessage("Giocatore già presente nella lista.", "text-red-600");
+                    return;
+                }
+
+                companyPlayers.push(playerName);
+                try {
+                    await saveCompanyPlayers(companyPlayers);
+                    newPlayerInput.value = '';
+                    renderCompanyPlayers();
+                    showMessage("Giocatore aggiunto con successo!", "text-green-600");
+                } catch (error) {
+                    companyPlayers.pop(); // Remove the added player on error
+                    showMessage("Errore nell'aggiunta del giocatore.", "text-red-600");
+                }
+            });
+
+            backFromPlayersButton.addEventListener('click', () => {
+                showCompanyWelcome();
+            });
 
             // Event listeners for view switching
             enterButton.addEventListener('click', () => {
