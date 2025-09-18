@@ -266,6 +266,21 @@
             <div id="message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
         </div>
 
+        <!-- Success Popup -->
+        <div id="success-popup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-lg shadow-xl p-6 mx-4 max-w-sm w-full">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">Successo!</h3>
+                <p id="success-popup-message" class="text-gray-600 text-center">Salvataggio effettuato con successo</p>
+            </div>
+        </div>
+
         <!-- Convocations History View (using Firestore) -->
         <div id="history-view" class="hidden">
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Storico Convocazioni</h2>
@@ -573,7 +588,7 @@
                             await window.setDoc(playerDocRef, { count: window.increment(1) }, { merge: true });
                         }
 
-                        showMessage("Convocazione salvata e presenze aggiornate!", "text-green-600");
+                        showSuccessPopup("Convocazione salvata e presenze aggiornate!");
                     } catch (e) {
                         console.error("Errore salvataggio su Firestore: ", e);
                         showMessage("Errore durante il salvataggio. Controlla la console.", "text-red-600");
@@ -584,7 +599,7 @@
                     
                     try {
                         await window.setDoc(unavailableDocRef, { players: unavailablePlayersObject });
-                        showMessage("Lista di giocatori non disponibili salvata!", "text-green-600");
+                        showSuccessPopup("Lista di giocatori non disponibili salvata!");
                     } catch (e) {
                         console.error("Errore salvataggio su Firestore: ", e);
                         showMessage("Errore durante il salvataggio. Controlla la console.", "text-red-600");
@@ -985,7 +1000,7 @@
                 
                 try {
                     await window.setDoc(notesDocRef, { content: notesContent });
-                    showMessage("Note salvate con successo!", "text-green-600");
+                    showSuccessPopup("Note salvate con successo!");
                 } catch (e) {
                     console.error("Errore salvataggio note su Firestore: ", e);
                     showMessage("Errore durante il salvataggio delle note. Controlla la console.", "text-red-600");
@@ -999,6 +1014,19 @@
                 setTimeout(() => {
                     messageArea.style.display = 'none';
                 }, 5000);
+            }
+
+            function showSuccessPopup(message = "Salvataggio effettuato con successo") {
+                const popup = document.getElementById('success-popup');
+                const messageElement = document.getElementById('success-popup-message');
+                
+                messageElement.textContent = message;
+                popup.classList.remove('hidden');
+                
+                // Auto-close after 3 seconds
+                setTimeout(() => {
+                    popup.classList.add('hidden');
+                }, 3000);
             }
 
             function startApp(appId) {
