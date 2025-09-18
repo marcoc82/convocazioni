@@ -960,23 +960,67 @@
                 return false;
             }
             
+            // Functions to handle player loading error messages in UI
+            function showPlayerLoadingError(message) {
+                // Show error in the player management screen if it exists
+                const playerManagementScreen = document.getElementById('player-management-screen');
+                let errorDiv = document.getElementById('player-loading-error');
+                
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.id = 'player-loading-error';
+                    errorDiv.className = 'mt-4 p-3 bg-red-100 border border-red-200 rounded-lg text-red-800 text-sm font-medium';
+                    
+                    // Insert at the top of player management screen if it exists
+                    if (playerManagementScreen) {
+                        playerManagementScreen.insertBefore(errorDiv, playerManagementScreen.firstChild);
+                    }
+                }
+                
+                errorDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="mr-2">❌</span>
+                        <span><strong>Errore caricamento giocatori:</strong> ${message}</span>
+                    </div>
+                `;
+                errorDiv.classList.remove('hidden');
+                
+                console.error(`🚨 UI Error: ${message}`);
+            }
+            
+            function hidePlayerLoadingError() {
+                const errorDiv = document.getElementById('player-loading-error');
+                if (errorDiv) {
+                    errorDiv.classList.add('hidden');
+                }
+            }
+
             async function loadCompanyPlayers() {
+                console.log("🔄 loadCompanyPlayers() chiamata");
+                
                 if (!currentCompanyCode) {
+                    console.log("❌ Nessun codice società disponibile (currentCompanyCode è null/undefined)");
+                    showPlayerLoadingError("Codice società non disponibile");
                     return [];
                 }
                 
+                console.log(`🏢 Caricamento giocatori per società: ${currentCompanyCode}`);
+                
                 // Demo mode - load from localStorage or return defaults
                 if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                    console.log("🎭 Modalità DEMO attivata");
                     // Try to load from localStorage first
                     const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
                     if (savedPlayers) {
                         try {
+                            console.log("📁 Caricamento giocatori da localStorage (modalità demo)");
                             return JSON.parse(savedPlayers);
                         } catch (error) {
-                            console.error("Error parsing saved players from localStorage:", error);
+                            console.error("❌ Errore nel parsing localStorage (modalità demo):", error);
                         }
                     }
                     // Return default demo players if nothing saved
+                    console.log("🎲 Utilizzo giocatori predefiniti per modalità demo");
                     return [
                         "1 ROSSI MARIO", "2 BIANCHI LUIGI", "3 VERDI GIUSEPPE", 
                         "4 NERI ANTONIO", "5 GIALLI FRANCESCO", "6 BLU MARCO",
@@ -986,17 +1030,29 @@
                 
                 // Firebase mode - load from giocatori property in company document
                 if (!window.db) {
+                    console.log("❌ Firebase non disponibile, tentativo fallback localStorage");
                     // Firebase not available, fallback to localStorage
                     const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
                     if (savedPlayers) {
                         try {
+                            console.log("📁 Fallback: caricamento da localStorage");
                             return JSON.parse(savedPlayers);
                         } catch (error) {
-                            console.error("Error parsing saved players from localStorage fallback:", error);
+                            console.error("❌ Errore nel parsing localStorage fallback:", error);
+                            showPlayerLoadingError("Errore nel caricamento dei dati salvati localmente");
                         }
+                    } else {
+                        console.log("❌ Nessun dato disponibile in localStorage");
+                        showPlayerLoadingError("Firebase non disponibile e nessun dato locale trovato");
                     }
                     return [];
                 }
+                
+                // Log the complete document path
+                const documentPath = `companies/${currentCompanyCode}`;
+                console.log(`📄 Lettura documento Firebase da percorso completo: ${documentPath}`);
+                console.log(`🔗 Percorso completo del documento: companies/${currentCompanyCode}`);
+                console.log(`📋 Cercando campo 'giocatori' nel documento con ID: ${currentCompanyCode}`);
                 
                 try {
                     // Load giocatori from the main company document
@@ -1004,23 +1060,44 @@
                     const companyDoc = await window.getDoc(companyDocRef);
                     
                     if (companyDoc.exists()) {
+                        console.log(`✅ Documento trovato: companies/${currentCompanyCode}`);
                         const data = companyDoc.data();
-                        // Return the giocatori array or empty array if not present
-                        return data.giocatori || [];
+                        console.log("📊 Dati completi del documento:", data);
+                        
+                        if (data.giocatori) {
+                            if (Array.isArray(data.giocatori)) {
+                                console.log(`👥 Giocatori trovati (${data.giocatori.length}):`, data.giocatori);
+                                hidePlayerLoadingError();
+                                return data.giocatori;
+                            } else {
+                                console.warn("⚠️ Il campo 'giocatori' esiste ma non è un array:", typeof data.giocatori, data.giocatori);
+                                showPlayerLoadingError(`Campo 'giocatori' non è un array valido nel documento ${currentCompanyCode}`);
+                                return [];
+                            }
+                        } else {
+                            console.log("📝 Campo 'giocatori' non presente nel documento, ritorno array vuoto");
+                            hidePlayerLoadingError();
+                            return [];
+                        }
                     } else {
-                        console.log("Company document not found, returning empty players list");
+                        const errorMsg = `Documento non trovato: companies/${currentCompanyCode}`;
+                        console.log(`❌ ${errorMsg}`);
+                        console.log("💡 Verificare che il codice società sia corretto e che il documento esista in Firebase");
+                        showPlayerLoadingError(errorMsg);
                         return [];
                     }
                 } catch (error) {
-                    console.error("Errore nel caricamento giocatori da Firebase:", error);
+                    console.error(`💥 Errore nel caricamento giocatori da Firebase (percorso: companies/${currentCompanyCode}):`, error);
+                    showPlayerLoadingError(`Errore di connessione a Firebase: ${error.message}`);
+                    
                     // Fallback to localStorage if Firebase fails
                     const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
                     if (savedPlayers) {
                         try {
-                            console.log("Loading players from localStorage fallback");
+                            console.log("🔄 Fallback: caricamento da localStorage dopo errore Firebase");
                             return JSON.parse(savedPlayers);
                         } catch (parseError) {
-                            console.error("Error parsing saved players from localStorage fallback:", parseError);
+                            console.error("❌ Errore nel parsing localStorage fallback:", parseError);
                         }
                     }
                     return [];
@@ -1632,6 +1709,7 @@
             function showPlayerManagement() {
                 hideAllScreens();
                 playerManagementScreen.classList.remove('hidden');
+                hidePlayerLoadingError(); // Clear any previous error messages
                 renderCompanyPlayers();
                 updateSavePlayersButtonState();
             }
