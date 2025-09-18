@@ -471,6 +471,157 @@
 
     <!-- JavaScript for app logic -->
     <script>
+    <script>
+        // Fallback initialization when Firebase modules don't load
+        document.addEventListener('DOMContentLoaded', () => {
+            // If Firebase modules didn't load, initialize in demo mode
+            if (typeof window.signInAnonymously === 'undefined') {
+                console.log("Firebase modules not available, initializing in demo mode");
+                initializeDemoMode();
+            }
+        });
+
+        function initializeDemoMode() {
+            // Demo mode initialization
+            const companyEntryScreen = document.getElementById('company-entry-screen');
+            const companyCodeInput = document.getElementById('company-code-input');
+            const verifyCompanyButton = document.getElementById('verify-company-button');
+            const companyEntryMessageArea = document.getElementById('company-entry-message-area');
+            const rememberCompanyCheckbox = document.getElementById('remember-company');
+            
+            const companyWelcomeScreen = document.getElementById('company-welcome-screen');
+            const companyNameDisplay = document.getElementById('company-name-display');
+            const enterMisterButton = document.getElementById('enter-mister-button');
+            const enterDirigenteButton = document.getElementById('enter-dirigente-button');
+            
+            const passwordEntryScreen = document.getElementById('password-entry-screen');
+            const rolePrompt = document.getElementById('role-prompt');
+            const passwordInput = document.getElementById('password-input');
+            const confirmPasswordButton = document.getElementById('confirm-password-button');
+            const cancelPasswordButton = document.getElementById('cancel-password-button');
+            const passwordEntryMessageArea = document.getElementById('password-entry-message-area');
+
+            let currentCompanyCode = null;
+            let currentCompanyData = null;
+            let pendingRole = null;
+
+            // Show company entry screen
+            companyEntryScreen.classList.remove('hidden');
+
+            function hideAllScreens() {
+                document.querySelectorAll('[id$="-screen"]').forEach(screen => {
+                    screen.classList.add('hidden');
+                });
+            }
+
+            function showMessage(element, message, isError = true) {
+                element.textContent = message;
+                element.classList.remove('hidden');
+                element.classList.toggle('text-red-600', isError);
+                element.classList.toggle('text-green-600', !isError);
+                setTimeout(() => element.classList.add('hidden'), 5000);
+            }
+
+            // Demo company verification
+            function verifyCompanyCode(code) {
+                if (code === "DEMO" || code === "demo") {
+                    return {
+                        name: "Società Demo",
+                        passwords: {
+                            mister: "mister123",
+                            marco: "marco123"
+                        }
+                    };
+                }
+                return null;
+            }
+
+            function showCompanyWelcome() {
+                hideAllScreens();
+                companyNameDisplay.textContent = currentCompanyData.name;
+                companyWelcomeScreen.classList.remove('hidden');
+            }
+
+            function showPasswordEntry(role) {
+                hideAllScreens();
+                pendingRole = role;
+                rolePrompt.textContent = `Inserisci la password per ${role === 'mister' ? 'Mister' : 'Dirigente'}:`;
+                passwordInput.value = '';
+                passwordEntryScreen.classList.remove('hidden');
+                passwordInput.focus();
+            }
+
+            // Event listeners
+            verifyCompanyButton.addEventListener('click', () => {
+                const companyCode = companyCodeInput.value.trim();
+                if (!companyCode) {
+                    showMessage(companyEntryMessageArea, "Inserisci un codice società.");
+                    return;
+                }
+
+                const companyData = verifyCompanyCode(companyCode);
+                if (companyData) {
+                    currentCompanyCode = companyCode;
+                    currentCompanyData = companyData;
+                    
+                    if (rememberCompanyCheckbox.checked) {
+                        localStorage.setItem('companyCode', companyCode);
+                        localStorage.setItem('companyData', JSON.stringify(companyData));
+                    }
+                    
+                    showCompanyWelcome();
+                } else {
+                    showMessage(companyEntryMessageArea, "Codice società non valido.");
+                }
+            });
+
+            enterMisterButton.addEventListener('click', () => {
+                showPasswordEntry('mister');
+            });
+
+            enterDirigenteButton.addEventListener('click', () => {
+                showPasswordEntry('marco');
+            });
+
+            confirmPasswordButton.addEventListener('click', () => {
+                const password = passwordInput.value.trim();
+                if (!password) {
+                    showMessage(passwordEntryMessageArea, "Inserisci la password.");
+                    return;
+                }
+
+                const isValid = currentCompanyData.passwords[pendingRole] === password;
+                if (isValid) {
+                    showMessage(passwordEntryMessageArea, "Accesso effettuato! (Demo mode)", false);
+                    setTimeout(() => {
+                        alert(`Benvenuto ${pendingRole === 'mister' ? 'Mister' : 'Dirigente'}!\n\nIn modalità demo, le funzionalità complete sarebbero disponibili con Firebase attivo.\n\nCodici di prova:\n- Codice società: DEMO\n- Password Mister: mister123\n- Password Dirigente: marco123`);
+                    }, 1000);
+                } else {
+                    showMessage(passwordEntryMessageArea, "Password errata.");
+                }
+            });
+
+            cancelPasswordButton.addEventListener('click', () => {
+                pendingRole = null;
+                passwordInput.value = '';
+                showCompanyWelcome();
+            });
+
+            // Check for saved data
+            const savedCompanyCode = localStorage.getItem('companyCode');
+            const savedCompanyData = localStorage.getItem('companyData');
+            
+            if (savedCompanyCode && savedCompanyData) {
+                currentCompanyCode = savedCompanyCode;
+                currentCompanyData = JSON.parse(savedCompanyData);
+                companyCodeInput.value = savedCompanyCode;
+                rememberCompanyCheckbox.checked = true;
+                showCompanyWelcome();
+            }
+        }
+    </script>
+
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             const players = [
                 "99 ALPA FEDERICO", "78 BECCARIS SEBASTIANO", "32 BEN MABROUK KEVIN", "23 BERLUSCONI NOAH",
@@ -640,8 +791,20 @@
             
             // Company verification functions
             async function verifyCompanyCode(companyCode) {
+                // Demo mode when Firebase is not available
                 if (!window.db) {
-                    throw new Error("Firebase non è ancora pronto");
+                    console.log("Firebase not available, using demo mode");
+                    if (companyCode === "DEMO" || companyCode === "demo") {
+                        return {
+                            name: "Società Demo",
+                            passwords: {
+                                mister: "mister123",
+                                marco: "marco123"
+                            }
+                        };
+                    } else {
+                        return null;
+                    }
                 }
                 
                 try {
@@ -670,6 +833,14 @@
             
             async function loadCompanyPlayers() {
                 if (!window.db || !currentCompanyCode) {
+                    // Demo mode fallback
+                    if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                        return [
+                            "1 ROSSI MARIO", "2 BIANCHI LUIGI", "3 VERDI GIUSEPPE", 
+                            "4 NERI ANTONIO", "5 GIALLI FRANCESCO", "6 BLU MARCO",
+                            "7 VIOLA STEFANO", "8 ROSA ANDREA", "9 GRIGIO PAOLO", "10 AZZURRI LUCA"
+                        ];
+                    }
                     return [];
                 }
                 
@@ -690,6 +861,11 @@
             
             async function saveCompanyPlayers(playersList) {
                 if (!window.db || !currentCompanyCode) {
+                    // Demo mode - just simulate success
+                    if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                        console.log("Demo mode: players saved locally", playersList);
+                        return;
+                    }
                     throw new Error("Dati società non disponibili");
                 }
                 
@@ -1407,10 +1583,9 @@
                 // Use company-specific app ID or create one
                 const companyAppId = currentCompanyCode;
                 currentAppId = companyAppId;
-                setupFirestoreListeners(companyAppId);
                 hideAllScreens();
                 historyView.classList.remove('hidden');
-                loadHistory();
+                setupFirestoreListeners(companyAppId);
             });
 
             managePlayersButton.addEventListener('click', () => {
