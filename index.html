@@ -87,7 +87,19 @@
             font-weight: bold;
             border-color: #f97316;
         }
-        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange) {
+        .player-item.selected-marco-black {
+            background-color: #1f2937;
+            color: #ffffff;
+            font-weight: bold;
+            border-color: #374151;
+        }
+        .player-item.selected-marco-purple {
+            background-color: #8b5cf6;
+            color: #ffffff;
+            font-weight: bold;
+            border-color: #7c3aed;
+        }
+        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange):not(.selected-marco-black):not(.selected-marco-purple) {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
@@ -312,6 +324,9 @@
             <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300">
                 <h2 class="text-xl font-bold mb-4">Seleziona lo stato del giocatore</h2>
                 <div class="space-y-4">
+                    <button data-status="Infortunato" class="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                        Infortunato
+                    </button>
                     <button data-status="Non disponibile Sabato" class="w-full py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Non disponibile Sabato
                     </button>
@@ -326,6 +341,12 @@
                     </button>
                     <button data-status="Solo 1 allenamento" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Solo 1 allenamento
+                    </button>
+                    <button data-status="Solo disponibile Sabato" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                        Solo disponibile Sabato
+                    </button>
+                    <button data-status="Solo disponibile Domenica" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                        Solo disponibile Domenica
                     </button>
                     <button data-status="Disponibile" class="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Disponibile
@@ -702,7 +723,11 @@
                     
                     if (unavailablePlayers.has(playerName)) {
                         const status = unavailablePlayers.get(playerName);
-                        if (status === 'Solo 2 allenamenti') {
+                        if (status === 'Infortunato') {
+                            li.classList.add('selected-marco-black');
+                        } else if (status === 'Solo disponibile Sabato' || status === 'Solo disponibile Domenica') {
+                            li.classList.add('selected-marco-purple');
+                        } else if (status === 'Solo 2 allenamenti') {
                             li.classList.add('selected-marco-orange');
                         } else {
                             li.classList.add('selected-marco');
@@ -1144,11 +1169,15 @@
                     
                     if (status === 'Disponibile') {
                         unavailablePlayers.delete(tempPlayerName);
-                        currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange');
+                        currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple');
                     } else {
                         unavailablePlayers.set(tempPlayerName, status);
-                        currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange');
-                        if (status === 'Solo 2 allenamenti') {
+                        currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple');
+                        if (status === 'Infortunato') {
+                            currentPlayerItem.classList.add('selected-marco-black');
+                        } else if (status === 'Solo disponibile Sabato' || status === 'Solo disponibile Domenica') {
+                            currentPlayerItem.classList.add('selected-marco-purple');
+                        } else if (status === 'Solo 2 allenamenti') {
                             currentPlayerItem.classList.add('selected-marco-orange');
                         } else {
                             currentPlayerItem.classList.add('selected-marco');
