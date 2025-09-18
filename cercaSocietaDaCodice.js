@@ -43,37 +43,80 @@ const db = getFirestore(app);
  */
 async function cercaSocietaDaCodice(codice) {
     try {
+        // Log dell'input originale
+        console.log('🔍 DEBUG - cercaSocietaDaCodice - Input originale:', {
+            codice: codice,
+            tipo: typeof codice,
+            lunghezza: codice ? codice.length : 0
+        });
+
         // Validazione input
         if (!codice || typeof codice !== 'string' || codice.trim() === '') {
-            console.error('Codice società non valido');
+            console.error('❌ DEBUG - Codice società non valido');
             return null;
         }
 
         // Normalizzazione del codice (rimuove spazi e converte in uppercase)
         const codiceNormalizzato = codice.trim().toUpperCase();
+        console.log('📝 DEBUG - Codice normalizzato:', {
+            originale: codice,
+            normalizzato: codiceNormalizzato,
+            trasformazioni: 'trim() + toUpperCase()'
+        });
 
         // Creazione della query per cercare nella collection "societa"
         // dove il campo "codici" corrisponde al codice inserito
-        const societaRef = collection(db, 'societa');
+        const collectionPath = 'societa';
+        const societaRef = collection(db, collectionPath);
+        
+        console.log('📂 DEBUG - Collection path:', collectionPath);
+        
         const q = query(societaRef, where('codici', '==', codiceNormalizzato));
+        
+        console.log('🔎 DEBUG - Query costruita:', {
+            collection: collectionPath,
+            campo: 'codici',
+            operatore: '==',
+            valore: codiceNormalizzato,
+            tipoQuery: 'ricerca esatta'
+        });
 
         // Esecuzione della query
+        console.log('⚡ DEBUG - Esecuzione query in corso...');
         const querySnapshot = await getDocs(q);
+
+        // Log del numero di risultati trovati
+        console.log('📊 DEBUG - Risultati query:', {
+            numeroDocumenti: querySnapshot.size,
+            isEmpty: querySnapshot.empty,
+            timestamp: new Date().toISOString()
+        });
 
         // Verifica se sono stati trovati risultati
         if (querySnapshot.empty) {
-            console.log(`Nessuna società trovata con codice: ${codiceNormalizzato}`);
+            console.log(`❌ DEBUG - Nessuna società trovata con codice: ${codiceNormalizzato}`);
             return null;
         }
 
         // Se trovata più di una società (caso non comune), prende la prima
         if (querySnapshot.size > 1) {
-            console.warn(`Trovate ${querySnapshot.size} società con lo stesso codice. Restituisco la prima.`);
+            console.warn(`⚠️ DEBUG - Trovate ${querySnapshot.size} società con lo stesso codice. Restituisco la prima.`);
         }
 
         // Estrazione dei dati della prima società trovata
         const societaDoc = querySnapshot.docs[0];
         const societaData = societaDoc.data();
+
+        console.log('📄 DEBUG - Dettagli documento trovato:', {
+            documentId: societaDoc.id,
+            esisteCampoNome: 'nome' in societaData,
+            esisteCampoConfig: 'config' in societaData,
+            esisteCampoGiocatori: 'giocatori' in societaData,
+            esisteCampoCodici: 'codici' in societaData,
+            esisteCampoAttiva: 'attiva' in societaData,
+            numeroCampiTotali: Object.keys(societaData).length,
+            campiDisponibili: Object.keys(societaData)
+        });
 
         // Strutturazione dei dati di ritorno
         const risultato = {
@@ -87,11 +130,25 @@ async function cercaSocietaDaCodice(codice) {
             attiva: societaData.attiva !== undefined ? societaData.attiva : true
         };
 
-        console.log(`Società trovata: ${risultato.nome}`);
+        console.log('✅ DEBUG - Dati estratti e strutturati:', {
+            id: risultato.id,
+            nome: risultato.nome,
+            numeroGiocatori: risultato.giocatori.length,
+            numeroConfigurazioni: Object.keys(risultato.config).length,
+            codici: risultato.codici,
+            attiva: risultato.attiva,
+            dataCreazione: risultato.dataCreazione
+        });
+
+        console.log(`✅ Società trovata: ${risultato.nome}`);
         return risultato;
 
     } catch (error) {
-        console.error('Errore durante la ricerca della società:', error);
+        console.error('💥 DEBUG - Errore durante la ricerca della società:', {
+            messaggio: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
         throw error;
     }
 }
@@ -109,41 +166,102 @@ async function cercaSocietaDaCodice(codice) {
  */
 async function cercaSocietaAvanzata(codice, opzioni = {}) {
     try {
+        console.log('🔍 DEBUG - cercaSocietaAvanzata - Input originale:', {
+            codice: codice,
+            tipo: typeof codice,
+            lunghezza: codice ? codice.length : 0,
+            opzioni: opzioni
+        });
+
         const { 
             ricercaParziale = false, 
             soloAttive = true,
             limite = 10 
         } = opzioni;
 
+        console.log('⚙️ DEBUG - Opzioni elaborate:', {
+            ricercaParziale,
+            soloAttive,
+            limite,
+            tipoRicerca: ricercaParziale ? 'parziale' : 'esatta'
+        });
+
         const codiceNormalizzato = codice.trim().toUpperCase();
-        const societaRef = collection(db, 'societa');
+        console.log('📝 DEBUG - Codice normalizzato:', {
+            originale: codice,
+            normalizzato: codiceNormalizzato,
+            trasformazioni: 'trim() + toUpperCase()'
+        });
+
+        const collectionPath = 'societa';
+        const societaRef = collection(db, collectionPath);
+        console.log('📂 DEBUG - Collection path:', collectionPath);
         
         let q;
         
         if (ricercaParziale) {
             // Per ricerca parziale, cerca codici che iniziano con il valore inserito
+            const endValue = codiceNormalizzato + '\uf8ff';
             q = query(
                 societaRef, 
                 where('codici', '>=', codiceNormalizzato),
-                where('codici', '<=', codiceNormalizzato + '\uf8ff')
+                where('codici', '<=', endValue)
             );
+            
+            console.log('🔎 DEBUG - Query costruita (ricerca parziale):', {
+                collection: collectionPath,
+                campo: 'codici',
+                condizione1: `>= ${codiceNormalizzato}`,
+                condizione2: `<= ${endValue}`,
+                tipoQuery: 'ricerca parziale (range)'
+            });
         } else {
             // Ricerca esatta
             q = query(societaRef, where('codici', '==', codiceNormalizzato));
+            
+            console.log('🔎 DEBUG - Query costruita (ricerca esatta):', {
+                collection: collectionPath,
+                campo: 'codici',
+                operatore: '==',
+                valore: codiceNormalizzato,
+                tipoQuery: 'ricerca esatta'
+            });
         }
 
+        console.log('⚡ DEBUG - Esecuzione query in corso...');
         const querySnapshot = await getDocs(q);
+
+        console.log('📊 DEBUG - Risultati query:', {
+            numeroDocumenti: querySnapshot.size,
+            isEmpty: querySnapshot.empty,
+            timestamp: new Date().toISOString()
+        });
         
         if (querySnapshot.empty) {
+            console.log('❌ DEBUG - Nessuna società trovata con i criteri specificati');
             return null;
         }
 
         const risultati = [];
+        let documentiEsaminati = 0;
+        let documentiEsclusiPerAttivita = 0;
+        
         querySnapshot.forEach((doc) => {
+            documentiEsaminati++;
             const data = doc.data();
+            
+            console.log(`📄 DEBUG - Documento ${documentiEsaminati}:`, {
+                documentId: doc.id,
+                nome: data.nome || 'N/D',
+                codici: data.codici,
+                attiva: data.attiva,
+                numeroGiocatori: data.giocatori ? data.giocatori.length : 0
+            });
             
             // Filtro per società attive se richiesto
             if (soloAttive && data.attiva === false) {
+                documentiEsclusiPerAttivita++;
+                console.log(`⏭️ DEBUG - Documento escluso (società non attiva): ${doc.id}`);
                 return;
             }
 
@@ -158,10 +276,26 @@ async function cercaSocietaAvanzata(codice, opzioni = {}) {
             });
         });
 
-        return risultati.slice(0, limite);
+        const risultatiFinali = risultati.slice(0, limite);
+
+        console.log('✅ DEBUG - Riepilogo ricerca avanzata:', {
+            documentiTrovatiInQuery: querySnapshot.size,
+            documentiEsaminati,
+            documentiEsclusiPerAttivita,
+            risultatiDopoFiltri: risultati.length,
+            risultatiFinaliDopoLimite: risultatiFinali.length,
+            limiteApplicato: limite,
+            filtroAttivaApplicato: soloAttive
+        });
+
+        return risultatiFinali;
 
     } catch (error) {
-        console.error('Errore durante la ricerca avanzata:', error);
+        console.error('💥 DEBUG - Errore durante la ricerca avanzata:', {
+            messaggio: error.message,
+            stack: error.stack,
+            timestamp: new Date().toISOString()
+        });
         throw error;
     }
 }
