@@ -568,6 +568,16 @@
                     if (companyData) {
                         currentCompanyCode = companyCode;
                         currentCompanyData = companyData;
+                        
+                        // Populate passwords from data.config if available
+                        if (currentCompanyData.data && currentCompanyData.data.config) {
+                            currentCompanyData.passwords = {
+                                ...(currentCompanyData.passwords || {}), // Keep existing passwords for backward compatibility
+                                dirigente: currentCompanyData.data.config.dirigentePassword,
+                                mister: currentCompanyData.data.config.misterPassword
+                            };
+                        }
+                        
                         window.currentCompanyData = currentCompanyData;
                         
                         if (rememberCompanyCheckbox.checked) {
@@ -628,6 +638,16 @@
             if (savedCompanyCode && savedCompanyData) {
                 currentCompanyCode = savedCompanyCode;
                 currentCompanyData = JSON.parse(savedCompanyData);
+                
+                // Populate passwords from data.config if available
+                if (currentCompanyData.data && currentCompanyData.data.config) {
+                    currentCompanyData.passwords = {
+                        ...(currentCompanyData.passwords || {}), // Keep existing passwords for backward compatibility
+                        dirigente: currentCompanyData.data.config.dirigentePassword,
+                        mister: currentCompanyData.data.config.misterPassword
+                    };
+                }
+                
                 window.currentCompanyData = currentCompanyData;
                 companyCodeInput.value = savedCompanyCode;
                 rememberCompanyCheckbox.checked = true;
@@ -774,6 +794,16 @@
                             // Restore full session
                             currentCompanyCode = savedCompanyCode;
                             currentCompanyData = JSON.parse(savedCompanyData);
+                            
+                            // Populate passwords from data.config if available
+                            if (currentCompanyData.data && currentCompanyData.data.config) {
+                                currentCompanyData.passwords = {
+                                    ...(currentCompanyData.passwords || {}), // Keep existing passwords for backward compatibility
+                                    dirigente: currentCompanyData.data.config.dirigentePassword,
+                                    mister: currentCompanyData.data.config.misterPassword
+                                };
+                            }
+                            
                             window.currentCompanyData = currentCompanyData;
                             userRole = savedRole;
                             companyPlayers = await loadCompanyPlayers();
@@ -782,6 +812,16 @@
                             // Show welcome screen with company data
                             currentCompanyCode = savedCompanyCode;
                             currentCompanyData = JSON.parse(savedCompanyData);
+                            
+                            // Populate passwords from data.config if available
+                            if (currentCompanyData.data && currentCompanyData.data.config) {
+                                currentCompanyData.passwords = {
+                                    ...(currentCompanyData.passwords || {}), // Keep existing passwords for backward compatibility
+                                    dirigente: currentCompanyData.data.config.dirigentePassword,
+                                    mister: currentCompanyData.data.config.misterPassword
+                                };
+                            }
+                            
                             window.currentCompanyData = currentCompanyData;
                             companyPlayers = await loadCompanyPlayers();
                             showCompanyWelcome();
@@ -823,11 +863,22 @@
                         }
                         
                         // Convert to expected format for compatibility
-                        return {
+                        const companyData = {
                             name: societa.nome || "Società Sconosciuta",
                             passwords: societa.passwords || {},
                             data: societa // Keep original data
                         };
+                        
+                        // Populate passwords from data.config if available
+                        if (societa.config) {
+                            companyData.passwords = {
+                                ...companyData.passwords, // Keep existing passwords for backward compatibility
+                                dirigente: societa.config.dirigentePassword,
+                                mister: societa.config.misterPassword
+                            };
+                        }
+                        
+                        return companyData;
                     } catch (error) {
                         console.error("Errore nella ricerca società:", error);
                         // Fall back to old method
@@ -1597,6 +1648,16 @@
                     if (companyData) {
                         currentCompanyCode = companyCode;
                         currentCompanyData = companyData;
+                        
+                        // Populate passwords from data.config if available
+                        if (currentCompanyData.data && currentCompanyData.data.config) {
+                            currentCompanyData.passwords = {
+                                ...(currentCompanyData.passwords || {}), // Keep existing passwords for backward compatibility
+                                dirigente: currentCompanyData.data.config.dirigentePassword,
+                                mister: currentCompanyData.data.config.misterPassword
+                            };
+                        }
+                        
                         window.currentCompanyData = currentCompanyData;
                         companyPlayers = await loadCompanyPlayers();
                         
