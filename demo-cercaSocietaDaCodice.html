@@ -166,6 +166,7 @@
             window.verificaAccessoSocietaFn = verificaAccessoSocieta;
             
             // Esporre le funzioni direttamente per debugging da console F12
+            // (sia con nome originale che con compatibilità)
             window.cercaSocietaDaCodice = cercaSocietaDaCodice;
             window.cercaSocietaAvanzata = cercaSocietaAvanzata;
             window.esempiUtilizzo = esempiUtilizzo;
@@ -173,13 +174,91 @@
             
             console.log('🛠️ Funzioni esposte globalmente per debugging:');
             console.log('  - window.cercaSocietaDaCodice(codice)');
+            console.log('  - window.cercaSocietaDaCodiceFn(codice) [alias per compatibilità]');
             console.log('  - window.cercaSocietaAvanzata(codice, opzioni)');
             console.log('  - window.esempiUtilizzo()');
             console.log('  - window.verificaAccessoSocieta(codice)');
             
         } catch (error) {
             console.error('❌ Errore nel caricamento del modulo:', error);
-            mostraRisultato(`Errore nel caricamento del modulo: ${error.message}`, 'error');
+            
+            // Create fallback functions that simulate the API but work without Firebase
+            window.cercaSocietaDaCodiceFn = async function(codice) {
+                // Demo data for testing
+                const demoSocieta = {
+                    "ABC123": {
+                        id: "demo-abc123",
+                        nome: "Società Demo ABC",
+                        codici: "ABC123",
+                        config: { tema: "light", notifiche: true },
+                        giocatori: ["1 ROSSI MARIO", "2 BIANCHI LUIGI", "3 VERDI GIUSEPPE"],
+                        attiva: true,
+                        dataCreazione: "2024-01-01"
+                    },
+                    "XYZ789": {
+                        id: "demo-xyz789",
+                        nome: "Società Demo XYZ",
+                        codici: "XYZ789",
+                        config: { tema: "dark" },
+                        giocatori: ["10 NERI ANTONIO", "11 GIALLI FRANCESCO"],
+                        attiva: false,  // Inactive for testing
+                        dataCreazione: "2024-01-15"
+                    },
+                    "DEMO": {
+                        id: "demo-demo",
+                        nome: "Società Dimostrativa",
+                        codici: "DEMO",
+                        config: { tema: "light", notifiche: true, demo: true },
+                        giocatori: ["1 DEMO MARIO", "2 TEST LUIGI", "3 EXAMPLE GIUSEPPE", "4 SAMPLE ANTONIO"],
+                        attiva: true,
+                        dataCreazione: "2024-01-01"
+                    }
+                };
+                
+                const normalizedCode = codice.trim().toUpperCase();
+                return demoSocieta[normalizedCode] || null;
+            };
+            
+            window.cercaSocietaAvanzataFn = async function(codice, opzioni = {}) {
+                const societa = await window.cercaSocietaDaCodiceFn(codice);
+                if (!societa) return null;
+                
+                // Apply filters
+                const { soloAttive = true } = opzioni;
+                if (soloAttive && societa.attiva === false) {
+                    return [];
+                }
+                
+                return [societa];
+            };
+            
+            window.esempiUtilizzoFn = async function() {
+                console.log('=== ESEMPI DI UTILIZZO (MODALITÀ DEMO) ===');
+                console.log('Funzioni Firebase non disponibili, usando dati demo.');
+                console.log('Codici società disponibili: ABC123, XYZ789 (inattiva), DEMO');
+            };
+            
+            window.verificaAccessoSocietaFn = async function(codice) {
+                const societa = await window.cercaSocietaDaCodiceFn(codice);
+                return societa && societa.attiva;
+            };
+            
+            // Also expose with original names for console compatibility
+            window.cercaSocietaDaCodice = window.cercaSocietaDaCodiceFn;
+            window.cercaSocietaAvanzata = window.cercaSocietaAvanzataFn;
+            window.esempiUtilizzo = window.esempiUtilizzoFn;
+            window.verificaAccessoSocieta = window.verificaAccessoSocietaFn;
+            
+            console.log('✅ Modalità demo attivata - Firebase non disponibile');
+            console.log('🛠️ Funzioni demo esposte globalmente:');
+            console.log('  - window.cercaSocietaDaCodice(codice)');
+            console.log('  - window.cercaSocietaDaCodiceFn(codice) [alias per compatibilità]');
+            console.log('  - window.cercaSocietaAvanzata(codice, opzioni)');
+            console.log('  - window.esempiUtilizzo()');
+            console.log('  - window.verificaAccessoSocieta(codice)');
+            console.log('📊 Codici di test disponibili: ABC123, XYZ789 (inattiva), DEMO');
+            
+            mostraRisultato(`⚠️ Modalità demo attivata - Firebase non disponibile. Sono disponibili i seguenti codici di test: <strong>ABC123</strong>, <strong>XYZ789</strong> (inattiva), <strong>DEMO</strong>`, 'info');
         }
         
         // Funzioni per l'interfaccia utente
@@ -202,6 +281,12 @@
                 const societa = await window.cercaSocietaDaCodiceFn(codice);
                 
                 if (societa) {
+                    // Check if company is active
+                    if (societa.attiva === false) {
+                        mostraRisultato(`❌ Società trovata ma non attiva: ${societa.nome || codice}`, 'error');
+                        return;
+                    }
+                    
                     const html = `
                         <div class="society-info">
                             <h4>✅ Società Trovata</h4>
@@ -216,7 +301,7 @@
                     `;
                     mostraRisultato(html, 'success');
                 } else {
-                    mostraRisultato(`❌ Nessuna società trovata con codice: ${codice}`, 'error');
+                    mostraRisultato(`❌ Codice società non valido: ${codice}`, 'error');
                 }
                 
             } catch (error) {
@@ -263,7 +348,7 @@
                     });
                     mostraRisultato(html, 'success');
                 } else {
-                    mostraRisultato(`❌ Nessuna società trovata con ricerca parziale per: ${codice}`, 'error');
+                    mostraRisultato(`❌ Codice società non valido o nessuna società attiva trovata per: ${codice}`, 'error');
                 }
                 
             } catch (error) {

@@ -556,26 +556,35 @@
             }
 
             // Event listeners
-            verifyCompanyButton.addEventListener('click', () => {
+            verifyCompanyButton.addEventListener('click', async () => {
                 const companyCode = companyCodeInput.value.trim();
                 if (!companyCode) {
                     showMessage(companyEntryMessageArea, "Inserisci un codice società.");
                     return;
                 }
 
-                const companyData = verifyCompanyCode(companyCode);
-                if (companyData) {
-                    currentCompanyCode = companyCode;
-                    currentCompanyData = companyData;
-                    
-                    if (rememberCompanyCheckbox.checked) {
-                        localStorage.setItem('companyCode', companyCode);
-                        localStorage.setItem('companyData', JSON.stringify(companyData));
+                try {
+                    const companyData = await verifyCompanyCode(companyCode);
+                    if (companyData) {
+                        currentCompanyCode = companyCode;
+                        currentCompanyData = companyData;
+                        
+                        if (rememberCompanyCheckbox.checked) {
+                            localStorage.setItem('companyCode', companyCode);
+                            localStorage.setItem('companyData', JSON.stringify(companyData));
+                        }
+                        
+                        // Hide any error messages
+                        companyEntryMessageArea.style.display = 'none';
+                        companyEntryMessageArea.classList.add('hidden');
+                        
+                        showCompanyWelcome();
+                    } else {
+                        showMessage(companyEntryMessageArea, "Codice società non valido.");
                     }
-                    
-                    showCompanyWelcome();
-                } else {
-                    showMessage(companyEntryMessageArea, "Codice società non valido.");
+                } catch (error) {
+                    console.error("Errore nella verifica:", error);
+                    showMessage(companyEntryMessageArea, "Errore nella verifica. Riprova.");
                 }
             });
 
@@ -795,7 +804,33 @@
             
             // Company verification functions
             async function verifyCompanyCode(companyCode) {
-                // Demo mode when Firebase is not available
+                // Try to use cercaSocietaDaCodice function if available
+                if (window.cercaSocietaDaCodice) {
+                    try {
+                        const societa = await window.cercaSocietaDaCodice(companyCode);
+                        
+                        // Check if company exists and is active
+                        if (!societa) {
+                            return null;
+                        }
+                        
+                        if (societa.attiva === false) {
+                            return null;
+                        }
+                        
+                        // Convert to expected format for compatibility
+                        return {
+                            name: societa.nome || "Società Sconosciuta",
+                            passwords: societa.passwords || {},
+                            data: societa // Keep original data
+                        };
+                    } catch (error) {
+                        console.error("Errore nella ricerca società:", error);
+                        // Fall back to old method
+                    }
+                }
+
+                // Fallback: Demo mode when Firebase is not available or cercaSocietaDaCodice fails
                 if (!window.db) {
                     console.log("Firebase not available, using demo mode");
                     if (companyCode === "DEMO" || companyCode === "demo") {
@@ -816,7 +851,12 @@
                     const companyDoc = await window.getDoc(companyDocRef);
                     
                     if (companyDoc.exists()) {
-                        return companyDoc.data();
+                        const data = companyDoc.data();
+                        // Check if company is active
+                        if (data.attiva === false) {
+                            return null;
+                        }
+                        return data;
                     } else {
                         return null;
                     }
@@ -1559,6 +1599,10 @@
                             localStorage.setItem('companyCode', companyCode);
                             localStorage.setItem('companyData', JSON.stringify(companyData));
                         }
+                        
+                        // Hide any error messages
+                        companyEntryMessageArea.classList.add('hidden');
+                        companyEntryMessageArea.classList.remove('text-red-600');
                         
                         showCompanyWelcome();
                     } else {

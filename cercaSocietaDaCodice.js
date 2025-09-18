@@ -412,3 +412,10 @@ console.log('  - esempiUtilizzo()');
 console.log('  - verificaAccessoSocieta(codice)');
 console.log('\nQuando importato in demo-cercaSocietaDaCodice.html,');
 console.log('le funzioni sono esposte globalmente per debugging da console F12.');
+
+// Expose functions globally when not in a module context for compatibility
+if (typeof window !== 'undefined') {
+    window.cercaSocietaDaCodice = cercaSocietaDaCodice;
+    window.cercaSocietaDaCodiceFn = cercaSocietaDaCodice; // For compatibility with demo interface
+    console.log('✓ Funzioni esposte globalmente su window per compatibilità.');
+}
