@@ -1042,9 +1042,9 @@
                 }
                 
                 try {
-                    // Update the giocatori property in the company document
+                    // Update the giocatori property in the company document using updateDoc
                     const companyDocRef = window.doc(window.db, "companies", currentCompanyCode);
-                    await window.setDoc(companyDocRef, { giocatori: playersList }, { merge: true });
+                    await window.updateDoc(companyDocRef, { giocatori: playersList });
                     console.log("Players saved to Firebase successfully");
                 } catch (error) {
                     console.error("Errore nel salvataggio giocatori su Firebase:", error);
