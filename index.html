@@ -200,6 +200,10 @@
                     <!-- Company players will be loaded here -->
                 </div>
             </div>
+            <button id="save-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 mb-4 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                Salva Giocatori
+            </button>
+            <div id="save-players-message-area" class="mt-2 mb-4 text-center text-sm font-medium text-gray-600 hidden"></div>
             <button id="back-from-players-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Torna al Menu
             </button>
@@ -702,6 +706,8 @@
             const newPlayerInput = document.getElementById('new-player-input');
             const addPlayerButton = document.getElementById('add-player-button');
             const companyPlayersList = document.getElementById('company-players-list');
+            const savePlayersButton = document.getElementById('save-players-button');
+            const savePlayersMessageArea = document.getElementById('save-players-message-area');
             const backFromPlayersButton = document.getElementById('back-from-players-button');
             
             const nameEntryScreen = document.getElementById('name-entry-screen');
@@ -952,6 +958,16 @@
                 if (!window.db || !currentCompanyCode) {
                     // Demo mode fallback
                     if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                        // Try to load from localStorage first
+                        const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
+                        if (savedPlayers) {
+                            try {
+                                return JSON.parse(savedPlayers);
+                            } catch (error) {
+                                console.error("Error parsing saved players from localStorage:", error);
+                            }
+                        }
+                        // Return default demo players if nothing saved
                         return [
                             "1 ROSSI MARIO", "2 BIANCHI LUIGI", "3 VERDI GIUSEPPE", 
                             "4 NERI ANTONIO", "5 GIALLI FRANCESCO", "6 BLU MARCO",
@@ -978,9 +994,10 @@
             
             async function saveCompanyPlayers(playersList) {
                 if (!window.db || !currentCompanyCode) {
-                    // Demo mode - just simulate success
+                    // Demo mode - save to localStorage
                     if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
                         console.log("Demo mode: players saved locally", playersList);
+                        localStorage.setItem(`players_${currentCompanyCode}`, JSON.stringify(playersList));
                         return;
                     }
                     throw new Error("Dati società non disponibili");
@@ -1561,6 +1578,7 @@
                 hideAllScreens();
                 playerManagementScreen.classList.remove('hidden');
                 renderCompanyPlayers();
+                updateSavePlayersButtonState();
             }
 
             function hideAllScreens() {
@@ -1603,17 +1621,26 @@
                     `;
                     companyPlayersList.appendChild(playerDiv);
                 });
+                
+                updateSavePlayersButtonState();
+            }
+
+            function updateSavePlayersButtonState() {
+                // Enable the button only if there are players to save
+                const hasPlayers = companyPlayers.length > 0;
+                savePlayersButton.disabled = !hasPlayers;
+                
+                if (hasPlayers) {
+                    savePlayersButton.classList.remove('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
+                } else {
+                    savePlayersButton.classList.add('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
+                }
             }
 
             window.removePlayer = async function(index) {
                 companyPlayers.splice(index, 1);
-                try {
-                    await saveCompanyPlayers(companyPlayers);
-                    renderCompanyPlayers();
-                    showMessage("Giocatore rimosso con successo!", "text-green-600");
-                } catch (error) {
-                    showMessage("Errore nella rimozione del giocatore.", "text-red-600");
-                }
+                renderCompanyPlayers();
+                showMessage("Giocatore rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
             };
 
             function showMessage(message, className) {
@@ -1622,6 +1649,15 @@
                 messageArea.classList.remove('hidden');
                 setTimeout(() => {
                     messageArea.classList.add('hidden');
+                }, 5000);
+            }
+
+            function showSavePlayersMessage(message, className) {
+                savePlayersMessageArea.textContent = message;
+                savePlayersMessageArea.className = `mt-2 mb-4 text-center text-sm font-medium ${className}`;
+                savePlayersMessageArea.classList.remove('hidden');
+                setTimeout(() => {
+                    savePlayersMessageArea.classList.add('hidden');
                 }, 5000);
             }
 
@@ -1781,14 +1817,30 @@
                 }
 
                 companyPlayers.push(playerName);
+                newPlayerInput.value = '';
+                renderCompanyPlayers();
+                showMessage("Giocatore aggiunto alla lista. Ricorda di salvare!", "text-blue-600");
+            });
+
+            savePlayersButton.addEventListener('click', async () => {
+                if (companyPlayers.length === 0) {
+                    showSavePlayersMessage("Nessun giocatore da salvare.", "text-orange-600");
+                    return;
+                }
+
+                savePlayersButton.disabled = true;
+                savePlayersButton.textContent = "Salvataggio in corso...";
+                
                 try {
                     await saveCompanyPlayers(companyPlayers);
-                    newPlayerInput.value = '';
-                    renderCompanyPlayers();
-                    showMessage("Giocatore aggiunto con successo!", "text-green-600");
+                    showSavePlayersMessage("Giocatori salvati con successo!", "text-green-600");
                 } catch (error) {
-                    companyPlayers.pop(); // Remove the added player on error
-                    showMessage("Errore nell'aggiunta del giocatore.", "text-red-600");
+                    console.error("Errore nel salvataggio:", error);
+                    showSavePlayersMessage("Errore nel salvataggio dei giocatori.", "text-red-600");
+                } finally {
+                    savePlayersButton.disabled = false;
+                    savePlayersButton.textContent = "Salva Giocatori";
+                    updateSavePlayersButtonState();
                 }
             });
 
