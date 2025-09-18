@@ -1050,8 +1050,14 @@
                     console.error("Errore nel salvataggio giocatori su Firebase:", error);
                     // Fallback to localStorage if Firebase fails
                     console.log("Falling back to localStorage due to Firebase error");
-                    localStorage.setItem(`players_${currentCompanyCode}`, JSON.stringify(playersList));
-                    throw error;
+                    try {
+                        localStorage.setItem(`players_${currentCompanyCode}`, JSON.stringify(playersList));
+                        console.log("Players saved to localStorage as fallback");
+                        // Don't throw error since localStorage save succeeded
+                    } catch (fallbackError) {
+                        console.error("Fallback to localStorage also failed:", fallbackError);
+                        throw new Error("Salvataggio fallito sia su Firebase che su localStorage");
+                    }
                 }
             }
 
