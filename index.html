@@ -604,7 +604,7 @@
             });
 
             enterDirigenteButton.addEventListener('click', () => {
-                showPasswordEntry('marco');
+                showPasswordEntry('dirigente');
             });
 
             confirmPasswordButton.addEventListener('click', () => {
@@ -614,7 +614,13 @@
                     return;
                 }
 
-                const isValid = currentCompanyData.passwords[pendingRole] === password;
+                let isValid = currentCompanyData.passwords[pendingRole] === password;
+                
+                // For backward compatibility: if role is 'dirigente' and not found, try 'marco'
+                if (!isValid && pendingRole === 'dirigente' && currentCompanyData.passwords['marco'] === password) {
+                    isValid = true;
+                }
+                
                 if (isValid) {
                     showMessage(passwordEntryMessageArea, "Accesso effettuato! (Demo mode)", false);
                     setTimeout(() => {
@@ -893,7 +899,8 @@
                             name: "Società Demo",
                             passwords: {
                                 mister: "mister123",
-                                marco: "marco123"
+                                marco: "marco123",
+                                dirigente: "marco123"
                             }
                         };
                     } else {
@@ -927,7 +934,18 @@
                 }
                 
                 const passwords = currentCompanyData.passwords || {};
-                return passwords[role] === password;
+                
+                // First, try the requested role
+                if (passwords[role] === password) {
+                    return true;
+                }
+                
+                // For backward compatibility: if role is 'dirigente' and not found, try 'marco'
+                if (role === 'dirigente' && passwords['marco'] === password) {
+                    return true;
+                }
+                
+                return false;
             }
             
             async function loadCompanyPlayers() {
@@ -1690,7 +1708,7 @@
             });
 
             enterDirigenteButton.addEventListener('click', () => {
-                showPasswordEntry('marco');
+                showPasswordEntry('dirigente');
             });
 
             viewHistoryButton.addEventListener('click', () => {
