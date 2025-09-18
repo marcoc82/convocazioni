@@ -18,13 +18,13 @@ import { getFirestore, collection, query, where, getDocs } from "https://www.gst
 
 // Configurazione Firebase fittizia - SOSTITUIRE CON I PROPRI DATI
 const firebaseConfig = {
-    apiKey: "your-api-key-here",
-    authDomain: "your-project.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:your-app-id",
-    measurementId: "G-YOUR-MEASUREMENT-ID"
+    apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
+    authDomain: "polis-2013.firebaseapp.com",
+    projectId: "polis-2013",
+    storageBucket: "polis-2013.appspot.com",
+    messagingSenderId: "607738543737",
+    appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
+    measurementId: "G-94FT2YQNBM"
 };
 
 // Inizializzazione dell'app Firebase
