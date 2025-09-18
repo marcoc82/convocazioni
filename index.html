@@ -568,6 +568,7 @@
                     if (companyData) {
                         currentCompanyCode = companyCode;
                         currentCompanyData = companyData;
+                        window.currentCompanyData = currentCompanyData;
                         
                         if (rememberCompanyCheckbox.checked) {
                             localStorage.setItem('companyCode', companyCode);
@@ -627,6 +628,7 @@
             if (savedCompanyCode && savedCompanyData) {
                 currentCompanyCode = savedCompanyCode;
                 currentCompanyData = JSON.parse(savedCompanyData);
+                window.currentCompanyData = currentCompanyData;
                 companyCodeInput.value = savedCompanyCode;
                 rememberCompanyCheckbox.checked = true;
                 showCompanyWelcome();
@@ -772,6 +774,7 @@
                             // Restore full session
                             currentCompanyCode = savedCompanyCode;
                             currentCompanyData = JSON.parse(savedCompanyData);
+                            window.currentCompanyData = currentCompanyData;
                             userRole = savedRole;
                             companyPlayers = await loadCompanyPlayers();
                             startApp(savedAppId);
@@ -779,6 +782,7 @@
                             // Show welcome screen with company data
                             currentCompanyCode = savedCompanyCode;
                             currentCompanyData = JSON.parse(savedCompanyData);
+                            window.currentCompanyData = currentCompanyData;
                             companyPlayers = await loadCompanyPlayers();
                             showCompanyWelcome();
                         } else {
@@ -1593,6 +1597,7 @@
                     if (companyData) {
                         currentCompanyCode = companyCode;
                         currentCompanyData = companyData;
+                        window.currentCompanyData = currentCompanyData;
                         companyPlayers = await loadCompanyPlayers();
                         
                         if (rememberCompanyCheckbox.checked) {
@@ -1645,6 +1650,7 @@
                 localStorage.removeItem('convocazioniAppId');
                 currentCompanyCode = null;
                 currentCompanyData = null;
+                window.currentCompanyData = currentCompanyData;
                 companyPlayers = [];
                 userRole = null;
                 showCompanyWelcome();
