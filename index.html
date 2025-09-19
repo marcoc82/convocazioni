@@ -2145,7 +2145,11 @@
             });
             backFromHistoryButton.addEventListener('click', () => {
                 historyView.classList.add('hidden');
-                mainView.classList.remove('hidden');
+                if (currentCompanyCode) {
+                    showCompanyWelcome();
+                } else {
+                    mainView.classList.remove('hidden');
+                }
             });
             backFromAttendanceButton.addEventListener('click', () => {
                 attendanceView.classList.add('hidden');
