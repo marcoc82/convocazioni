@@ -269,6 +269,9 @@
                     <button id="change-team-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Esci
                     </button>
+                    <button id="reset-selections-button" class="w-full mt-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
+                        RESET
+                    </button>
                 </div>
             </div>
 
@@ -780,6 +783,7 @@
             const joinAppIdInput = document.getElementById('join-app-id-input');
             const rememberTeamIdCheckbox = document.getElementById('remember-team-id');
             const changeTeamButton = document.getElementById('change-team-button');
+            const resetSelectionsButton = document.getElementById('reset-selections-button');
             const forgetDataButton = document.getElementById('forget-data-button');
             const roleMessage = document.getElementById('role-message');
             const unavailablePlayersView = document.getElementById('unavailable-players-view');
@@ -1525,6 +1529,51 @@
                 };
             }
 
+            function resetPlayerSelections() {
+                if (confirm('Sei sicuro di voler azzerare tutte le selezioni? Questa azione non può essere annullata.')) {
+                    // Clear all selected players from UI
+                    const selectedPlayers = document.querySelectorAll('.player-item.selected-mister');
+                    selectedPlayers.forEach(player => {
+                        player.classList.remove('selected-mister');
+                    });
+
+                    // Clear unavailable players (for dirigente role)
+                    unavailablePlayers.clear();
+
+                    // Clear the live selected players list
+                    if (selectedPlayersLiveList) {
+                        selectedPlayersLiveList.innerHTML = '';
+                    }
+
+                    // Clear match details form
+                    const campos = ['campo', 'avversario', 'data-partita', 'orario-convocazione', 'orario-partita'];
+                    campos.forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            field.value = '';
+                        }
+                    });
+                    
+                    // Reset tipo partita dropdown
+                    const tipoPartita = document.getElementById('tipo-partita');
+                    if (tipoPartita) {
+                        tipoPartita.selectedIndex = 0;
+                    }
+
+                    // Clear any localStorage data related to selections (if any exists)
+                    // Note: This app doesn't seem to store selections in localStorage currently,
+                    // but this ensures compatibility with future changes
+                    localStorage.removeItem('selectedPlayers');
+                    localStorage.removeItem('matchDetails');
+
+                    // Re-render players to ensure UI is clean
+                    renderPlayers();
+
+                    // Show success message
+                    showMessage("Tutte le selezioni sono state azzerate.", "text-green-600");
+                }
+            }
+
             function generateShareImage() {
                 if (userRole !== 'mister') {
                     showMessage("Solo il Mister può condividere le convocazioni.", "text-red-600");
@@ -1663,6 +1712,9 @@
                     notesEditable.classList.add('hidden');
                     notesReadonly.classList.remove('hidden');
 
+                    // Show reset button for Mister
+                    resetSelectionsButton.classList.remove('hidden');
+
                 } else if (isDirigente()) {
                     selectedPlayersTitle.textContent = "";
                     playersListMessage.textContent = "Clicca sui nomi per segnalare l'indisponibilità.";
@@ -1685,6 +1737,9 @@
                     notesSection.classList.remove('hidden');
                     notesEditable.classList.remove('hidden');
                     notesReadonly.classList.add('hidden');
+
+                    // Show reset button for Dirigente
+                    resetSelectionsButton.classList.remove('hidden');
                 }
                 
                 updateNotesDisplay();
@@ -2188,6 +2243,7 @@
 
             forgetDataButton.addEventListener('click', forgetDataAndReset);
             changeTeamButton.addEventListener('click', forgetDataAndReset);
+            resetSelectionsButton.addEventListener('click', resetPlayerSelections);
             
             saveButton.addEventListener('click', saveData);
             shareButton.addEventListener('click', generateShareImage);
