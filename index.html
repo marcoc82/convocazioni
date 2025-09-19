@@ -922,7 +922,7 @@
                 }
                 
                 try {
-                    const companyDocRef = window.doc(window.db, "companies", companyCode);
+                    const companyDocRef = window.doc(window.db, "societa", companyCode);
                     const companyDoc = await window.getDoc(companyDocRef);
                     
                     if (companyDoc.exists()) {
@@ -1050,14 +1050,14 @@
                 }
                 
                 // Log the complete subcollection path
-                const subcollectionPath = `companies/${currentCompanyCode}/giocatori`;
+                const subcollectionPath = `societa/${currentCompanyCode}/giocatori`;
                 console.log(`📄 Lettura subcollection Firebase da percorso completo: ${subcollectionPath}`);
-                console.log(`🔗 Percorso completo della subcollection: companies/${currentCompanyCode}/giocatori`);
+                console.log(`🔗 Percorso completo della subcollection: societa/${currentCompanyCode}/giocatori`);
                 console.log(`📋 Caricando giocatori dalla subcollection con ID società: ${currentCompanyCode}`);
                 
                 try {
                     // Load giocatori from the giocatori subcollection
-                    const playersCollectionRef = window.collection(window.db, "companies", currentCompanyCode, "giocatori");
+                    const playersCollectionRef = window.collection(window.db, "societa", currentCompanyCode, "giocatori");
                     const playersSnapshot = await window.getDocs(playersCollectionRef);
                     
                     if (!playersSnapshot.empty) {
@@ -1069,7 +1069,7 @@
                             players.push(playerName);
                         });
                         
-                        console.log(`✅ Subcollection trovata: companies/${currentCompanyCode}/giocatori`);
+                        console.log(`✅ Subcollection trovata: societa/${currentCompanyCode}/giocatori`);
                         console.log(`👥 Giocatori trovati nella subcollection (${players.length}):`, players);
                         hidePlayerLoadingError();
                         return players.sort(); // Sort players alphabetically
@@ -1079,7 +1079,7 @@
                         return [];
                     }
                 } catch (error) {
-                    console.error(`💥 Errore nel caricamento giocatori dalla subcollection Firebase (percorso: companies/${currentCompanyCode}/giocatori):`, error);
+                    console.error(`💥 Errore nel caricamento giocatori dalla subcollection Firebase (percorso: societa/${currentCompanyCode}/giocatori):`, error);
                     showPlayerLoadingError(`Errore di connessione a Firebase subcollection: ${error.message}`);
                     
                     // Fallback to localStorage if Firebase fails
@@ -1118,7 +1118,7 @@
                 
                 try {
                     // First, get existing players from subcollection to identify what to remove
-                    const playersCollectionRef = window.collection(window.db, "companies", currentCompanyCode, "giocatori");
+                    const playersCollectionRef = window.collection(window.db, "societa", currentCompanyCode, "giocatori");
                     const existingPlayersSnapshot = await window.getDocs(playersCollectionRef);
                     
                     // Create a set of existing player names for comparison
@@ -1150,13 +1150,13 @@
                     for (const existingPlayerName of existingPlayerNames) {
                         if (!playersList.includes(existingPlayerName)) {
                             const docId = existingPlayerDocs.get(existingPlayerName);
-                            const playerDocRef = window.doc(window.db, "companies", currentCompanyCode, "giocatori", docId);
+                            const playerDocRef = window.doc(window.db, "societa", currentCompanyCode, "giocatori", docId);
                             await window.deleteDoc(playerDocRef);
                             console.log(`🗑️ Giocatore rimosso dalla subcollection: ${existingPlayerName}`);
                         }
                     }
                     
-                    console.log(`✅ Giocatori salvati nella subcollection companies/${currentCompanyCode}/giocatori`);
+                    console.log(`✅ Giocatori salvati nella subcollection societa/${currentCompanyCode}/giocatori`);
                 } catch (error) {
                     console.error("Errore nel salvataggio giocatori nella subcollection Firebase:", error);
                     // Fallback to localStorage if Firebase fails
@@ -1179,7 +1179,7 @@
                 unsubscribeListeners = [];
 
                 // Use company-specific paths
-                const basePath = currentCompanyCode ? `companies/${currentCompanyCode}/data` : `artifacts/${appId}/public/data`;
+                const basePath = currentCompanyCode ? `societa/${currentCompanyCode}/data` : `artifacts/${appId}/public/data`;
 
                 // Listener for Mister's convocations history
                 const historyCollectionRef = window.collection(window.db, `${basePath}/convocations_history`);
@@ -1229,7 +1229,7 @@
                 }
 
                 // Use company-specific paths
-                const basePath = currentCompanyCode ? `companies/${currentCompanyCode}/data` : `artifacts/${currentAppId}/public/data`;
+                const basePath = currentCompanyCode ? `societa/${currentCompanyCode}/data` : `artifacts/${currentAppId}/public/data`;
 
                 if (userRole === 'mister') {
                     const matchDetails = getMatchDetails();
@@ -1661,7 +1661,7 @@
                 }
 
                 const notesContent = notesTextarea.value.trim();
-                const basePath = currentCompanyCode ? `companies/${currentCompanyCode}/data` : `artifacts/${currentAppId}/public/data`;
+                const basePath = currentCompanyCode ? `societa/${currentCompanyCode}/data` : `artifacts/${currentAppId}/public/data`;
                 const notesDocRef = window.doc(window.db, `${basePath}/notes`, "marco_notes");
                 
                 try {
@@ -2222,10 +2222,10 @@
                 
                 try {
                     console.log(`🔥 DEBUG - Tentativo di lettura da Firebase subcollection...`);
-                    console.log(`📄 DEBUG - Leggendo subcollection: companies/${currentCompanyCode}/giocatori`);
+                    console.log(`📄 DEBUG - Leggendo subcollection: societa/${currentCompanyCode}/giocatori`);
                     
-                    // Read from Firebase companies subcollection
-                    const playersCollectionRef = window.collection(window.db, "companies", currentCompanyCode, "giocatori");
+                    // Read from Firebase societa subcollection
+                    const playersCollectionRef = window.collection(window.db, "societa", currentCompanyCode, "giocatori");
                     const playersSnapshot = await window.getDocs(playersCollectionRef);
                     
                     if (!playersSnapshot.empty) {
@@ -2253,7 +2253,7 @@
                         
                         console.log('📊 DEBUG - Dettagli completi dei documenti nella subcollection:', playerDetails);
                     } else {
-                        console.log(`📝 DEBUG - Subcollection companies/${currentCompanyCode}/giocatori vuota o non trovata`);
+                        console.log(`📝 DEBUG - Subcollection societa/${currentCompanyCode}/giocatori vuota o non trovata`);
                         console.log('💡 DEBUG - Verifica che la subcollection esista e contenga documenti');
                     }
                 } catch (error) {
