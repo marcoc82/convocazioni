@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dirigente Functionality</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-4">Test Dirigente Role Functionality</h1>
+        
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h2 class="text-lg font-semibold mb-2">Role Selection</h2>
+            <div class="space-x-2">
+                <button id="set-mister" class="bg-green-600 text-white px-4 py-2 rounded">Set Role: Mister</button>
+                <button id="set-dirigente" class="bg-orange-600 text-white px-4 py-2 rounded">Set Role: Dirigente</button>
+                <button id="set-marco" class="bg-blue-600 text-white px-4 py-2 rounded">Set Role: Marco (Legacy)</button>
+            </div>
+            <p class="mt-2">Current Role: <span id="current-role" class="font-bold">None</span></p>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h2 class="text-lg font-semibold mb-2">Lista Giocatori</h2>
+            <p class="text-sm text-gray-500 mb-4" id="players-list-message">Clicca sui nomi per selezionare i convocati.</p>
+            <ul id="players-list" class="space-y-2">
+                <!-- Players will be added here -->
+            </ul>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="text-lg font-semibold mb-2">Test Results</h2>
+            <div id="test-results" class="space-y-2">
+                <!-- Test results will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Modal -->
+    <div id="status-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg">
+            <h3 class="text-lg font-semibold mb-4">Seleziona lo stato del giocatore</h3>
+            <div class="space-y-2">
+                <button class="w-full bg-gray-800 text-white p-2 rounded" data-status="Infortunato">Infortunato</button>
+                <button class="w-full bg-orange-500 text-white p-2 rounded" data-status="Non disponibile Sabato">Non disponibile Sabato</button>
+                <button class="w-full bg-orange-500 text-white p-2 rounded" data-status="Non disponibile Domenica">Non disponibile Domenica</button>
+                <button class="w-full bg-orange-500 text-white p-2 rounded" data-status="Non disponibile WE">Non disponibile WE</button>
+                <button class="w-full bg-purple-600 text-white p-2 rounded" data-status="Solo 2 allenamenti">Solo 2 allenamenti</button>
+                <button class="w-full bg-purple-600 text-white p-2 rounded" data-status="Solo 1 allenamento">Solo 1 allenamento</button>
+                <button class="w-full bg-green-600 text-white p-2 rounded" data-status="Disponibile">Disponibile</button>
+            </div>
+            <button id="close-modal" class="mt-4 w-full bg-gray-400 text-white p-2 rounded">Annulla</button>
+        </div>
+    </div>
+
+    <script>
+        // Simulate the app state and functionality
+        let userRole = null;
+        let unavailablePlayers = new Map();
+        let tempPlayerName = null;
+
+        // Test players
+        const testPlayers = [
+            "1 ROSSI MARIO",
+            "2 VERDI GIUSEPPE", 
+            "3 BIANCHI ALESSANDRO",
+            "4 NERI FRANCESCO",
+            "5 GIALLI LORENZO"
+        ];
+
+        // Helper function to check if user has dirigente/marco privileges
+        function isDirigente() {
+            return userRole === 'marco' || userRole === 'dirigente';
+        }
+
+        // DOM elements
+        const currentRoleSpan = document.getElementById('current-role');
+        const playersListMessage = document.getElementById('players-list-message');
+        const playersList = document.getElementById('players-list');
+        const statusModal = document.getElementById('status-modal');
+        const testResults = document.getElementById('test-results');
+
+        // Initialize
+        function init() {
+            renderPlayers();
+            setupEventListeners();
+            logTest("Test initialized with " + testPlayers.length + " players");
+        }
+
+        function setRole(role) {
+            userRole = role;
+            currentRoleSpan.textContent = role;
+            updateUI();
+            logTest(`Role set to: ${role}`);
+        }
+
+        function updateUI() {
+            if (userRole === 'mister') {
+                playersListMessage.textContent = "Clicca sui nomi per selezionare i convocati.";
+            } else if (isDirigente()) {
+                playersListMessage.textContent = "Clicca sui nomi per segnalare l'indisponibilità.";
+            } else {
+                playersListMessage.textContent = "Seleziona un ruolo per interagire con i giocatori.";
+            }
+        }
+
+        function renderPlayers() {
+            playersList.innerHTML = '';
+            testPlayers.forEach(playerName => {
+                const li = document.createElement('li');
+                li.textContent = playerName;
+                li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200 cursor-pointer';
+                li.dataset.player = playerName;
+                
+                // Apply status styles
+                if (unavailablePlayers.has(playerName)) {
+                    const status = unavailablePlayers.get(playerName);
+                    if (status === 'Infortunato') {
+                        li.classList.add('bg-gray-800', 'text-white', 'border-gray-600');
+                    } else if (status.includes('Non disponibile')) {
+                        li.classList.add('bg-orange-100', 'text-orange-800', 'border-orange-300');
+                    } else if (status.includes('Solo')) {
+                        li.classList.add('bg-purple-100', 'text-purple-800', 'border-purple-300');
+                    } else {
+                        li.classList.add('bg-red-100', 'text-red-800', 'border-red-300');
+                    }
+                }
+
+                // Player click handler - THIS IS THE FIXED CODE
+                li.addEventListener('click', () => {
+                    if (userRole === 'mister') {
+                        if (unavailablePlayers.has(playerName)) {
+                            logTest(`Mister clicked on unavailable player: ${playerName} (${unavailablePlayers.get(playerName)})`);
+                            return; // Don't allow selection of unavailable players
+                        }
+                        li.classList.toggle('bg-blue-100');
+                        li.classList.toggle('text-blue-800');
+                        logTest(`Mister ${li.classList.contains('bg-blue-100') ? 'selected' : 'deselected'}: ${playerName}`);
+                    } else if (isDirigente()) {  // <- THIS IS THE FIX: isDirigente() instead of userRole === 'marco'
+                        tempPlayerName = playerName;
+                        showModal();
+                        logTest(`Dirigente clicked on player: ${playerName} - showing status modal`);
+                    } else {
+                        logTest(`User with role '${userRole}' clicked on player: ${playerName} - no action taken`);
+                    }
+                });
+                
+                playersList.appendChild(li);
+            });
+        }
+
+        function showModal() {
+            statusModal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            statusModal.classList.add('hidden');
+        }
+
+        function logTest(message) {
+            const div = document.createElement('div');
+            div.className = 'text-sm p-2 bg-gray-50 rounded';
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            testResults.appendChild(div);
+            testResults.scrollTop = testResults.scrollHeight;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('set-mister').addEventListener('click', () => setRole('mister'));
+            document.getElementById('set-dirigente').addEventListener('click', () => setRole('dirigente'));
+            document.getElementById('set-marco').addEventListener('click', () => setRole('marco'));
+
+            document.getElementById('close-modal').addEventListener('click', hideModal);
+
+            // Status button handlers
+            document.querySelectorAll('[data-status]').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const status = event.target.dataset.status;
+                    const playerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
+                    
+                    if (status === 'Disponibile') {
+                        unavailablePlayers.delete(tempPlayerName);
+                        logTest(`Player ${tempPlayerName} set to: Available`);
+                    } else {
+                        unavailablePlayers.set(tempPlayerName, status);
+                        logTest(`Player ${tempPlayerName} set to: ${status}`);
+                    }
+                    
+                    renderPlayers(); // Re-render to apply styles
+                    hideModal();
+                });
+            });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
