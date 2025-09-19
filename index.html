@@ -1340,6 +1340,9 @@
                         }
 
                         showSuccessPopup("Convocazione salvata e presenze aggiornate!");
+                        
+                        // Auto-reset fields after successful save for Mister role only
+                        resetMisterSelectionsWithoutConfirm();
                     } catch (e) {
                         console.error("Errore salvataggio su Firestore: ", e);
                         showMessage("Errore durante il salvataggio. Controlla la console.", "text-red-600");
@@ -1551,50 +1554,56 @@
                 };
             }
 
+            // Helper function to reset Mister's selections without confirmation dialog
+            function resetMisterSelectionsWithoutConfirm() {
+                if (userRole === 'mister') {
+                    // Clear only Mister's selected players from UI
+                    const selectedPlayers = document.querySelectorAll('.player-item.selected-mister');
+                    selectedPlayers.forEach(player => {
+                        player.classList.remove('selected-mister');
+                    });
+
+                    // Clear the live selected players list
+                    if (selectedPlayersLiveList) {
+                        selectedPlayersLiveList.innerHTML = '';
+                    }
+
+                    // Clear match details form
+                    const campos = ['campo', 'avversario', 'data-partita', 'orario-convocazione', 'orario-partita'];
+                    campos.forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            field.value = '';
+                            // Reset avversario field styling if it was modified for Torneo
+                            if (fieldId === 'avversario') {
+                                field.readOnly = false;
+                                field.style.backgroundColor = 'white';
+                                field.style.textAlign = 'left';
+                                field.style.fontSize = '';
+                            }
+                        }
+                    });
+                    
+                    // Reset tipo partita dropdown
+                    const tipoPartita = document.getElementById('tipo-partita');
+                    if (tipoPartita) {
+                        tipoPartita.selectedIndex = 0;
+                    }
+
+                    // Clear localStorage data related to match details (keep unavailable players)
+                    localStorage.removeItem('selectedPlayers');
+                    localStorage.removeItem('matchDetails');
+
+                    // Re-render players to ensure UI is clean (this preserves unavailable players styling)
+                    renderPlayers();
+                }
+            }
+
             function resetPlayerSelections() {
                 if (userRole === 'mister') {
                     // Mister role: only reset his selections, keep Dirigente's unavailable players
                     if (confirm('Sei sicuro di voler azzerare le tue convocazioni? Questa azione non può essere annullata.')) {
-                        // Clear only Mister's selected players from UI
-                        const selectedPlayers = document.querySelectorAll('.player-item.selected-mister');
-                        selectedPlayers.forEach(player => {
-                            player.classList.remove('selected-mister');
-                        });
-
-                        // Clear the live selected players list
-                        if (selectedPlayersLiveList) {
-                            selectedPlayersLiveList.innerHTML = '';
-                        }
-
-                        // Clear match details form
-                        const campos = ['campo', 'avversario', 'data-partita', 'orario-convocazione', 'orario-partita'];
-                        campos.forEach(fieldId => {
-                            const field = document.getElementById(fieldId);
-                            if (field) {
-                                field.value = '';
-                                // Reset avversario field styling if it was modified for Torneo
-                                if (fieldId === 'avversario') {
-                                    field.readOnly = false;
-                                    field.style.backgroundColor = 'white';
-                                    field.style.textAlign = 'left';
-                                    field.style.fontSize = '';
-                                }
-                            }
-                        });
-                        
-                        // Reset tipo partita dropdown
-                        const tipoPartita = document.getElementById('tipo-partita');
-                        if (tipoPartita) {
-                            tipoPartita.selectedIndex = 0;
-                        }
-
-                        // Clear localStorage data related to match details (keep unavailable players)
-                        localStorage.removeItem('selectedPlayers');
-                        localStorage.removeItem('matchDetails');
-
-                        // Re-render players to ensure UI is clean (this preserves unavailable players styling)
-                        renderPlayers();
-
+                        resetMisterSelectionsWithoutConfirm();
                         // Show success message
                         showMessage("Le tue convocazioni sono state azzerate. I giocatori non disponibili segnalati dal Dirigente sono rimasti invariati.", "text-green-600");
                     }
