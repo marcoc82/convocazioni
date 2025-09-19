@@ -1020,7 +1020,7 @@
                     if (savedPlayers) {
                         try {
                             console.log("📁 Caricamento giocatori da localStorage (modalità demo)");
-                            return JSON.parse(savedPlayers);
+                            return JSON.parse(savedPlayers).sort(); // Sort players alphabetically
                         } catch (error) {
                             console.error("❌ Errore nel parsing localStorage (modalità demo):", error);
                         }
@@ -1031,7 +1031,7 @@
                         "1 ROSSI MARIO", "2 BIANCHI LUIGI", "3 VERDI GIUSEPPE", 
                         "4 NERI ANTONIO", "5 GIALLI FRANCESCO", "6 BLU MARCO",
                         "7 VIOLA STEFANO", "8 ROSA ANDREA", "9 GRIGIO PAOLO", "10 AZZURRI LUCA"
-                    ];
+                    ].sort(); // Sort demo players alphabetically
                 }
                 
                 // Firebase mode - load from players subcollection
@@ -1042,7 +1042,7 @@
                     if (savedPlayers) {
                         try {
                             console.log("📁 Fallback: caricamento da localStorage");
-                            return JSON.parse(savedPlayers);
+                            return JSON.parse(savedPlayers).sort(); // Sort players alphabetically
                         } catch (error) {
                             console.error("❌ Errore nel parsing localStorage fallback:", error);
                             showPlayerLoadingError("Errore nel caricamento dei dati salvati localmente");
@@ -1092,7 +1092,7 @@
                     if (savedPlayers) {
                         try {
                             console.log("🔄 Fallback: caricamento da localStorage dopo errore Firebase");
-                            return JSON.parse(savedPlayers);
+                            return JSON.parse(savedPlayers).sort(); // Sort players alphabetically
                         } catch (parseError) {
                             console.error("❌ Errore nel parsing localStorage fallback:", parseError);
                         }
@@ -1990,6 +1990,7 @@
                 }
 
                 companyPlayers.push(playerName);
+                companyPlayers.sort(); // Keep players in alphabetical order
                 newPlayerInput.value = '';
                 renderCompanyPlayers();
                 showMessage("Giocatore aggiunto alla lista. Ricorda di salvare!", "text-blue-600");
@@ -2251,7 +2252,10 @@
                         
                         console.log('✅ DEBUG - Subcollection giocatori trovata in Firebase');
                         console.log(`👥 DEBUG - Giocatori salvati nella subcollection (${players.length}):`);
-                        console.log('📋 DEBUG - Lista giocatori:', players);
+                        
+                        // Sort players alphabetically for consistent display
+                        players.sort();
+                        console.log('📋 DEBUG - Lista giocatori (ordinata alfabeticamente):', players);
                         
                         // Print each player with index for better readability
                         players.forEach((player, index) => {
