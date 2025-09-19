@@ -29,7 +29,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Espone le funzioni Firebase Auth globalmente per evitare ReferenceError
@@ -59,6 +59,7 @@
             window.setDoc = setDoc;
             window.increment = increment;
             window.deleteDoc = deleteDoc;
+            window.getDocs = getDocs;
         } else {
             console.error("Firebase configuration not available. Some features will not work.");
         }
@@ -1028,7 +1029,7 @@
                     ];
                 }
                 
-                // Firebase mode - load from giocatori property in company document
+                // Firebase mode - load from players subcollection
                 if (!window.db) {
                     console.log("❌ Firebase non disponibile, tentativo fallback localStorage");
                     // Firebase not available, fallback to localStorage
@@ -1048,47 +1049,38 @@
                     return [];
                 }
                 
-                // Log the complete document path
-                const documentPath = `companies/${currentCompanyCode}`;
-                console.log(`📄 Lettura documento Firebase da percorso completo: ${documentPath}`);
-                console.log(`🔗 Percorso completo del documento: companies/${currentCompanyCode}`);
-                console.log(`📋 Cercando campo 'giocatori' nel documento con ID: ${currentCompanyCode}`);
+                // Log the complete subcollection path
+                const subcollectionPath = `companies/${currentCompanyCode}/players`;
+                console.log(`📄 Lettura subcollection Firebase da percorso completo: ${subcollectionPath}`);
+                console.log(`🔗 Percorso completo della subcollection: companies/${currentCompanyCode}/players`);
+                console.log(`📋 Caricando giocatori dalla subcollection con ID società: ${currentCompanyCode}`);
                 
                 try {
-                    // Load giocatori from the main company document
-                    const companyDocRef = window.doc(window.db, "companies", currentCompanyCode);
-                    const companyDoc = await window.getDoc(companyDocRef);
+                    // Load giocatori from the players subcollection
+                    const playersCollectionRef = window.collection(window.db, "companies", currentCompanyCode, "players");
+                    const playersSnapshot = await window.getDocs(playersCollectionRef);
                     
-                    if (companyDoc.exists()) {
-                        console.log(`✅ Documento trovato: companies/${currentCompanyCode}`);
-                        const data = companyDoc.data();
-                        console.log("📊 Dati completi del documento:", data);
+                    if (!playersSnapshot.empty) {
+                        const players = [];
+                        playersSnapshot.forEach((doc) => {
+                            const playerData = doc.data();
+                            // Use the player name from the document data, or fallback to document ID
+                            const playerName = playerData.name || playerData.nome || doc.id;
+                            players.push(playerName);
+                        });
                         
-                        if (data.giocatori) {
-                            if (Array.isArray(data.giocatori)) {
-                                console.log(`👥 Giocatori trovati (${data.giocatori.length}):`, data.giocatori);
-                                hidePlayerLoadingError();
-                                return data.giocatori;
-                            } else {
-                                console.warn("⚠️ Il campo 'giocatori' esiste ma non è un array:", typeof data.giocatori, data.giocatori);
-                                showPlayerLoadingError(`Campo 'giocatori' non è un array valido nel documento ${currentCompanyCode}`);
-                                return [];
-                            }
-                        } else {
-                            console.log("📝 Campo 'giocatori' non presente nel documento, ritorno array vuoto");
-                            hidePlayerLoadingError();
-                            return [];
-                        }
+                        console.log(`✅ Subcollection trovata: companies/${currentCompanyCode}/players`);
+                        console.log(`👥 Giocatori trovati nella subcollection (${players.length}):`, players);
+                        hidePlayerLoadingError();
+                        return players.sort(); // Sort players alphabetically
                     } else {
-                        const errorMsg = `Documento non trovato: companies/${currentCompanyCode}`;
-                        console.log(`❌ ${errorMsg}`);
-                        console.log("💡 Verificare che il codice società sia corretto e che il documento esista in Firebase");
-                        showPlayerLoadingError(errorMsg);
+                        console.log(`📝 Subcollection 'players' vuota per società ${currentCompanyCode}, ritorno array vuoto`);
+                        hidePlayerLoadingError();
                         return [];
                     }
                 } catch (error) {
-                    console.error(`💥 Errore nel caricamento giocatori da Firebase (percorso: companies/${currentCompanyCode}):`, error);
-                    showPlayerLoadingError(`Errore di connessione a Firebase: ${error.message}`);
+                    console.error(`💥 Errore nel caricamento giocatori dalla subcollection Firebase (percorso: companies/${currentCompanyCode}/players):`, error);
+                    showPlayerLoadingError(`Errore di connessione a Firebase subcollection: ${error.message}`);
                     
                     // Fallback to localStorage if Firebase fails
                     const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
@@ -1116,7 +1108,7 @@
                     return;
                 }
                 
-                // Firebase mode - update giocatori property in companies collection
+                // Firebase mode - save to players subcollection
                 if (!window.db) {
                     // Firebase not available, fallback to localStorage
                     console.log("Firebase not available, saving to localStorage as fallback");
@@ -1125,12 +1117,48 @@
                 }
                 
                 try {
-                    // Update the giocatori property in the company document using updateDoc
-                    const companyDocRef = window.doc(window.db, "companies", currentCompanyCode);
-                    await window.updateDoc(companyDocRef, { giocatori: playersList });
-                    console.log("Players saved to Firebase successfully");
+                    // First, get existing players from subcollection to identify what to remove
+                    const playersCollectionRef = window.collection(window.db, "companies", currentCompanyCode, "players");
+                    const existingPlayersSnapshot = await window.getDocs(playersCollectionRef);
+                    
+                    // Create a set of existing player names for comparison
+                    const existingPlayerNames = new Set();
+                    const existingPlayerDocs = new Map();
+                    existingPlayersSnapshot.forEach((doc) => {
+                        const playerData = doc.data();
+                        const playerName = playerData.name || playerData.nome || doc.id;
+                        existingPlayerNames.add(playerName);
+                        existingPlayerDocs.set(playerName, doc.id);
+                    });
+                    
+                    // Add new players to subcollection
+                    for (const playerName of playersList) {
+                        if (!existingPlayerNames.has(playerName)) {
+                            // Create a new document for this player
+                            const playerDocRef = window.doc(playersCollectionRef);
+                            await window.setDoc(playerDocRef, {
+                                name: playerName,
+                                nome: playerName, // Keep both for compatibility
+                                createdAt: new Date().toISOString(),
+                                active: true
+                            });
+                            console.log(`✅ Nuovo giocatore aggiunto alla subcollection: ${playerName}`);
+                        }
+                    }
+                    
+                    // Remove players that are no longer in the list
+                    for (const existingPlayerName of existingPlayerNames) {
+                        if (!playersList.includes(existingPlayerName)) {
+                            const docId = existingPlayerDocs.get(existingPlayerName);
+                            const playerDocRef = window.doc(window.db, "companies", currentCompanyCode, "players", docId);
+                            await window.deleteDoc(playerDocRef);
+                            console.log(`🗑️ Giocatore rimosso dalla subcollection: ${existingPlayerName}`);
+                        }
+                    }
+                    
+                    console.log(`✅ Giocatori salvati nella subcollection companies/${currentCompanyCode}/players`);
                 } catch (error) {
-                    console.error("Errore nel salvataggio giocatori su Firebase:", error);
+                    console.error("Errore nel salvataggio giocatori nella subcollection Firebase:", error);
                     // Fallback to localStorage if Firebase fails
                     console.log("Falling back to localStorage due to Firebase error");
                     try {
@@ -2193,39 +2221,43 @@
                 }
                 
                 try {
-                    console.log(`🔥 DEBUG - Tentativo di lettura da Firebase...`);
-                    console.log(`📄 DEBUG - Leggendo documento: companies/${currentCompanyCode}`);
+                    console.log(`🔥 DEBUG - Tentativo di lettura da Firebase subcollection...`);
+                    console.log(`📄 DEBUG - Leggendo subcollection: companies/${currentCompanyCode}/players`);
                     
-                    // Read from Firebase companies collection
-                    const companyDocRef = window.doc(window.db, "companies", currentCompanyCode);
-                    const companyDoc = await window.getDoc(companyDocRef);
+                    // Read from Firebase companies subcollection
+                    const playersCollectionRef = window.collection(window.db, "companies", currentCompanyCode, "players");
+                    const playersSnapshot = await window.getDocs(playersCollectionRef);
                     
-                    if (companyDoc.exists()) {
-                        const data = companyDoc.data();
-                        console.log('✅ DEBUG - Documento società trovato in Firebase');
-                        console.log('📊 DEBUG - Dati completi del documento:', data);
-                        
-                        if (data.giocatori && Array.isArray(data.giocatori)) {
-                            console.log(`👥 DEBUG - Giocatori salvati nel database (${data.giocatori.length}):`);
-                            console.log('📋 DEBUG - Lista giocatori:', data.giocatori);
-                            
-                            // Print each player with index for better readability
-                            data.giocatori.forEach((player, index) => {
-                                console.log(`   ${index + 1}. ${player}`);
+                    if (!playersSnapshot.empty) {
+                        const players = [];
+                        const playerDetails = [];
+                        playersSnapshot.forEach((doc) => {
+                            const playerData = doc.data();
+                            const playerName = playerData.name || playerData.nome || doc.id;
+                            players.push(playerName);
+                            playerDetails.push({
+                                id: doc.id,
+                                name: playerName,
+                                data: playerData
                             });
-                        } else if (data.giocatori === undefined) {
-                            console.log('⚠️  DEBUG - Campo "giocatori" non presente nel documento');
-                        } else if (!Array.isArray(data.giocatori)) {
-                            console.log('⚠️  DEBUG - Campo "giocatori" presente ma non è un array:', typeof data.giocatori, data.giocatori);
-                        } else {
-                            console.log('📝 DEBUG - Array giocatori vuoto');
-                        }
+                        });
+                        
+                        console.log('✅ DEBUG - Subcollection giocatori trovata in Firebase');
+                        console.log(`👥 DEBUG - Giocatori salvati nella subcollection (${players.length}):`);
+                        console.log('📋 DEBUG - Lista giocatori:', players);
+                        
+                        // Print each player with index for better readability
+                        players.forEach((player, index) => {
+                            console.log(`   ${index + 1}. ${player}`);
+                        });
+                        
+                        console.log('📊 DEBUG - Dettagli completi dei documenti nella subcollection:', playerDetails);
                     } else {
-                        console.log(`❌ DEBUG - Documento companies/${currentCompanyCode} non trovato in Firebase`);
-                        console.log('💡 DEBUG - Verifica che il codice società sia corretto e che il documento esista');
+                        console.log(`📝 DEBUG - Subcollection companies/${currentCompanyCode}/players vuota o non trovata`);
+                        console.log('💡 DEBUG - Verifica che la subcollection esista e contenga documenti');
                     }
                 } catch (error) {
-                    console.error('💥 DEBUG - Errore durante la lettura da Firebase:', error);
+                    console.error('💥 DEBUG - Errore durante la lettura dalla subcollection Firebase:', error);
                     console.log('🔄 DEBUG - Tentativo di fallback su localStorage...');
                     
                     // Fallback to localStorage
