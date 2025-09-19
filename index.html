@@ -370,7 +370,7 @@
                     Condividi le convocazioni
                 </button>
             </div>
-            <button id="history-button" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+            <button id="history-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Storico Convocazioni
             </button>
             <button id="attendance-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
@@ -833,6 +833,7 @@
             let tempPlayerName = null;
             let tempUnavailablePlayerName = null; // per "convoca comunque"
             let unsubscribeListeners = [];
+            let historyPreviousView = null; // track where history was accessed from
 
             // Helper function to check if user has dirigente/marco privileges
             function isDirigente() {
@@ -1748,7 +1749,7 @@
                     historyButton.disabled = false;
                     attendanceButton.disabled = false;
                     shareButton.classList.replace('bg-gray-400', 'bg-blue-600');
-                    historyButton.classList.replace('bg-gray-400', 'bg-gray-600');
+                    historyButton.classList.replace('bg-gray-400', 'bg-purple-600');
                     attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
                     unavailablePlayersView.classList.remove('hidden');
                     unavailablePlayersView.style.display = ''; // Show for Mister
@@ -1774,7 +1775,7 @@
                     historyButton.disabled = false;
                     attendanceButton.disabled = false;
                     shareButton.classList.replace('bg-blue-600', 'bg-gray-400');
-                    historyButton.classList.replace('bg-gray-400', 'bg-gray-600');
+                    historyButton.classList.replace('bg-gray-400', 'bg-purple-600');
                     attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
                     unavailablePlayersView.classList.remove('hidden');
                     unavailablePlayersView.style.display = ''; // Show unavailable players view for Marco
@@ -2114,6 +2115,7 @@
                 // Use company-specific app ID or create one
                 const companyAppId = currentCompanyCode;
                 currentAppId = companyAppId;
+                historyPreviousView = 'welcome'; // track that we came from welcome screen
                 hideAllScreens();
                 historyView.classList.remove('hidden');
                 setupFirestoreListeners(companyAppId);
@@ -2315,6 +2317,7 @@
             saveButton.addEventListener('click', saveData);
             shareButton.addEventListener('click', generateShareImage);
             historyButton.addEventListener('click', () => {
+                historyPreviousView = 'main'; // track that we came from main view
                 mainView.classList.add('hidden');
                 historyView.classList.remove('hidden');
                 attendanceView.classList.add('hidden');
@@ -2326,11 +2329,18 @@
             });
             backFromHistoryButton.addEventListener('click', () => {
                 historyView.classList.add('hidden');
-                if (currentCompanyCode) {
-                    showCompanyWelcome();
+                if (historyPreviousView === 'welcome') {
+                    // Came from welcome screen, go back to welcome
+                    if (currentCompanyCode) {
+                        showCompanyWelcome();
+                    } else {
+                        mainView.classList.remove('hidden');
+                    }
                 } else {
+                    // Came from main view (Mister/Dirigente), go back to main view
                     mainView.classList.remove('hidden');
                 }
+                historyPreviousView = null; // reset for next time
             });
             backFromAttendanceButton.addEventListener('click', () => {
                 attendanceView.classList.add('hidden');
