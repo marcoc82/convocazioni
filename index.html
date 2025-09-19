@@ -1921,6 +1921,9 @@
                     userRole = pendingRole;
                     localStorage.setItem('userRole', userRole);
                     
+                    // Load company players from Firebase database
+                    companyPlayers = await loadCompanyPlayers();
+                    
                     // Use company code as app ID
                     const companyAppId = currentCompanyCode;
                     localStorage.setItem('convocazioniAppId', companyAppId);
