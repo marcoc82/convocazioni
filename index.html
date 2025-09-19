@@ -1001,6 +1001,24 @@
                 }
             }
 
+            /**
+             * Custom sorting function for players that sorts alphabetically by name only,
+             * ignoring the number prefix (e.g., "1 ROSSI MARIO" -> sort by "ROSSI MARIO")
+             * @param {string[]} players - Array of player strings in format "NUMBER SURNAME NAME"
+             * @returns {string[]} - Sorted array of players
+             */
+            function sortPlayersByName(players) {
+                return players.sort((a, b) => {
+                    // Extract name part by removing the number prefix
+                    // Pattern: "NUMBER SURNAME NAME" -> "SURNAME NAME"
+                    const nameA = a.replace(/^\d+\s+/, '').trim();
+                    const nameB = b.replace(/^\d+\s+/, '').trim();
+                    
+                    // Compare the names alphabetically (case-insensitive)
+                    return nameA.localeCompare(nameB, 'it', { sensitivity: 'base' });
+                });
+            }
+
             async function loadCompanyPlayers() {
                 console.log("🔄 loadCompanyPlayers() chiamata");
                 
@@ -1020,18 +1038,18 @@
                     if (savedPlayers) {
                         try {
                             console.log("📁 Caricamento giocatori da localStorage (modalità demo)");
-                            return JSON.parse(savedPlayers).sort(); // Sort players alphabetically
+                            return sortPlayersByName(JSON.parse(savedPlayers)); // Sort players by name only
                         } catch (error) {
                             console.error("❌ Errore nel parsing localStorage (modalità demo):", error);
                         }
                     }
                     // Return default demo players if nothing saved
                     console.log("🎲 Utilizzo giocatori predefiniti per modalità demo");
-                    return [
+                    return sortPlayersByName([
                         "1 ROSSI MARIO", "2 BIANCHI LUIGI", "3 VERDI GIUSEPPE", 
                         "4 NERI ANTONIO", "5 GIALLI FRANCESCO", "6 BLU MARCO",
                         "7 VIOLA STEFANO", "8 ROSA ANDREA", "9 GRIGIO PAOLO", "10 AZZURRI LUCA"
-                    ].sort(); // Sort demo players alphabetically
+                    ]); // Sort demo players by name only
                 }
                 
                 // Firebase mode - load from players subcollection
@@ -1042,7 +1060,7 @@
                     if (savedPlayers) {
                         try {
                             console.log("📁 Fallback: caricamento da localStorage");
-                            return JSON.parse(savedPlayers).sort(); // Sort players alphabetically
+                            return sortPlayersByName(JSON.parse(savedPlayers)); // Sort players by name only
                         } catch (error) {
                             console.error("❌ Errore nel parsing localStorage fallback:", error);
                             showPlayerLoadingError("Errore nel caricamento dei dati salvati localmente");
@@ -1077,7 +1095,7 @@
                         console.log(`✅ Subcollection trovata: societa/${currentCompanyCode}/giocatori`);
                         console.log(`👥 Giocatori trovati nella subcollection (${players.length}):`, players);
                         hidePlayerLoadingError();
-                        return players.sort(); // Sort players alphabetically
+                        return sortPlayersByName(players); // Sort players by name only
                     } else {
                         console.log(`📝 Subcollection 'giocatori' vuota per società ${currentCompanyCode}, ritorno array vuoto`);
                         hidePlayerLoadingError();
@@ -1092,7 +1110,7 @@
                     if (savedPlayers) {
                         try {
                             console.log("🔄 Fallback: caricamento da localStorage dopo errore Firebase");
-                            return JSON.parse(savedPlayers).sort(); // Sort players alphabetically
+                            return sortPlayersByName(JSON.parse(savedPlayers)); // Sort players by name only
                         } catch (parseError) {
                             console.error("❌ Errore nel parsing localStorage fallback:", parseError);
                         }
@@ -1990,7 +2008,7 @@
                 }
 
                 companyPlayers.push(playerName);
-                companyPlayers.sort(); // Keep players in alphabetical order
+                companyPlayers = sortPlayersByName(companyPlayers); // Keep players in alphabetical order by name
                 newPlayerInput.value = '';
                 renderCompanyPlayers();
                 showMessage("Giocatore aggiunto alla lista. Ricorda di salvare!", "text-blue-600");
@@ -2253,9 +2271,9 @@
                         console.log('✅ DEBUG - Subcollection giocatori trovata in Firebase');
                         console.log(`👥 DEBUG - Giocatori salvati nella subcollection (${players.length}):`);
                         
-                        // Sort players alphabetically for consistent display
-                        players.sort();
-                        console.log('📋 DEBUG - Lista giocatori (ordinata alfabeticamente):', players);
+                        // Sort players by name only for consistent display
+                        sortPlayersByName(players);
+                        console.log('📋 DEBUG - Lista giocatori (ordinata alfabeticamente per nome):', players);
                         
                         // Print each player with index for better readability
                         players.forEach((player, index) => {
