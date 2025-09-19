@@ -1334,13 +1334,15 @@
                             const docId = btn.getAttribute('data-docid');
                             if (confirm('Vuoi davvero eliminare questa partita dallo storico?')) {
                                 try {
+                                    // Use company-specific paths
+                                    const basePath = currentCompanyCode ? `societa/${currentCompanyCode}/data` : `artifacts/${currentAppId}/public/data`;
                                     // Recupera i giocatori coinvolti e aggiorna le presenze
-                                    const docRef = window.doc(window.db, `artifacts/${currentAppId}/public/data/convocations_history`, docId);
+                                    const docRef = window.doc(window.db, `${basePath}/convocations_history`, docId);
                                     const docSnap = await window.getDoc(docRef);
                                     if (docSnap.exists()) {
                                         const convocazione = docSnap.data();
                                         for (const player of convocazione.players) {
-                                            const playerDocRef = window.doc(window.db, `artifacts/${currentAppId}/public/data/player_attendance`, player);
+                                            const playerDocRef = window.doc(window.db, `${basePath}/player_attendance`, player);
                                             await window.setDoc(playerDocRef, { count: window.increment(-1) }, { merge: true });
                                         }
                                     }
