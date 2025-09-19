@@ -528,6 +528,19 @@
             // Show company entry screen
             companyEntryScreen.classList.remove('hidden');
 
+            // Initialize checkbox state based on saved preference
+            const savedRememberPreference = localStorage.getItem('rememberCompanyPreference');
+            if (savedRememberPreference === 'true') {
+                rememberCompanyCheckbox.checked = true;
+                // If remember is true and there's saved data, fill in the company code
+                const savedCompanyCode = localStorage.getItem('companyCode');
+                if (savedCompanyCode) {
+                    companyCodeInput.value = savedCompanyCode;
+                }
+            } else {
+                rememberCompanyCheckbox.checked = false;
+            }
+
             function hideAllScreens() {
                 document.querySelectorAll('[id$="-screen"]').forEach(screen => {
                     screen.classList.add('hidden');
@@ -600,6 +613,15 @@
                         if (rememberCompanyCheckbox.checked) {
                             localStorage.setItem('companyCode', companyCode);
                             localStorage.setItem('companyData', JSON.stringify(companyData));
+                            localStorage.setItem('rememberCompanyPreference', 'true');
+                            // Show confirmation message
+                            setTimeout(() => {
+                                showMessage(companyEntryMessageArea, "Codice società salvato!", false);
+                            }, 500);
+                        } else {
+                            localStorage.removeItem('companyCode');
+                            localStorage.removeItem('companyData');
+                            localStorage.setItem('rememberCompanyPreference', 'false');
                         }
                         
                         // Hide any error messages
@@ -657,8 +679,9 @@
             // Check for saved data
             const savedCompanyCode = localStorage.getItem('companyCode');
             const savedCompanyData = localStorage.getItem('companyData');
+            const rememberPreference = localStorage.getItem('rememberCompanyPreference');
             
-            if (savedCompanyCode && savedCompanyData) {
+            if (savedCompanyCode && savedCompanyData && rememberPreference === 'true') {
                 currentCompanyCode = savedCompanyCode;
                 window.currentCompanyCode = currentCompanyCode;
                 currentCompanyData = JSON.parse(savedCompanyData);
@@ -861,7 +884,9 @@
                             showCompanyWelcome();
                         } else {
                             // Show company entry screen
-                            if (savedCompanyCode) {
+                            const savedCompanyCode = localStorage.getItem('companyCode');
+                            const rememberPreference = localStorage.getItem('rememberCompanyPreference');
+                            if (savedCompanyCode && rememberPreference === 'true') {
                                 companyCodeInput.value = savedCompanyCode;
                                 rememberCompanyCheckbox.checked = true;
                             }
@@ -1922,6 +1947,18 @@
                         if (rememberCompanyCheckbox.checked) {
                             localStorage.setItem('companyCode', companyCode);
                             localStorage.setItem('companyData', JSON.stringify(companyData));
+                            localStorage.setItem('rememberCompanyPreference', 'true');
+                            // Show confirmation message
+                            setTimeout(() => {
+                                companyEntryMessageArea.textContent = "Codice società salvato!";
+                                companyEntryMessageArea.classList.remove('hidden', 'text-red-600');
+                                companyEntryMessageArea.classList.add('text-green-600');
+                                setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 3000);
+                            }, 500);
+                        } else {
+                            localStorage.removeItem('companyCode');
+                            localStorage.removeItem('companyData');
+                            localStorage.setItem('rememberCompanyPreference', 'false');
                         }
                         
                         // Hide any error messages
@@ -1965,10 +2002,19 @@
             });
 
             companyLogoutButton.addEventListener('click', () => {
+                // Always remove session-specific data
                 localStorage.removeItem('userRole');
                 localStorage.removeItem('convocazioniAppId');
-                localStorage.removeItem('companyCode');
-                localStorage.removeItem('companyData');
+                
+                // Check if user wants to remember company code
+                const rememberPreference = localStorage.getItem('rememberCompanyPreference');
+                if (rememberPreference !== 'true') {
+                    // If user doesn't want to remember, remove company data
+                    localStorage.removeItem('companyCode');
+                    localStorage.removeItem('companyData');
+                }
+                
+                // Reset application state
                 currentCompanyCode = null;
                 window.currentCompanyCode = currentCompanyCode;
                 currentCompanyData = null;
@@ -2058,6 +2104,18 @@
 
             backFromPlayersButton.addEventListener('click', () => {
                 showCompanyWelcome();
+            });
+
+            // Event listener for remember company checkbox
+            rememberCompanyCheckbox.addEventListener('change', () => {
+                if (rememberCompanyCheckbox.checked) {
+                    localStorage.setItem('rememberCompanyPreference', 'true');
+                } else {
+                    localStorage.setItem('rememberCompanyPreference', 'false');
+                    // If unchecked, remove saved company data immediately
+                    localStorage.removeItem('companyCode');
+                    localStorage.removeItem('companyData');
+                }
             });
 
             // Event listeners for view switching

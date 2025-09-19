@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Ricorda Codice Società</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-6">Test per "Ricorda Codice Società"</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Test Controls -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold">Test Controls</h2>
+                
+                <button id="testSaveCode" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                    Test: Salva DEMO con checkbox attivo
+                </button>
+                
+                <button id="testLogout" class="w-full bg-orange-500 text-white p-2 rounded hover:bg-orange-600">
+                    Test: Simula logout
+                </button>
+                
+                <button id="testPageReload" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">
+                    Test: Simula ricarica pagina
+                </button>
+                
+                <button id="testUncheckAndSave" class="w-full bg-purple-500 text-white p-2 rounded hover:bg-purple-600">
+                    Test: Disattiva checkbox e salva altro codice
+                </button>
+                
+                <button id="clearAll" class="w-full bg-red-500 text-white p-2 rounded hover:bg-red-600">
+                    Clear All LocalStorage
+                </button>
+            </div>
+            
+            <!-- Test Results -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-semibold">Test Results</h2>
+                <div id="results" class="space-y-2 text-sm font-mono bg-gray-50 p-4 rounded min-h-[300px]">
+                    <div>Test results will appear here...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Current State -->
+        <div class="mt-6">
+            <h2 class="text-lg font-semibold mb-2">Current LocalStorage State</h2>
+            <div id="currentState" class="bg-gray-50 p-4 rounded text-sm font-mono">
+                <!-- Current state will be shown here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateCurrentState() {
+            const state = {
+                companyCode: localStorage.getItem('companyCode'),
+                companyData: localStorage.getItem('companyData'),
+                rememberCompanyPreference: localStorage.getItem('rememberCompanyPreference'),
+                userRole: localStorage.getItem('userRole'),
+                convocazioniAppId: localStorage.getItem('convocazioniAppId')
+            };
+            
+            document.getElementById('currentState').innerHTML = Object.entries(state)
+                .map(([key, value]) => `<div><strong>${key}:</strong> ${value || 'null'}</div>`)
+                .join('');
+        }
+        
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'success' ? 'text-green-600' : 
+                             type === 'error' ? 'text-red-600' : 
+                             type === 'warning' ? 'text-orange-600' : 'text-blue-600';
+            
+            const div = document.createElement('div');
+            div.className = colorClass;
+            div.innerHTML = `[${timestamp}] ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+            updateCurrentState();
+        }
+        
+        // Test: Save DEMO code with checkbox active
+        document.getElementById('testSaveCode').addEventListener('click', () => {
+            localStorage.setItem('companyCode', 'DEMO');
+            localStorage.setItem('companyData', JSON.stringify({
+                name: "Società Demo",
+                passwords: {
+                    mister: "mister123",
+                    marco: "marco123",
+                    dirigente: "marco123"
+                }
+            }));
+            localStorage.setItem('rememberCompanyPreference', 'true');
+            localStorage.setItem('userRole', 'mister');
+            localStorage.setItem('convocazioniAppId', 'DEMO');
+            
+            addResult('✓ Codice DEMO salvato con checkbox attivo', 'success');
+        });
+        
+        // Test: Simulate logout (should preserve company data if remember is true)
+        document.getElementById('testLogout').addEventListener('click', () => {
+            const rememberPreference = localStorage.getItem('rememberCompanyPreference');
+            
+            // Remove session-specific data
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('convocazioniAppId');
+            
+            // Only remove company data if remember preference is false
+            if (rememberPreference !== 'true') {
+                localStorage.removeItem('companyCode');
+                localStorage.removeItem('companyData');
+                addResult('⚠ Logout: Company data removed (remember was false)', 'warning');
+            } else {
+                addResult('✓ Logout: Company data preserved (remember was true)', 'success');
+            }
+        });
+        
+        // Test: Simulate page reload (should restore company code if remember is true)
+        document.getElementById('testPageReload').addEventListener('click', () => {
+            const savedCompanyCode = localStorage.getItem('companyCode');
+            const rememberPreference = localStorage.getItem('rememberCompanyPreference');
+            
+            if (savedCompanyCode && rememberPreference === 'true') {
+                addResult(`✓ Page reload: Company code '${savedCompanyCode}' would be restored`, 'success');
+            } else if (savedCompanyCode && rememberPreference !== 'true') {
+                addResult(`⚠ Page reload: Company code '${savedCompanyCode}' found but remember is false`, 'warning');
+            } else {
+                addResult('ℹ Page reload: No company code to restore', 'info');
+            }
+        });
+        
+        // Test: Uncheck checkbox and save different code
+        document.getElementById('testUncheckAndSave').addEventListener('click', () => {
+            localStorage.setItem('rememberCompanyPreference', 'false');
+            localStorage.removeItem('companyCode');
+            localStorage.removeItem('companyData');
+            
+            addResult('✓ Checkbox unchecked: Company data cleared', 'success');
+        });
+        
+        // Clear all localStorage
+        document.getElementById('clearAll').addEventListener('click', () => {
+            localStorage.clear();
+            addResult('✓ All localStorage cleared', 'success');
+        });
+        
+        // Initial state
+        updateCurrentState();
+        addResult('Test page loaded', 'info');
+    </script>
+</body>
+</html>
