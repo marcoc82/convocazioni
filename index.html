@@ -1840,6 +1840,24 @@
                 window.location.reload(); 
             }
 
+            function logoutToCompanyWelcome() {
+                // Check if we're in a company context
+                if (currentCompanyCode && currentCompanyData) {
+                    // Remove only session-specific data, keep company data
+                    localStorage.removeItem('userRole');
+                    localStorage.removeItem('convocazioniAppId');
+                    
+                    // Reset user role
+                    userRole = null;
+                    
+                    // Return to company welcome screen
+                    showCompanyWelcome();
+                } else {
+                    // If not in company context, fall back to full reset
+                    forgetDataAndReset();
+                }
+            }
+
             // --- Company Navigation Functions ---
             function showCompanyWelcome() {
                 hideAllScreens();
@@ -2242,7 +2260,7 @@
             });
 
             forgetDataButton.addEventListener('click', forgetDataAndReset);
-            changeTeamButton.addEventListener('click', forgetDataAndReset);
+            changeTeamButton.addEventListener('click', logoutToCompanyWelcome);
             resetSelectionsButton.addEventListener('click', resetPlayerSelections);
             
             saveButton.addEventListener('click', saveData);
