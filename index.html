@@ -1307,8 +1307,20 @@
                     const matchDetails = getMatchDetails();
                     const selectedPlayers = getSelectedPlayers();
                     
-                    if (!matchDetails.avversario || selectedPlayers.length === 0) {
-                        showMessage("Inserisci l'avversario e seleziona almeno un giocatore per salvare.", "text-red-600");
+                    // For Torneo type, avversario field should contain trophy emoji or be considered valid
+                    const isValidAvversario = matchDetails.tipo === 'Torneo' ? 
+                        (matchDetails.avversario === '🏆' || matchDetails.avversario) :
+                        matchDetails.avversario;
+                    
+                    if (!isValidAvversario || selectedPlayers.length === 0) {
+                        const missingFields = [];
+                        if (!isValidAvversario) {
+                            missingFields.push(matchDetails.tipo === 'Torneo' ? 'tipo torneo' : 'avversario');
+                        }
+                        if (selectedPlayers.length === 0) {
+                            missingFields.push('almeno un giocatore');
+                        }
+                        showMessage(`Inserisci ${missingFields.join(' e ')} per salvare.`, "text-red-600");
                         return;
                     }
 
@@ -1560,6 +1572,13 @@
                             const field = document.getElementById(fieldId);
                             if (field) {
                                 field.value = '';
+                                // Reset avversario field styling if it was modified for Torneo
+                                if (fieldId === 'avversario') {
+                                    field.readOnly = false;
+                                    field.style.backgroundColor = 'white';
+                                    field.style.textAlign = 'left';
+                                    field.style.fontSize = '';
+                                }
                             }
                         });
                         
@@ -1602,6 +1621,13 @@
                             const field = document.getElementById(fieldId);
                             if (field) {
                                 field.value = '';
+                                // Reset avversario field styling if it was modified for Torneo
+                                if (fieldId === 'avversario') {
+                                    field.readOnly = false;
+                                    field.style.backgroundColor = 'white';
+                                    field.style.textAlign = 'left';
+                                    field.style.fontSize = '';
+                                }
                             }
                         });
                         
@@ -1764,6 +1790,17 @@
 
                     // Show reset button for Mister
                     resetSelectionsButton.classList.remove('hidden');
+                    
+                    // Initialize avversario field based on current tipo-partita selection
+                    const tipoPartitaSelect = document.getElementById('tipo-partita');
+                    const avversarioInput = document.getElementById('avversario');
+                    if (tipoPartitaSelect && avversarioInput && tipoPartitaSelect.value === 'Torneo') {
+                        avversarioInput.value = '🏆';
+                        avversarioInput.readOnly = true;
+                        avversarioInput.style.backgroundColor = '#f9fafb';
+                        avversarioInput.style.textAlign = 'center';
+                        avversarioInput.style.fontSize = '1.5rem';
+                    }
 
                 } else if (isDirigente()) {
                     selectedPlayersTitle.textContent = "";
@@ -2316,6 +2353,33 @@
             
             saveButton.addEventListener('click', saveData);
             shareButton.addEventListener('click', generateShareImage);
+            
+            // Handle tipo-partita selection change for Mister role
+            const tipoPartitaSelect = document.getElementById('tipo-partita');
+            const avversarioInput = document.getElementById('avversario');
+            
+            tipoPartitaSelect.addEventListener('change', () => {
+                if (userRole === 'mister') {
+                    const selectedType = tipoPartitaSelect.value;
+                    if (selectedType === 'Torneo') {
+                        // Clear avversario field and set trophy emoji
+                        avversarioInput.value = '🏆';
+                        avversarioInput.readOnly = true;
+                        avversarioInput.style.backgroundColor = '#f9fafb';
+                        avversarioInput.style.textAlign = 'center';
+                        avversarioInput.style.fontSize = '1.5rem';
+                    } else {
+                        // Restore normal avversario field functionality
+                        if (avversarioInput.value === '🏆') {
+                            avversarioInput.value = '';
+                        }
+                        avversarioInput.readOnly = false;
+                        avversarioInput.style.backgroundColor = 'white';
+                        avversarioInput.style.textAlign = 'left';
+                        avversarioInput.style.fontSize = '';
+                    }
+                }
+            });
             historyButton.addEventListener('click', () => {
                 historyPreviousView = 'main'; // track that we came from main view
                 mainView.classList.add('hidden');
