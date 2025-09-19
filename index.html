@@ -1967,13 +1967,16 @@
             companyLogoutButton.addEventListener('click', () => {
                 localStorage.removeItem('userRole');
                 localStorage.removeItem('convocazioniAppId');
+                localStorage.removeItem('companyCode');
+                localStorage.removeItem('companyData');
                 currentCompanyCode = null;
                 window.currentCompanyCode = currentCompanyCode;
                 currentCompanyData = null;
                 window.currentCompanyData = currentCompanyData;
                 companyPlayers = [];
                 userRole = null;
-                showCompanyWelcome();
+                hideAllScreens();
+                companyEntryScreen.classList.remove('hidden'); // mostra schermata di login/codice società
             });
 
             confirmPasswordButton.addEventListener('click', async () => {
