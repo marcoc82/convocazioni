@@ -320,6 +320,15 @@
                         <label for="orario-partita" class="block text-sm font-medium text-gray-700">Orario Partita</label>
                         <input type="time" id="orario-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
+                    <div>
+                        <label for="tipo-partita" class="block text-sm font-medium text-gray-700">Tipo</label>
+                        <select id="tipo-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                            <option value="">Seleziona tipo</option>
+                            <option value="Amichevole">Amichevole</option>
+                            <option value="Torneo">Torneo</option>
+                            <option value="Campionato">Campionato</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -414,7 +423,8 @@
                 <p class="text-gray-700 mb-2">Avversario: <span id="share-avversario" class="font-semibold"></span></p>
                 <p class="text-gray-700 mb-2">Data Partita: <span id="share-data-partita" class="font-semibold"></span></p>
                 <p class="text-700 mb-2">Orario Convocazione: <span id="share-orario-convocazione" class="font-semibold"></span></p>
-                <p class="text-gray-700">Orario Partita: <span id="share-orario-partita" class="font-semibold"></span></p>
+                <p class="text-gray-700 mb-2">Orario Partita: <span id="share-orario-partita" class="font-semibold"></span></p>
+                <p class="text-gray-700">Tipo: <span id="share-tipo" class="font-semibold"></span></p>
             </div>
 
             <div class="mb-4">
@@ -1263,14 +1273,17 @@
                         return;
                     }
 
+                    // Sort players alphabetically ignoring numbers before names
+                    const sortedPlayers = selectedPlayers.sort((a, b) => a.replace(/^\d+\s*/, '').localeCompare(b.replace(/^\d+\s*/, '')));
+
                     try {
                         await window.addDoc(window.collection(window.db, `${basePath}/convocations_history`), {
                             details: matchDetails,
-                            players: selectedPlayers,
+                            players: sortedPlayers,
                             createdAt: new Date().toISOString()
                         });
 
-                        for (const player of selectedPlayers) {
+                        for (const player of sortedPlayers) {
                             const playerDocRef = window.doc(window.db, `${basePath}/player_attendance`, player);
                             await window.setDoc(playerDocRef, { count: window.increment(1) }, { merge: true });
                         }
@@ -1334,6 +1347,7 @@
                             <p>Data Partita: ${formattedMatchDate}</p>
                             <p>Orario Convocazione: ${data.details.orarioConvocazione}</p>
                             <p>Orario Partita: ${data.details.orarioPartita}</p>
+                            <p>Tipo: ${data.details.tipo || 'N/D'}</p>
                         </div>
                         <div class="text-sm text-gray-700">
                             <p class="font-semibold mb-1">Giocatori:</p>
@@ -1482,6 +1496,7 @@
                     data: document.getElementById('data-partita').value || 'N/D',
                     orarioConvocazione: document.getElementById('orario-convocazione').value || 'N/D',
                     orarioPartita: document.getElementById('orario-partita').value || 'N/D',
+                    tipo: document.getElementById('tipo-partita').value || 'N/D',
                 };
             }
 
@@ -1508,6 +1523,7 @@
                 document.getElementById('share-data-partita').textContent = formattedDate;
                 document.getElementById('share-orario-convocazione').textContent = matchDetails.orarioConvocazione;
                 document.getElementById('share-orario-partita').textContent = matchDetails.orarioPartita;
+                document.getElementById('share-tipo').textContent = matchDetails.tipo;
 
                 if (selectedPlayers.length === 0) {
                     const li = document.createElement('li');
@@ -1562,6 +1578,7 @@
                 document.getElementById('share-data-partita').textContent = formattedDate;
                 document.getElementById('share-orario-convocazione').textContent = convocationData.details.orarioConvocazione;
                 document.getElementById('share-orario-partita').textContent = convocationData.details.orarioPartita;
+                document.getElementById('share-tipo').textContent = convocationData.details.tipo || 'N/D';
 
                 if (convocationData.players.length === 0) {
                     const li = document.createElement('li');
