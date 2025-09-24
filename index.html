@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 1.0</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.0</span>
             </div>
         </div>
 
@@ -584,6 +584,11 @@
                 <button id="web-share-button" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200 hidden">
                     📱 Condividi con app
                 </button>
+                
+                <!-- Separator line when Web Share is available -->
+                <div id="share-separator" class="border-t border-gray-200 pt-3 hidden">
+                    <p class="text-sm text-gray-500 text-center mb-3">Oppure scegli un servizio specifico:</p>
+                </div>
                 
                 <!-- Manual sharing options -->
                 <button id="whatsapp-share-button" class="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
@@ -2133,25 +2138,66 @@
                     const selectedPlayers = getSelectedPlayers();
                     const matchDetails = getMatchDetails();
                     
-                    // Convert data URL to blob
-                    const response = await fetch(shareImageDataUrl);
-                    const blob = await response.blob();
-                    const file = new File([blob], `convocazioni-${matchDetails.avversario}.png`, { type: 'image/png' });
+                    // Prepare share data
+                    const shareText = `🏟️ Convocazioni Ufficiali 🏟️\n\nPartita: ${matchDetails.avversario}\nCampo: ${matchDetails.campo}\nData: ${matchDetails.data}\nOrario: ${matchDetails.orarioPartita}\n\nGiocatori convocati (${selectedPlayers.length}):\n${selectedPlayers.join('\n')}\n\n⚽ Rosterkick`;
+                    
+                    // Try Web Share API with files first (for browsers that support it)
+                    if (navigator.share && navigator.canShare) {
+                        try {
+                            // Convert data URL to blob
+                            const response = await fetch(shareImageDataUrl);
+                            const blob = await response.blob();
+                            const file = new File([blob], `convocazioni-${matchDetails.avversario}.png`, { type: 'image/png' });
 
-                    const shareData = {
-                        title: 'Convocazioni Ufficiali',
-                        text: `Convocazioni per ${matchDetails.avversario} - ${selectedPlayers.length} giocatori convocati`,
-                        files: [file]
-                    };
+                            const shareDataWithFile = {
+                                title: 'Convocazioni Ufficiali',
+                                text: shareText,
+                                files: [file]
+                            };
 
-                    await navigator.share(shareData);
-                    hideShareModal();
-                    showMessage("Convocazioni condivise con successo!", "text-green-600");
+                            // Check if sharing with files is supported
+                            if (navigator.canShare(shareDataWithFile)) {
+                                await navigator.share(shareDataWithFile);
+                                hideShareModal();
+                                showMessage("Convocazioni condivise con successo!", "text-green-600");
+                                return;
+                            }
+                        } catch (fileShareError) {
+                            console.log('File sharing not supported, trying text-only share');
+                        }
+                    }
+                    
+                    // Fallback to text-only Web Share API
+                    if (navigator.share) {
+                        try {
+                            const shareDataTextOnly = {
+                                title: 'Convocazioni Ufficiali',
+                                text: shareText,
+                                url: window.location.href
+                            };
+
+                            await navigator.share(shareDataTextOnly);
+                            hideShareModal();
+                            showMessage("Testo condiviso! Condividi l'immagine manualmente se necessario.", "text-blue-600");
+                            
+                            // Also trigger download for user convenience
+                            setTimeout(() => handleDownloadImage(), 1000);
+                            return;
+                        } catch (textShareError) {
+                            console.log('Text sharing failed, falling back to download');
+                        }
+                    }
+                    
+                    // Final fallback: download the image
+                    handleDownloadImage();
+                    showMessage("Web Share non disponibile. Immagine scaricata!", "text-orange-600");
+                    
                 } catch (error) {
                     console.error('Errore nella condivisione:', error);
-                    // If web share fails, offer download instead
+                    // If everything fails, offer download instead
                     if (shareImageDataUrl) {
                         handleDownloadImage();
+                        showMessage("Errore nella condivisione. Immagine scaricata!", "text-red-600");
                     } else {
                         showMessage("Errore nella condivisione. Prova con un'altra opzione.", "text-red-600");
                     }
@@ -2715,10 +2761,26 @@
                 }
                 
                 // Check if Web Share API is supported
-                if (navigator.share) {
+                const isWebShareSupported = navigator.share && navigator.canShare;
+                const shareSeparator = document.getElementById('share-separator');
+                
+                // Detect if user is on mobile device
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                                 (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform));
+                
+                if (isWebShareSupported || navigator.share) {
                     webShareButton.classList.remove('hidden');
+                    if (shareSeparator) shareSeparator.classList.remove('hidden');
+                    
+                    // On mobile with Web Share API, make it more prominent
+                    if (isMobile) {
+                        webShareButton.textContent = '📱 Condividi';
+                        webShareButton.classList.add('bg-green-600', 'hover:bg-green-700');
+                        webShareButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    }
                 } else {
                     webShareButton.classList.add('hidden');
+                    if (shareSeparator) shareSeparator.classList.add('hidden');
                 }
                 
                 shareModal.classList.remove('hidden', 'opacity-0');
@@ -3033,8 +3095,34 @@
             changeTeamButton.addEventListener('click', logoutToCompanyWelcome);
             resetSelectionsButton.addEventListener('click', resetPlayerSelections);
             
+            // Enhanced share button handler - prioritizes Web Share API on mobile
+            async function handleMainShareButton() {
+                if (userRole !== 'mister') {
+                    showMessage("Solo il Mister può condividere le convocazioni.", "text-red-600");
+                    return;
+                }
+                
+                // Detect if user is on mobile device
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                                 (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform));
+                
+                // On mobile devices, try Web Share API directly first
+                if (isMobile && navigator.share) {
+                    try {
+                        await handleWebShare();
+                        return; // Success, no need to show modal
+                    } catch (error) {
+                        console.log('Direct Web Share failed, showing modal:', error);
+                        // Continue to show modal as fallback
+                    }
+                }
+                
+                // Default behavior: show the sharing modal
+                showShareModal();
+            }
+            
             saveButton.addEventListener('click', saveData);
-            shareButton.addEventListener('click', showShareModal);
+            shareButton.addEventListener('click', handleMainShareButton);
             
             // Handle tipo-partita selection change for Mister role
             const tipoPartitaSelect = document.getElementById('tipo-partita');
