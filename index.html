@@ -1404,6 +1404,9 @@
 
             // Set up real-time listeners for all necessary data
             function setupFirestoreListeners(appId) {
+                console.log(`🔄 [DIAGNOSTIC] setupFirestoreListeners chiamata con appId: ${appId}`);
+                console.log(`   🏢 Company variables - Codice: ${currentCompanyCode}, Document ID: ${currentCompanyDocumentId}`);
+                
                 // Clear old listeners
                 unsubscribeListeners.forEach(unsub => unsub());
                 unsubscribeListeners = [];
@@ -1665,13 +1668,18 @@
 
             // Function to load and display attendance summary from Firestore
             function loadAttendance(querySnapshot) {
+                console.log(`📊 [DIAGNOSTIC] loadAttendance chiamata, caricamento dati presenze...`);
                 attendanceList.innerHTML = '';
                 const attendanceData = {};
                 querySnapshot.forEach(doc => {
                     attendanceData[doc.id] = doc.data().count;
                 });
                 
-                const sortedPlayers = players.map(p => ({
+                // Use companyPlayers instead of global players array to show correct company data
+                const playersToShow = companyPlayers.length > 0 ? companyPlayers : players;
+                console.log(`📊 [DIAGNOSTIC] Visualizzazione presenze per ${playersToShow.length} giocatori della società`);
+                
+                const sortedPlayers = playersToShow.map(p => ({
                     name: p,
                     count: attendanceData[p] || 0
                 })).sort((a, b) => b.count - a.count);
@@ -1684,6 +1692,8 @@
                     `;
                     attendanceList.appendChild(row);
                 });
+                
+                console.log(`📊 [DIAGNOSTIC] Tabella presenze aggiornata con ${sortedPlayers.length} giocatori`);
             }
 
             // Demo version for loadHistory when Firebase is not available
@@ -2579,6 +2589,13 @@
                     userRole = pendingRole;
                     localStorage.setItem('userRole', userRole);
                     
+                    // 🔍 DIAGNOSTIC LOG: Login as mister/dirigente with company info
+                    console.log(`🔑 [DIAGNOSTIC] Login come ${userRole}:`);
+                    console.log(`   🏢 Società attiva - Codice: ${currentCompanyCode}`);
+                    console.log(`   🏢 Società attiva - Document ID: ${currentCompanyDocumentId}`);
+                    console.log(`   🏢 Società attiva - Nome: ${currentCompanyData?.name || currentCompanyData?.data?.nome || 'N/A'}`);
+                    console.log(`   📋 App ID che verrà utilizzato: ${currentCompanyDocumentId || currentCompanyCode}`);
+                    
                     // Load company players from Firebase database
                     companyPlayers = await loadCompanyPlayers();
                     
@@ -2765,6 +2782,30 @@
                 attendanceView.classList.add('hidden');
             });
             attendanceButton.addEventListener('click', () => {
+                // 🔍 DIAGNOSTIC LOG: Opening Riepilogo Presenze with company info
+                console.log(`📊 [DIAGNOSTIC] Apertura Riepilogo Presenze:`);
+                console.log(`   🏢 Società corrente - Codice: ${currentCompanyCode}`);
+                console.log(`   🏢 Società corrente - Document ID: ${currentCompanyDocumentId}`);
+                console.log(`   🏢 Società corrente - Nome: ${currentCompanyData?.name || currentCompanyData?.data?.nome || 'N/A'}`);
+                console.log(`   📋 App ID utilizzato per i dati: ${currentAppId}`);
+                console.log(`   👤 Ruolo utente: ${userRole}`);
+                
+                // Check if company IDs are consistent
+                const expectedAppId = currentCompanyDocumentId || currentCompanyCode;
+                if (currentAppId !== expectedAppId) {
+                    console.warn(`⚠️ [DIAGNOSTIC] INCONSISTENZA RILEVATA:`);
+                    console.warn(`   App ID attuale: ${currentAppId}`);
+                    console.warn(`   App ID atteso: ${expectedAppId}`);
+                    console.warn(`   Correggendo l'App ID per visualizzare i dati corretti`);
+                    
+                    // Fix the inconsistency by updating currentAppId and refreshing listeners
+                    currentAppId = expectedAppId;
+                    console.log(`🔧 [DIAGNOSTIC] App ID corretto a: ${currentAppId}`);
+                    
+                    // Refresh Firestore listeners with correct company ID
+                    setupFirestoreListeners(currentAppId);
+                }
+                
                 mainView.classList.add('hidden');
                 historyView.classList.add('hidden');
                 attendanceView.classList.remove('hidden');
