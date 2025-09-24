@@ -934,6 +934,9 @@
                         
                         window.currentCompanyData = currentCompanyData;
                         
+                        // Show biometric registration modal if supported and not already registered
+                        await showBiometricRegistrationIfNeeded(companyCode);
+                        
                         showCompanyWelcome();
                     } else {
                         showMessage(companyEntryMessageArea, "Codice società non valido.", true);
@@ -942,6 +945,21 @@
                     showMessage(companyEntryMessageArea, "Errore nella verifica. Riprova.", true);
                 }
             }
+
+            // Add event listeners
+            verifyCompanyButton.addEventListener('click', async () => {
+                const companyCode = companyCodeInput.value.trim();
+                if (!companyCode) {
+                    showMessage(companyEntryMessageArea, "Inserisci un codice società.", true);
+                    return;
+                }
+
+                try {
+                    await handleCompanyLogin(companyCode);
+                } catch (error) {
+                    showMessage(companyEntryMessageArea, "Errore nella verifica. Riprova.", true);
+                }
+            });
 
             function hideAllScreens() {
                 document.querySelectorAll('[id$="-screen"]').forEach(screen => {
@@ -2619,79 +2637,7 @@
             }
 
             // Event listeners for new company-based navigation
-            verifyCompanyButton.addEventListener('click', async () => {
-                const companyCode = companyCodeInput.value.trim();
-                if (!companyCode) {
-                    companyEntryMessageArea.textContent = "Inserisci un codice società.";
-                    companyEntryMessageArea.classList.remove('hidden');
-                    companyEntryMessageArea.classList.add('text-red-600');
-                    setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 5000);
-                    return;
-                }
-
-                try {
-                    const companyData = await verifyCompanyCode(companyCode);
-                    if (companyData) {
-                        currentCompanyCode = companyCode;
-                        window.currentCompanyCode = currentCompanyCode;
-                        currentCompanyData = companyData;
-                        
-                        // Store document ID if available (from Firebase/cercaSocietaDaCodice)
-                        if (currentCompanyData.data && currentCompanyData.data.id) {
-                            currentCompanyDocumentId = currentCompanyData.data.id;
-                        } else {
-                            // Fallback to company code for demo mode
-                            currentCompanyDocumentId = companyCode;
-                        }
-                        
-                        // Populate passwords from data.config if available
-                        if (currentCompanyData.data && currentCompanyData.data.config) {
-                            currentCompanyData.passwords = {
-                                ...(currentCompanyData.passwords || {}), // Keep existing passwords for backward compatibility
-                                dirigente: currentCompanyData.data.config.dirigentePassword,
-                                mister: currentCompanyData.data.config.misterPassword
-                            };
-                        }
-                        
-                        window.currentCompanyData = currentCompanyData;
-                        companyPlayers = await loadCompanyPlayers();
-                        
-                        if (rememberCompanyCheckbox.checked) {
-                            localStorage.setItem('companyCode', companyCode);
-                            localStorage.setItem('companyData', JSON.stringify(companyData));
-                            localStorage.setItem('rememberCompanyPreference', 'true');
-                            // Show confirmation message
-                            setTimeout(() => {
-                                companyEntryMessageArea.textContent = "Codice società salvato!";
-                                companyEntryMessageArea.classList.remove('hidden', 'text-red-600');
-                                companyEntryMessageArea.classList.add('text-green-600');
-                                setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 3000);
-                            }, 500);
-                        } else {
-                            localStorage.removeItem('companyCode');
-                            localStorage.removeItem('companyData');
-                            localStorage.setItem('rememberCompanyPreference', 'false');
-                        }
-                        
-                        // Hide any error messages
-                        companyEntryMessageArea.classList.add('hidden');
-                        companyEntryMessageArea.classList.remove('text-red-600');
-                        
-                        showCompanyWelcome();
-                    } else {
-                        companyEntryMessageArea.textContent = "Codice società non valido.";
-                        companyEntryMessageArea.classList.remove('hidden');
-                        companyEntryMessageArea.classList.add('text-red-600');
-                        setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 5000);
-                    }
-                } catch (error) {
-                    companyEntryMessageArea.textContent = "Errore nella verifica. Riprova.";
-                    companyEntryMessageArea.classList.remove('hidden');
-                    companyEntryMessageArea.classList.add('text-red-600');
-                    setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 5000);
-                }
-            });
-
+            
             enterMisterButton.addEventListener('click', () => {
                 showPasswordEntry('mister');
             });
