@@ -471,6 +471,9 @@
                     <button data-status="Solo 1 allenamento" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Solo 1 allenamento
                     </button>
+                    <button data-status="Zero allenamenti" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                        Zero allenamenti
+                    </button>
 
                     <button data-status="Disponibile" class="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Disponibile 👍🏻
@@ -1497,6 +1500,8 @@
                             li.classList.add('selected-marco-purple');
                         } else if (status === 'Solo 2 allenamenti') {
                             li.classList.add('selected-marco-orange');
+                        } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend' || status === 'Solo 1 allenamento') {
+                            li.classList.add('selected-marco');
                         } else {
                             li.classList.add('selected-marco');
                         }
@@ -2455,6 +2460,8 @@
                             currentPlayerItem.classList.add('selected-marco-purple');
                         } else if (status === 'Solo 2 allenamenti') {
                             currentPlayerItem.classList.add('selected-marco-orange');
+                        } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend' || status === 'Solo 1 allenamento') {
+                            currentPlayerItem.classList.add('selected-marco');
                         } else {
                             currentPlayerItem.classList.add('selected-marco');
                         }

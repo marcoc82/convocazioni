@@ -47,6 +47,7 @@
                 <button class="w-full bg-orange-500 text-white p-2 rounded" data-status="Non disponibile WE">Non disponibile WE</button>
                 <button class="w-full bg-purple-600 text-white p-2 rounded" data-status="Solo 2 allenamenti">Solo 2 allenamenti</button>
                 <button class="w-full bg-purple-600 text-white p-2 rounded" data-status="Solo 1 allenamento">Solo 1 allenamento</button>
+                <button class="w-full bg-red-600 text-white p-2 rounded" data-status="Zero allenamenti">Zero allenamenti</button>
                 <button class="w-full bg-green-600 text-white p-2 rounded" data-status="Disponibile">Disponibile</button>
             </div>
             <button id="close-modal" class="mt-4 w-full bg-gray-400 text-white p-2 rounded">Annulla</button>
@@ -121,6 +122,8 @@
                         li.classList.add('bg-orange-100', 'text-orange-800', 'border-orange-300');
                     } else if (status.includes('Solo')) {
                         li.classList.add('bg-purple-100', 'text-purple-800', 'border-purple-300');
+                    } else if (status === 'Zero allenamenti') {
+                        li.classList.add('bg-red-100', 'text-red-800', 'border-red-300');
                     } else {
                         li.classList.add('bg-red-100', 'text-red-800', 'border-red-300');
                     }
