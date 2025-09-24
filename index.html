@@ -919,6 +919,7 @@
             }
             
             async function handleCompanyLogin(companyCode) {
+                console.log('Inizio handleCompanyLogin', companyCode);
                 console.log("🔍 [LOGIN] Inizio handleCompanyLogin con codice:", companyCode);
                 
                 try {
@@ -982,6 +983,7 @@
 
             // Add event listeners
             verifyCompanyButton.addEventListener('click', async () => {
+                console.log('Bottone verifica premuto');
                 const companyCode = companyCodeInput.value.trim();
                 if (!companyCode) {
                     showMessage(companyEntryMessageArea, "Inserisci un codice società.", true);
