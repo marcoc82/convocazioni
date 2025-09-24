@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.9</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.10</span>
             </div>
         </div>
 
@@ -611,6 +611,45 @@
                 form.classList.add('animate-slide-in-left');
             }, 1800);
         }
+        
+        // Vibration Functions
+        function vibrateOnClick(element) {
+            // Check if the clicked element is a save button (contains "Salva" text)
+            const isSaveButton = element && (
+                element.textContent?.includes('Salva') || 
+                element.id?.includes('save') ||
+                element.classList?.contains('save-button')
+            );
+            
+            if (navigator.vibrate) {
+                if (isSaveButton) {
+                    // Triple vibration for save buttons: [50ms on, 50ms off, 50ms on, 50ms off, 50ms on, 50ms off]
+                    navigator.vibrate([50, 50, 50, 50, 50, 50]);
+                } else {
+                    // Single vibration for all other buttons/keys
+                    navigator.vibrate(50);
+                }
+            }
+        }
+        
+        // Global event listener for all clicks and key presses
+        document.addEventListener('click', function(event) {
+            // Only vibrate for interactive elements
+            const interactiveElements = ['BUTTON', 'A', 'INPUT', 'TEXTAREA', 'SELECT'];
+            if (interactiveElements.includes(event.target.tagName) || 
+                event.target.hasAttribute('onclick') ||
+                event.target.classList.contains('clickable')) {
+                vibrateOnClick(event.target);
+            }
+        });
+        
+        // Global event listener for key presses
+        document.addEventListener('keydown', function(event) {
+            // Vibrate on any key press (single vibration since keys are never save actions)
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        });
         
         // Fallback initialization when Firebase modules don't load
         document.addEventListener('DOMContentLoaded', () => {
