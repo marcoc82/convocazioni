@@ -509,7 +509,7 @@
         
         <!-- Application Version -->
         <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-            <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.4</span>
+            <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.5</span>
         </div>
     </div>
 
@@ -1325,15 +1325,19 @@
                 console.log(`📂 Percorso base convocazioni/presenze: ${basePath}`);
                 console.log(`📂 Percorso base availability (con Document ID): ${availabilityBasePath}`);
 
-                // Listener for Mister's convocations history
-                const historyCollectionRef = window.collection(window.db, `${basePath}/convocations_history`);
+                // Listener for Mister's convocations history - using document ID path like giocatori and availability
+                const historyBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${appId}/public/data`;
+                const historyCollectionRef = window.collection(window.db, `${historyBasePath}/convocations_history`);
+                console.log(`📍 Percorso completo subcollection convocations_history: ${historyBasePath}/convocations_history`);
                 const historyUnsub = window.onSnapshot(historyCollectionRef, (querySnapshot) => {
                     loadHistory(querySnapshot);
                 });
                 unsubscribeListeners.push(historyUnsub);
 
-                // Listener for player attendance
-                const attendanceCollectionRef = window.collection(window.db, `${basePath}/player_attendance`);
+                // Listener for player attendance - using document ID path like other subcollections
+                const attendanceBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${appId}/public/data`;
+                const attendanceCollectionRef = window.collection(window.db, `${attendanceBasePath}/player_attendance`);
+                console.log(`📍 Percorso completo subcollection player_attendance: ${attendanceBasePath}/player_attendance`);
                 const attendanceUnsub = window.onSnapshot(attendanceCollectionRef, (querySnapshot) => {
                     loadAttendance(querySnapshot);
                 });
@@ -1355,13 +1359,17 @@
                 });
                 unsubscribeListeners.push(unavailableUnsub);
                 
-                // Listener for notes
-                const notesDocRef = window.doc(window.db, `${basePath}/notes`, "marco_notes");
+                // Listener for notes - using document ID path like giocatori and availability
+                const notesBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${appId}/public/data`;
+                const notesDocRef = window.doc(window.db, `${notesBasePath}/notes`, "marco_notes");
+                console.log(`📍 Percorso completo subcollection notes: ${notesBasePath}/notes/marco_notes`);
                 const notesUnsub = window.onSnapshot(notesDocRef, (docSnap) => {
                     if (docSnap.exists() && docSnap.data().content) {
                         currentNotes = docSnap.data().content;
+                        console.log(`✅ Caricata notes subcollection da: ${notesBasePath}/notes/marco_notes`);
                     } else {
                         currentNotes = '';
+                        console.log(`📝 Subcollection 'notes' vuota o non trovata per società document ID ${currentCompanyDocumentId}`);
                     }
                     updateNotesDisplay();
                 });
@@ -1406,14 +1414,19 @@
                     const sortedPlayers = selectedPlayers.sort((a, b) => a.replace(/^\d+\s*/, '').localeCompare(b.replace(/^\d+\s*/, '')));
 
                     try {
-                        await window.addDoc(window.collection(window.db, `${basePath}/convocations_history`), {
+                        // Use document ID path for convocations_history like giocatori and availability
+                        const historyBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${currentAppId}/public/data`;
+                        console.log(`💾 Salvando convocazione per società document ID: ${currentCompanyDocumentId}`);
+                        console.log(`📂 Percorso salvataggio convocations_history: ${historyBasePath}/convocations_history`);
+                        
+                        await window.addDoc(window.collection(window.db, `${historyBasePath}/convocations_history`), {
                             details: matchDetails,
                             players: sortedPlayers,
                             createdAt: new Date().toISOString()
                         });
 
                         for (const player of sortedPlayers) {
-                            const playerDocRef = window.doc(window.db, `${basePath}/player_attendance`, player);
+                            const playerDocRef = window.doc(window.db, `${historyBasePath}/player_attendance`, player);
                             await window.setDoc(playerDocRef, { count: window.increment(1) }, { merge: true });
                         }
 
@@ -1447,7 +1460,8 @@
             function loadHistory(querySnapshot) {
                 historyList.innerHTML = '';
                 if (querySnapshot.empty) {
-                    historyList.innerHTML = '<p class="text-center text-gray-500">Nessuna convocazione salvata.</p>';
+                    historyList.innerHTML = '<p class="text-center text-gray-500">Nessuna convocazione registrata.</p>';
+                    console.log(`📝 Subcollection 'convocations_history' vuota o non trovata per società document ID ${currentCompanyDocumentId}`);
                     return;
                 }
                 const history = [];
@@ -1507,15 +1521,18 @@
                             const docId = btn.getAttribute('data-docid');
                             if (confirm('Vuoi davvero eliminare questa partita dallo storico?')) {
                                 try {
-                                    // Use company-specific paths
-                                    const basePath = currentCompanyCode ? `societa/${currentCompanyCode}` : `artifacts/${currentAppId}/public/data`;
+                                    // Use document ID path for convocations_history like other subcollections
+                                    const historyBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${currentAppId}/public/data`;
+                                    console.log(`🗑️ Eliminando convocazione per società document ID: ${currentCompanyDocumentId}`);
+                                    console.log(`📂 Percorso eliminazione: ${historyBasePath}/convocations_history/${docId}`);
+                                    
                                     // Recupera i giocatori coinvolti e aggiorna le presenze
-                                    const docRef = window.doc(window.db, `${basePath}/convocations_history`, docId);
+                                    const docRef = window.doc(window.db, `${historyBasePath}/convocations_history`, docId);
                                     const docSnap = await window.getDoc(docRef);
                                     if (docSnap.exists()) {
                                         const convocazione = docSnap.data();
                                         for (const player of convocazione.players) {
-                                            const playerDocRef = window.doc(window.db, `${basePath}/player_attendance`, player);
+                                            const playerDocRef = window.doc(window.db, `${historyBasePath}/player_attendance`, player);
                                             await window.setDoc(playerDocRef, { count: window.increment(-1) }, { merge: true });
                                         }
                                     }
@@ -1596,7 +1613,7 @@
                 ];
 
                 if (demoHistory.length === 0) {
-                    historyList.innerHTML = '<p class="text-center text-gray-500">Nessuna convocazione salvata. (Modalità Demo)</p>';
+                    historyList.innerHTML = '<p class="text-center text-gray-500">Nessuna convocazione registrata. (Modalità Demo)</p>';
                     return;
                 }
 
@@ -2079,7 +2096,7 @@
                     notesTextarea.value = currentNotes;
                 } else if (userRole === 'mister') {
                     if (currentNotes.trim() === '') {
-                        notesDisplay.innerHTML = '<span class="text-gray-500 italic">Nessuna nota disponibile</span>';
+                        notesDisplay.innerHTML = '<span class="text-gray-500 italic">Nessuna nota registrata</span>';
                     } else {
                         notesDisplay.textContent = currentNotes;
                     }
@@ -2098,8 +2115,12 @@
                 }
 
                 const notesContent = notesTextarea.value.trim();
-                const basePath = currentCompanyCode ? `societa/${currentCompanyCode}` : `artifacts/${currentAppId}/public/data`;
-                const notesDocRef = window.doc(window.db, `${basePath}/notes`, "marco_notes");
+                // Use document ID path for notes like giocatori and availability
+                const notesBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${currentAppId}/public/data`;
+                const notesDocRef = window.doc(window.db, `${notesBasePath}/notes`, "marco_notes");
+                
+                console.log(`💾 Salvando note per società document ID: ${currentCompanyDocumentId}`);
+                console.log(`📂 Percorso salvataggio notes: ${notesBasePath}/notes/marco_notes`);
                 
                 try {
                     await window.setDoc(notesDocRef, { content: notesContent });
