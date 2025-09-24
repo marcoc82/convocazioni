@@ -244,20 +244,20 @@
                 <img src="logo Rosterkick.png" alt="Rosterkick Logo" class="w-20 h-20 object-contain">
             </div>
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci la password</h2>
-            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+            <form id="password-form" class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4">
                     <p id="role-prompt" class="text-center text-gray-600"></p>
                     <input type="password" id="password-input" placeholder="Password" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <div class="flex gap-2">
-                        <button id="confirm-password-button" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        <button type="submit" id="confirm-password-button" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                             Conferma
                         </button>
-                        <button id="cancel-password-button" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        <button type="button" id="cancel-password-button" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                             Annulla
                         </button>
                     </div>
                 </div>
-            </div>
+            </form>
             <div id="password-entry-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
         </div>
 
@@ -636,6 +636,7 @@
             const passwordEntryScreen = document.getElementById('password-entry-screen');
             const rolePrompt = document.getElementById('role-prompt');
             const passwordInput = document.getElementById('password-input');
+            const passwordForm = document.getElementById('password-form');
             const confirmPasswordButton = document.getElementById('confirm-password-button');
             const cancelPasswordButton = document.getElementById('cancel-password-button');
             const passwordEntryMessageArea = document.getElementById('password-entry-message-area');
@@ -792,7 +793,8 @@
                 showPasswordEntry('dirigente');
             });
 
-            confirmPasswordButton.addEventListener('click', () => {
+            // Common password validation function for demo mode
+            function handlePasswordSubmissionDemo() {
                 const password = passwordInput.value.trim();
                 if (!password) {
                     showMessage(passwordEntryMessageArea, "Inserisci la password.");
@@ -815,6 +817,14 @@
                 } else {
                     showMessage(passwordEntryMessageArea, "Password errata.");
                 }
+            }
+
+            confirmPasswordButton.addEventListener('click', handlePasswordSubmissionDemo);
+
+            // Handle form submission (Enter key)
+            passwordForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // Prevent default form submission
+                handlePasswordSubmissionDemo();
             });
 
             cancelPasswordButton.addEventListener('click', () => {
@@ -882,6 +892,7 @@
             const passwordEntryScreen = document.getElementById('password-entry-screen');
             const rolePrompt = document.getElementById('role-prompt');
             const passwordInput = document.getElementById('password-input');
+            const passwordForm = document.getElementById('password-form');
             const confirmPasswordButton = document.getElementById('confirm-password-button');
             const cancelPasswordButton = document.getElementById('cancel-password-button');
             const passwordEntryMessageArea = document.getElementById('password-entry-message-area');
@@ -2574,7 +2585,8 @@
                 setTimeout(() => startLoginAnimations(), 100);
             });
 
-            confirmPasswordButton.addEventListener('click', async () => {
+            // Common password validation function for main script
+            async function handlePasswordSubmissionMain() {
                 const password = passwordInput.value.trim();
                 if (!password) {
                     passwordEntryMessageArea.textContent = "Inserisci la password.";
@@ -2609,6 +2621,14 @@
                     passwordEntryMessageArea.classList.add('text-red-600');
                     setTimeout(() => passwordEntryMessageArea.classList.add('hidden'), 5000);
                 }
+            }
+
+            confirmPasswordButton.addEventListener('click', handlePasswordSubmissionMain);
+
+            // Handle form submission (Enter key)
+            passwordForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // Prevent default form submission
+                handlePasswordSubmissionMain();
             });
 
             cancelPasswordButton.addEventListener('click', () => {
