@@ -17,6 +17,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Main JS with diagnostic logging -->
+    <script src="main.js"></script>
     <!-- CONFIGURAZIONE FIREBASE -->
     <script type="module">
   import { cercaSocietaDaCodice } from './cercaSocietaDaCodice.js';
@@ -233,6 +235,20 @@
                     <button id="verify-company-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Verifica
                     </button>
+                </div>
+                
+                <!-- Diagnostic Log Area -->
+                <div id="diagnostic-log-container" class="mt-4 p-3 bg-gray-100 rounded-lg border border-gray-300">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-medium text-gray-700">🔍 Log Diagnostico</h4>
+                        <button onclick="document.getElementById('diagnostic-log-area').innerHTML=''; addDiagnosticLog('Log diagnostico pulito', 'info');" 
+                                class="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 rounded text-gray-600">
+                            Pulisci
+                        </button>
+                    </div>
+                    <div id="diagnostic-log-area" class="bg-white rounded border p-2 max-h-32 overflow-y-auto text-xs font-mono space-y-1">
+                        <div class="text-gray-500">Log diagnostico pronto...</div>
+                    </div>
                 </div>
             </div>
             
@@ -922,6 +938,11 @@
                 console.log('Inizio handleCompanyLogin', companyCode);
                 console.log("🔍 [LOGIN] Inizio handleCompanyLogin con codice:", companyCode);
                 
+                // Add diagnostic logging
+                if (typeof window.addDiagnosticLog === 'function') {
+                    window.addDiagnosticLog(`Funzione handleCompanyLogin chiamata con parametro: "${companyCode}"`, 'debug');
+                }
+                
                 try {
                     console.log("🔍 [LOGIN] Chiamata verifyCompanyCode...");
                     const companyData = await verifyCompanyCode(companyCode);
@@ -979,6 +1000,11 @@
                 }
                 
                 console.log("🔍 [LOGIN] Fine handleCompanyLogin");
+                
+                // Add diagnostic logging for completion
+                if (typeof window.addDiagnosticLog === 'function') {
+                    window.addDiagnosticLog(`handleCompanyLogin completata per codice: "${companyCode}"`, 'success');
+                }
             }
 
             // Add event listeners
