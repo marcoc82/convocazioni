@@ -177,6 +177,30 @@
         .animate-slide-in-left {
             animation: slideInLeft 0.8s ease-out forwards;
         }
+        
+        /* Hide all screens by default, but allow JavaScript to override */
+        [id$="-screen"].hidden, [id$="-view"].hidden, [id$="-modal"].hidden, [id$="-popup"].hidden {
+            display: none;
+        }
+        
+        /* Show company entry screen by default when page loads */
+        body:not(.js-loaded) #company-entry-screen {
+            display: block;
+        }
+        body:not(.js-loaded) [id$="-screen"]:not(#company-entry-screen),
+        body:not(.js-loaded) [id$="-view"],
+        body:not(.js-loaded) [id$="-modal"],
+        body:not(.js-loaded) [id$="-popup"] {
+            display: none !important;
+        }
+        
+        /* Ensure share-view is hidden completely */
+        #share-view {
+            position: absolute !important;
+            top: -9999px !important;
+            left: -9999px !important;
+            visibility: hidden !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
@@ -621,6 +645,9 @@
         });
 
         function initializeDemoMode() {
+            // Mark that JavaScript has loaded
+            document.body.classList.add('js-loaded');
+            
             // Demo mode initialization
             const companyEntryScreen = document.getElementById('company-entry-screen');
             const companyCodeInput = document.getElementById('company-code-input');
@@ -646,10 +673,10 @@
             let currentCompanyDocumentId = null;
             let pendingRole = null;
 
-            // Show company entry screen
+            // Show company entry screen (may already be visible)
             companyEntryScreen.classList.remove('hidden');
             
-            // Trigger login animations sequence
+            // Trigger login animations sequence immediately
             setTimeout(() => startLoginAnimations(), 100);
 
             // Initialize checkbox state based on saved preference
