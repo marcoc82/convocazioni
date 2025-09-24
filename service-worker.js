@@ -5,6 +5,7 @@ const urlsToCache = [
   './index.html',
   './manifest.json',
   './logo Rosterkick.jpg',
+  './logo Rosterkick.png',
   './favicon.ico',
   './favicon-16x16.png',
   './favicon-32x32.png',
