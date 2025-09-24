@@ -155,7 +155,11 @@
         <div id="company-welcome-screen" class="hidden">
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-4">Benvenuto</h2>
             <div class="p-6 bg-blue-50 rounded-xl mb-6 shadow-sm border border-blue-200 text-center">
-                <h3 id="company-name-display" class="text-lg font-bold text-blue-800 mb-4"></h3>
+                <h3 id="company-name-display" class="text-lg font-bold text-blue-800 mb-2"></h3>
+                <div id="company-details" class="text-sm text-blue-600 mb-4 hidden">
+                    <div>ID: <span id="company-document-id" class="font-mono bg-blue-100 px-2 py-1 rounded"></span></div>
+                    <div>Codice: <span id="company-code-display" class="font-mono bg-blue-100 px-2 py-1 rounded"></span></div>
+                </div>
                 <div class="grid grid-cols-1 gap-3">
                     <button id="enter-mister-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Entra come Mister
@@ -505,7 +509,7 @@
         
         <!-- Application Version -->
         <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-            <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.3</span>
+            <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.4</span>
         </div>
     </div>
 
@@ -593,6 +597,20 @@
             function showCompanyWelcome() {
                 hideAllScreens();
                 companyNameDisplay.textContent = currentCompanyData.name;
+                
+                // Show company details with document ID and codici field
+                const companyDetails = document.getElementById('company-details');
+                const companyDocumentIdSpan = document.getElementById('company-document-id');
+                const companyCodeSpan = document.getElementById('company-code-display');
+                
+                if (currentCompanyData.data) {
+                    companyDocumentIdSpan.textContent = currentCompanyDocumentId || 'N/A';
+                    companyCodeSpan.textContent = currentCompanyData.data.codici || currentCompanyCode;
+                    companyDetails.classList.remove('hidden');
+                } else {
+                    companyDetails.classList.add('hidden');
+                }
+                
                 companyWelcomeScreen.classList.remove('hidden');
             }
 
@@ -1153,15 +1171,16 @@
                     return [];
                 }
                 
-                // Log the complete subcollection path
-                const subcollectionPath = `societa/${currentCompanyCode}/giocatori`;
+                // Log the complete subcollection path using document ID
+                const subcollectionPath = `societa/${currentCompanyDocumentId}/giocatori`;
                 console.log(`📄 Lettura subcollection Firebase da percorso completo: ${subcollectionPath}`);
-                console.log(`🔗 Percorso completo della subcollection: societa/${currentCompanyCode}/giocatori`);
-                console.log(`📋 Caricando giocatori dalla subcollection con ID società: ${currentCompanyCode}`);
+                console.log(`🔗 Percorso completo della subcollection: societa/${currentCompanyDocumentId}/giocatori`);
+                console.log(`📋 Caricando giocatori dalla subcollection con document ID società: ${currentCompanyDocumentId}`);
+                console.log(`🏷️ Codice inserito dall'utente (campo 'codici'): ${currentCompanyCode}`);
                 
                 try {
-                    // Load giocatori from the giocatori subcollection
-                    const playersCollectionRef = window.collection(window.db, "societa", currentCompanyCode, "giocatori");
+                    // Load giocatori from the giocatori subcollection using document ID
+                    const playersCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "giocatori");
                     const playersSnapshot = await window.getDocs(playersCollectionRef);
                     
                     if (!playersSnapshot.empty) {
@@ -1173,17 +1192,17 @@
                             players.push(playerName);
                         });
                         
-                        console.log(`✅ Subcollection trovata: societa/${currentCompanyCode}/giocatori`);
+                        console.log(`✅ Subcollection trovata: societa/${currentCompanyDocumentId}/giocatori`);
                         console.log(`👥 Giocatori trovati nella subcollection (${players.length}):`, players);
                         hidePlayerLoadingError();
                         return sortPlayersByName(players); // Sort players by name only
                     } else {
-                        console.log(`📝 Subcollection 'giocatori' vuota per società ${currentCompanyCode}, ritorno array vuoto`);
+                        console.log(`📝 Subcollection 'giocatori' vuota per società document ID ${currentCompanyDocumentId}, ritorno array vuoto`);
                         hidePlayerLoadingError();
                         return [];
                     }
                 } catch (error) {
-                    console.error(`💥 Errore nel caricamento giocatori dalla subcollection Firebase (percorso: societa/${currentCompanyCode}/giocatori):`, error);
+                    console.error(`💥 Errore nel caricamento giocatori dalla subcollection Firebase (percorso: societa/${currentCompanyDocumentId}/giocatori):`, error);
                     showPlayerLoadingError(`Errore di connessione a Firebase subcollection: ${error.message}`);
                     
                     // Fallback to localStorage if Firebase fails
@@ -1222,7 +1241,7 @@
                 
                 try {
                     // First, get existing players from subcollection to identify what to remove
-                    const playersCollectionRef = window.collection(window.db, "societa", currentCompanyCode, "giocatori");
+                    const playersCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "giocatori");
                     const existingPlayersSnapshot = await window.getDocs(playersCollectionRef);
                     
                     // Create a set of existing player names for comparison
@@ -1254,13 +1273,13 @@
                     for (const existingPlayerName of existingPlayerNames) {
                         if (!playersList.includes(existingPlayerName)) {
                             const docId = existingPlayerDocs.get(existingPlayerName);
-                            const playerDocRef = window.doc(window.db, "societa", currentCompanyCode, "giocatori", docId);
+                            const playerDocRef = window.doc(window.db, "societa", currentCompanyDocumentId, "giocatori", docId);
                             await window.deleteDoc(playerDocRef);
                             console.log(`🗑️ Giocatore rimosso dalla subcollection: ${existingPlayerName}`);
                         }
                     }
                     
-                    console.log(`✅ Giocatori salvati nella subcollection societa/${currentCompanyCode}/giocatori`);
+                    console.log(`✅ Giocatori salvati nella subcollection societa/${currentCompanyDocumentId}/giocatori`);
                 } catch (error) {
                     console.error("Errore nel salvataggio giocatori nella subcollection Firebase:", error);
                     // Fallback to localStorage if Firebase fails
@@ -2724,10 +2743,11 @@
                 
                 try {
                     console.log(`🔥 DEBUG - Tentativo di lettura da Firebase subcollection...`);
-                    console.log(`📄 DEBUG - Leggendo subcollection: societa/${currentCompanyCode}/giocatori`);
+                    console.log(`📄 DEBUG - Leggendo subcollection: societa/${currentCompanyDocumentId}/giocatori`);
+                    console.log(`🏷️ DEBUG - Codice società inserito (campo 'codici'): ${currentCompanyCode}`);
                     
-                    // Read from Firebase societa subcollection
-                    const playersCollectionRef = window.collection(window.db, "societa", currentCompanyCode, "giocatori");
+                    // Read from Firebase societa subcollection using document ID
+                    const playersCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "giocatori");
                     const playersSnapshot = await window.getDocs(playersCollectionRef);
                     
                     if (!playersSnapshot.empty) {
@@ -2758,7 +2778,7 @@
                         
                         console.log('📊 DEBUG - Dettagli completi dei documenti nella subcollection:', playerDetails);
                     } else {
-                        console.log(`📝 DEBUG - Subcollection societa/${currentCompanyCode}/giocatori vuota o non trovata`);
+                        console.log(`📝 DEBUG - Subcollection societa/${currentCompanyDocumentId}/giocatori vuota o non trovata`);
                         console.log('💡 DEBUG - Verifica che la subcollection esista e contenga documenti');
                     }
                 } catch (error) {
