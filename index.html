@@ -201,6 +201,11 @@
             left: -9999px !important;
             visibility: hidden !important;
         }
+        
+        /* Ensure hidden class works when Tailwind is blocked */
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
@@ -230,11 +235,46 @@
                     </button>
                 </div>
             </div>
+            
+            <!-- Biometric Authentication Section -->
+            <div id="biometric-section" class="p-6 bg-blue-50 rounded-xl mb-6 shadow-sm border border-blue-200 hidden">
+                <div class="text-center mb-4">
+                    <div class="text-2xl mb-2">🔒</div>
+                    <h3 class="text-lg font-semibold text-blue-800 mb-2">Accesso Biometrico</h3>
+                    <p class="text-sm text-blue-600 mb-4">Accedi con impronta digitale o Face ID</p>
+                    <button id="biometric-login-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 mb-2">
+                        🔐 Accesso Biometrico
+                    </button>
+                    <button id="use-company-code-button" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 text-sm">
+                        Usa codice società
+                    </button>
+                </div>
+            </div>
+            
             <div id="company-entry-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
             
             <!-- Application Version - Only shown on login page -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.9</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 1.0</span>
+            </div>
+        </div>
+
+        <!-- Biometric Registration Modal -->
+        <div id="biometric-registration-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+            <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🔒</div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Abilita Accesso Biometrico</h3>
+                    <p class="text-gray-600 mb-6">Vuoi abilitare l'accesso con impronta digitale o Face ID per accedere più velocemente in futuro?</p>
+                    <div class="flex flex-col gap-3">
+                        <button id="enable-biometric-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                            🔐 Abilita Accesso Biometrico
+                        </button>
+                        <button id="skip-biometric-button" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                            Salta per ora
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -635,6 +675,105 @@
             }, 1800);
         }
         
+        // Biometric Authentication Functions
+        async function isBiometricSupported() {
+            if (!window.PublicKeyCredential) {
+                return false;
+            }
+            
+            try {
+                const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                return available;
+            } catch (error) {
+                console.log('Biometric support check failed:', error);
+                return false;
+            }
+        }
+        
+        async function registerBiometric(companyCode) {
+            if (!await isBiometricSupported()) {
+                return false;
+            }
+            
+            try {
+                const challenge = new Uint8Array(32);
+                crypto.getRandomValues(challenge);
+                
+                const credential = await navigator.credentials.create({
+                    publicKey: {
+                        challenge: challenge,
+                        rp: {
+                            name: "Rosterkick",
+                            id: window.location.hostname,
+                        },
+                        user: {
+                            id: new TextEncoder().encode(companyCode),
+                            name: companyCode,
+                            displayName: `Società ${companyCode}`,
+                        },
+                        pubKeyCredParams: [{alg: -7, type: "public-key"}],
+                        authenticatorSelection: {
+                            authenticatorAttachment: "platform",
+                            userVerification: "required"
+                        },
+                        timeout: 60000,
+                        attestation: "direct"
+                    }
+                });
+                
+                // Store the credential ID and company code association
+                const credentialData = {
+                    id: credential.id,
+                    companyCode: companyCode,
+                    timestamp: Date.now()
+                };
+                
+                localStorage.setItem('biometricCredential', JSON.stringify(credentialData));
+                return true;
+            } catch (error) {
+                console.log('Biometric registration failed:', error);
+                return false;
+            }
+        }
+        
+        async function authenticateWithBiometric() {
+            const storedCredential = localStorage.getItem('biometricCredential');
+            if (!storedCredential) {
+                return null;
+            }
+            
+            const credentialData = JSON.parse(storedCredential);
+            
+            try {
+                const challenge = new Uint8Array(32);
+                crypto.getRandomValues(challenge);
+                
+                const assertion = await navigator.credentials.get({
+                    publicKey: {
+                        challenge: challenge,
+                        allowCredentials: [{
+                            id: new TextEncoder().encode(credentialData.id),
+                            type: 'public-key'
+                        }],
+                        userVerification: 'required',
+                        timeout: 60000
+                    }
+                });
+                
+                if (assertion) {
+                    return credentialData.companyCode;
+                }
+                return null;
+            } catch (error) {
+                console.log('Biometric authentication failed:', error);
+                return null;
+            }
+        }
+        
+        function clearBiometricData() {
+            localStorage.removeItem('biometricCredential');
+        }
+        
         // Fallback initialization when Firebase modules don't load
         document.addEventListener('DOMContentLoaded', () => {
             // If Firebase modules didn't load, initialize in demo mode
@@ -676,6 +815,9 @@
             // Show company entry screen (may already be visible)
             companyEntryScreen.classList.remove('hidden');
             
+            // Initialize biometric authentication
+            initializeBiometricAuth();
+            
             // Trigger login animations sequence immediately
             setTimeout(() => startLoginAnimations(), 100);
 
@@ -691,6 +833,133 @@
             } else {
                 rememberCompanyCheckbox.checked = false;
             }
+
+            async function initializeBiometricAuth() {
+                const biometricSection = document.getElementById('biometric-section');
+                const biometricLoginButton = document.getElementById('biometric-login-button');
+                const useCompanyCodeButton = document.getElementById('use-company-code-button');
+                const animatedForm = document.getElementById('animated-form');
+                
+                // Check if biometric is supported and has stored credentials
+                const hasBiometricSupport = await isBiometricSupported();
+                const storedCredential = localStorage.getItem('biometricCredential');
+                
+                // Only show biometric login if both supported AND has stored credentials
+                if (hasBiometricSupport && storedCredential) {
+                    // Show biometric option, hide company code form initially
+                    biometricSection.classList.remove('hidden');
+                    animatedForm.classList.add('hidden');
+                    
+                    // Add event listeners for biometric authentication
+                    biometricLoginButton.addEventListener('click', async () => {
+                        const companyCode = await authenticateWithBiometric();
+                        if (companyCode) {
+                            // Auto-login with biometric authentication
+                            await handleCompanyLogin(companyCode);
+                        } else {
+                            showMessage(companyEntryMessageArea, "Autenticazione biometrica fallita. Usa il codice società.", true);
+                            showCompanyCodeForm();
+                        }
+                    });
+                    
+                    useCompanyCodeButton.addEventListener('click', () => {
+                        showCompanyCodeForm();
+                    });
+                } else {
+                    // No biometric support or no stored credentials - show company code form
+                    showCompanyCodeForm();
+                }
+            }
+            
+            function showCompanyCodeForm() {
+                const biometricSection = document.getElementById('biometric-section');
+                const animatedForm = document.getElementById('animated-form');
+                biometricSection.classList.add('hidden');
+                animatedForm.classList.remove('hidden');
+            }
+            
+            async function showBiometricRegistrationIfNeeded(companyCode) {
+                const hasBiometricSupport = await isBiometricSupported();
+                const storedCredential = localStorage.getItem('biometricCredential');
+                
+                if (hasBiometricSupport && !storedCredential) {
+                    const modal = document.getElementById('biometric-registration-modal');
+                    const enableButton = document.getElementById('enable-biometric-button');
+                    const skipButton = document.getElementById('skip-biometric-button');
+                    
+                    // Show modal
+                    modal.classList.remove('hidden');
+                    
+                    return new Promise((resolve) => {
+                        enableButton.onclick = async () => {
+                            const success = await registerBiometric(companyCode);
+                            modal.classList.add('hidden');
+                            if (success) {
+                                showMessage(companyEntryMessageArea, "Autenticazione biometrica abilitata!", false);
+                            } else {
+                                showMessage(companyEntryMessageArea, "Impossibile abilitare l'autenticazione biometrica.", true);
+                            }
+                            resolve();
+                        };
+                        
+                        skipButton.onclick = () => {
+                            modal.classList.add('hidden');
+                            resolve();
+                        };
+                        
+                        // Close modal on background click
+                        modal.onclick = (e) => {
+                            if (e.target === modal) {
+                                modal.classList.add('hidden');
+                                resolve();
+                            }
+                        };
+                    });
+                }
+            }
+            
+            async function handleCompanyLogin(companyCode) {
+                try {
+                    const companyData = await verifyCompanyCode(companyCode);
+                    if (companyData) {
+                        currentCompanyCode = companyCode;
+                        window.currentCompanyCode = currentCompanyCode;
+                        currentCompanyData = companyData;
+                        
+                        if (currentCompanyData.data && currentCompanyData.data.id) {
+                            currentCompanyDocumentId = currentCompanyData.data.id;
+                        } else {
+                            currentCompanyDocumentId = companyCode;
+                        }
+                        
+                        window.currentCompanyData = currentCompanyData;
+                        
+                        // Show biometric registration modal if supported and not already registered
+                        await showBiometricRegistrationIfNeeded(companyCode);
+                        
+                        showCompanyWelcome();
+                    } else {
+                        showMessage(companyEntryMessageArea, "Codice società non valido.", true);
+                    }
+                } catch (error) {
+                    showMessage(companyEntryMessageArea, "Errore nella verifica. Riprova.", true);
+                }
+            }
+
+            // Add event listeners
+            verifyCompanyButton.addEventListener('click', async () => {
+                const companyCode = companyCodeInput.value.trim();
+                if (!companyCode) {
+                    showMessage(companyEntryMessageArea, "Inserisci un codice società.", true);
+                    return;
+                }
+
+                try {
+                    await handleCompanyLogin(companyCode);
+                } catch (error) {
+                    showMessage(companyEntryMessageArea, "Errore nella verifica. Riprova.", true);
+                }
+            });
 
             function hideAllScreens() {
                 document.querySelectorAll('[id$="-screen"]').forEach(screen => {
@@ -2222,6 +2491,7 @@
                 localStorage.removeItem('joinAppId');
                 localStorage.removeItem('companyCode');
                 localStorage.removeItem('companyData');
+                clearBiometricData(); // Clear biometric data as well
                 window.location.reload(); 
             }
 
@@ -2244,12 +2514,6 @@
             }
 
             // --- Company Navigation Functions ---
-            function showCompanyWelcome() {
-                hideAllScreens();
-                companyNameDisplay.textContent = currentCompanyData.name;
-                companyWelcomeScreen.classList.remove('hidden');
-            }
-
             function showPasswordEntry(role) {
                 hideAllScreens();
                 pendingRole = role;
@@ -2373,79 +2637,7 @@
             }
 
             // Event listeners for new company-based navigation
-            verifyCompanyButton.addEventListener('click', async () => {
-                const companyCode = companyCodeInput.value.trim();
-                if (!companyCode) {
-                    companyEntryMessageArea.textContent = "Inserisci un codice società.";
-                    companyEntryMessageArea.classList.remove('hidden');
-                    companyEntryMessageArea.classList.add('text-red-600');
-                    setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 5000);
-                    return;
-                }
-
-                try {
-                    const companyData = await verifyCompanyCode(companyCode);
-                    if (companyData) {
-                        currentCompanyCode = companyCode;
-                        window.currentCompanyCode = currentCompanyCode;
-                        currentCompanyData = companyData;
-                        
-                        // Store document ID if available (from Firebase/cercaSocietaDaCodice)
-                        if (currentCompanyData.data && currentCompanyData.data.id) {
-                            currentCompanyDocumentId = currentCompanyData.data.id;
-                        } else {
-                            // Fallback to company code for demo mode
-                            currentCompanyDocumentId = companyCode;
-                        }
-                        
-                        // Populate passwords from data.config if available
-                        if (currentCompanyData.data && currentCompanyData.data.config) {
-                            currentCompanyData.passwords = {
-                                ...(currentCompanyData.passwords || {}), // Keep existing passwords for backward compatibility
-                                dirigente: currentCompanyData.data.config.dirigentePassword,
-                                mister: currentCompanyData.data.config.misterPassword
-                            };
-                        }
-                        
-                        window.currentCompanyData = currentCompanyData;
-                        companyPlayers = await loadCompanyPlayers();
-                        
-                        if (rememberCompanyCheckbox.checked) {
-                            localStorage.setItem('companyCode', companyCode);
-                            localStorage.setItem('companyData', JSON.stringify(companyData));
-                            localStorage.setItem('rememberCompanyPreference', 'true');
-                            // Show confirmation message
-                            setTimeout(() => {
-                                companyEntryMessageArea.textContent = "Codice società salvato!";
-                                companyEntryMessageArea.classList.remove('hidden', 'text-red-600');
-                                companyEntryMessageArea.classList.add('text-green-600');
-                                setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 3000);
-                            }, 500);
-                        } else {
-                            localStorage.removeItem('companyCode');
-                            localStorage.removeItem('companyData');
-                            localStorage.setItem('rememberCompanyPreference', 'false');
-                        }
-                        
-                        // Hide any error messages
-                        companyEntryMessageArea.classList.add('hidden');
-                        companyEntryMessageArea.classList.remove('text-red-600');
-                        
-                        showCompanyWelcome();
-                    } else {
-                        companyEntryMessageArea.textContent = "Codice società non valido.";
-                        companyEntryMessageArea.classList.remove('hidden');
-                        companyEntryMessageArea.classList.add('text-red-600');
-                        setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 5000);
-                    }
-                } catch (error) {
-                    companyEntryMessageArea.textContent = "Errore nella verifica. Riprova.";
-                    companyEntryMessageArea.classList.remove('hidden');
-                    companyEntryMessageArea.classList.add('text-red-600');
-                    setTimeout(() => companyEntryMessageArea.classList.add('hidden'), 5000);
-                }
-            });
-
+            
             enterMisterButton.addEventListener('click', () => {
                 showPasswordEntry('mister');
             });
