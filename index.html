@@ -968,6 +968,9 @@
                         
                         window.currentCompanyData = currentCompanyData;
                         
+                        // ===== DIAGNOSTIC LOGS AS REQUESTED =====
+                        console.log("✅ Login avvenuta, cambio pagina...");
+                        
                         console.log("🔍 [LOGIN] Chiamata showBiometricRegistrationIfNeeded...");
                         // Show biometric registration modal if supported and not already registered
                         await showBiometricRegistrationIfNeeded(companyCode);
@@ -975,20 +978,27 @@
                         console.log("🔍 [LOGIN] Prima di chiamare showCompanyWelcome()");
                         console.log("🔍 [LOGIN] Oggetto companyData completo:", JSON.stringify(companyData, null, 2));
                         
-                        try {
-                            showCompanyWelcome();
-                            console.log("✅ [LOGIN] showCompanyWelcome() chiamata con successo");
-                        } catch (welcomeError) {
-                            console.error("❌ [LOGIN] Errore in showCompanyWelcome:", welcomeError);
-                            // Forza la visualizzazione della schermata di benvenuto anche in caso di errore
-                            console.log("🔍 [LOGIN] Tentativo di forzare la visualizzazione della schermata di benvenuto...");
+                        // Check if the destination page function exists
+                        if (typeof showCompanyWelcome === 'function') {
+                            console.log("🚨 Funzione cambio pagina chiamata");
                             try {
-                                hideAllScreens();
-                                document.getElementById('company-welcome-screen').classList.remove('hidden');
-                                console.log("✅ [LOGIN] Schermata di benvenuto forzata con successo");
-                            } catch (forceError) {
-                                console.error("❌ [LOGIN] Impossibile forzare la schermata di benvenuto:", forceError);
+                                showCompanyWelcome();
+                                console.log("✅ [LOGIN] showCompanyWelcome() chiamata con successo");
+                            } catch (welcomeError) {
+                                console.error("❌ [LOGIN] Errore in showCompanyWelcome:", welcomeError);
+                                console.log("❌ Nessuna pagina di destinazione trovata dopo login");
+                                // Forza la visualizzazione della schermata di benvenuto anche in caso di errore
+                                console.log("🔍 [LOGIN] Tentativo di forzare la visualizzazione della schermata di benvenuto...");
+                                try {
+                                    hideAllScreens();
+                                    document.getElementById('company-welcome-screen').classList.remove('hidden');
+                                    console.log("✅ [LOGIN] Schermata di benvenuto forzata con successo");
+                                } catch (forceError) {
+                                    console.error("❌ [LOGIN] Impossibile forzare la schermata di benvenuto:", forceError);
+                                }
                             }
+                        } else {
+                            console.log("❌ Nessuna pagina di destinazione trovata dopo login");
                         }
                     } else {
                         console.log("❌ [LOGIN] Codice società non valido");
