@@ -121,22 +121,80 @@
         .modal {
             background-color: rgba(0, 0, 0, 0.5);
         }
+        
+        /* Login Animations */
+        @keyframes dropBounce {
+            0% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+            50% {
+                transform: translateY(10px);
+                opacity: 1;
+            }
+            65% {
+                transform: translateY(-5px);
+            }
+            80% {
+                transform: translateY(2px);
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInRight {
+            0% {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideInLeft {
+            0% {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .animate-drop-bounce {
+            animation: dropBounce 1.2s ease-out forwards;
+        }
+        
+        .animate-slide-in-right {
+            animation: slideInRight 0.8s ease-out forwards;
+        }
+        
+        .animate-slide-in-left {
+            animation: slideInLeft 0.8s ease-out forwards;
+        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
 
     <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-2xl">
-
-        <!-- Application Title -->
-        <h1 class="text-3xl font-bold text-gray-800 text-center mb-2">Rosterkick</h1>
         
         <!-- Company Code Entry Screen -->
         <div id="company-entry-screen" class="hidden">
-            <div class="flex justify-center mb-4">
-                <img src="logo Rosterkick.png" alt="Rosterkick Logo" class="w-20 h-20 object-contain">
+            <!-- Animated Logo - larger and positioned above title -->
+            <div class="flex justify-center mb-6">
+                <img id="animated-logo" src="logo Rosterkick.png" alt="Rosterkick Logo" class="w-32 h-32 object-contain opacity-0 transform translate-y-[-100px]">
             </div>
-            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci il codice società</h2>
-            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+            <!-- Animated Title -->
+            <h1 id="animated-title" class="text-4xl font-bold text-gray-800 text-center mb-2 opacity-0 transform translate-x-full">Rosterkick</h1>
+            <!-- Animated Subtitle -->
+            <h2 id="animated-subtitle" class="text-xl font-semibold text-center text-gray-700 mb-6 opacity-0 transform translate-x-full">Inserisci il codice società</h2>
+            <!-- Animated Form -->
+            <div id="animated-form" class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200 opacity-0 transform translate-x-[-50px]">
                 <div class="flex flex-col gap-4">
                     <input type="text" id="company-code-input" placeholder="Codice società" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <div class="flex items-center gap-2">
@@ -518,6 +576,41 @@
 
     <!-- JavaScript for app logic -->
     <script>
+        // Global function for login animations
+        function startLoginAnimations() {
+            const logo = document.getElementById('animated-logo');
+            const title = document.getElementById('animated-title');
+            const subtitle = document.getElementById('animated-subtitle');
+            const form = document.getElementById('animated-form');
+            
+            // Only proceed if elements exist
+            if (!logo || !title || !subtitle || !form) return;
+            
+            // Reset all elements to initial state
+            logo.classList.remove('animate-drop-bounce');
+            title.classList.remove('animate-slide-in-right');
+            subtitle.classList.remove('animate-slide-in-right');
+            form.classList.remove('animate-slide-in-left');
+            
+            // Step 1: Logo drops and bounces (starts immediately)
+            logo.classList.add('animate-drop-bounce');
+            
+            // Step 2: Title slides in from right (after 0.8s)
+            setTimeout(() => {
+                title.classList.add('animate-slide-in-right');
+            }, 800);
+            
+            // Step 3: Subtitle slides in from right (after 1.2s)
+            setTimeout(() => {
+                subtitle.classList.add('animate-slide-in-right');
+            }, 1200);
+            
+            // Step 4: Form slides in from left (after 1.8s)
+            setTimeout(() => {
+                form.classList.add('animate-slide-in-left');
+            }, 1800);
+        }
+        
         // Fallback initialization when Firebase modules don't load
         document.addEventListener('DOMContentLoaded', () => {
             // If Firebase modules didn't load, initialize in demo mode
@@ -555,6 +648,9 @@
 
             // Show company entry screen
             companyEntryScreen.classList.remove('hidden');
+            
+            // Trigger login animations sequence
+            setTimeout(() => startLoginAnimations(), 100);
 
             // Initialize checkbox state based on saved preference
             const savedRememberPreference = localStorage.getItem('rememberCompanyPreference');
@@ -944,14 +1040,20 @@
                                 rememberCompanyCheckbox.checked = true;
                             }
                             companyEntryScreen.classList.remove('hidden');
+                            // Trigger login animations sequence
+                            setTimeout(() => startLoginAnimations(), 100);
                         }
                     } catch (err) {
                         console.error("Firebase authentication failed:", err);
                         companyEntryScreen.classList.remove('hidden');
+                        // Trigger login animations sequence
+                        setTimeout(() => startLoginAnimations(), 100);
                     }
                 } else {
                     console.error("Firebase configuration not available. Some features will not work.");
                     companyEntryScreen.classList.remove('hidden');
+                    // Trigger login animations sequence
+                    setTimeout(() => startLoginAnimations(), 100);
                 }
             }
 
@@ -2458,6 +2560,8 @@
                 userRole = null;
                 hideAllScreens();
                 companyEntryScreen.classList.remove('hidden'); // mostra schermata di login/codice società
+                // Trigger login animations sequence
+                setTimeout(() => startLoginAnimations(), 100);
             });
 
             confirmPasswordButton.addEventListener('click', async () => {
