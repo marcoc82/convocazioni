@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.10</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 1.0</span>
             </div>
         </div>
 
@@ -572,6 +572,43 @@
                     Ok
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform scale-95 transition-transform duration-300">
+            <h2 class="text-xl font-bold mb-4 text-center">Condividi le convocazioni</h2>
+            <div class="space-y-3">
+                <!-- Web Share API button (will be shown only if supported) -->
+                <button id="web-share-button" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200 hidden">
+                    📱 Condividi con app
+                </button>
+                
+                <!-- Manual sharing options -->
+                <button id="whatsapp-share-button" class="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                    💬 Condividi su WhatsApp
+                </button>
+                
+                <button id="telegram-share-button" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                    ✈️ Condividi su Telegram
+                </button>
+                
+                <button id="email-share-button" class="w-full py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                    📧 Condividi via Email
+                </button>
+                
+                <button id="copy-link-button" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                    📋 Copia link immagine
+                </button>
+                
+                <button id="download-image-button" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                    💾 Scarica immagine
+                </button>
+            </div>
+            <button id="close-share-modal" class="mt-6 w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                Annulla
+            </button>
         </div>
     </div>
 
@@ -1005,6 +1042,16 @@
             const unavailablePlayerName = document.getElementById('unavailable-player-name');
             const unavailablePlayerReason = document.getElementById('unavailable-player-reason');
             const convocaComunqueButton = document.getElementById('convoca-comunque-button'); // nuovo bottone
+
+            // Share Modal Elements
+            const shareModal = document.getElementById('share-modal');
+            const closeShareModalButton = document.getElementById('close-share-modal');
+            const webShareButton = document.getElementById('web-share-button');
+            const whatsappShareButton = document.getElementById('whatsapp-share-button');
+            const telegramShareButton = document.getElementById('telegram-share-button');
+            const emailShareButton = document.getElementById('email-share-button');
+            const copyLinkButton = document.getElementById('copy-link-button');
+            const downloadImageButton = document.getElementById('download-image-button');
 
             // --- App State ---
             let userRole = null;
@@ -2075,63 +2122,221 @@
                 }
             }
 
-            function generateShareImage() {
-                if (userRole !== 'mister') {
-                    showMessage("Solo il Mister può condividere le convocazioni.", "text-red-600");
-                    return;
-                }
+            // Share handler functions
+            let shareImageDataUrl = null; // Store generated image for sharing
 
-                const selectedPlayers = getSelectedPlayers();
-                const matchDetails = getMatchDetails();
-                const sharePlayersList = document.getElementById('share-players-list');
-                sharePlayersList.innerHTML = '';
-                document.getElementById('share-campo').textContent = matchDetails.campo;
-                document.getElementById('share-avversario').textContent = matchDetails.avversario;
-                
-                let formattedDate = 'N/D';
-                if (matchDetails.data !== 'N/D') {
-                    const dateObj = new Date(matchDetails.data + 'T00:00:00'); 
-                    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-                    formattedDate = dateObj.toLocaleDateString('it-IT', options);
-                }
-                
-                document.getElementById('share-data-partita').textContent = formattedDate;
-                document.getElementById('share-orario-convocazione').textContent = matchDetails.orarioConvocazione;
-                document.getElementById('share-orario-partita').textContent = matchDetails.orarioPartita;
-                document.getElementById('share-tipo').textContent = matchDetails.tipo;
+            async function handleWebShare() {
+                try {
+                    shareImageDataUrl = await generateShareImageData();
+                    if (!shareImageDataUrl) return;
 
-                if (selectedPlayers.length === 0) {
-                    const li = document.createElement('li');
-                    li.textContent = "Nessun giocatore convocato.";
-                    li.className = "text-gray-500 italic text-center";
-                    sharePlayersList.appendChild(li);
-                } else {
-                    selectedPlayers.forEach(player => {
-                        const li = document.createElement('li');
-                        li.textContent = player;
-                        li.className = 'font-medium';
-                        sharePlayersList.appendChild(li);
-                    });
+                    const selectedPlayers = getSelectedPlayers();
+                    const matchDetails = getMatchDetails();
+                    
+                    // Convert data URL to blob
+                    const response = await fetch(shareImageDataUrl);
+                    const blob = await response.blob();
+                    const file = new File([blob], `convocazioni-${matchDetails.avversario}.png`, { type: 'image/png' });
+
+                    const shareData = {
+                        title: 'Convocazioni Ufficiali',
+                        text: `Convocazioni per ${matchDetails.avversario} - ${selectedPlayers.length} giocatori convocati`,
+                        files: [file]
+                    };
+
+                    await navigator.share(shareData);
+                    hideShareModal();
+                    showMessage("Convocazioni condivise con successo!", "text-green-600");
+                } catch (error) {
+                    console.error('Errore nella condivisione:', error);
+                    // If web share fails, offer download instead
+                    if (shareImageDataUrl) {
+                        handleDownloadImage();
+                    } else {
+                        showMessage("Errore nella condivisione. Prova con un'altra opzione.", "text-red-600");
+                    }
                 }
-                shareView.style.position = 'relative';
-                shareView.style.top = '0';
-                shareView.style.left = '0';
-                html2canvas(shareView, {
-                    scale: 2,
-                    backgroundColor: '#ffffff'
-                }).then(canvas => {
-                    const image = canvas.toDataURL("image/png");
+            }
+
+            async function handleWhatsAppShare() {
+                try {
+                    shareImageDataUrl = await generateShareImageData();
+                    if (!shareImageDataUrl) return;
+
+                    const selectedPlayers = getSelectedPlayers();
+                    const matchDetails = getMatchDetails();
+                    
+                    const text = encodeURIComponent(`🏟️ Convocazioni Ufficiali 🏟️\n\nPartita: ${matchDetails.avversario}\nCampo: ${matchDetails.campo}\nData: ${matchDetails.data}\nOrario: ${matchDetails.orarioPartita}\n\nGiocatori convocati (${selectedPlayers.length}):\n${selectedPlayers.join('\n')}\n\n⚽ Rosterkick`);
+                    
+                    const whatsappUrl = `https://wa.me/?text=${text}`;
+                    window.open(whatsappUrl, '_blank');
+                    
+                    hideShareModal();
+                    showMessage("Link WhatsApp aperto! Condividi l'immagine manualmente.", "text-blue-600");
+                    
+                    // Also trigger download for user convenience
+                    setTimeout(() => handleDownloadImage(), 1000);
+                } catch (error) {
+                    console.error('Errore WhatsApp:', error);
+                    showMessage("Errore nell'apertura di WhatsApp.", "text-red-600");
+                }
+            }
+
+            async function handleTelegramShare() {
+                try {
+                    shareImageDataUrl = await generateShareImageData();
+                    if (!shareImageDataUrl) return;
+
+                    const selectedPlayers = getSelectedPlayers();
+                    const matchDetails = getMatchDetails();
+                    
+                    const text = encodeURIComponent(`🏟️ Convocazioni Ufficiali 🏟️\n\nPartita: ${matchDetails.avversario}\nCampo: ${matchDetails.campo}\nData: ${matchDetails.data}\nOrario: ${matchDetails.orarioPartita}\n\nGiocatori convocati (${selectedPlayers.length}):\n${selectedPlayers.join('\n')}\n\n⚽ Rosterkick`);
+                    
+                    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${text}`;
+                    window.open(telegramUrl, '_blank');
+                    
+                    hideShareModal();
+                    showMessage("Link Telegram aperto! Condividi l'immagine manualmente.", "text-blue-600");
+                    
+                    // Also trigger download for user convenience
+                    setTimeout(() => handleDownloadImage(), 1000);
+                } catch (error) {
+                    console.error('Errore Telegram:', error);
+                    showMessage("Errore nell'apertura di Telegram.", "text-red-600");
+                }
+            }
+
+            async function handleEmailShare() {
+                try {
+                    shareImageDataUrl = await generateShareImageData();
+                    if (!shareImageDataUrl) return;
+
+                    const selectedPlayers = getSelectedPlayers();
+                    const matchDetails = getMatchDetails();
+                    
+                    const subject = encodeURIComponent(`Convocazioni per ${matchDetails.avversario}`);
+                    const body = encodeURIComponent(`Convocazioni Ufficiali\n\nPartita: ${matchDetails.avversario}\nCampo: ${matchDetails.campo}\nData: ${matchDetails.data}\nOrario Partita: ${matchDetails.orarioPartita}\nOrario Convocazione: ${matchDetails.orarioConvocazione}\n\nGiocatori convocati (${selectedPlayers.length}):\n${selectedPlayers.join('\n')}\n\nGenerato con Rosterkick`);
+                    
+                    const emailUrl = `mailto:?subject=${subject}&body=${body}`;
+                    window.location.href = emailUrl;
+                    
+                    hideShareModal();
+                    showMessage("Client email aperto! Aggiungi l'immagine come allegato.", "text-blue-600");
+                    
+                    // Also trigger download for user convenience
+                    setTimeout(() => handleDownloadImage(), 1000);
+                } catch (error) {
+                    console.error('Errore Email:', error);
+                    showMessage("Errore nell'apertura del client email.", "text-red-600");
+                }
+            }
+
+            async function handleCopyLink() {
+                try {
+                    shareImageDataUrl = await generateShareImageData();
+                    if (!shareImageDataUrl) return;
+
+                    // Copy the data URL to clipboard
+                    await navigator.clipboard.writeText(shareImageDataUrl);
+                    
+                    hideShareModal();
+                    showMessage("Link immagine copiato negli appunti!", "text-green-600");
+                } catch (error) {
+                    console.error('Errore copia link:', error);
+                    // Fallback: offer download instead
+                    showMessage("Impossibile copiare il link. Scarico l'immagine...", "text-yellow-600");
+                    handleDownloadImage();
+                }
+            }
+
+            async function handleDownloadImage() {
+                try {
+                    if (!shareImageDataUrl) {
+                        shareImageDataUrl = await generateShareImageData();
+                    }
+                    if (!shareImageDataUrl) return;
+
+                    const matchDetails = getMatchDetails();
                     const link = document.createElement('a');
-                    link.href = image;
+                    link.href = shareImageDataUrl;
                     link.download = `convocazioni-${matchDetails.avversario}.png`;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
+                    
+                    hideShareModal();
+                    showMessage("Immagine scaricata con successo!", "text-green-600");
+                } catch (error) {
+                    console.error('Errore download:', error);
+                    showMessage("Errore nel download dell'immagine.", "text-red-600");
+                }
+            }
+
+            // Helper function to generate image data without downloading
+            async function generateShareImageData() {
+                try {
+                    const selectedPlayers = getSelectedPlayers();
+                    const matchDetails = getMatchDetails();
+                    const sharePlayersList = document.getElementById('share-players-list');
+                    sharePlayersList.innerHTML = '';
+                    document.getElementById('share-campo').textContent = matchDetails.campo;
+                    document.getElementById('share-avversario').textContent = matchDetails.avversario;
+                    
+                    let formattedDate = 'N/D';
+                    if (matchDetails.data !== 'N/D') {
+                        const dateObj = new Date(matchDetails.data + 'T00:00:00'); 
+                        const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                        formattedDate = dateObj.toLocaleDateString('it-IT', options);
+                    }
+                    
+                    document.getElementById('share-data-partita').textContent = formattedDate;
+                    document.getElementById('share-orario-convocazione').textContent = matchDetails.orarioConvocazione;
+                    document.getElementById('share-orario-partita').textContent = matchDetails.orarioPartita;
+                    document.getElementById('share-tipo').textContent = matchDetails.tipo;
+
+                    if (selectedPlayers.length === 0) {
+                        const li = document.createElement('li');
+                        li.textContent = "Nessun giocatore convocato.";
+                        li.className = "text-gray-500 italic text-center";
+                        sharePlayersList.appendChild(li);
+                    } else {
+                        selectedPlayers.forEach(player => {
+                            const li = document.createElement('li');
+                            li.textContent = player;
+                            li.className = 'font-medium';
+                            sharePlayersList.appendChild(li);
+                        });
+                    }
+                    
+                    const shareView = document.getElementById('share-view');
+                    shareView.style.position = 'relative';
+                    shareView.style.top = '0';
+                    shareView.style.left = '0';
+                    
+                    const canvas = await html2canvas(shareView, {
+                        scale: 2,
+                        backgroundColor: '#ffffff'
+                    });
+                    
+                    const imageDataUrl = canvas.toDataURL("image/png");
+                    
+                    // Reset share view position
                     shareView.style.position = 'absolute';
                     shareView.style.top = '-9999px';
                     shareView.style.left = '-9999px';
-                    showMessage("Immagine generata e scaricata!", "text-green-600");
-                });
+                    
+                    return imageDataUrl;
+                } catch (error) {
+                    console.error('Errore generazione immagine:', error);
+                    showMessage("Errore nella generazione dell'immagine.", "text-red-600");
+                    return null;
+                }
+            }
+
+            async function generateShareImage() {
+                // This function is kept for backward compatibility
+                // but now it just downloads the image directly
+                await handleDownloadImage();
             }
 
             function generateHistoryShareImage(convocationData) {
@@ -2503,6 +2708,28 @@
                 tempUnavailablePlayerName = null;
             }
 
+            function showShareModal() {
+                if (userRole !== 'mister') {
+                    showMessage("Solo il Mister può condividere le convocazioni.", "text-red-600");
+                    return;
+                }
+                
+                // Check if Web Share API is supported
+                if (navigator.share) {
+                    webShareButton.classList.remove('hidden');
+                } else {
+                    webShareButton.classList.add('hidden');
+                }
+                
+                shareModal.classList.remove('hidden', 'opacity-0');
+                shareModal.classList.add('flex', 'opacity-100');
+            }
+
+            function hideShareModal() {
+                shareModal.classList.remove('flex', 'opacity-100');
+                shareModal.classList.add('hidden', 'opacity-0');
+            }
+
             // Event listeners for new company-based navigation
             verifyCompanyButton.addEventListener('click', async () => {
                 const companyCode = companyCodeInput.value.trim();
@@ -2807,7 +3034,7 @@
             resetSelectionsButton.addEventListener('click', resetPlayerSelections);
             
             saveButton.addEventListener('click', saveData);
-            shareButton.addEventListener('click', generateShareImage);
+            shareButton.addEventListener('click', showShareModal);
             
             // Handle tipo-partita selection change for Mister role
             const tipoPartitaSelect = document.getElementById('tipo-partita');
@@ -2892,6 +3119,7 @@
 
             closeModalButton.addEventListener('click', hideModal);
             closeUnavailableModalButton.addEventListener('click', hideUnavailablePlayerModal);
+            closeShareModalButton.addEventListener('click', hideShareModal);
             saveNotesButton.addEventListener('click', saveNotes);
 
             // Close modals when clicking outside of them
@@ -2906,6 +3134,20 @@
                     hideUnavailablePlayerModal();
                 }
             });
+
+            shareModal.addEventListener('click', (e) => {
+                if (e.target === shareModal) {
+                    hideShareModal();
+                }
+            });
+
+            // Share modal button event listeners
+            webShareButton.addEventListener('click', handleWebShare);
+            whatsappShareButton.addEventListener('click', handleWhatsAppShare);
+            telegramShareButton.addEventListener('click', handleTelegramShare);
+            emailShareButton.addEventListener('click', handleEmailShare);
+            copyLinkButton.addEventListener('click', handleCopyLink);
+            downloadImageButton.addEventListener('click', handleDownloadImage);
 
             // PATCH: gestione status per Dirigente/Marco, incluso "Disponibile"
             statusButtons.forEach(button => {
