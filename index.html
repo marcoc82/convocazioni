@@ -509,7 +509,7 @@
         
         <!-- Application Version -->
         <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-            <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.5</span>
+            <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.6</span>
         </div>
     </div>
 
@@ -1770,6 +1770,16 @@
                         playerToRemove.remove();
                     }
                 }
+                
+                // Update title with player count
+                updateSelectedPlayersTitle();
+            }
+            
+            function updateSelectedPlayersTitle() {
+                const count = selectedPlayersLiveList.children.length;
+                if (selectedPlayersTitle) {
+                    selectedPlayersTitle.textContent = `Giocatori Convocati (${count})`;
+                }
             }
 
             function getSelectedPlayers() {
@@ -1802,6 +1812,7 @@
                     // Clear the live selected players list
                     if (selectedPlayersLiveList) {
                         selectedPlayersLiveList.innerHTML = '';
+                        updateSelectedPlayersTitle();
                     }
 
                     // Clear match details form
@@ -1858,6 +1869,7 @@
                         // Clear the live selected players list
                         if (selectedPlayersLiveList) {
                             selectedPlayersLiveList.innerHTML = '';
+                            updateSelectedPlayersTitle();
                         }
 
                         // Clear match details form
