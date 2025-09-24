@@ -1307,11 +1307,23 @@
                     // In demo mode, initialize with empty data
                     loadHistoryDemo();
                     loadAttendanceDemo();
+                    // Initialize unavailable players view with empty state message
+                    unavailablePlayers = new Map();
+                    updateUnavailablePlayersView();
+                    console.log('📝 Demo mode: Initialized availability with empty state message');
                     return;
                 }
 
                 // Use company-specific paths
                 const basePath = currentCompanyCode ? `societa/${currentCompanyCode}` : `artifacts/${appId}/public/data`;
+                
+                // For availability subcollection, use document ID instead of company code
+                const availabilityBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${appId}/public/data`;
+
+                // Log the paths being used for debugging
+                console.log(`🏢 Società corrente - Codice: ${currentCompanyCode}, Document ID: ${currentCompanyDocumentId}`);
+                console.log(`📂 Percorso base convocazioni/presenze: ${basePath}`);
+                console.log(`📂 Percorso base availability (con Document ID): ${availabilityBasePath}`);
 
                 // Listener for Mister's convocations history
                 const historyCollectionRef = window.collection(window.db, `${basePath}/convocations_history`);
@@ -1327,13 +1339,16 @@
                 });
                 unsubscribeListeners.push(attendanceUnsub);
                 
-                // Listener for Marco's unavailable players list
-                const unavailableDocRef = window.doc(window.db, `${basePath}/availability`, "marco_unavailable");
+                // Listener for Marco's unavailable players list - using document ID path
+                const unavailableDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "marco_unavailable");
+                console.log(`📍 Percorso completo subcollection availability: ${availabilityBasePath}/availability/marco_unavailable`);
                 const unavailableUnsub = window.onSnapshot(unavailableDocRef, (docSnap) => {
                     if (docSnap.exists() && docSnap.data().players) {
                         unavailablePlayers = new Map(Object.entries(docSnap.data().players));
+                        console.log(`✅ Caricata availability subcollection da: ${availabilityBasePath}/availability/marco_unavailable (${unavailablePlayers.size} giocatori non disponibili)`);
                     } else {
                         unavailablePlayers = new Map();
+                        console.log(`📝 Subcollection 'availability' vuota o non trovata per società document ID ${currentCompanyDocumentId}`);
                     }
                     renderPlayers(); // Re-render players with new unavailable status
                     updateUnavailablePlayersView(); // Update Mister's view
@@ -1362,6 +1377,9 @@
 
                 // Use company-specific paths
                 const basePath = currentCompanyCode ? `societa/${currentCompanyCode}` : `artifacts/${currentAppId}/public/data`;
+                
+                // For availability subcollection, use document ID instead of company code
+                const availabilityBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${currentAppId}/public/data`;
 
                 if (userRole === 'mister') {
                     const matchDetails = getMatchDetails();
@@ -1409,11 +1427,15 @@
                     }
                 } else if (isDirigente()) {
                     const unavailablePlayersObject = Object.fromEntries(unavailablePlayers);
-                    const unavailableDocRef = window.doc(window.db, `${basePath}/availability`, "marco_unavailable");
+                    const unavailableDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "marco_unavailable");
+                    
+                    console.log(`💾 Salvando lista giocatori non disponibili per società document ID: ${currentCompanyDocumentId}`);
+                    console.log(`📂 Percorso salvataggio availability: ${availabilityBasePath}/availability/marco_unavailable`);
                     
                     try {
                         await window.setDoc(unavailableDocRef, { players: unavailablePlayersObject });
                         showSuccessPopup("Lista di giocatori non disponibili salvata!");
+                        console.log(`✅ Lista giocatori non disponibili salvata con successo (${Object.keys(unavailablePlayersObject).length} giocatori)`);
                     } catch (e) {
                         console.error("Errore salvataggio su Firestore: ", e);
                         showMessage("Errore durante il salvataggio. Controlla la console.", "text-red-600");
@@ -2041,7 +2063,7 @@
             function updateUnavailablePlayersView() {
                 unavailablePlayersList.innerHTML = '';
                 if (unavailablePlayers.size === 0) {
-                    unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessun giocatore segnalato.</li>';
+                    unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessuna disponibilità registrata.</li>';
                     return;
                 }
                 unavailablePlayers.forEach((status, player) => {
