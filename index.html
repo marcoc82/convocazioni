@@ -919,31 +919,65 @@
             }
             
             async function handleCompanyLogin(companyCode) {
+                console.log("🔍 [LOGIN] Inizio handleCompanyLogin con codice:", companyCode);
+                
                 try {
+                    console.log("🔍 [LOGIN] Chiamata verifyCompanyCode...");
                     const companyData = await verifyCompanyCode(companyCode);
+                    
+                    console.log("🔍 [LOGIN] Risultato verifyCompanyCode:", companyData);
+                    
                     if (companyData) {
+                        console.log("🔍 [LOGIN] Codice società valido, impostazione dati...");
+                        
                         currentCompanyCode = companyCode;
                         window.currentCompanyCode = currentCompanyCode;
                         currentCompanyData = companyData;
                         
+                        console.log("🔍 [LOGIN] currentCompanyData impostato:", currentCompanyData);
+                        
                         if (currentCompanyData.data && currentCompanyData.data.id) {
                             currentCompanyDocumentId = currentCompanyData.data.id;
+                            console.log("🔍 [LOGIN] Document ID impostato da data.id:", currentCompanyDocumentId);
                         } else {
                             currentCompanyDocumentId = companyCode;
+                            console.log("🔍 [LOGIN] Document ID impostato da companyCode:", currentCompanyDocumentId);
                         }
                         
                         window.currentCompanyData = currentCompanyData;
                         
+                        console.log("🔍 [LOGIN] Chiamata showBiometricRegistrationIfNeeded...");
                         // Show biometric registration modal if supported and not already registered
                         await showBiometricRegistrationIfNeeded(companyCode);
                         
-                        showCompanyWelcome();
+                        console.log("🔍 [LOGIN] Prima di chiamare showCompanyWelcome()");
+                        console.log("🔍 [LOGIN] Oggetto companyData completo:", JSON.stringify(companyData, null, 2));
+                        
+                        try {
+                            showCompanyWelcome();
+                            console.log("✅ [LOGIN] showCompanyWelcome() chiamata con successo");
+                        } catch (welcomeError) {
+                            console.error("❌ [LOGIN] Errore in showCompanyWelcome:", welcomeError);
+                            // Forza la visualizzazione della schermata di benvenuto anche in caso di errore
+                            console.log("🔍 [LOGIN] Tentativo di forzare la visualizzazione della schermata di benvenuto...");
+                            try {
+                                hideAllScreens();
+                                document.getElementById('company-welcome-screen').classList.remove('hidden');
+                                console.log("✅ [LOGIN] Schermata di benvenuto forzata con successo");
+                            } catch (forceError) {
+                                console.error("❌ [LOGIN] Impossibile forzare la schermata di benvenuto:", forceError);
+                            }
+                        }
                     } else {
+                        console.log("❌ [LOGIN] Codice società non valido");
                         showMessage(companyEntryMessageArea, "Codice società non valido.", true);
                     }
                 } catch (error) {
+                    console.error("❌ [LOGIN] Errore durante handleCompanyLogin:", error);
                     showMessage(companyEntryMessageArea, "Errore nella verifica. Riprova.", true);
                 }
+                
+                console.log("🔍 [LOGIN] Fine handleCompanyLogin");
             }
 
             // Add event listeners
@@ -966,6 +1000,9 @@
                     screen.classList.add('hidden');
                 });
             }
+            
+            // Make hideAllScreens available globally for other script blocks
+            window.hideAllScreens = hideAllScreens;
 
             function showMessage(element, message, isError = true) {
                 element.textContent = message;
@@ -990,24 +1027,61 @@
             }
 
             function showCompanyWelcome() {
-                hideAllScreens();
-                companyNameDisplay.textContent = currentCompanyData.name;
+                console.log("🏠 [WELCOME] Inizio showCompanyWelcome");
+                console.log("🏠 [WELCOME] currentCompanyData:", currentCompanyData);
                 
-                // Show company details with document ID and codici field
-                const companyDetails = document.getElementById('company-details');
-                const companyDocumentIdSpan = document.getElementById('company-document-id');
-                const companyCodeSpan = document.getElementById('company-code-display');
-                
-                if (currentCompanyData.data) {
-                    companyDocumentIdSpan.textContent = currentCompanyDocumentId || 'N/A';
-                    companyCodeSpan.textContent = currentCompanyData.data.codici || currentCompanyCode;
-                    companyDetails.classList.remove('hidden');
-                } else {
-                    companyDetails.classList.add('hidden');
+                try {
+                    console.log("🏠 [WELCOME] Chiamata hideAllScreens...");
+                    hideAllScreens();
+                    
+                    console.log("🏠 [WELCOME] Impostazione nome società...");
+                    if (currentCompanyData && currentCompanyData.name) {
+                        companyNameDisplay.textContent = currentCompanyData.name;
+                        console.log("🏠 [WELCOME] Nome società impostato:", currentCompanyData.name);
+                    } else {
+                        console.warn("⚠️ [WELCOME] Nome società non disponibile in currentCompanyData");
+                        companyNameDisplay.textContent = "Società Sconosciuta";
+                    }
+                    
+                    // Show company details with document ID and codici field
+                    console.log("🏠 [WELCOME] Gestione dettagli società...");
+                    const companyDetails = document.getElementById('company-details');
+                    const companyDocumentIdSpan = document.getElementById('company-document-id');
+                    const companyCodeSpan = document.getElementById('company-code-display');
+                    
+                    if (currentCompanyData.data) {
+                        console.log("🏠 [WELCOME] Dati società disponibili:", currentCompanyData.data);
+                        companyDocumentIdSpan.textContent = currentCompanyDocumentId || 'N/A';
+                        companyCodeSpan.textContent = currentCompanyData.data.codici || currentCompanyCode;
+                        companyDetails.classList.remove('hidden');
+                        console.log("🏠 [WELCOME] Dettagli società mostrati");
+                    } else {
+                        console.log("🏠 [WELCOME] Nessun dato società disponibile, nascondo dettagli");
+                        companyDetails.classList.add('hidden');
+                    }
+                    
+                    console.log("🏠 [WELCOME] Mostra schermata di benvenuto...");
+                    companyWelcomeScreen.classList.remove('hidden');
+                    console.log("✅ [WELCOME] Schermata di benvenuto mostrata con successo");
+                    
+                } catch (error) {
+                    console.error("❌ [WELCOME] Errore in showCompanyWelcome:", error);
+                    // Tentativo di recupero forzando almeno la visualizzazione base
+                    try {
+                        console.log("🏠 [WELCOME] Tentativo di recupero...");
+                        hideAllScreens();
+                        companyWelcomeScreen.classList.remove('hidden');
+                        console.log("🏠 [WELCOME] Recupero completato - schermata mostrata");
+                    } catch (recoveryError) {
+                        console.error("❌ [WELCOME] Errore anche nel recupero:", recoveryError);
+                    }
                 }
                 
-                companyWelcomeScreen.classList.remove('hidden');
+                console.log("🏠 [WELCOME] Fine showCompanyWelcome");
             }
+            
+            // Make showCompanyWelcome available globally for other script blocks
+            window.showCompanyWelcome = showCompanyWelcome;
 
             function showPasswordEntry(role) {
                 hideAllScreens();
@@ -1028,9 +1102,13 @@
             const rememberPreference = localStorage.getItem('rememberCompanyPreference');
             
             if (savedCompanyCode && savedCompanyData && rememberPreference === 'true') {
+                console.log("🔄 [SAVED] Caricamento dati salvati - Codice:", savedCompanyCode);
+                
                 currentCompanyCode = savedCompanyCode;
                 window.currentCompanyCode = currentCompanyCode;
                 currentCompanyData = JSON.parse(savedCompanyData);
+                
+                console.log("🔄 [SAVED] Dati società caricati:", currentCompanyData);
                 
                 // Populate passwords from data.config if available
                 if (currentCompanyData.data && currentCompanyData.data.config) {
@@ -1039,11 +1117,14 @@
                         dirigente: currentCompanyData.data.config.dirigentePassword,
                         mister: currentCompanyData.data.config.misterPassword
                     };
+                    console.log("🔄 [SAVED] Password aggiornate da config");
                 }
                 
                 window.currentCompanyData = currentCompanyData;
                 companyCodeInput.value = savedCompanyCode;
                 rememberCompanyCheckbox.checked = true;
+                
+                console.log("🔄 [SAVED] Chiamata showCompanyWelcome() da dati salvati");
                 showCompanyWelcome();
             }
         }
@@ -1213,10 +1294,14 @@
                             companyPlayers = await loadCompanyPlayers();
                             startApp(savedAppId);
                         } else if (savedCompanyCode && savedCompanyData) {
+                            console.log("🔄 [SAVED-ALT] Caricamento dati salvati (sezione alternativa) - Codice:", savedCompanyCode);
+                            
                             // Show welcome screen with company data
                             currentCompanyCode = savedCompanyCode;
                             window.currentCompanyCode = currentCompanyCode;
                             currentCompanyData = JSON.parse(savedCompanyData);
+                            
+                            console.log("🔄 [SAVED-ALT] Dati società caricati:", currentCompanyData);
                             
                             // Populate passwords from data.config if available
                             if (currentCompanyData.data && currentCompanyData.data.config) {
@@ -1225,10 +1310,13 @@
                                     dirigente: currentCompanyData.data.config.dirigentePassword,
                                     mister: currentCompanyData.data.config.misterPassword
                                 };
+                                console.log("🔄 [SAVED-ALT] Password aggiornate da config");
                             }
                             
                             window.currentCompanyData = currentCompanyData;
                             companyPlayers = await loadCompanyPlayers();
+                            
+                            console.log("🔄 [SAVED-ALT] Chiamata showCompanyWelcome() da dati salvati (sezione alternativa)");
                             showCompanyWelcome();
                         } else {
                             // Show company entry screen
@@ -2496,8 +2584,12 @@
             }
 
             function logoutToCompanyWelcome() {
+                console.log("🚪 [LOGOUT] Logout verso schermata di benvenuto società");
+                
                 // Check if we're in a company context
                 if (currentCompanyCode && currentCompanyData) {
+                    console.log("🚪 [LOGOUT] Contesto società valido, rimozione dati sessione");
+                    
                     // Remove only session-specific data, keep company data
                     localStorage.removeItem('userRole');
                     localStorage.removeItem('convocazioniAppId');
@@ -2505,9 +2597,11 @@
                     // Reset user role
                     userRole = null;
                     
+                    console.log("🚪 [LOGOUT] Chiamata showCompanyWelcome() da logout");
                     // Return to company welcome screen
                     showCompanyWelcome();
                 } else {
+                    console.log("🚪 [LOGOUT] Nessun contesto società, reset completo");
                     // If not in company context, fall back to full reset
                     forgetDataAndReset();
                 }
@@ -2717,6 +2811,7 @@
             });
 
             cancelPasswordButton.addEventListener('click', () => {
+                console.log("❌ [PASSWORD] Annullamento password, ritorno a benvenuto");
                 pendingRole = null;
                 passwordInput.value = '';
                 showCompanyWelcome();
@@ -2764,6 +2859,7 @@
             });
 
             backFromPlayersButton.addEventListener('click', () => {
+                console.log("⬅️ [PLAYERS] Ritorno da gestione giocatori a benvenuto");
                 showCompanyWelcome();
             });
 
@@ -2903,6 +2999,7 @@
             backFromHistoryButton.addEventListener('click', () => {
                 historyView.classList.add('hidden');
                 if (historyPreviousView === 'welcome') {
+                    console.log("⬅️ [HISTORY] Ritorno da storico alla schermata benvenuto");
                     // Came from welcome screen, go back to welcome
                     if (currentCompanyCode) {
                         showCompanyWelcome();
@@ -2910,6 +3007,7 @@
                         mainView.classList.remove('hidden');
                     }
                 } else {
+                    console.log("⬅️ [HISTORY] Ritorno da storico alla vista principale");
                     // Came from main view (Mister/Dirigente), go back to main view
                     mainView.classList.remove('hidden');
                 }
