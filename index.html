@@ -505,7 +505,7 @@
         
         <!-- Application Version -->
         <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-            <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.1</span>
+            <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 0.2</span>
         </div>
     </div>
 
@@ -543,6 +543,7 @@
             let currentCompanyCode = null;
             window.currentCompanyCode = currentCompanyCode;
             let currentCompanyData = null;
+            let currentCompanyDocumentId = null;
             let pendingRole = null;
 
             // Show company entry screen
@@ -618,6 +619,14 @@
                         currentCompanyCode = companyCode;
                         window.currentCompanyCode = currentCompanyCode;
                         currentCompanyData = companyData;
+                        
+                        // Store document ID if available (from Firebase/cercaSocietaDaCodice)
+                        if (currentCompanyData.data && currentCompanyData.data.id) {
+                            currentCompanyDocumentId = currentCompanyData.data.id;
+                        } else {
+                            // Fallback to company code for demo mode
+                            currentCompanyDocumentId = companyCode;
+                        }
                         
                         // Populate passwords from data.config if available
                         if (currentCompanyData.data && currentCompanyData.data.config) {
@@ -976,6 +985,21 @@
                                 mister: "mister123",
                                 marco: "marco123",
                                 dirigente: "marco123"
+                            },
+                            data: {
+                                id: "demo-demo",
+                                nome: "Società Demo",
+                                codici: "DEMO",
+                                config: { 
+                                    tema: "light", 
+                                    notifiche: true, 
+                                    demo: true,
+                                    misterPassword: "mister123",
+                                    dirigentePassword: "marco123"
+                                },
+                                giocatori: ["1 DEMO MARIO", "2 TEST LUIGI", "3 EXAMPLE GIUSEPPE", "4 SAMPLE ANTONIO"],
+                                attiva: true,
+                                dataCreazione: "2024-01-01"
                             }
                         };
                     } else {
@@ -2111,6 +2135,14 @@
                         window.currentCompanyCode = currentCompanyCode;
                         currentCompanyData = companyData;
                         
+                        // Store document ID if available (from Firebase/cercaSocietaDaCodice)
+                        if (currentCompanyData.data && currentCompanyData.data.id) {
+                            currentCompanyDocumentId = currentCompanyData.data.id;
+                        } else {
+                            // Fallback to company code for demo mode
+                            currentCompanyDocumentId = companyCode;
+                        }
+                        
                         // Populate passwords from data.config if available
                         if (currentCompanyData.data && currentCompanyData.data.config) {
                             currentCompanyData.passwords = {
@@ -2168,8 +2200,8 @@
             });
 
             viewHistoryButton.addEventListener('click', () => {
-                // Use company-specific app ID or create one
-                const companyAppId = currentCompanyCode;
+                // Use document ID as app ID (fallback to company code for demo mode)
+                const companyAppId = currentCompanyDocumentId || currentCompanyCode;
                 currentAppId = companyAppId;
                 historyPreviousView = 'welcome'; // track that we came from welcome screen
                 hideAllScreens();
@@ -2223,8 +2255,8 @@
                     // Load company players from Firebase database
                     companyPlayers = await loadCompanyPlayers();
                     
-                    // Use company code as app ID
-                    const companyAppId = currentCompanyCode;
+                    // Use document ID as app ID (fallback to company code for demo mode)
+                    const companyAppId = currentCompanyDocumentId || currentCompanyCode;
                     localStorage.setItem('convocazioniAppId', companyAppId);
                     startApp(companyAppId);
                 } else {
