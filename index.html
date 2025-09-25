@@ -3090,8 +3090,8 @@
                     
                     // Se i dati sono un oggetto con chiavi nome-giocatore e valori presenze
                     for (const [playerName, attendance] of Object.entries(firebaseData)) {
-                        // Controlla che il nome sia valido
-                        if (playerName && playerName.trim() !== '') {
+                        // Controlla che il nome sia valido e non sia "allenamentiTotali"
+                        if (playerName && playerName.trim() !== '' && playerName.toLowerCase() !== 'allenamentitotali') {
                             trainingData.push({
                                 name: playerName.trim(),
                                 attendance: parseInt(attendance) || 0
