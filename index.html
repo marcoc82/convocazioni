@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.1</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.2</span>
             </div>
         </div>
 
@@ -1719,7 +1719,7 @@
                             </ul>
                         </div>
                         <div class="mt-3 flex gap-2">
-                            <button class="share-history-btn bg-blue-500 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded" data-convocation='${JSON.stringify(data)}'>Condividi</button>
+                            <button class="share-history-btn bg-blue-500 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded" data-convocation='${safeJSONStringify(data)}'>Condividi</button>
                             ${isDirigente() ? `<button class="delete-history-btn bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 rounded" data-docid="${data.id}">Elimina</button>` : ''}
                         </div>
                     `;
@@ -1763,8 +1763,12 @@
                 const shareButtons = historyList.querySelectorAll('.share-history-btn');
                 shareButtons.forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        const convocationData = JSON.parse(btn.getAttribute('data-convocation'));
-                        generateHistoryShareImage(convocationData);
+                        const convocationData = safeJSONParse(btn.getAttribute('data-convocation'));
+                        if (convocationData) {
+                            generateHistoryShareImage(convocationData);
+                        } else {
+                            showMessage("Errore nel recupero dei dati per la condivisione.", "text-red-600");
+                        }
                     });
                 });
             }
@@ -1871,7 +1875,7 @@
                             </ul>
                         </div>
                         <div class="mt-3 flex gap-2">
-                            <button class="share-history-btn bg-blue-500 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded" data-convocation='${JSON.stringify(data)}'>Condividi</button>
+                            <button class="share-history-btn bg-blue-500 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded" data-convocation='${safeJSONStringify(data)}'>Condividi</button>
                             ${isDirigente() ? `<button class="delete-history-btn bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 rounded" data-docid="${data.id}">Elimina (Demo)</button>` : ''}
                         </div>
                         <div class="mt-2 text-xs text-blue-600 italic">Modalità Demo - Dati di esempio</div>
@@ -1883,8 +1887,12 @@
                 const shareButtons = historyList.querySelectorAll('.share-history-btn');
                 shareButtons.forEach(btn => {
                     btn.addEventListener('click', (e) => {
-                        const convocationData = JSON.parse(btn.getAttribute('data-convocation'));
-                        generateHistoryShareImage(convocationData);
+                        const convocationData = safeJSONParse(btn.getAttribute('data-convocation'));
+                        if (convocationData) {
+                            generateHistoryShareImage(convocationData);
+                        } else {
+                            showMessage("Errore nel recupero dei dati per la condivisione.", "text-red-600");
+                        }
                     });
                 });
 
@@ -2129,6 +2137,40 @@
 
             // Share handler functions
             let shareImageDataUrl = null; // Store generated image for sharing
+
+            // Safe JSON functions for HTML attributes to prevent parsing errors
+            function safeJSONStringify(obj) {
+                try {
+                    const jsonString = JSON.stringify(obj);
+                    // Escape quotes and other special characters for HTML attributes
+                    return jsonString
+                        .replace(/'/g, '&#39;')  // Replace single quotes
+                        .replace(/"/g, '&quot;') // Replace double quotes
+                        .replace(/</g, '&lt;')   // Replace less than
+                        .replace(/>/g, '&gt;')   // Replace greater than
+                        .replace(/&/g, '&amp;'); // Replace ampersand (do this last)
+                } catch (error) {
+                    console.error('Error stringifying JSON:', error);
+                    return '{}';
+                }
+            }
+
+            function safeJSONParse(str) {
+                try {
+                    if (!str) return null;
+                    // Unescape HTML entities back to original characters
+                    const unescaped = str
+                        .replace(/&amp;/g, '&')    // Restore ampersand (do this first)
+                        .replace(/&lt;/g, '<')     // Restore less than
+                        .replace(/&gt;/g, '>')     // Restore greater than
+                        .replace(/&quot;/g, '"')   // Restore double quotes
+                        .replace(/&#39;/g, "'");   // Restore single quotes
+                    return JSON.parse(unescaped);
+                } catch (error) {
+                    console.error('Error parsing JSON:', error, 'Original string:', str);
+                    return null;
+                }
+            }
 
             async function handleWebShare() {
                 try {
