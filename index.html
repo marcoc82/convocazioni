@@ -3082,7 +3082,7 @@
                     // Verifica se i dati esistono
                     if (!firebaseData || typeof firebaseData !== 'object') {
                         console.warn('⚠️ Nessun dato trovato nel database Firebase');
-                        return [];
+                        return { players: [], totalTrainings: totaleAllenamenti };
                     }
                     
                     // Converte i dati Firebase nel formato atteso dall'applicazione
@@ -3094,14 +3094,13 @@
                         if (playerName && playerName.trim() !== '') {
                             trainingData.push({
                                 name: playerName.trim(),
-                                attendance: parseInt(attendance) || 0,
-                                totalTrainings: totaleAllenamenti // Aggiunge il totale degli allenamenti
+                                attendance: parseInt(attendance) || 0
                             });
                         }
                     }
                     
                     console.log(`✅ Recuperati con successo ${trainingData.length} record delle presenze allenamenti da Firebase`);
-                    return trainingData;
+                    return { players: trainingData, totalTrainings: totaleAllenamenti };
                     
                 } catch (error) {
                     console.error('❌ Errore nel recupero dei dati delle presenze allenamenti da Firebase:', error);
@@ -3109,14 +3108,14 @@
                 }
             }
 
-            function renderTrainingAttendanceData(data) {
+            function renderTrainingAttendanceData(data, totalTrainings) {
                 const trainingAttendanceList = document.getElementById('training-attendance-list');
                 const allenamentiTotaliValue = document.getElementById('allenamenti-totali-value');
                 trainingAttendanceList.innerHTML = '';
                 
-                // Display allenamentiTotali if available
-                if (data && data.length > 0 && data[0].totalTrainings) {
-                    allenamentiTotaliValue.textContent = data[0].totalTrainings;
+                // Display allenamentiTotali using the passed parameter
+                if (totalTrainings && totalTrainings > 0) {
+                    allenamentiTotaliValue.textContent = totalTrainings;
                 } else {
                     allenamentiTotaliValue.textContent = '-';
                 }
@@ -3163,8 +3162,15 @@
                 contentElement.style.opacity = '0.5';
                 
                 try {
-                    const data = await fetchTrainingAttendanceFromFirebase();
-                    renderTrainingAttendanceData(data);
+                    // Check if Firebase is available (same check as other functions)
+                    if (!window.db || !window.collection || !window.onSnapshot || !window.doc) {
+                        console.log('📊 Firebase not available, using demo mode for training attendance');
+                        loadTrainingAttendanceDemo();
+                        return;
+                    }
+                    
+                    const result = await fetchTrainingAttendanceFromFirebase();
+                    renderTrainingAttendanceData(result.players, result.totalTrainings);
                     
                     // Hide loading, show content
                     loadingElement.classList.add('hidden');
@@ -3179,8 +3185,38 @@
                     contentElement.style.opacity = '1';
                     
                     // Show empty state in table
-                    renderTrainingAttendanceData([]);
+                    renderTrainingAttendanceData([], 0);
                 }
+            }
+
+            // Demo version for loadTrainingAttendance when Firebase is not available
+            function loadTrainingAttendanceDemo() {
+                const loadingElement = document.getElementById('training-attendance-loading');
+                const contentElement = document.getElementById('training-attendance-content');
+                
+                console.log('📊 Loading demo training attendance data...');
+                
+                // Simulate realistic demo data
+                const demoTrainingData = [
+                    { name: '10 ROSSI MARIO', attendance: 11 },
+                    { name: '7 BIANCHI LUIGI', attendance: 9 },
+                    { name: '23 VERDI GIUSEPPE', attendance: 13 },
+                    { name: '4 NERI ANTONIO', attendance: 8 },
+                    { name: '18 AZZURRI MARCO', attendance: 12 },
+                    { name: '2 GIALLI FRANCESCO', attendance: 6 },
+                    { name: '15 VIOLA STEFANO', attendance: 10 }
+                ];
+                
+                const demoTotalTrainings = 13;
+                
+                // Render the demo data
+                renderTrainingAttendanceData(demoTrainingData, demoTotalTrainings);
+                
+                // Hide loading, show content
+                loadingElement.classList.add('hidden');
+                contentElement.style.opacity = '1';
+                
+                console.log(`📊 Demo training attendance loaded: ${demoTrainingData.length} players, ${demoTotalTrainings} total trainings`);
             }
 
             function startApp(appId) {
