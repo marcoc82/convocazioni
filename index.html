@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.2</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.3</span>
             </div>
         </div>
 
@@ -232,6 +232,9 @@
                     </button>
                     <button id="view-history-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Vedi Storico
+                    </button>
+                    <button id="welcome-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Riepilogo Presenze
                     </button>
                     <button id="manage-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Gestione Giocatori
@@ -968,6 +971,7 @@
             const enterMisterButton = document.getElementById('enter-mister-button');
             const enterDirigenteButton = document.getElementById('enter-dirigente-button');
             const viewHistoryButton = document.getElementById('view-history-button');
+            const welcomeAttendanceButton = document.getElementById('welcome-attendance-button');
             const managePlayersButton = document.getElementById('manage-players-button');
             const companyLogoutButton = document.getElementById('company-logout-button');
             
@@ -2995,6 +2999,36 @@
                 hideAllScreens();
                 historyView.classList.remove('hidden');
                 setupFirestoreListeners(companyAppId);
+            });
+
+            welcomeAttendanceButton.addEventListener('click', () => {
+                // 🔍 DIAGNOSTIC LOG: Opening Riepilogo Presenze with company info from welcome screen
+                console.log(`📊 [DIAGNOSTIC] Apertura Riepilogo Presenze da schermata benvenuto:`);
+                console.log(`   🏢 Società corrente - Codice: ${currentCompanyCode}`);
+                console.log(`   🏢 Società corrente - Document ID: ${currentCompanyDocumentId}`);
+                console.log(`   🏢 Società corrente - Nome: ${currentCompanyData?.name || currentCompanyData?.data?.nome || 'N/A'}`);
+                console.log(`   📋 App ID utilizzato per i dati: ${currentAppId}`);
+                console.log(`   👤 Ruolo utente: ${userRole}`);
+                
+                // Check if company IDs are consistent
+                const expectedAppId = currentCompanyDocumentId || currentCompanyCode;
+                if (currentAppId !== expectedAppId) {
+                    console.warn(`⚠️ [DIAGNOSTIC] INCONSISTENZA RILEVATA:`);
+                    console.warn(`   App ID attuale: ${currentAppId}`);
+                    console.warn(`   App ID atteso: ${expectedAppId}`);
+                    console.warn(`   Correggendo l'App ID per visualizzare i dati corretti`);
+                    
+                    // Fix the inconsistency by updating currentAppId and refreshing listeners
+                    currentAppId = expectedAppId;
+                    console.log(`🔧 [DIAGNOSTIC] App ID corretto a: ${currentAppId}`);
+                    
+                    // Refresh Firestore listeners with correct company ID
+                    setupFirestoreListeners(currentAppId);
+                }
+                
+                // Hide all screens and show attendance view
+                hideAllScreens();
+                attendanceView.classList.remove('hidden');
             });
 
             managePlayersButton.addEventListener('click', () => {
