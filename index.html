@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.6</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.7</span>
             </div>
         </div>
 
@@ -557,7 +557,14 @@
 
         <!-- Training Attendance View -->
         <div id="training-attendance-view" class="hidden">
-            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Presenze Allenamenti</h2>
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Presenze Allenamenti</h2>
+            
+            <!-- Display allenamentiTotali prominently -->
+            <div id="allenamenti-totali-display" class="text-center mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p class="text-lg font-semibold text-blue-800">
+                    Allenamenti Totali: <span id="allenamenti-totali-value" class="text-2xl font-bold text-blue-900">-</span>
+                </p>
+            </div>
             
             <div id="training-attendance-loading" class="text-center py-8 hidden">
                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -574,8 +581,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze Allenamenti</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">Altro</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">Presenze Allenamenti</th>
                         </tr>
                     </thead>
                     <tbody id="training-attendance-list" class="bg-white divide-y divide-gray-200">
@@ -3105,12 +3111,20 @@
 
             function renderTrainingAttendanceData(data) {
                 const trainingAttendanceList = document.getElementById('training-attendance-list');
+                const allenamentiTotaliValue = document.getElementById('allenamenti-totali-value');
                 trainingAttendanceList.innerHTML = '';
+                
+                // Display allenamentiTotali if available
+                if (data && data.length > 0 && data[0].totalTrainings) {
+                    allenamentiTotaliValue.textContent = data[0].totalTrainings;
+                } else {
+                    allenamentiTotaliValue.textContent = '-';
+                }
                 
                 if (!data || data.length === 0) {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td colspan="3" class="px-6 py-4 text-center text-gray-500 italic">
+                        <td colspan="2" class="px-6 py-4 text-center text-gray-500 italic">
                             Nessun dato disponibile
                         </td>
                     `;
@@ -3128,7 +3142,6 @@
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${player.name}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${player.attendance}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${player.totalTrainings || 0}</td>
                     `;
                     
                     trainingAttendanceList.appendChild(row);
