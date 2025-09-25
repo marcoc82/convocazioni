@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.5</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.6</span>
             </div>
         </div>
 
@@ -858,7 +858,7 @@
                 
                 // Show/hide training attendance button based on company name
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
-                const isPolisCompany = companyName.includes('POLIS');
+                const isPolisCompany = companyName === 'POLIS';
                 
                 if (isPolisCompany) {
                     trainingAttendanceButton.classList.remove('hidden');
@@ -2996,7 +2996,7 @@
                 
                 // Show/hide training attendance button based on company name
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
-                const isPolisCompany = companyName.includes('POLIS');
+                const isPolisCompany = companyName === 'POLIS';
                 
                 if (isPolisCompany) {
                     trainingAttendanceButton.classList.remove('hidden');
