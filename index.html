@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.0</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V1.1</span>
             </div>
         </div>
 
@@ -2385,59 +2385,130 @@
                 await handleDownloadImage();
             }
 
-            function generateHistoryShareImage(convocationData) {
-                const sharePlayersList = document.getElementById('share-players-list');
-                sharePlayersList.innerHTML = '';
-                document.getElementById('share-campo').textContent = convocationData.details.campo;
-                document.getElementById('share-avversario').textContent = convocationData.details.avversario;
-                
-                // Format match date with uppercase day of week for share image
-                let formattedDate = convocationData.details.data;
-                if (convocationData.details.data !== 'N/D') {
-                    const matchDate = new Date(convocationData.details.data + 'T00:00:00');
-                    const dayOfWeek = matchDate.toLocaleDateString('it-IT', { weekday: 'long' }).toUpperCase();
-                    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-                    const dateString = matchDate.toLocaleDateString('it-IT', dateOptions);
-                    formattedDate = `${dayOfWeek} ${dateString}`;
-                }
-                
-                document.getElementById('share-data-partita').textContent = formattedDate;
-                document.getElementById('share-orario-convocazione').textContent = convocationData.details.orarioConvocazione;
-                document.getElementById('share-orario-partita').textContent = convocationData.details.orarioPartita;
-                document.getElementById('share-tipo').textContent = convocationData.details.tipo || 'N/D';
+            async function generateHistoryShareImage(convocationData) {
+                try {
+                    // Populate share view with historical convocation data
+                    const sharePlayersList = document.getElementById('share-players-list');
+                    sharePlayersList.innerHTML = '';
+                    document.getElementById('share-campo').textContent = convocationData.details.campo;
+                    document.getElementById('share-avversario').textContent = convocationData.details.avversario;
+                    
+                    // Format match date with uppercase day of week for share image
+                    let formattedDate = convocationData.details.data;
+                    if (convocationData.details.data !== 'N/D') {
+                        const matchDate = new Date(convocationData.details.data + 'T00:00:00');
+                        const dayOfWeek = matchDate.toLocaleDateString('it-IT', { weekday: 'long' }).toUpperCase();
+                        const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+                        const dateString = matchDate.toLocaleDateString('it-IT', dateOptions);
+                        formattedDate = `${dayOfWeek} ${dateString}`;
+                    }
+                    
+                    document.getElementById('share-data-partita').textContent = formattedDate;
+                    document.getElementById('share-orario-convocazione').textContent = convocationData.details.orarioConvocazione;
+                    document.getElementById('share-orario-partita').textContent = convocationData.details.orarioPartita;
+                    document.getElementById('share-tipo').textContent = convocationData.details.tipo || 'N/D';
 
-                if (convocationData.players.length === 0) {
-                    const li = document.createElement('li');
-                    li.textContent = "Nessun giocatore convocato.";
-                    li.className = "text-gray-500 italic text-center";
-                    sharePlayersList.appendChild(li);
-                } else {
-                    convocationData.players.forEach(player => {
+                    if (convocationData.players.length === 0) {
                         const li = document.createElement('li');
-                        li.textContent = player;
-                        li.className = 'font-medium';
+                        li.textContent = "Nessun giocatore convocato.";
+                        li.className = "text-gray-500 italic text-center";
                         sharePlayersList.appendChild(li);
+                    } else {
+                        convocationData.players.forEach(player => {
+                            const li = document.createElement('li');
+                            li.textContent = player;
+                            li.className = 'font-medium';
+                            sharePlayersList.appendChild(li);
+                        });
+                    }
+
+                    // Generate image from share view
+                    shareView.style.position = 'relative';
+                    shareView.style.top = '0';
+                    shareView.style.left = '0';
+                    
+                    const canvas = await html2canvas(shareView, {
+                        scale: 2,
+                        backgroundColor: '#ffffff'
                     });
-                }
-                shareView.style.position = 'relative';
-                shareView.style.top = '0';
-                shareView.style.left = '0';
-                html2canvas(shareView, {
-                    scale: 2,
-                    backgroundColor: '#ffffff'
-                }).then(canvas => {
-                    const image = canvas.toDataURL("image/png");
-                    const link = document.createElement('a');
-                    link.href = image;
-                    link.download = `convocazioni-${convocationData.details.avversario}-${new Date(convocationData.createdAt).toLocaleDateString('it-IT')}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    
+                    const imageDataUrl = canvas.toDataURL("image/png");
+                    
+                    // Reset share view position
                     shareView.style.position = 'absolute';
                     shareView.style.top = '-9999px';
                     shareView.style.left = '-9999px';
-                    showMessage("Immagine storico generata e scaricata!", "text-green-600");
-                });
+
+                    // Prepare share text for historical convocation
+                    const shareText = `🏟️ Convocazioni Ufficiali 🏟️\n\nPartita: ${convocationData.details.avversario}\nCampo: ${convocationData.details.campo}\nData: ${formattedDate}\nOrario: ${convocationData.details.orarioPartita}\n\nGiocatori convocati (${convocationData.players.length}):\n${convocationData.players.join('\n')}\n\n⚽ Rosterkick`;
+
+                    // Detect if user is on mobile device
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                                     (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform));
+
+                    // Try Web Share API first (prioritize on mobile)
+                    if (navigator.share && navigator.canShare) {
+                        try {
+                            // Convert data URL to blob
+                            const response = await fetch(imageDataUrl);
+                            const blob = await response.blob();
+                            const file = new File([blob], `convocazioni-${convocationData.details.avversario}-${new Date(convocationData.createdAt).toLocaleDateString('it-IT')}.png`, { type: 'image/png' });
+
+                            const shareDataWithFile = {
+                                title: 'Convocazioni Ufficiali',
+                                text: shareText,
+                                files: [file]
+                            };
+
+                            // Check if sharing with files is supported
+                            if (navigator.canShare(shareDataWithFile)) {
+                                await navigator.share(shareDataWithFile);
+                                showMessage("Convocazione condivisa con successo!", "text-green-600");
+                                return;
+                            }
+                        } catch (fileShareError) {
+                            console.log('File sharing not supported for history, trying text-only share');
+                        }
+                    }
+                    
+                    // Fallback to text-only Web Share API
+                    if (navigator.share) {
+                        try {
+                            const shareDataTextOnly = {
+                                title: 'Convocazioni Ufficiali',
+                                text: shareText,
+                                url: window.location.href
+                            };
+
+                            await navigator.share(shareDataTextOnly);
+                            showMessage("Testo condiviso! Condividi l'immagine manualmente se necessario.", "text-blue-600");
+                            
+                            // Also trigger download for user convenience
+                            setTimeout(() => downloadHistoryImage(imageDataUrl, convocationData), 1000);
+                            return;
+                        } catch (textShareError) {
+                            console.log('Text sharing failed for history, falling back to download');
+                        }
+                    }
+                    
+                    // Final fallback: download the image
+                    downloadHistoryImage(imageDataUrl, convocationData);
+                    showMessage("Web Share non disponibile. Immagine scaricata!", "text-orange-600");
+                    
+                } catch (error) {
+                    console.error('Errore nella condivisione dello storico:', error);
+                    showMessage("Errore nella condivisione. Riprova più tardi.", "text-red-600");
+                }
+            }
+
+            // Helper function to download history image
+            function downloadHistoryImage(imageDataUrl, convocationData) {
+                const link = document.createElement('a');
+                link.href = imageDataUrl;
+                link.download = `convocazioni-${convocationData.details.avversario}-${new Date(convocationData.createdAt).toLocaleDateString('it-IT')}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
 
             function updateUIForRole() {
