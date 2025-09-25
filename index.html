@@ -3070,19 +3070,31 @@
                     const firebaseData = await presenzeResponse.json();
                     let totaleAllenamenti = 0;
                     
-                    // Recupera il totale allenamenti se disponibile, altrimenti usa un valore predefinito
-                    if (totaleResponse.ok) {
-                        const totaleData = await totaleResponse.json();
-                        totaleAllenamenti = parseInt(totaleData) || 0;
-                        console.log(`📊 Totale allenamenti recuperato: ${totaleAllenamenti}`);
-                    } else {
-                        console.warn('⚠️ Totale allenamenti non disponibile, usando valore predefinito 0');
-                    }
-                    
                     // Verifica se i dati esistono
                     if (!firebaseData || typeof firebaseData !== 'object') {
                         console.warn('⚠️ Nessun dato trovato nel database Firebase');
+                        
+                        // Tenta di recuperare il totale allenamenti dal secondo endpoint se il primo non ha dati
+                        if (totaleResponse.ok) {
+                            const totaleData = await totaleResponse.json();
+                            totaleAllenamenti = parseInt(totaleData) || 0;
+                            console.log(`📊 Totale allenamenti recuperato da endpoint separato: ${totaleAllenamenti}`);
+                        }
+                        
                         return { players: [], totalTrainings: totaleAllenamenti };
+                    }
+                    
+                    // Controlla se i dati contengono la proprietà "allenamentiTotali"
+                    if (firebaseData.hasOwnProperty('allenamentiTotali')) {
+                        totaleAllenamenti = parseInt(firebaseData.allenamentiTotali) || 0;
+                        console.log(`📊 Totale allenamenti recuperato da proprietà allenamentiTotali: ${totaleAllenamenti}`);
+                    } else if (totaleResponse.ok) {
+                        // Fallback al secondo endpoint se allenamentiTotali non è presente nei dati principali
+                        const totaleData = await totaleResponse.json();
+                        totaleAllenamenti = parseInt(totaleData) || 0;
+                        console.log(`📊 Totale allenamenti recuperato da endpoint separato: ${totaleAllenamenti}`);
+                    } else {
+                        console.warn('⚠️ Totale allenamenti non disponibile, usando valore predefinito 0');
                     }
                     
                     // Converte i dati Firebase nel formato atteso dall'applicazione
