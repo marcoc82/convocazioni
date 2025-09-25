@@ -1,0 +1,22 @@
+{
+  "name": "Rosterkick",
+  "short_name": "Rosterkick",
+  "version": "V1.5",
+  "description": "creare le convocazioni per il weekend",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1e293b",
+  "icons": [
+    {
+      "src": "favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon-192x192.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
