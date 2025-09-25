@@ -3038,57 +3038,50 @@
                 trainingAttendanceView.classList.add('hidden');
             }
 
-            // Google Sheets API integration for training attendance
-            async function fetchTrainingAttendanceFromGoogleSheets() {
-                const SHEET_ID = '1f5nR4ZWeiNe4U4RAmOhnHSecT9spq5MzF6HH74Ppts4';
-                const API_KEY = 'AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU'; // Using existing Firebase API key
-                
-                // Ranges for names (O2:O34) and attendance counts (Q2:Q34)
-                const NAMES_RANGE = 'O2:O34';
-                const ATTENDANCE_RANGE = 'Q2:Q34';
+            // Firebase Realtime Database integration for training attendance
+            async function fetchTrainingAttendanceFromFirebase() {
+                // URL del Firebase Realtime Database per i dati delle presenze allenamenti
+                const FIREBASE_URL = 'https://polis-2013-default-rtdb.europe-west1.firebasedatabase.app/presenze.json';
                 
                 try {
-                    console.log('📊 Fetching training attendance data from Google Sheets...');
+                    console.log('📊 Recupero dati presenze allenamenti da Firebase Realtime Database...');
                     
-                    // Fetch both ranges in parallel
-                    const [namesResponse, attendanceResponse] = await Promise.all([
-                        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${NAMES_RANGE}?key=${API_KEY}`),
-                        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${ATTENDANCE_RANGE}?key=${API_KEY}`)
-                    ]);
+                    // Effettua la richiesta fetch al database Firebase
+                    const response = await fetch(FIREBASE_URL);
                     
-                    if (!namesResponse.ok || !attendanceResponse.ok) {
-                        throw new Error(`API Error: ${namesResponse.status} or ${attendanceResponse.status}`);
+                    // Controlla se la risposta è ok
+                    if (!response.ok) {
+                        throw new Error(`Errore API Firebase: ${response.status} - ${response.statusText}`);
                     }
                     
-                    const namesData = await namesResponse.json();
-                    const attendanceData = await attendanceResponse.json();
+                    // Parsa i dati JSON dalla risposta
+                    const firebaseData = await response.json();
                     
-                    // Extract values from API response
-                    const names = namesData.values || [];
-                    const attendanceCounts = attendanceData.values || [];
+                    // Verifica se i dati esistono
+                    if (!firebaseData || typeof firebaseData !== 'object') {
+                        console.warn('⚠️ Nessun dato trovato nel database Firebase');
+                        return [];
+                    }
                     
-                    // Combine names and attendance counts
+                    // Converte i dati Firebase nel formato atteso dall'applicazione
                     const trainingData = [];
-                    const maxLength = Math.max(names.length, attendanceCounts.length);
                     
-                    for (let i = 0; i < maxLength; i++) {
-                        const name = names[i] && names[i][0] ? names[i][0].trim() : '';
-                        const attendance = attendanceCounts[i] && attendanceCounts[i][0] ? attendanceCounts[i][0].trim() : '0';
-                        
-                        // Only add entries with valid names
-                        if (name && name !== '') {
+                    // Se i dati sono un oggetto con chiavi nome-giocatore e valori presenze
+                    for (const [playerName, attendance] of Object.entries(firebaseData)) {
+                        // Controlla che il nome sia valido
+                        if (playerName && playerName.trim() !== '') {
                             trainingData.push({
-                                name: name,
+                                name: playerName.trim(),
                                 attendance: parseInt(attendance) || 0
                             });
                         }
                     }
                     
-                    console.log(`✅ Successfully fetched ${trainingData.length} training attendance records`);
+                    console.log(`✅ Recuperati con successo ${trainingData.length} record delle presenze allenamenti da Firebase`);
                     return trainingData;
                     
                 } catch (error) {
-                    console.error('❌ Error fetching training attendance data:', error);
+                    console.error('❌ Errore nel recupero dei dati delle presenze allenamenti da Firebase:', error);
                     throw error;
                 }
             }
@@ -3139,7 +3132,7 @@
                 contentElement.style.opacity = '0.5';
                 
                 try {
-                    const data = await fetchTrainingAttendanceFromGoogleSheets();
+                    const data = await fetchTrainingAttendanceFromFirebase();
                     renderTrainingAttendanceData(data);
                     
                     // Hide loading, show content
