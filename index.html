@@ -39,7 +39,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Espone le funzioni Firebase Auth globalmente per evitare ReferenceError
@@ -51,16 +50,14 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
 
-        let app, db, auth, storage;
+        let app, db, auth;
         if (Object.keys(firebaseConfig).length > 0) {
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
-            storage = getStorage(app);
             setLogLevel('Debug');
             window.db = db;
             window.auth = auth;
-            window.storage = storage;
             window.appId = appId;
             window.onSnapshot = onSnapshot;
             window.collection = collection;
@@ -72,10 +69,6 @@
             window.increment = increment;
             window.deleteDoc = deleteDoc;
             window.getDocs = getDocs;
-            // Storage functions
-            window.ref = ref;
-            window.uploadBytes = uploadBytes;
-            window.getDownloadURL = getDownloadURL;
         } else {
             console.error("Firebase configuration not available. Some features will not work.");
         }
@@ -223,10 +216,6 @@
 
         <!-- Company Welcome Screen -->
         <div id="company-welcome-screen" class="hidden">
-            <!-- Company Logo Display -->
-            <div id="welcome-logo-container" class="flex justify-center mb-4 hidden">
-                <img id="welcome-logo" src="" alt="Logo Società" class="w-20 h-20 object-contain">
-            </div>
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-4">Benvenuto</h2>
             <div class="p-6 bg-blue-50 rounded-xl mb-6 shadow-sm border border-blue-200 text-center">
                 <h3 id="company-name-display" class="text-lg font-bold text-blue-800 mb-2"></h3>
@@ -286,10 +275,6 @@
 
         <!-- Player Management Screen -->
         <div id="player-management-screen" class="hidden">
-            <!-- Company Logo Display -->
-            <div id="player-management-logo-container" class="flex justify-center mb-4 hidden">
-                <img id="player-management-logo" src="" alt="Logo Società" class="w-16 h-16 object-contain">
-            </div>
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Gestione Giocatori</h2>
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4 mb-4">
@@ -302,8 +287,6 @@
                     <!-- Company players will be loaded here -->
                 </div>
             </div>
-
-            
             <button id="save-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 mb-4 disabled:bg-gray-400 disabled:cursor-not-allowed">
                 Salva Giocatori
             </button>
@@ -823,7 +806,7 @@
             companyEntryScreen.classList.remove('hidden');
             
             // Trigger login animations sequence
-            // // setTimeout(() => startLoginAnimations(), 100);
+            setTimeout(() => startLoginAnimations(), 100);
 
             // Initialize checkbox state based on saved preference
             const savedRememberPreference = localStorage.getItem('rememberCompanyPreference');
@@ -1103,11 +1086,6 @@
             const savePlayersMessageArea = document.getElementById('save-players-message-area');
             const backFromPlayersButton = document.getElementById('back-from-players-button');
             
-            const welcomeLogoContainer = document.getElementById('welcome-logo-container');
-            const welcomeLogo = document.getElementById('welcome-logo');
-            const playerManagementLogoContainer = document.getElementById('player-management-logo-container');
-            const playerManagementLogo = document.getElementById('player-management-logo');
-            
             const nameEntryScreen = document.getElementById('name-entry-screen');
             const nameInput = document.getElementById('name-input');
             const enterButton = document.getElementById('enter-button');
@@ -1271,19 +1249,19 @@
                             }
                             companyEntryScreen.classList.remove('hidden');
                             // Trigger login animations sequence
-                            // // setTimeout(() => startLoginAnimations(), 100);
+                            setTimeout(() => startLoginAnimations(), 100);
                         }
                     } catch (err) {
                         console.error("Firebase authentication failed:", err);
                         companyEntryScreen.classList.remove('hidden');
                         // Trigger login animations sequence
-                        // setTimeout(() => startLoginAnimations(), 100);
+                        setTimeout(() => startLoginAnimations(), 100);
                     }
                 } else {
                     console.error("Firebase configuration not available. Some features will not work.");
                     companyEntryScreen.classList.remove('hidden');
                     // Trigger login animations sequence
-                    // setTimeout(() => startLoginAnimations(), 100);
+                    setTimeout(() => startLoginAnimations(), 100);
                 }
             }
 
@@ -1387,32 +1365,6 @@
                                     dirigentePassword: "marco123"
                                 },
                                 giocatori: ["1 DEMO MARIO", "2 TEST LUIGI", "3 EXAMPLE GIUSEPPE", "4 SAMPLE ANTONIO"],
-                                attiva: true,
-                                dataCreazione: "2024-01-01"
-                            }
-                        };
-                    }
-                    // Test Polis company for visibility functionality
-                    if (companyCode && companyCode.toUpperCase().includes("POLIS")) {
-                        return {
-                            name: "POLIS Società Test",
-                            passwords: {
-                                mister: "mister123",
-                                marco: "marco123",
-                                dirigente: "marco123"
-                            },
-                            data: {
-                                id: "polis-demo",
-                                nome: "POLIS",
-                                codici: companyCode,
-                                config: { 
-                                    tema: "light", 
-                                    notifiche: true, 
-                                    demo: true,
-                                    misterPassword: "mister123",
-                                    dirigentePassword: "marco123"
-                                },
-                                giocatori: ["1 POLIS MARIO", "2 POLIS LUIGI", "3 POLIS GIUSEPPE", "4 POLIS ANTONIO"],
                                 attiva: true,
                                 dataCreazione: "2024-01-01"
                             }
@@ -3050,9 +3002,6 @@
                 hideAllScreens();
                 companyNameDisplay.textContent = currentCompanyData.name;
                 
-                // Display company logo if available
-                displayCompanyLogo(currentCompanyData.logoUrl);
-                
                 // Show/hide training attendance button based on company name
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
@@ -3079,10 +3028,6 @@
                 hideAllScreens();
                 playerManagementScreen.classList.remove('hidden');
                 hidePlayerLoadingError(); // Clear any previous error messages
-                
-                // Display company logo if available
-                displayCompanyLogo(currentCompanyData.logoUrl);
-                
                 renderCompanyPlayers();
                 updateSavePlayersButtonState();
             }
@@ -3354,41 +3299,6 @@
                 }, 5000);
             }
 
-
-
-            // Function to display company logo
-            function displayCompanyLogo(logoUrl) {
-                // Only show logo for POLIS companies
-                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
-                const isPolisCompany = companyName.includes('POLIS') || companyName === 'POLIS';
-                
-                if (isPolisCompany) {
-                    // Show POLIS logo from main directory
-                    const polisLogoUrl = 'logo polis.jpg';
-                    
-                    // Show logo in welcome screen
-                    if (welcomeLogo && welcomeLogoContainer) {
-                        welcomeLogo.src = polisLogoUrl;
-                        welcomeLogoContainer.classList.remove('hidden');
-                    }
-                    
-                    // Show logo in player management screen
-                    if (playerManagementLogo && playerManagementLogoContainer) {
-                        playerManagementLogo.src = polisLogoUrl;
-                        playerManagementLogoContainer.classList.remove('hidden');
-                    }
-                } else {
-                    // Hide logos for non-POLIS companies
-                    if (welcomeLogoContainer) {
-                        welcomeLogoContainer.classList.add('hidden');
-                    }
-                    if (playerManagementLogoContainer) {
-                        playerManagementLogoContainer.classList.add('hidden');
-                    }
-                }
-                }
-            }
-
             // --- Modal Functions ---
             function showModal() {
                 statusModal.classList.remove('hidden', 'opacity-0');
@@ -3609,7 +3519,7 @@
                 hideAllScreens();
                 companyEntryScreen.classList.remove('hidden'); // mostra schermata di login/codice società
                 // Trigger login animations sequence
-                // setTimeout(() => startLoginAnimations(), 100);
+                setTimeout(() => startLoginAnimations(), 100);
             });
 
             // Common password validation function for main script
@@ -3708,8 +3618,6 @@
             backFromPlayersButton.addEventListener('click', () => {
                 showCompanyWelcome();
             });
-
-
 
             // Event listener for remember company checkbox
             rememberCompanyCheckbox.addEventListener('change', () => {
