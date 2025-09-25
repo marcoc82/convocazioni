@@ -302,18 +302,7 @@
                     <!-- Company players will be loaded here -->
                 </div>
             </div>
-            
-            <!-- Company Logo Upload Section -->
-            <div class="p-6 bg-yellow-50 rounded-xl mb-6 shadow-sm border border-yellow-200">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Logo Società</h3>
-                <div class="flex flex-col gap-4">
-                    <input type="file" id="logo-upload-input" accept="image/jpeg,image/jpg,image/png,image/svg+xml,image/webp" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
-                    <button id="upload-logo-button" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        Carica Logo
-                    </button>
-                    <div id="logo-upload-message-area" class="text-center text-sm font-medium text-gray-600 hidden"></div>
-                </div>
-            </div>
+
             
             <button id="save-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 mb-4 disabled:bg-gray-400 disabled:cursor-not-allowed">
                 Salva Giocatori
@@ -1114,10 +1103,6 @@
             const savePlayersMessageArea = document.getElementById('save-players-message-area');
             const backFromPlayersButton = document.getElementById('back-from-players-button');
             
-            // Logo upload elements
-            const logoUploadInput = document.getElementById('logo-upload-input');
-            const uploadLogoButton = document.getElementById('upload-logo-button');
-            const logoUploadMessageArea = document.getElementById('logo-upload-message-area');
             const welcomeLogoContainer = document.getElementById('welcome-logo-container');
             const welcomeLogo = document.getElementById('welcome-logo');
             const playerManagementLogoContainer = document.getElementById('player-management-logo-container');
@@ -1402,6 +1387,32 @@
                                     dirigentePassword: "marco123"
                                 },
                                 giocatori: ["1 DEMO MARIO", "2 TEST LUIGI", "3 EXAMPLE GIUSEPPE", "4 SAMPLE ANTONIO"],
+                                attiva: true,
+                                dataCreazione: "2024-01-01"
+                            }
+                        };
+                    }
+                    // Test Polis company for visibility functionality
+                    if (companyCode && companyCode.toUpperCase().includes("POLIS")) {
+                        return {
+                            name: "POLIS Società Test",
+                            passwords: {
+                                mister: "mister123",
+                                marco: "marco123",
+                                dirigente: "marco123"
+                            },
+                            data: {
+                                id: "polis-demo",
+                                nome: "POLIS",
+                                codici: companyCode,
+                                config: { 
+                                    tema: "light", 
+                                    notifiche: true, 
+                                    demo: true,
+                                    misterPassword: "mister123",
+                                    dirigentePassword: "marco123"
+                                },
+                                giocatori: ["1 POLIS MARIO", "2 POLIS LUIGI", "3 POLIS GIUSEPPE", "4 POLIS ANTONIO"],
                                 attiva: true,
                                 dataCreazione: "2024-01-01"
                             }
@@ -3343,78 +3354,38 @@
                 }, 5000);
             }
 
-            function showLogoUploadMessage(message, className) {
-                logoUploadMessageArea.textContent = message;
-                logoUploadMessageArea.className = `text-center text-sm font-medium ${className}`;
-                logoUploadMessageArea.classList.remove('hidden');
-                setTimeout(() => {
-                    logoUploadMessageArea.classList.add('hidden');
-                }, 5000);
-            }
 
-            // Logo upload function
-            async function uploadCompanyLogo(file) {
-                if (!window.storage || !currentCompanyDocumentId) {
-                    throw new Error("Firebase Storage non disponibile o società non identificata");
-                }
-
-                try {
-                    // Create a reference to the logo file
-                    const logoRef = window.ref(window.storage, `logos/${currentCompanyDocumentId}.${file.name.split('.').pop()}`);
-                    
-                    // Upload the file
-                    const snapshot = await window.uploadBytes(logoRef, file);
-                    console.log('Logo uploaded successfully:', snapshot);
-                    
-                    // Get the download URL
-                    const downloadURL = await window.getDownloadURL(logoRef);
-                    
-                    // Update the company document with the logo URL
-                    const companyRef = window.doc(window.db, 'societa', currentCompanyDocumentId);
-                    await window.updateDoc(companyRef, {
-                        logoUrl: downloadURL,
-                        logoUpdatedAt: new Date()
-                    });
-                    
-                    // Update current company data
-                    if (currentCompanyData) {
-                        currentCompanyData.logoUrl = downloadURL;
-                    }
-                    
-                    // Show the logo in the UI
-                    displayCompanyLogo(downloadURL);
-                    
-                    showLogoUploadMessage("Logo caricato con successo!", "text-green-600");
-                    logoUploadInput.value = ''; // Clear the file input
-                    
-                } catch (error) {
-                    console.error('Error uploading logo:', error);
-                    throw error;
-                }
-            }
 
             // Function to display company logo
             function displayCompanyLogo(logoUrl) {
-                if (logoUrl) {
+                // Only show logo for POLIS companies
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const isPolisCompany = companyName.includes('POLIS') || companyName === 'POLIS';
+                
+                if (isPolisCompany) {
+                    // Show POLIS logo from main directory
+                    const polisLogoUrl = 'logo polis.jpg';
+                    
                     // Show logo in welcome screen
                     if (welcomeLogo && welcomeLogoContainer) {
-                        welcomeLogo.src = logoUrl;
+                        welcomeLogo.src = polisLogoUrl;
                         welcomeLogoContainer.classList.remove('hidden');
                     }
                     
                     // Show logo in player management screen
                     if (playerManagementLogo && playerManagementLogoContainer) {
-                        playerManagementLogo.src = logoUrl;
+                        playerManagementLogo.src = polisLogoUrl;
                         playerManagementLogoContainer.classList.remove('hidden');
                     }
                 } else {
-                    // Hide logos if no URL
+                    // Hide logos for non-POLIS companies
                     if (welcomeLogoContainer) {
                         welcomeLogoContainer.classList.add('hidden');
                     }
                     if (playerManagementLogoContainer) {
                         playerManagementLogoContainer.classList.add('hidden');
                     }
+                }
                 }
             }
 
@@ -3738,47 +3709,7 @@
                 showCompanyWelcome();
             });
 
-            // Logo upload event listeners
-            uploadLogoButton.addEventListener('click', async () => {
-                const file = logoUploadInput.files[0];
-                if (!file) {
-                    showLogoUploadMessage("Seleziona un file immagine.", "text-red-600");
-                    return;
-                }
 
-                // Validate file type
-                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'image/webp'];
-                if (!allowedTypes.includes(file.type)) {
-                    showLogoUploadMessage("Formato non supportato. Usa JPG, PNG, SVG o WebP.", "text-red-600");
-                    return;
-                }
-
-                // Validate file size (max 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    showLogoUploadMessage("Il file è troppo grande. Dimensione massima: 5MB.", "text-red-600");
-                    return;
-                }
-
-                uploadLogoButton.disabled = true;
-                uploadLogoButton.textContent = "Caricamento in corso...";
-                
-                try {
-                    await uploadCompanyLogo(file);
-                } catch (error) {
-                    console.error("Errore nel caricamento logo:", error);
-                    showLogoUploadMessage("Errore nel caricamento del logo.", "text-red-600");
-                } finally {
-                    uploadLogoButton.disabled = false;
-                    uploadLogoButton.textContent = "Carica Logo";
-                }
-            });
-
-            logoUploadInput.addEventListener('change', () => {
-                const file = logoUploadInput.files[0];
-                if (file) {
-                    showLogoUploadMessage(`File selezionato: ${file.name}`, "text-blue-600");
-                }
-            });
 
             // Event listener for remember company checkbox
             rememberCompanyCheckbox.addEventListener('change', () => {
