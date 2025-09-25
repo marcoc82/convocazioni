@@ -823,7 +823,7 @@
             companyEntryScreen.classList.remove('hidden');
             
             // Trigger login animations sequence
-            setTimeout(() => startLoginAnimations(), 100);
+            // // setTimeout(() => startLoginAnimations(), 100);
 
             // Initialize checkbox state based on saved preference
             const savedRememberPreference = localStorage.getItem('rememberCompanyPreference');
@@ -1271,19 +1271,19 @@
                             }
                             companyEntryScreen.classList.remove('hidden');
                             // Trigger login animations sequence
-                            setTimeout(() => startLoginAnimations(), 100);
+                            // // setTimeout(() => startLoginAnimations(), 100);
                         }
                     } catch (err) {
                         console.error("Firebase authentication failed:", err);
                         companyEntryScreen.classList.remove('hidden');
                         // Trigger login animations sequence
-                        setTimeout(() => startLoginAnimations(), 100);
+                        // setTimeout(() => startLoginAnimations(), 100);
                     }
                 } else {
                     console.error("Firebase configuration not available. Some features will not work.");
                     companyEntryScreen.classList.remove('hidden');
                     // Trigger login animations sequence
-                    setTimeout(() => startLoginAnimations(), 100);
+                    // setTimeout(() => startLoginAnimations(), 100);
                 }
             }
 
@@ -3609,7 +3609,7 @@
                 hideAllScreens();
                 companyEntryScreen.classList.remove('hidden'); // mostra schermata di login/codice società
                 // Trigger login animations sequence
-                setTimeout(() => startLoginAnimations(), 100);
+                // setTimeout(() => startLoginAnimations(), 100);
             });
 
             // Common password validation function for main script
