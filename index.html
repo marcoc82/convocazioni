@@ -872,6 +872,16 @@
                         }
                     };
                 }
+                // Test Polis company for visibility functionality
+                if (code && code.toUpperCase().includes("POLIS")) {
+                    return {
+                        name: "Polis Società Test",
+                        passwords: {
+                            mister: "mister123",
+                            marco: "marco123"
+                        }
+                    };
+                }
                 return null;
             }
 
