@@ -717,40 +717,7 @@
 
     <!-- JavaScript for app logic -->
     <script>
-        // Global function for login animations
-        function startLoginAnimations() {
-            const logo = document.getElementById('animated-logo');
-            const title = document.getElementById('animated-title');
-            const subtitle = document.getElementById('animated-subtitle');
-            const form = document.getElementById('animated-form');
-            
-            // Only proceed if elements exist
-            if (!logo || !title || !subtitle || !form) return;
-            
-            // Reset all elements to initial state
-            logo.classList.remove('animate-drop-bounce');
-            title.classList.remove('animate-slide-in-right');
-            subtitle.classList.remove('animate-slide-in-right');
-            form.classList.remove('animate-slide-in-left');
-            
-            // Step 1: Logo drops and bounces (starts immediately)
-            logo.classList.add('animate-drop-bounce');
-            
-            // Step 2: Title slides in from right (after 0.8s)
-            setTimeout(() => {
-                title.classList.add('animate-slide-in-right');
-            }, 800);
-            
-            // Step 3: Subtitle slides in from right (after 1.2s)
-            setTimeout(() => {
-                subtitle.classList.add('animate-slide-in-right');
-            }, 1200);
-            
-            // Step 4: Form slides in from left (after 1.8s)
-            setTimeout(() => {
-                form.classList.add('animate-slide-in-left');
-            }, 1800);
-        }
+
         
         // Vibration Functions
         function vibrateOnClick(element) {
@@ -1288,6 +1255,41 @@
                     // Trigger login animations sequence
                     setTimeout(() => startLoginAnimations(), 100);
                 }
+            }
+
+            // Global function for login animations - moved here to be available before initApp() call
+            function startLoginAnimations() {
+                const logo = document.getElementById('animated-logo');
+                const title = document.getElementById('animated-title');
+                const subtitle = document.getElementById('animated-subtitle');
+                const form = document.getElementById('animated-form');
+                
+                // Only proceed if elements exist
+                if (!logo || !title || !subtitle || !form) return;
+                
+                // Reset all elements to initial state
+                logo.classList.remove('animate-drop-bounce');
+                title.classList.remove('animate-slide-in-right');
+                subtitle.classList.remove('animate-slide-in-right');
+                form.classList.remove('animate-slide-in-left');
+                
+                // Step 1: Logo drops and bounces (starts immediately)
+                logo.classList.add('animate-drop-bounce');
+                
+                // Step 2: Title slides in from right (after 0.8s)
+                setTimeout(() => {
+                    title.classList.add('animate-slide-in-right');
+                }, 800);
+                
+                // Step 3: Subtitle slides in from right (after 1.2s)
+                setTimeout(() => {
+                    subtitle.classList.add('animate-slide-in-right');
+                }, 1200);
+                
+                // Step 4: Form slides in from left (after 1.8s)
+                setTimeout(() => {
+                    form.classList.add('animate-slide-in-left');
+                }, 1800);
             }
 
             initApp();
