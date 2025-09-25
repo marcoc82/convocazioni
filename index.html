@@ -236,6 +236,9 @@
                     <button id="welcome-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Riepilogo Presenze
                     </button>
+                    <button id="training-attendance-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
+                        Presenze Allenamenti
+                    </button>
                     <button id="manage-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Gestione Giocatori
                     </button>
@@ -552,6 +555,46 @@
             </button>
         </div>
 
+        <!-- Training Attendance View -->
+        <div id="training-attendance-view" class="hidden">
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Presenze Allenamenti</h2>
+            
+            <div id="training-attendance-loading" class="text-center py-8 hidden">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                <p class="mt-2 text-gray-600">Caricamento dati allenamenti...</p>
+            </div>
+
+            <div id="training-attendance-error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 hidden">
+                <p class="text-red-800 text-center">Errore nel caricamento dei dati. Riprova più tardi.</p>
+            </div>
+            
+            <!-- Training Attendance Table -->
+            <div id="training-attendance-content" class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">Presenze Allenamenti</th>
+                        </tr>
+                    </thead>
+                    <tbody id="training-attendance-list" class="bg-white divide-y divide-gray-200">
+                        <!-- Training attendance data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-center text-sm text-gray-500 mb-4">
+                <p>Ultimo aggiornamento: <span id="training-last-update">Mai</span></p>
+                <button id="refresh-training-button" class="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm">
+                    Aggiorna Dati
+                </button>
+            </div>
+
+            <button id="back-from-training-attendance-button" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Torna Indietro
+            </button>
+        </div>
+
         <!-- Shareable View (Hidden for image generation) -->
         <div id="share-view" class="absolute w-[600px] h-auto top-[-9999px] left-[-9999px] bg-white rounded-xl shadow-2xl p-6 border border-gray-200">
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Convocazioni Ufficiali</h2>
@@ -769,6 +812,7 @@
             const companyNameDisplay = document.getElementById('company-name-display');
             const enterMisterButton = document.getElementById('enter-mister-button');
             const enterDirigenteButton = document.getElementById('enter-dirigente-button');
+            const trainingAttendanceButton = document.getElementById('training-attendance-button');
             
             const passwordEntryScreen = document.getElementById('password-entry-screen');
             const rolePrompt = document.getElementById('role-prompt');
@@ -828,12 +872,32 @@
                         }
                     };
                 }
+                // Test Polis company for visibility functionality
+                if (code && code.toUpperCase().includes("POLIS")) {
+                    return {
+                        name: "Polis Società Test",
+                        passwords: {
+                            mister: "mister123",
+                            marco: "marco123"
+                        }
+                    };
+                }
                 return null;
             }
 
             function showCompanyWelcome() {
                 hideAllScreens();
                 companyNameDisplay.textContent = currentCompanyData.name;
+                
+                // Show/hide training attendance button based on company name
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const isPolisCompany = companyName.toLowerCase().includes('polis');
+                
+                if (isPolisCompany) {
+                    trainingAttendanceButton.classList.remove('hidden');
+                } else {
+                    trainingAttendanceButton.classList.add('hidden');
+                }
                 
                 // Show company details with document ID and codici field
                 const companyDetails = document.getElementById('company-details');
@@ -1024,6 +1088,7 @@
             const enterDirigenteButton = document.getElementById('enter-dirigente-button');
             const viewHistoryButton = document.getElementById('view-history-button');
             const welcomeAttendanceButton = document.getElementById('welcome-attendance-button');
+            const trainingAttendanceButton = document.getElementById('training-attendance-button');
             const managePlayersButton = document.getElementById('manage-players-button');
             const companyLogoutButton = document.getElementById('company-logout-button');
             
@@ -1053,6 +1118,7 @@
             const mainView = document.getElementById('main-view');
             const historyView = document.getElementById('history-view');
             const attendanceView = document.getElementById('attendance-view');
+            const trainingAttendanceView = document.getElementById('training-attendance-view');
             const playersList = document.getElementById('players-list');
             const playersListMessage = document.getElementById('players-list-message');
             const selectedPlayersLiveList = document.getElementById('selected-players-live-list');
@@ -2922,6 +2988,17 @@
             function showCompanyWelcome() {
                 hideAllScreens();
                 companyNameDisplay.textContent = currentCompanyData.name;
+                
+                // Show/hide training attendance button based on company name
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const isPolisCompany = companyName.toLowerCase().includes('polis');
+                
+                if (isPolisCompany) {
+                    trainingAttendanceButton.classList.remove('hidden');
+                } else {
+                    trainingAttendanceButton.classList.add('hidden');
+                }
+                
                 companyWelcomeScreen.classList.remove('hidden');
             }
 
@@ -2952,6 +3029,128 @@
                 mainView.classList.add('hidden');
                 historyView.classList.add('hidden');
                 attendanceView.classList.add('hidden');
+                trainingAttendanceView.classList.add('hidden');
+            }
+
+            // Google Sheets API integration for training attendance
+            async function fetchTrainingAttendanceFromGoogleSheets() {
+                const SHEET_ID = '1f5nR4ZWeiNe4U4RAmOhnHSecT9spq5MzF6HH74Ppts4';
+                const API_KEY = 'AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU'; // Using existing Firebase API key
+                
+                // Ranges for names (O2:O34) and attendance counts (Q2:Q34)
+                const NAMES_RANGE = 'O2:O34';
+                const ATTENDANCE_RANGE = 'Q2:Q34';
+                
+                try {
+                    console.log('📊 Fetching training attendance data from Google Sheets...');
+                    
+                    // Fetch both ranges in parallel
+                    const [namesResponse, attendanceResponse] = await Promise.all([
+                        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${NAMES_RANGE}?key=${API_KEY}`),
+                        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${ATTENDANCE_RANGE}?key=${API_KEY}`)
+                    ]);
+                    
+                    if (!namesResponse.ok || !attendanceResponse.ok) {
+                        throw new Error(`API Error: ${namesResponse.status} or ${attendanceResponse.status}`);
+                    }
+                    
+                    const namesData = await namesResponse.json();
+                    const attendanceData = await attendanceResponse.json();
+                    
+                    // Extract values from API response
+                    const names = namesData.values || [];
+                    const attendanceCounts = attendanceData.values || [];
+                    
+                    // Combine names and attendance counts
+                    const trainingData = [];
+                    const maxLength = Math.max(names.length, attendanceCounts.length);
+                    
+                    for (let i = 0; i < maxLength; i++) {
+                        const name = names[i] && names[i][0] ? names[i][0].trim() : '';
+                        const attendance = attendanceCounts[i] && attendanceCounts[i][0] ? attendanceCounts[i][0].trim() : '0';
+                        
+                        // Only add entries with valid names
+                        if (name && name !== '') {
+                            trainingData.push({
+                                name: name,
+                                attendance: parseInt(attendance) || 0
+                            });
+                        }
+                    }
+                    
+                    console.log(`✅ Successfully fetched ${trainingData.length} training attendance records`);
+                    return trainingData;
+                    
+                } catch (error) {
+                    console.error('❌ Error fetching training attendance data:', error);
+                    throw error;
+                }
+            }
+
+            function renderTrainingAttendanceData(data) {
+                const trainingAttendanceList = document.getElementById('training-attendance-list');
+                trainingAttendanceList.innerHTML = '';
+                
+                if (!data || data.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td colspan="2" class="px-6 py-4 text-center text-gray-500 italic">
+                            Nessun dato disponibile
+                        </td>
+                    `;
+                    trainingAttendanceList.appendChild(row);
+                    return;
+                }
+                
+                // Sort by attendance count (descending)
+                data.sort((a, b) => b.attendance - a.attendance);
+                
+                data.forEach((player, index) => {
+                    const row = document.createElement('tr');
+                    row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                    
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${player.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${player.attendance}</td>
+                    `;
+                    
+                    trainingAttendanceList.appendChild(row);
+                });
+                
+                // Update last update time
+                const lastUpdateElement = document.getElementById('training-last-update');
+                lastUpdateElement.textContent = new Date().toLocaleString('it-IT');
+            }
+
+            async function loadTrainingAttendance() {
+                const loadingElement = document.getElementById('training-attendance-loading');
+                const errorElement = document.getElementById('training-attendance-error');
+                const contentElement = document.getElementById('training-attendance-content');
+                
+                // Show loading state
+                loadingElement.classList.remove('hidden');
+                errorElement.classList.add('hidden');
+                contentElement.style.opacity = '0.5';
+                
+                try {
+                    const data = await fetchTrainingAttendanceFromGoogleSheets();
+                    renderTrainingAttendanceData(data);
+                    
+                    // Hide loading, show content
+                    loadingElement.classList.add('hidden');
+                    contentElement.style.opacity = '1';
+                    
+                } catch (error) {
+                    console.error('Error loading training attendance:', error);
+                    
+                    // Show error state
+                    loadingElement.classList.add('hidden');
+                    errorElement.classList.remove('hidden');
+                    contentElement.style.opacity = '1';
+                    
+                    // Show empty state in table
+                    renderTrainingAttendanceData([]);
+                }
             }
 
             function startApp(appId) {
@@ -3206,6 +3405,13 @@
                 // Hide all screens and show attendance view
                 hideAllScreens();
                 attendanceView.classList.remove('hidden');
+            });
+
+            trainingAttendanceButton.addEventListener('click', () => {
+                console.log('📊 Opening Training Attendance View...');
+                hideAllScreens();
+                trainingAttendanceView.classList.remove('hidden');
+                loadTrainingAttendance(); // Load data when opening the view
             });
 
             managePlayersButton.addEventListener('click', () => {
@@ -3735,6 +3941,24 @@
             
             // Expose debug function globally for console access
             window.debugMostraGiocatoriSalvati = debugMostraGiocatoriSalvati;
+
+            // Training attendance event listeners
+            const backFromTrainingAttendanceButton = document.getElementById('back-from-training-attendance-button');
+            const refreshTrainingButton = document.getElementById('refresh-training-button');
+
+            backFromTrainingAttendanceButton.addEventListener('click', () => {
+                trainingAttendanceView.classList.add('hidden');
+                // Always go back to company welcome screen since training attendance is only available from there
+                if (currentCompanyCode) {
+                    showCompanyWelcome();
+                } else {
+                    mainView.classList.remove('hidden');
+                }
+            });
+
+            refreshTrainingButton.addEventListener('click', () => {
+                loadTrainingAttendance();
+            });
         });
     </script>
 </body>
