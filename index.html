@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.3</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.4</span>
             </div>
         </div>
 
@@ -2085,7 +2085,15 @@
                         <div class="text-sm text-gray-700">
                             <p class="font-semibold mb-1">Giocatori:</p>
                             <ul class="list-disc list-inside space-y-0.5">
-                                ${data.players.map(p => `<li>${p}</li>`).join('')}
+                                ${data.players.map(p => {
+                                    if (typeof p === 'string') {
+                                        return `<li>${p}</li>`;
+                                    } else {
+                                        const birthDate = new Date(p.dataNascita);
+                                        const formattedDate = birthDate.toLocaleDateString('it-IT');
+                                        return `<li>${p.numero} ${p.nome} - 📅 ${formattedDate} | 🆔 ${p.matricola}</li>`;
+                                    }
+                                }).join('')}
                             </ul>
                         </div>
                         <div class="mt-3 flex gap-2">
@@ -2368,7 +2376,15 @@
                         <div class="text-sm text-gray-700">
                             <p class="font-semibold mb-1">Giocatori:</p>
                             <ul class="list-disc list-inside space-y-0.5">
-                                ${data.players.map(p => `<li>${p}</li>`).join('')}
+                                ${data.players.map(p => {
+                                    if (typeof p === 'string') {
+                                        return `<li>${p}</li>`;
+                                    } else {
+                                        const birthDate = new Date(p.dataNascita);
+                                        const formattedDate = birthDate.toLocaleDateString('it-IT');
+                                        return `<li>${p.numero} ${p.nome} - 📅 ${formattedDate} | 🆔 ${p.matricola}</li>`;
+                                    }
+                                }).join('')}
                             </ul>
                         </div>
                         <div class="mt-3 flex gap-2">
@@ -2921,7 +2937,13 @@
                     } else {
                         selectedPlayers.forEach(player => {
                             const li = document.createElement('li');
-                            li.textContent = player;
+                            if (typeof player === 'string') {
+                                li.textContent = player;
+                            } else {
+                                const birthDate = new Date(player.dataNascita);
+                                const formattedDate = birthDate.toLocaleDateString('it-IT');
+                                li.textContent = `${player.numero} ${player.nome} - 📅 ${formattedDate} | 🆔 ${player.matricola}`;
+                            }
                             li.className = 'font-medium';
                             sharePlayersList.appendChild(li);
                         });
@@ -2991,7 +3013,13 @@
                     } else {
                         convocationData.players.forEach(player => {
                             const li = document.createElement('li');
-                            li.textContent = player;
+                            if (typeof player === 'string') {
+                                li.textContent = player;
+                            } else {
+                                const birthDate = new Date(player.dataNascita);
+                                const formattedDate = birthDate.toLocaleDateString('it-IT');
+                                li.textContent = `${player.numero} ${player.nome} - 📅 ${formattedDate} | 🆔 ${player.matricola}`;
+                            }
                             li.className = 'font-medium';
                             sharePlayersList.appendChild(li);
                         });
