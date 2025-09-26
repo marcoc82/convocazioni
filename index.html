@@ -643,7 +643,9 @@
                 <p class="text-gray-700 mb-2">📅 Data Partita: <span id="share-data-partita" class="font-semibold"></span></p>
                 <p class="text-700 mb-2">🕒 Orario Convocazione: <span id="share-orario-convocazione" class="font-semibold"></span></p>
                 <p class="text-gray-700 mb-2">🕒 Orario Partita: <span id="share-orario-partita" class="font-semibold"></span></p>
-                <p class="text-gray-700">Tipo: <span id="share-tipo" class="font-semibold"></span></p>
+                <p class="text-gray-700 mb-2">Tipo: <span id="share-tipo" class="font-semibold"></span></p>
+                <p class="text-gray-700 mb-2">👨‍🏫 Mister Partita: <span id="share-mister-partita" class="font-semibold"></span></p>
+                <p class="text-gray-700">👨‍🏫 Mister Tipo: <span id="share-mister-tipo" class="font-semibold"></span></p>
             </div>
 
             <div class="mb-4">
@@ -663,6 +665,9 @@
                     <button data-status="Infortunato" class="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Infortunato 🚑️
                     </button>
+                    <button data-status="Squalificato" class="w-full py-3 bg-black hover:bg-gray-800 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                        Squalificato ⚫
+                    </button>
                     <button data-status="Non disponibile Sabato" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Non disponibile Sabato
                     </button>
@@ -675,7 +680,7 @@
                     <button data-status="Solo 2 allenamenti" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Solo 2 allenamenti
                     </button>
-                    <button data-status="Solo 1 allenamento" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                    <button data-status="Solo 1 allenamento" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                         Solo 1 allenamento
                     </button>
                     <button data-status="Zero allenamenti" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
@@ -2013,6 +2018,8 @@
                             <p>Orario Convocazione: ${data.details.orarioConvocazione}</p>
                             <p>Orario Partita: ${data.details.orarioPartita}</p>
                             <p>Tipo: ${data.details.tipo || 'N/D'}</p>
+                            <p>👨‍🏫 Mister Partita: ${data.details.misterPartita || 'N/D'}</p>
+                            <p>👨‍🏫 Mister Tipo: ${data.details.misterTipo || 'N/D'}</p>
                         </div>
                         <div class="text-sm text-gray-700">
                             <p class="font-semibold mb-1">Giocatori:</p>
@@ -2294,6 +2301,8 @@
                             <p>Orario Convocazione: ${data.details.orarioConvocazione}</p>
                             <p>Orario Partita: ${data.details.orarioPartita}</p>
                             <p>Tipo: ${data.details.tipo || 'N/D'}</p>
+                            <p>👨‍🏫 Mister Partita: ${data.details.misterPartita || 'N/D'}</p>
+                            <p>👨‍🏫 Mister Tipo: ${data.details.misterTipo || 'N/D'}</p>
                         </div>
                         <div class="text-sm text-gray-700">
                             <p class="font-semibold mb-1">Giocatori:</p>
@@ -2387,13 +2396,13 @@
                     
                     if (unavailablePlayers.has(playerName)) {
                         const status = unavailablePlayers.get(playerName);
-                        if (status === 'Infortunato') {
+                        if (status === 'Infortunato' || status === 'Squalificato') {
                             li.classList.add('selected-marco-black');
                         } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
                             li.classList.add('selected-marco-purple');
-                        } else if (status === 'Solo 2 allenamenti') {
+                        } else if (status === 'Solo 2 allenamenti' || status === 'Solo 1 allenamento') {
                             li.classList.add('selected-marco-orange');
-                        } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend' || status === 'Solo 1 allenamento') {
+                        } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend') {
                             li.classList.add('selected-marco');
                         } else {
                             li.classList.add('selected-marco');
@@ -2827,6 +2836,8 @@
                     document.getElementById('share-orario-convocazione').textContent = matchDetails.orarioConvocazione;
                     document.getElementById('share-orario-partita').textContent = matchDetails.orarioPartita;
                     document.getElementById('share-tipo').textContent = matchDetails.tipo;
+                    document.getElementById('share-mister-partita').textContent = matchDetails.misterPartita || 'N/D';
+                    document.getElementById('share-mister-tipo').textContent = matchDetails.misterTipo || 'N/D';
 
                     if (selectedPlayers.length === 0) {
                         const li = document.createElement('li');
@@ -2895,6 +2906,8 @@
                     document.getElementById('share-orario-convocazione').textContent = convocationData.details.orarioConvocazione;
                     document.getElementById('share-orario-partita').textContent = convocationData.details.orarioPartita;
                     document.getElementById('share-tipo').textContent = convocationData.details.tipo || 'N/D';
+                    document.getElementById('share-mister-partita').textContent = convocationData.details.misterPartita || 'N/D';
+                    document.getElementById('share-mister-tipo').textContent = convocationData.details.misterTipo || 'N/D';
 
                     if (convocationData.players.length === 0) {
                         const li = document.createElement('li');
@@ -4185,13 +4198,13 @@
                     } else {
                         unavailablePlayers.set(tempPlayerName, status);
                         currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple');
-                        if (status === 'Infortunato') {
+                        if (status === 'Infortunato' || status === 'Squalificato') {
                             currentPlayerItem.classList.add('selected-marco-black');
                         } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
                             currentPlayerItem.classList.add('selected-marco-purple');
-                        } else if (status === 'Solo 2 allenamenti') {
+                        } else if (status === 'Solo 2 allenamenti' || status === 'Solo 1 allenamento') {
                             currentPlayerItem.classList.add('selected-marco-orange');
-                        } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend' || status === 'Solo 1 allenamento') {
+                        } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend') {
                             currentPlayerItem.classList.add('selected-marco');
                         } else {
                             currentPlayerItem.classList.add('selected-marco');
