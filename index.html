@@ -277,12 +277,27 @@
         <div id="player-management-screen" class="hidden">
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Gestione Squadra</h2>
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <div class="flex flex-col gap-4 mb-4">
-                    <input type="text" id="new-player-input" placeholder="Nome e numero giocatore (es. 10 ROSSI MARIO)" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
-                    <button id="add-player-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
-                        Aggiungi Giocatore
-                    </button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="player-numero" class="block text-sm font-medium text-gray-700">🔢 Numero</label>
+                        <input type="number" id="player-numero" placeholder="10" min="1" max="99" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="player-nome" class="block text-sm font-medium text-gray-700">👤 Nome</label>
+                        <input type="text" id="player-nome" placeholder="ROSSI MARIO" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="player-data-nascita" class="block text-sm font-medium text-gray-700">📅 Data di Nascita</label>
+                        <input type="date" id="player-data-nascita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="player-matricola" class="block text-sm font-medium text-gray-700">🆔 Matricola</label>
+                        <input type="text" id="player-matricola" placeholder="ABC123456" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
                 </div>
+                <button id="add-player-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 mb-4">
+                    Aggiungi Giocatore
+                </button>
                 <div id="company-players-list" class="space-y-2">
                     <!-- Company players will be loaded here -->
                 </div>
@@ -1116,7 +1131,10 @@
             const passwordEntryMessageArea = document.getElementById('password-entry-message-area');
             
             const playerManagementScreen = document.getElementById('player-management-screen');
-            const newPlayerInput = document.getElementById('new-player-input');
+            const playerNumeroInput = document.getElementById('player-numero');
+            const playerNomeInput = document.getElementById('player-nome');
+            const playerDataNascitaInput = document.getElementById('player-data-nascita');
+            const playerMatricolaInput = document.getElementById('player-matricola');
             const addPlayerButton = document.getElementById('add-player-button');
             const companyPlayersList = document.getElementById('company-players-list');
             const savePlayersButton = document.getElementById('save-players-button');
@@ -1499,17 +1517,29 @@
             }
 
             /**
-             * Custom sorting function for players that sorts alphabetically by name only,
-             * ignoring the number prefix (e.g., "1 ROSSI MARIO" -> sort by "ROSSI MARIO")
-             * @param {string[]} players - Array of player strings in format "NUMBER SURNAME NAME"
-             * @returns {string[]} - Sorted array of players
+             * Custom sorting function for players that sorts alphabetically by name,
+             * handling both old string format ("1 ROSSI MARIO") and new object format
+             * @param {(string|object)[]} players - Array of player strings or objects
+             * @returns {(string|object)[]} - Sorted array of players
              */
             function sortPlayersByName(players) {
                 return players.sort((a, b) => {
-                    // Extract name part by removing the number prefix
-                    // Pattern: "NUMBER SURNAME NAME" -> "SURNAME NAME"
-                    const nameA = a.replace(/^\d+\s+/, '').trim();
-                    const nameB = b.replace(/^\d+\s+/, '').trim();
+                    let nameA, nameB;
+                    
+                    // Handle old string format: "NUMBER SURNAME NAME"
+                    if (typeof a === 'string') {
+                        nameA = a.replace(/^\d+\s+/, '').trim();
+                    } else {
+                        // Handle new object format
+                        nameA = a.nome;
+                    }
+                    
+                    if (typeof b === 'string') {
+                        nameB = b.replace(/^\d+\s+/, '').trim();
+                    } else {
+                        // Handle new object format
+                        nameB = b.nome;
+                    }
                     
                     // Compare the names alphabetically (case-insensitive)
                     return nameA.localeCompare(nameB, 'it', { sensitivity: 'base' });
@@ -2419,14 +2449,27 @@
             function renderPlayers() {
                 playersList.innerHTML = '';
                 const playersToRender = companyPlayers.length > 0 ? companyPlayers : players;
-                playersToRender.forEach(playerName => {
+                playersToRender.forEach(player => {
                     const li = document.createElement('li');
-                    li.textContent = playerName;
-                    li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
-                    li.dataset.player = playerName;
                     
-                    if (unavailablePlayers.has(playerName)) {
-                        const status = unavailablePlayers.get(playerName);
+                    // Handle both old string format and new object format
+                    let displayName, playerKey;
+                    if (typeof player === 'string') {
+                        // Old format: "10 ROSSI MARIO"
+                        displayName = player;
+                        playerKey = player;
+                    } else {
+                        // New format: object with numero, nome, etc.
+                        displayName = `${player.numero} ${player.nome}`;
+                        playerKey = displayName; // Use the display name as key for compatibility
+                    }
+                    
+                    li.textContent = displayName;
+                    li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
+                    li.dataset.player = playerKey;
+                    
+                    if (unavailablePlayers.has(playerKey)) {
+                        const status = unavailablePlayers.get(playerKey);
                         if (status === 'Infortunato' || status === 'Squalificato') {
                             li.classList.add('selected-marco-black');
                         } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
@@ -2442,15 +2485,15 @@
 
                     li.addEventListener('click', () => {
                         if (userRole === 'mister') {
-                            if (unavailablePlayers.has(playerName)) {
-                                const status = unavailablePlayers.get(playerName);
-                                showUnavailablePlayerModal(playerName, status);
+                            if (unavailablePlayers.has(playerKey)) {
+                                const status = unavailablePlayers.get(playerKey);
+                                showUnavailablePlayerModal(playerKey, status);
                                 return; // Don't allow selection of unavailable players (unless forzato)
                             }
                             li.classList.toggle('selected-mister');
-                            updateSelectedPlayersLiveList(playerName, li.classList.contains('selected-mister'));
+                            updateSelectedPlayersLiveList(playerKey, li.classList.contains('selected-mister'));
                         } else if (isDirigente()) {
-                            tempPlayerName = playerName;
+                            tempPlayerName = playerKey;
                             showModal();
                         }
                     });
@@ -3525,10 +3568,35 @@
                 
                 companyPlayers.forEach((player, index) => {
                     const playerDiv = document.createElement('div');
-                    playerDiv.className = 'flex items-center justify-between p-2 bg-white border border-gray-300 rounded-lg';
+                    playerDiv.className = 'flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg';
+                    
+                    let playerDisplay;
+                    if (typeof player === 'string') {
+                        // Old format: "10 ROSSI MARIO"
+                        playerDisplay = `
+                            <div class="text-gray-700">
+                                <span class="font-semibold">${player}</span>
+                                <span class="text-sm text-gray-500 block">Formato legacy</span>
+                            </div>
+                        `;
+                    } else {
+                        // New format: object with all fields
+                        const birthDate = new Date(player.dataNascita);
+                        const formattedDate = birthDate.toLocaleDateString('it-IT');
+                        
+                        playerDisplay = `
+                            <div class="text-gray-700">
+                                <div class="font-semibold">${player.numero} ${player.nome}</div>
+                                <div class="text-sm text-gray-500">
+                                    📅 ${formattedDate} | 🆔 ${player.matricola}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
                     playerDiv.innerHTML = `
-                        <span class="text-gray-700">${player}</span>
-                        <button onclick="removePlayer(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
+                        ${playerDisplay}
+                        <button onclick="removePlayer(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
                             Rimuovi
                         </button>
                     `;
@@ -3909,20 +3977,51 @@
             });
 
             addPlayerButton.addEventListener('click', async () => {
-                const playerName = newPlayerInput.value.trim();
-                if (!playerName) {
-                    showMessage("Inserisci il nome del giocatore.", "text-red-600");
+                // Get values from form fields
+                const numero = playerNumeroInput.value.trim();
+                const nome = playerNomeInput.value.trim();
+                const dataNascita = playerDataNascitaInput.value.trim();
+                const matricola = playerMatricolaInput.value.trim();
+                
+                // Validate required fields
+                if (!numero || !nome || !dataNascita || !matricola) {
+                    showMessage("Tutti i campi sono obbligatori: numero, nome, data di nascita, matricola.", "text-red-600");
                     return;
                 }
-
-                if (companyPlayers.includes(playerName)) {
-                    showMessage("Giocatore già presente nella lista.", "text-red-600");
+                
+                // Check if number is already used
+                const playerExists = companyPlayers.some(player => {
+                    // Handle both old string format and new object format
+                    if (typeof player === 'string') {
+                        const playerNumber = player.split(' ')[0];
+                        return playerNumber === numero;
+                    } else {
+                        return player.numero === numero;
+                    }
+                });
+                
+                if (playerExists) {
+                    showMessage(`Giocatore con numero ${numero} già presente nella lista.`, "text-red-600");
                     return;
                 }
-
-                companyPlayers.push(playerName);
+                
+                // Create player object
+                const newPlayer = {
+                    numero: numero,
+                    nome: nome.toUpperCase(),
+                    dataNascita: dataNascita,
+                    matricola: matricola.toUpperCase()
+                };
+                
+                companyPlayers.push(newPlayer);
                 companyPlayers = sortPlayersByName(companyPlayers); // Keep players in alphabetical order by name
-                newPlayerInput.value = '';
+                
+                // Clear form fields
+                playerNumeroInput.value = '';
+                playerNomeInput.value = '';
+                playerDataNascitaInput.value = '';
+                playerMatricolaInput.value = '';
+                
                 renderCompanyPlayers();
                 showMessage("Giocatore aggiunto alla lista. Ricorda di salvare!", "text-blue-600");
             });
