@@ -2291,7 +2291,7 @@
             // Demo version for loadHistory when Firebase is not available
             function loadHistoryDemo() {
                 historyList.innerHTML = '';
-                // Create sample demo data for history
+                // Create sample demo data for history using consistent player names from attendance data
                 const demoHistory = [
                     {
                         id: 'demo-1',
@@ -2304,7 +2304,7 @@
                             orarioPartita: '15:00',
                             tipo: 'Campionato'
                         },
-                        players: ['1 DEMO MARIO', '2 TEST LUIGI', '3 EXAMPLE GIUSEPPE']
+                        players: ['1 ROSSI MARIO', '2 BIANCHI LUIGI', '3 VERDI GIUSEPPE']
                     },
                     {
                         id: 'demo-2',
@@ -2317,7 +2317,7 @@
                             orarioPartita: '10:00',
                             tipo: 'Amichevole'
                         },
-                        players: ['1 DEMO MARIO', '4 SAMPLE ANTONIO']
+                        players: ['10 AZZURRI LUCA', '4 NERI ANTONIO']
                     },
                     {
                         id: 'demo-3',
@@ -2330,7 +2330,7 @@
                             orarioPartita: '16:00',
                             tipo: 'Torneo'
                         },
-                        players: ['2 TEST LUIGI', '3 EXAMPLE GIUSEPPE', '4 SAMPLE ANTONIO']
+                        players: ['6 BLU MARCO', '5 GIALLI FRANCESCO', '8 ROSA ANDREA']
                     }
                 ];
 
