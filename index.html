@@ -297,6 +297,7 @@
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Mister</h3>
                 <div class="flex flex-col gap-4 mb-4">
                     <input type="text" id="new-coach-input" placeholder="Nome mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <input type="text" id="new-coach-matricola-input" placeholder="Matricola mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <button id="add-coach-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Aggiungi Mister
                     </button>
@@ -1124,6 +1125,7 @@
             
             // Coach management elements
             const newCoachInput = document.getElementById('new-coach-input');
+            const newCoachMatricolaInput = document.getElementById('new-coach-matricola-input');
             const addCoachButton = document.getElementById('add-coach-button');
             const companyCoachesList = document.getElementById('company-coaches-list');
             const saveCoachesButton = document.getElementById('save-coaches-button');
@@ -1727,23 +1729,38 @@
                     });
                     
                     // Add new coaches to subcollection
-                    for (const coachName of coachesList) {
+                    for (const coach of coachesList) {
+                        const coachName = typeof coach === 'string' ? coach : coach.name;
+                        const coachMatricola = typeof coach === 'object' && coach.matricola ? coach.matricola : '';
+                        
                         if (!existingCoachNames.has(coachName)) {
                             // Create a new document for this coach
                             const coachDocRef = window.doc(coachesCollectionRef);
-                            await window.setDoc(coachDocRef, {
+                            const coachData = {
                                 name: coachName,
                                 nome: coachName, // Keep both for compatibility
                                 createdAt: new Date().toISOString(),
                                 active: true
-                            });
-                            console.log(`Mister aggiunto: ${coachName}`);
+                            };
+                            
+                            // Add matricola if available
+                            if (coachMatricola) {
+                                coachData.matricola = coachMatricola;
+                            }
+                            
+                            await window.setDoc(coachDocRef, coachData);
+                            console.log(`Mister aggiunto: ${coachName}${coachMatricola ? ` (Matricola: ${coachMatricola})` : ''}`);
                         }
                     }
                     
                     // Remove coaches that are no longer in the list
                     for (const [coachName, docId] of existingCoachDocs) {
-                        if (!coachesList.includes(coachName)) {
+                        const stillExists = coachesList.some(coach => {
+                            const currentCoachName = typeof coach === 'string' ? coach : coach.name;
+                            return currentCoachName === coachName;
+                        });
+                        
+                        if (!stillExists) {
                             const coachDocRef = window.doc(window.db, "societa", currentCompanyDocumentId, "mister", docId);
                             await window.deleteDoc(coachDocRef);
                             console.log(`Mister rimosso: ${coachName}`);
@@ -1794,11 +1811,25 @@
                         const coachData = doc.data();
                         const coachName = coachData.name || coachData.nome || doc.id;
                         if (coachData.active !== false) { // Include active coaches or those without active field
-                            coaches.push(coachName);
+                            if (coachData.matricola) {
+                                // New format: object with name and matricola
+                                coaches.push({
+                                    name: coachName,
+                                    matricola: coachData.matricola
+                                });
+                            } else {
+                                // Old format: just the name (for backward compatibility)
+                                coaches.push(coachName);
+                            }
                         }
                     });
                     
-                    return coaches.sort(); // Return sorted array
+                    // Sort coaches by name
+                    return coaches.sort((a, b) => {
+                        const nameA = typeof a === 'string' ? a : a.name;
+                        const nameB = typeof b === 'string' ? b : b.name;
+                        return nameA.localeCompare(nameB);
+                    });
                 } catch (error) {
                     console.error("Errore nel caricamento mister da Firebase:", error);
                     // Try localStorage fallback
@@ -3129,14 +3160,18 @@
                     
                     // Populate both dropdowns with coaches
                     coaches.forEach(coach => {
+                        const coachName = typeof coach === 'string' ? coach : coach.name;
+                        const coachMatricola = typeof coach === 'object' && coach.matricola ? coach.matricola : '';
+                        const displayText = coachMatricola ? `${coachName} (${coachMatricola})` : coachName;
+                        
                         const option1 = document.createElement('option');
-                        option1.value = coach;
-                        option1.textContent = coach;
+                        option1.value = coachName; // Use name as value for compatibility
+                        option1.textContent = displayText;
                         misterPartitaSelect.appendChild(option1);
                         
                         const option2 = document.createElement('option');
-                        option2.value = coach;
-                        option2.textContent = coach;
+                        option2.value = coachName; // Use name as value for compatibility
+                        option2.textContent = displayText;
                         misterTipoSelect.appendChild(option2);
                     });
                 } catch (error) {
@@ -3527,8 +3562,20 @@
                 companyCoaches.forEach((coach, index) => {
                     const coachDiv = document.createElement('div');
                     coachDiv.className = 'flex items-center justify-between p-2 bg-white border border-gray-300 rounded-lg';
+                    
+                    // Handle both old string format and new object format for backward compatibility
+                    const coachName = typeof coach === 'string' ? coach : coach.name;
+                    const coachMatricola = typeof coach === 'object' && coach.matricola ? coach.matricola : '';
+                    
+                    const coachInfoHtml = coachMatricola 
+                        ? `<div class="text-gray-700">
+                             <div class="font-medium">${coachName}</div>
+                             <div class="text-sm text-gray-500">Matricola: ${coachMatricola}</div>
+                           </div>`
+                        : `<span class="text-gray-700">${coachName}</span>`;
+                    
                     coachDiv.innerHTML = `
-                        <span class="text-gray-700">${coach}</span>
+                        ${coachInfoHtml}
                         <button onclick="removeCoach(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
                             Rimuovi
                         </button>
@@ -3909,19 +3956,50 @@
             // Coach management event listeners
             addCoachButton.addEventListener('click', async () => {
                 const coachName = newCoachInput.value.trim();
+                const coachMatricola = newCoachMatricolaInput.value.trim();
+                
                 if (!coachName) {
                     showCoachMessage("Inserisci il nome del mister.", "text-red-600");
                     return;
                 }
 
-                if (companyCoaches.includes(coachName)) {
+                if (!coachMatricola) {
+                    showCoachMessage("Inserisci la matricola del mister.", "text-red-600");
+                    return;
+                }
+
+                // Check if coach with same name already exists
+                const existingCoach = companyCoaches.find(coach => 
+                    (typeof coach === 'string' ? coach : coach.name) === coachName
+                );
+                if (existingCoach) {
                     showCoachMessage("Mister già presente nella lista.", "text-red-600");
                     return;
                 }
 
-                companyCoaches.push(coachName);
-                companyCoaches.sort(); // Keep coaches in alphabetical order
+                // Check if coach with same matricola already exists
+                const existingMatricola = companyCoaches.find(coach => 
+                    typeof coach === 'object' && coach.matricola === coachMatricola
+                );
+                if (existingMatricola) {
+                    showCoachMessage("Matricola già presente nella lista.", "text-red-600");
+                    return;
+                }
+
+                // Create coach object with name and matricola
+                const coachObj = {
+                    name: coachName,
+                    matricola: coachMatricola
+                };
+
+                companyCoaches.push(coachObj);
+                companyCoaches.sort((a, b) => {
+                    const nameA = typeof a === 'string' ? a : a.name;
+                    const nameB = typeof b === 'string' ? b : b.name;
+                    return nameA.localeCompare(nameB);
+                });
                 newCoachInput.value = '';
+                newCoachMatricolaInput.value = '';
                 renderCompanyCoaches();
                 showCoachMessage("Mister aggiunto alla lista. Ricorda di salvare!", "text-blue-600");
             });
