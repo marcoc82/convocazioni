@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.0</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.1</span>
             </div>
         </div>
 
@@ -428,6 +428,12 @@
                         <label for="orario-partita" class="block text-sm font-medium text-gray-700">🕒 Orario Partita</label>
                         <input type="time" id="orario-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
+                    <div id="mister-selection-1" class="hidden">
+                        <label for="mister-partita" class="block text-sm font-medium text-gray-700">👨‍🏫 Mister</label>
+                        <select id="mister-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                            <option value="">Seleziona mister</option>
+                        </select>
+                    </div>
                     <div>
                         <label for="tipo-partita" class="block text-sm font-medium text-gray-700">Tipo</label>
                         <select id="tipo-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
@@ -435,6 +441,12 @@
                             <option value="Amichevole">🤝 Amichevole</option>
                             <option value="Torneo">🏆 Torneo</option>
                             <option value="Campionato">⚽️ Campionato</option>
+                        </select>
+                    </div>
+                    <div id="mister-selection-2" class="hidden">
+                        <label for="mister-tipo" class="block text-sm font-medium text-gray-700">👨‍🏫 Mister</label>
+                        <select id="mister-tipo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                            <option value="">Seleziona mister</option>
                         </select>
                     </div>
                 </div>
@@ -2447,6 +2459,8 @@
                     orarioConvocazione: document.getElementById('orario-convocazione').value || 'N/D',
                     orarioPartita: document.getElementById('orario-partita').value || 'N/D',
                     tipo: document.getElementById('tipo-partita').value || 'N/D',
+                    misterPartita: document.getElementById('mister-partita').value || 'N/D',
+                    misterTipo: document.getElementById('mister-tipo').value || 'N/D',
                 };
             }
 
@@ -2485,6 +2499,16 @@
                     const tipoPartita = document.getElementById('tipo-partita');
                     if (tipoPartita) {
                         tipoPartita.selectedIndex = 0;
+                    }
+                    
+                    // Reset mister dropdowns
+                    const misterPartita = document.getElementById('mister-partita');
+                    const misterTipo = document.getElementById('mister-tipo');
+                    if (misterPartita) {
+                        misterPartita.selectedIndex = 0;
+                    }
+                    if (misterTipo) {
+                        misterTipo.selectedIndex = 0;
                     }
 
                     // Clear localStorage data related to match details (keep unavailable players)
@@ -3002,6 +3026,13 @@
                     // Show reset button for Mister
                     resetSelectionsButton.classList.remove('hidden');
                     
+                    // Show mister selection dropdowns for Mister role
+                    document.getElementById('mister-selection-1').classList.remove('hidden');
+                    document.getElementById('mister-selection-2').classList.remove('hidden');
+                    
+                    // Populate mister dropdowns
+                    populateMisterDropdowns();
+                    
                     // Initialize avversario field based on current tipo-partita selection
                     const tipoPartitaSelect = document.getElementById('tipo-partita');
                     const avversarioInput = document.getElementById('avversario');
@@ -3030,6 +3061,10 @@
                     matchDetailsSection.classList.add('hidden');
                     matchDetailsSection.style.display = 'none'; // Hide match details for Marco
                     unavailablePlayersTitle.textContent = "Giocatori che hai segnato come non disponibili";
+                    
+                    // Hide mister selection dropdowns for Dirigente role
+                    document.getElementById('mister-selection-1').classList.add('hidden');
+                    document.getElementById('mister-selection-2').classList.add('hidden');
 
                     // Show notes section for Marco (editable)
                     notesSection.classList.remove('hidden');
@@ -3066,6 +3101,33 @@
                     } else {
                         notesDisplay.textContent = currentNotes;
                     }
+                }
+            }
+
+            async function populateMisterDropdowns() {
+                try {
+                    const coaches = await loadCompanyCoaches();
+                    const misterPartitaSelect = document.getElementById('mister-partita');
+                    const misterTipoSelect = document.getElementById('mister-tipo');
+                    
+                    // Clear existing options (except the first default option)
+                    misterPartitaSelect.innerHTML = '<option value="">Seleziona mister</option>';
+                    misterTipoSelect.innerHTML = '<option value="">Seleziona mister</option>';
+                    
+                    // Populate both dropdowns with coaches
+                    coaches.forEach(coach => {
+                        const option1 = document.createElement('option');
+                        option1.value = coach;
+                        option1.textContent = coach;
+                        misterPartitaSelect.appendChild(option1);
+                        
+                        const option2 = document.createElement('option');
+                        option2.value = coach;
+                        option2.textContent = coach;
+                        misterTipoSelect.appendChild(option2);
+                    });
+                } catch (error) {
+                    console.error('Errore nel caricamento mister per i dropdown:', error);
                 }
             }
 
