@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.5</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.6</span>
             </div>
         </div>
 
@@ -2182,10 +2182,24 @@
                 const playersToShow = companyPlayers.length > 0 ? companyPlayers : players;
                 console.log(`📊 [DIAGNOSTIC] Visualizzazione presenze per ${playersToShow.length} giocatori della società`);
                 
-                const sortedPlayers = playersToShow.map(p => ({
-                    name: p,
-                    count: attendanceData[p] || 0
-                })).sort((a, b) => b.count - a.count);
+                const sortedPlayers = playersToShow.map(p => {
+                    // Handle both old string format and new object format
+                    let playerName, playerKey;
+                    if (typeof p === 'string') {
+                        // Old format: "10 ROSSI MARIO"
+                        playerName = p;
+                        playerKey = p;
+                    } else {
+                        // New format: object with numero, nome, etc.
+                        playerName = `${p.numero} ${p.nome}`;
+                        playerKey = playerName; // Use the display name as key for compatibility
+                    }
+                    
+                    return {
+                        name: playerName,
+                        count: attendanceData[playerKey] || 0
+                    };
+                }).sort((a, b) => b.count - a.count);
 
                 sortedPlayers.forEach(player => {
                     const row = document.createElement('tr');
@@ -2222,12 +2236,22 @@
                     const players = convocation.players || [];
                     
                     players.forEach(player => {
+                        // Handle both old string format and new object format
+                        let playerKey;
+                        if (typeof player === 'string') {
+                            // Old format: "10 ROSSI MARIO"
+                            playerKey = player;
+                        } else {
+                            // New format: object with numero, nome, etc.
+                            playerKey = `${player.numero} ${player.nome}`;
+                        }
+                        
                         if (tipo === 'Amichevole') {
-                            amichevoliData[player] = (amichevoliData[player] || 0) + 1;
+                            amichevoliData[playerKey] = (amichevoliData[playerKey] || 0) + 1;
                         } else if (tipo === 'Torneo') {
-                            torneiData[player] = (torneiData[player] || 0) + 1;
+                            torneiData[playerKey] = (torneiData[playerKey] || 0) + 1;
                         } else if (tipo === 'Campionato') {
-                            campionatoData[player] = (campionatoData[player] || 0) + 1;
+                            campionatoData[playerKey] = (campionatoData[playerKey] || 0) + 1;
                         }
                     });
                 });
@@ -2249,10 +2273,24 @@
 
             // Helper function to populate a specific attendance table
             function populateAttendanceTable(tableElement, players, attendanceData, tableType) {
-                const sortedPlayers = players.map(p => ({
-                    name: p,
-                    count: attendanceData[p] || 0
-                })).sort((a, b) => b.count - a.count);
+                const sortedPlayers = players.map(p => {
+                    // Handle both old string format and new object format
+                    let playerName, playerKey;
+                    if (typeof p === 'string') {
+                        // Old format: "10 ROSSI MARIO"
+                        playerName = p;
+                        playerKey = p;
+                    } else {
+                        // New format: object with numero, nome, etc.
+                        playerName = `${p.numero} ${p.nome}`;
+                        playerKey = playerName; // Use the display name as key for compatibility
+                    }
+                    
+                    return {
+                        name: playerName,
+                        count: attendanceData[playerKey] || 0
+                    };
+                }).sort((a, b) => b.count - a.count);
 
                 if (sortedPlayers.length === 0 || sortedPlayers.every(p => p.count === 0)) {
                     // Show empty state message
@@ -2440,10 +2478,24 @@
                 };
                 
                 const playersToShow = companyPlayers.length > 0 ? companyPlayers : demoPlayers;
-                const sortedPlayers = playersToShow.map(p => ({
-                    name: p,
-                    count: demoAttendanceData[p] || 0
-                })).sort((a, b) => b.count - a.count);
+                const sortedPlayers = playersToShow.map(p => {
+                    // Handle both old string format and new object format
+                    let playerName, playerKey;
+                    if (typeof p === 'string') {
+                        // Old format: "10 ROSSI MARIO"
+                        playerName = p;
+                        playerKey = p;
+                    } else {
+                        // New format: object with numero, nome, etc.
+                        playerName = `${p.numero} ${p.nome}`;
+                        playerKey = playerName; // Use the display name as key for compatibility
+                    }
+                    
+                    return {
+                        name: playerName,
+                        count: demoAttendanceData[playerKey] || 0
+                    };
+                }).sort((a, b) => b.count - a.count);
 
                 sortedPlayers.forEach(player => {
                     const row = document.createElement('tr');
