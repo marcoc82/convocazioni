@@ -210,7 +210,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 1.9</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.0</span>
             </div>
         </div>
 
@@ -240,7 +240,7 @@
                         Presenze Allenamenti
                     </button>
                     <button id="manage-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
-                        Gestione Giocatori
+                        Gestione Squadra
                     </button>
                     <button id="company-logout-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Logout
@@ -275,7 +275,7 @@
 
         <!-- Player Management Screen -->
         <div id="player-management-screen" class="hidden">
-            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Gestione Giocatori</h2>
+            <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Gestione Squadra</h2>
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4 mb-4">
                     <input type="text" id="new-player-input" placeholder="Nome e numero giocatore (es. 10 ROSSI MARIO)" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
@@ -291,6 +291,25 @@
                 Salva Giocatori
             </button>
             <div id="save-players-message-area" class="mt-2 mb-4 text-center text-sm font-medium text-gray-600 hidden"></div>
+            
+            <!-- Coach Management Section -->
+            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Mister</h3>
+                <div class="flex flex-col gap-4 mb-4">
+                    <input type="text" id="new-coach-input" placeholder="Nome mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <button id="add-coach-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Aggiungi Mister
+                    </button>
+                </div>
+                <div id="company-coaches-list" class="space-y-2 mb-4">
+                    <!-- Company coaches will be loaded here -->
+                </div>
+                <button id="save-coaches-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    Salva Mister
+                </button>
+                <div id="save-coaches-message-area" class="mt-2 text-center text-sm font-medium text-gray-600 hidden"></div>
+            </div>
+            
             <button id="back-from-players-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Torna al Menu
             </button>
@@ -1086,6 +1105,13 @@
             const savePlayersMessageArea = document.getElementById('save-players-message-area');
             const backFromPlayersButton = document.getElementById('back-from-players-button');
             
+            // Coach management elements
+            const newCoachInput = document.getElementById('new-coach-input');
+            const addCoachButton = document.getElementById('add-coach-button');
+            const companyCoachesList = document.getElementById('company-coaches-list');
+            const saveCoachesButton = document.getElementById('save-coaches-button');
+            const saveCoachesMessageArea = document.getElementById('save-coaches-message-area');
+            
             const nameEntryScreen = document.getElementById('name-entry-screen');
             const nameInput = document.getElementById('name-input');
             const enterButton = document.getElementById('enter-button');
@@ -1168,6 +1194,7 @@
             window.currentCompanyCode = currentCompanyCode;
             let currentCompanyData = null;
             let companyPlayers = [];
+            let companyCoaches = [];
             let pendingRole = null; // for password verification
             let unavailablePlayers = new Map();
             let currentNotes = '';
@@ -1220,6 +1247,7 @@
                             window.currentCompanyData = currentCompanyData;
                             userRole = savedRole;
                             companyPlayers = await loadCompanyPlayers();
+                            companyCoaches = await loadCompanyCoaches();
                             startApp(savedAppId);
                         } else if (savedCompanyCode && savedCompanyData) {
                             // Show welcome screen with company data
@@ -1238,6 +1266,7 @@
                             
                             window.currentCompanyData = currentCompanyData;
                             companyPlayers = await loadCompanyPlayers();
+                            companyCoaches = await loadCompanyCoaches();
                             showCompanyWelcome();
                         } else {
                             // Show company entry screen
@@ -1642,6 +1671,122 @@
                         console.error("Fallback to localStorage also failed:", fallbackError);
                         throw new Error("Salvataggio fallito sia su Firebase che su localStorage");
                     }
+                }
+            }
+
+            async function saveCompanyCoaches(coachesList) {
+                if (!currentCompanyCode) {
+                    throw new Error("Codice società non disponibile");
+                }
+                
+                // Demo mode - save to localStorage
+                if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                    console.log("Demo mode: coaches saved locally", coachesList);
+                    localStorage.setItem(`coaches_${currentCompanyCode}`, JSON.stringify(coachesList));
+                    return;
+                }
+                
+                // Firebase mode - save to coaches subcollection
+                if (!window.db) {
+                    // Firebase not available, fallback to localStorage
+                    console.log("Firebase not available, saving coaches to localStorage as fallback");
+                    localStorage.setItem(`coaches_${currentCompanyCode}`, JSON.stringify(coachesList));
+                    return;
+                }
+                
+                try {
+                    // First, get existing coaches from subcollection to identify what to remove
+                    const coachesCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "mister");
+                    const existingCoachesSnapshot = await window.getDocs(coachesCollectionRef);
+                    
+                    // Create a set of existing coach names for comparison
+                    const existingCoachNames = new Set();
+                    const existingCoachDocs = new Map();
+                    existingCoachesSnapshot.forEach((doc) => {
+                        const coachData = doc.data();
+                        const coachName = coachData.name || coachData.nome || doc.id;
+                        existingCoachNames.add(coachName);
+                        existingCoachDocs.set(coachName, doc.id);
+                    });
+                    
+                    // Add new coaches to subcollection
+                    for (const coachName of coachesList) {
+                        if (!existingCoachNames.has(coachName)) {
+                            // Create a new document for this coach
+                            const coachDocRef = window.doc(coachesCollectionRef);
+                            await window.setDoc(coachDocRef, {
+                                name: coachName,
+                                nome: coachName, // Keep both for compatibility
+                                createdAt: new Date().toISOString(),
+                                active: true
+                            });
+                            console.log(`Mister aggiunto: ${coachName}`);
+                        }
+                    }
+                    
+                    // Remove coaches that are no longer in the list
+                    for (const [coachName, docId] of existingCoachDocs) {
+                        if (!coachesList.includes(coachName)) {
+                            const coachDocRef = window.doc(window.db, "societa", currentCompanyDocumentId, "mister", docId);
+                            await window.deleteDoc(coachDocRef);
+                            console.log(`Mister rimosso: ${coachName}`);
+                        }
+                    }
+                    
+                    console.log("Mister salvati con successo nella subcollection Firebase");
+                } catch (error) {
+                    console.error("Errore nel salvataggio mister nella subcollection Firebase:", error);
+                    // Fallback to localStorage if Firebase fails
+                    console.log("Falling back to localStorage due to Firebase error");
+                    try {
+                        localStorage.setItem(`coaches_${currentCompanyCode}`, JSON.stringify(coachesList));
+                        console.log("Coaches saved to localStorage as fallback");
+                        // Don't throw error since localStorage save succeeded
+                    } catch (fallbackError) {
+                        console.error("Fallback to localStorage also failed:", fallbackError);
+                        throw new Error("Salvataggio mister fallito sia su Firebase che su localStorage");
+                    }
+                }
+            }
+
+            async function loadCompanyCoaches() {
+                if (!currentCompanyCode) {
+                    console.log("Nessun codice società disponibile per caricare i mister");
+                    return [];
+                }
+
+                // Demo mode - load from localStorage
+                if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                    const storedCoaches = localStorage.getItem(`coaches_${currentCompanyCode}`);
+                    return storedCoaches ? JSON.parse(storedCoaches) : [];
+                }
+
+                // Firebase mode - load from coaches subcollection
+                if (!window.db) {
+                    // Firebase not available, try localStorage fallback
+                    const storedCoaches = localStorage.getItem(`coaches_${currentCompanyCode}`);
+                    return storedCoaches ? JSON.parse(storedCoaches) : [];
+                }
+
+                try {
+                    const coachesCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "mister");
+                    const coachesSnapshot = await window.getDocs(coachesCollectionRef);
+                    
+                    const coaches = [];
+                    coachesSnapshot.forEach((doc) => {
+                        const coachData = doc.data();
+                        const coachName = coachData.name || coachData.nome || doc.id;
+                        if (coachData.active !== false) { // Include active coaches or those without active field
+                            coaches.push(coachName);
+                        }
+                    });
+                    
+                    return coaches.sort(); // Return sorted array
+                } catch (error) {
+                    console.error("Errore nel caricamento mister da Firebase:", error);
+                    // Try localStorage fallback
+                    const storedCoaches = localStorage.getItem(`coaches_${currentCompanyCode}`);
+                    return storedCoaches ? JSON.parse(storedCoaches) : [];
                 }
             }
 
@@ -3047,7 +3192,9 @@
                 playerManagementScreen.classList.remove('hidden');
                 hidePlayerLoadingError(); // Clear any previous error messages
                 renderCompanyPlayers();
+                renderCompanyCoaches();
                 updateSavePlayersButtonState();
+                updateSaveCoachesButtonState();
             }
 
             function hideAllScreens() {
@@ -3299,6 +3446,42 @@
                 showMessage("Giocatore rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
             };
 
+            function renderCompanyCoaches() {
+                companyCoachesList.innerHTML = '';
+                
+                companyCoaches.forEach((coach, index) => {
+                    const coachDiv = document.createElement('div');
+                    coachDiv.className = 'flex items-center justify-between p-2 bg-white border border-gray-300 rounded-lg';
+                    coachDiv.innerHTML = `
+                        <span class="text-gray-700">${coach}</span>
+                        <button onclick="removeCoach(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
+                            Rimuovi
+                        </button>
+                    `;
+                    companyCoachesList.appendChild(coachDiv);
+                });
+                
+                updateSaveCoachesButtonState();
+            }
+
+            function updateSaveCoachesButtonState() {
+                // Enable the button only if there are coaches to save
+                const hasCoaches = companyCoaches.length > 0;
+                saveCoachesButton.disabled = !hasCoaches;
+                
+                if (hasCoaches) {
+                    saveCoachesButton.classList.remove('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
+                } else {
+                    saveCoachesButton.classList.add('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
+                }
+            }
+
+            window.removeCoach = async function(index) {
+                companyCoaches.splice(index, 1);
+                renderCompanyCoaches();
+                showCoachMessage("Mister rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
+            };
+
             function showMessage(message, className) {
                 messageArea.textContent = message;
                 messageArea.className = `mt-4 text-center text-sm font-medium ${className}`;
@@ -3314,6 +3497,15 @@
                 savePlayersMessageArea.classList.remove('hidden');
                 setTimeout(() => {
                     savePlayersMessageArea.classList.add('hidden');
+                }, 5000);
+            }
+
+            function showCoachMessage(message, className) {
+                saveCoachesMessageArea.textContent = message;
+                saveCoachesMessageArea.className = `mt-2 text-center text-sm font-medium ${className}`;
+                saveCoachesMessageArea.classList.remove('hidden');
+                setTimeout(() => {
+                    saveCoachesMessageArea.classList.add('hidden');
                 }, 5000);
             }
 
@@ -3417,6 +3609,7 @@
                         
                         window.currentCompanyData = currentCompanyData;
                         companyPlayers = await loadCompanyPlayers();
+                        companyCoaches = await loadCompanyCoaches();
                         
                         if (rememberCompanyCheckbox.checked) {
                             localStorage.setItem('companyCode', companyCode);
@@ -3565,6 +3758,7 @@
                     
                     // Load company players from Firebase database
                     companyPlayers = await loadCompanyPlayers();
+                    companyCoaches = await loadCompanyCoaches();
                     
                     // Use document ID as app ID (fallback to company code for demo mode)
                     const companyAppId = currentCompanyDocumentId || currentCompanyCode;
@@ -3635,6 +3829,48 @@
 
             backFromPlayersButton.addEventListener('click', () => {
                 showCompanyWelcome();
+            });
+
+            // Coach management event listeners
+            addCoachButton.addEventListener('click', async () => {
+                const coachName = newCoachInput.value.trim();
+                if (!coachName) {
+                    showCoachMessage("Inserisci il nome del mister.", "text-red-600");
+                    return;
+                }
+
+                if (companyCoaches.includes(coachName)) {
+                    showCoachMessage("Mister già presente nella lista.", "text-red-600");
+                    return;
+                }
+
+                companyCoaches.push(coachName);
+                companyCoaches.sort(); // Keep coaches in alphabetical order
+                newCoachInput.value = '';
+                renderCompanyCoaches();
+                showCoachMessage("Mister aggiunto alla lista. Ricorda di salvare!", "text-blue-600");
+            });
+
+            saveCoachesButton.addEventListener('click', async () => {
+                if (companyCoaches.length === 0) {
+                    showCoachMessage("Nessun mister da salvare.", "text-orange-600");
+                    return;
+                }
+
+                saveCoachesButton.disabled = true;
+                saveCoachesButton.textContent = "Salvataggio in corso...";
+                
+                try {
+                    await saveCompanyCoaches(companyCoaches);
+                    showCoachMessage("Mister salvati con successo!", "text-green-600");
+                } catch (error) {
+                    console.error("Errore nel salvataggio mister:", error);
+                    showCoachMessage("Errore nel salvataggio dei mister.", "text-red-600");
+                } finally {
+                    saveCoachesButton.disabled = false;
+                    saveCoachesButton.textContent = "Salva Mister";
+                    updateSaveCoachesButtonState();
+                }
             });
 
             // Event listener for remember company checkbox
