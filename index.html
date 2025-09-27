@@ -1337,13 +1337,14 @@
                 
                 // Check each convocation in history
                 for (const convocation of convocationHistory) {
-                    if (!convocation.details || !convocation.details.data || !convocation.players) {
+                    if (!convocation.createdAt || !convocation.players) {
                         continue;
                     }
                     
-                    // Compare match date with today's date
-                    const matchDate = convocation.details.data;
-                    if (matchDate === todayDateString) {
+                    // Compare convocation creation date with today's date (not match date)
+                    const convocationDate = new Date(convocation.createdAt);
+                    const convocationDateString = convocationDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+                    if (convocationDateString === todayDateString) {
                         // Check if player is in the players list
                         const isInList = convocation.players.some(player => {
                             if (typeof player === 'string') {
