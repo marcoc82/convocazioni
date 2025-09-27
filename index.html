@@ -221,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.1</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.2</span>
             </div>
         </div>
 
@@ -4111,6 +4111,17 @@
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || 'Società Demo';
                 const companyCategory = localStorage.getItem(`categoria_${currentCompanyCode}`) || '';
                 
+                // Get complete company information from localStorage
+                let companyInfo = {};
+                try {
+                    const savedInfo = localStorage.getItem(`companyInfo_${currentCompanyCode}`);
+                    if (savedInfo) {
+                        companyInfo = JSON.parse(savedInfo);
+                    }
+                } catch (error) {
+                    console.warn('Could not parse company info:', error);
+                }
+                
                 // Format match date
                 let formattedMatchDate = convocationData.details.data;
                 if (convocationData.details.data && convocationData.details.data !== 'N/D') {
@@ -4124,35 +4135,38 @@
                 // Create player rows with proper formatting
                 const playerRows = createPlayerRows(convocationData.players);
                 
-                // Create coach rows  
-                const coachRows = createCoachRows();
+                // Create coach rows with only match-specific coaches
+                const coachRows = createCoachRows(convocationData);
                 
                 const locationText = location === 'casa' ? 'IN CASA' : 'IN TRASFERTA';
                 
                 return `
-                    <div style="font-family: 'Courier New', monospace; line-height: 1.4; font-size: 14px;">
-                        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
-                            <h1 style="font-size: 18px; font-weight: bold; margin: 0;">${companyName}</h1>
-                            ${companyCategory ? `<p style="font-size: 14px; margin: 5px 0;"><strong>Categoria:</strong> ${companyCategory}</p>` : ''}
-                            <h2 style="font-size: 16px; font-weight: bold; margin: 10px 0;">DISTINTA UFFICIALE</h2>
-                            <p style="font-size: 14px; margin: 5px 0;"><strong>Partita ${locationText}</strong></p>
+                    <div style="font-family: 'Courier New', monospace; line-height: 1.2; font-size: 11px;">
+                        <div style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 8px;">
+                            <h1 style="font-size: 16px; font-weight: bold; margin: 0;">${companyInfo.ragioneSociale || companyName}</h1>
+                            ${companyInfo.indirizzo ? `<p style="font-size: 10px; margin: 2px 0;">${companyInfo.indirizzo}</p>` : ''}
+                            ${companyInfo.telefono || companyInfo.mail ? `<p style="font-size: 10px; margin: 2px 0;">Tel: ${companyInfo.telefono || 'N/D'} - Email: ${companyInfo.mail || 'N/D'}</p>` : ''}
+                            ${companyInfo.partitaIva ? `<p style="font-size: 10px; margin: 2px 0;">P.IVA: ${companyInfo.partitaIva}</p>` : ''}
+                            ${companyCategory ? `<p style="font-size: 12px; margin: 3px 0;"><strong>Categoria:</strong> ${companyCategory}</p>` : ''}
+                            <h2 style="font-size: 14px; font-weight: bold; margin: 6px 0;">DISTINTA UFFICIALE</h2>
+                            <p style="font-size: 12px; margin: 3px 0;"><strong>Partita ${locationText}</strong></p>
                         </div>
                         
-                        <div style="margin-bottom: 15px;">
-                            <p><strong>Data:</strong> ${formattedMatchDate}</p>
-                            <p><strong>Orario:</strong> ${convocationData.details.orarioPartita || 'N/D'}</p>
-                            <p><strong>Campo:</strong> ${convocationData.details.campo || 'N/D'}</p>
-                            <p><strong>Avversario:</strong> ${convocationData.details.avversario || 'N/D'}</p>
-                            <p><strong>Girone:</strong> <span style="border-bottom: 1px solid #000; padding-bottom: 2px; display: inline-block; min-width: 200px;" contenteditable="true" id="editable-girone">________________</span></p>
+                        <div style="margin-bottom: 10px; font-size: 10px;">
+                            <p style="margin: 1px 0;"><strong>Data:</strong> ${formattedMatchDate}</p>
+                            <p style="margin: 1px 0;"><strong>Orario:</strong> ${convocationData.details.orarioPartita || 'N/D'}</p>
+                            <p style="margin: 1px 0;"><strong>Campo:</strong> ${convocationData.details.campo || 'N/D'}</p>
+                            <p style="margin: 1px 0;"><strong>Avversario:</strong> ${convocationData.details.avversario || 'N/D'}</p>
+                            <p style="margin: 1px 0;"><strong>Girone:</strong> <span style="border-bottom: 1px solid #000; padding-bottom: 2px; display: inline-block; min-width: 150px;" contenteditable="true" id="editable-girone">______________</span></p>
                         </div>
                         
-                        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10px;">
                             <thead>
                                 <tr style="border-bottom: 2px solid #000;">
-                                    <th style="text-align: left; padding: 8px; border: 1px solid #000; width: 10%;">N°</th>
-                                    <th style="text-align: left; padding: 8px; border: 1px solid #000; width: 40%;">NOME E COGNOME</th>
-                                    <th style="text-align: left; padding: 8px; border: 1px solid #000; width: 25%;">DATA NASCITA</th>
-                                    <th style="text-align: left; padding: 8px; border: 1px solid #000; width: 25%;">MATRICOLA</th>
+                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 8%;">N°</th>
+                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 42%;">NOME E COGNOME</th>
+                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 25%;">DATA NASCITA</th>
+                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 25%;">MATRICOLA</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -4160,19 +4174,19 @@
                             </tbody>
                         </table>
                         
-                        <div style="margin: 30px 0;">
-                            <h3 style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">STAFF TECNICO:</h3>
+                        <div style="margin: 15px 0;">
+                            <h3 style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">STAFF TECNICO:</h3>
                             ${coachRows}
                         </div>
                         
-                        <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+                        <div style="margin-top: 25px; display: flex; justify-content: space-between;">
                             <div style="text-align: center; width: 45%;">
-                                <p style="border-bottom: 1px solid #000; padding-bottom: 40px; margin-bottom: 5px;">________________</p>
-                                <p style="font-size: 12px; font-weight: bold;">FIRMA ARBITRO</p>
+                                <p style="border-bottom: 1px solid #000; padding-bottom: 30px; margin-bottom: 3px;">________________</p>
+                                <p style="font-size: 10px; font-weight: bold;">FIRMA ARBITRO</p>
                             </div>
                             <div style="text-align: center; width: 45%;">
-                                <p style="border-bottom: 1px solid #000; padding-bottom: 40px; margin-bottom: 5px;">________________</p>
-                                <p style="font-size: 12px; font-weight: bold;">FIRMA DIRIGENTE</p>
+                                <p style="border-bottom: 1px solid #000; padding-bottom: 30px; margin-bottom: 3px;">________________</p>
+                                <p style="font-size: 10px; font-weight: bold;">FIRMA DIRIGENTE</p>
                             </div>
                         </div>
                     </div>
@@ -4204,10 +4218,10 @@
                     
                     rows += `
                         <tr style="border-bottom: 1px solid #000;">
-                            <td style="padding: 8px; border: 1px solid #000;">${number}</td>
-                            <td style="padding: 8px; border: 1px solid #000;">${name}</td>
-                            <td style="padding: 8px; border: 1px solid #000;">${birthDate}</td>
-                            <td style="padding: 8px; border: 1px solid #000;">${matricola}</td>
+                            <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${number}</td>
+                            <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${name}</td>
+                            <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${birthDate}</td>
+                            <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${matricola}</td>
                         </tr>
                     `;
                 });
@@ -4215,24 +4229,38 @@
                 return rows;
             }
             
-            function createCoachRows() {
+            function createCoachRows(convocationData) {
                 let rows = '';
                 
-                if (companyCoaches && companyCoaches.length > 0) {
-                    companyCoaches.forEach(coach => {
-                        rows += `
-                            <p style="margin: 5px 0;">
-                                <strong>${coach.nome || coach.name}</strong> - Matricola: ${coach.matricola || '__________'}
-                            </p>
-                        `;
-                    });
-                } else {
-                    // Default coach entries
+                // Get match-specific coaches from convocation data
+                // Look for mister information in the match details
+                const misterPartita = convocationData?.details?.misterPartita;
+                const misterTipo = convocationData?.details?.misterTipo;
+                
+                // If there are specific coaches assigned to this match, show only them
+                if (misterPartita && misterPartita !== 'N/D' && misterPartita !== 'Seleziona mister') {
+                    rows += `
+                        <p style="margin: 3px 0; font-size: 10px;">
+                            <strong>Allenatore:</strong> ${misterPartita} - Matricola: __________
+                        </p>
+                    `;
+                }
+                
+                if (misterTipo && misterTipo !== 'N/D' && misterTipo !== 'Seleziona mister' && misterTipo !== misterPartita) {
+                    rows += `
+                        <p style="margin: 3px 0; font-size: 10px;">
+                            <strong>Dirigente:</strong> ${misterTipo} - Matricola: __________
+                        </p>
+                    `;
+                }
+                
+                // If no specific coaches are assigned, show default empty fields
+                if (!rows) {
                     rows = `
-                        <p style="margin: 5px 0;">
+                        <p style="margin: 3px 0; font-size: 10px;">
                             <strong>Allenatore:</strong> ________________ - Matricola: __________
                         </p>
-                        <p style="margin: 5px 0;">
+                        <p style="margin: 3px 0; font-size: 10px;">
                             <strong>Dirigente:</strong> ________________ - Matricola: __________
                         </p>
                     `;
