@@ -221,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.0</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.1</span>
             </div>
         </div>
 
@@ -846,6 +846,56 @@
         </div>
     </div>
 
+    <!-- Modal for Home/Away Selection -->
+    <div id="distinta-location-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300">
+            <h2 class="text-xl font-bold mb-4 text-center">Tipo di Partita</h2>
+            <p class="text-gray-600 text-center mb-6">Seleziona se la partita è in casa o in trasferta:</p>
+            <div class="space-y-3">
+                <button id="distinta-home-button" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                    🏠 In Casa
+                </button>
+                <button id="distinta-away-button" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                    ✈️ In Trasferta
+                </button>
+            </div>
+            <button id="close-distinta-location-modal" class="mt-4 w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                Annulla
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal for Distinta Display -->
+    <div id="distinta-display-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Distinta Ufficiale</h2>
+                <button id="close-distinta-display-modal" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Distinta Content -->
+            <div id="distinta-content" class="bg-white p-6 border-2 border-gray-300 rounded-lg font-mono text-sm leading-relaxed">
+                <!-- Content will be generated here -->
+            </div>
+            
+            <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                <button id="copy-distinta-button" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                    📋 Copia Distinta
+                </button>
+                <button id="print-distinta-button" class="flex-1 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200">
+                    🖨️ Stampa
+                </button>
+                <button id="share-distinta-button" class="flex-1 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors duration-200">
+                    📤 Condividi
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript for app logic -->
     <script>
 
@@ -1302,6 +1352,19 @@
             const copyLinkButton = document.getElementById('copy-link-button');
             const downloadImageButton = document.getElementById('download-image-button');
 
+            // Distinta Modal Elements
+            const distintaLocationModal = document.getElementById('distinta-location-modal');
+            const distintaHomeButton = document.getElementById('distinta-home-button');
+            const distintaAwayButton = document.getElementById('distinta-away-button');
+            const closeDistintaLocationModalButton = document.getElementById('close-distinta-location-modal');
+            
+            const distintaDisplayModal = document.getElementById('distinta-display-modal');
+            const distintaContent = document.getElementById('distinta-content');
+            const closeDistintaDisplayModalButton = document.getElementById('close-distinta-display-modal');
+            const copyDistintaButton = document.getElementById('copy-distinta-button');
+            const printDistintaButton = document.getElementById('print-distinta-button');
+            const shareDistintaButton = document.getElementById('share-distinta-button');
+
             // --- App State ---
             let userRole = null;
             let currentAppId = window.appId;
@@ -1320,6 +1383,9 @@
             let historyPreviousView = null; // track where history was accessed from
             let attendancePreviousView = null; // track where attendance was accessed from
             let convocationHistory = []; // store convocation history data for attendance filtering
+            
+            // Distinta-related global variables
+            window.currentDistintaData = null;
 
             // Helper function to check if user has dirigente/marco privileges
             function isDirigente() {
@@ -2272,8 +2338,9 @@
                         btn.addEventListener('click', (e) => {
                             const convocationData = safeJSONParse(btn.getAttribute('data-convocation'));
                             if (convocationData) {
-                                // Placeholder functionality - show alert for now
-                                alert(`Funzione Distinta per la partita contro ${convocationData.details.avversario} del ${convocationData.details.dataPartita}`);
+                                // Store the convocation data globally for the distinta generation
+                                window.currentDistintaData = convocationData;
+                                showDistintaLocationModal();
                             } else {
                                 showMessage("Errore nel recupero dei dati per la distinta.", "text-red-600");
                             }
@@ -4002,6 +4069,294 @@
                 shareModal.classList.add('hidden', 'opacity-0');
             }
 
+            // Distinta Modal Functions
+            function showDistintaLocationModal() {
+                distintaLocationModal.classList.remove('hidden', 'opacity-0');
+                distintaLocationModal.classList.add('flex', 'opacity-100');
+            }
+
+            function hideDistintaLocationModal() {
+                distintaLocationModal.classList.remove('flex', 'opacity-100');
+                distintaLocationModal.classList.add('hidden', 'opacity-0');
+            }
+
+            function showDistintaDisplayModal() {
+                distintaDisplayModal.classList.remove('hidden', 'opacity-0');
+                distintaDisplayModal.classList.add('flex', 'opacity-100');
+            }
+
+            function hideDistintaDisplayModal() {
+                distintaDisplayModal.classList.remove('flex', 'opacity-100');
+                distintaDisplayModal.classList.add('hidden', 'opacity-0');
+            }
+
+            // Distinta Generation Functions
+            function generateDistinta(location) {
+                hideDistintaLocationModal();
+                
+                if (!window.currentDistintaData) {
+                    showMessage("Errore: dati convocazione non disponibili.", "text-red-600");
+                    return;
+                }
+                
+                const convocationData = window.currentDistintaData;
+                const content = createDistintaContent(convocationData, location);
+                
+                distintaContent.innerHTML = content;
+                showDistintaDisplayModal();
+            }
+            
+            function createDistintaContent(convocationData, location) {
+                // Get company info
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || 'Società Demo';
+                const companyCategory = localStorage.getItem(`categoria_${currentCompanyCode}`) || '';
+                
+                // Format match date
+                let formattedMatchDate = convocationData.details.data;
+                if (convocationData.details.data && convocationData.details.data !== 'N/D') {
+                    const matchDate = new Date(convocationData.details.data + 'T00:00:00');
+                    const dayOfWeek = matchDate.toLocaleDateString('it-IT', { weekday: 'long' }).toUpperCase();
+                    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+                    const dateString = matchDate.toLocaleDateString('it-IT', dateOptions);
+                    formattedMatchDate = `${dayOfWeek} ${dateString}`;
+                }
+                
+                // Create player rows with proper formatting
+                const playerRows = createPlayerRows(convocationData.players);
+                
+                // Create coach rows  
+                const coachRows = createCoachRows();
+                
+                const locationText = location === 'casa' ? 'IN CASA' : 'IN TRASFERTA';
+                
+                return `
+                    <div style="font-family: 'Courier New', monospace; line-height: 1.4; font-size: 14px;">
+                        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px;">
+                            <h1 style="font-size: 18px; font-weight: bold; margin: 0;">${companyName}</h1>
+                            ${companyCategory ? `<p style="font-size: 14px; margin: 5px 0;"><strong>Categoria:</strong> ${companyCategory}</p>` : ''}
+                            <h2 style="font-size: 16px; font-weight: bold; margin: 10px 0;">DISTINTA UFFICIALE</h2>
+                            <p style="font-size: 14px; margin: 5px 0;"><strong>Partita ${locationText}</strong></p>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <p><strong>Data:</strong> ${formattedMatchDate}</p>
+                            <p><strong>Orario:</strong> ${convocationData.details.orarioPartita || 'N/D'}</p>
+                            <p><strong>Campo:</strong> ${convocationData.details.campo || 'N/D'}</p>
+                            <p><strong>Avversario:</strong> ${convocationData.details.avversario || 'N/D'}</p>
+                            <p><strong>Girone:</strong> <span style="border-bottom: 1px solid #000; padding-bottom: 2px; display: inline-block; min-width: 200px;" contenteditable="true" id="editable-girone">________________</span></p>
+                        </div>
+                        
+                        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #000;">
+                                    <th style="text-align: left; padding: 8px; border: 1px solid #000; width: 10%;">N°</th>
+                                    <th style="text-align: left; padding: 8px; border: 1px solid #000; width: 40%;">NOME E COGNOME</th>
+                                    <th style="text-align: left; padding: 8px; border: 1px solid #000; width: 25%;">DATA NASCITA</th>
+                                    <th style="text-align: left; padding: 8px; border: 1px solid #000; width: 25%;">MATRICOLA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${playerRows}
+                            </tbody>
+                        </table>
+                        
+                        <div style="margin: 30px 0;">
+                            <h3 style="font-size: 14px; font-weight: bold; margin-bottom: 10px;">STAFF TECNICO:</h3>
+                            ${coachRows}
+                        </div>
+                        
+                        <div style="margin-top: 40px; display: flex; justify-content: space-between;">
+                            <div style="text-align: center; width: 45%;">
+                                <p style="border-bottom: 1px solid #000; padding-bottom: 40px; margin-bottom: 5px;">________________</p>
+                                <p style="font-size: 12px; font-weight: bold;">FIRMA ARBITRO</p>
+                            </div>
+                            <div style="text-align: center; width: 45%;">
+                                <p style="border-bottom: 1px solid #000; padding-bottom: 40px; margin-bottom: 5px;">________________</p>
+                                <p style="font-size: 12px; font-weight: bold;">FIRMA DIRIGENTE</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            function createPlayerRows(players) {
+                let rows = '';
+                let playerNumber = 1;
+                
+                // Get extended player data if available
+                const extendedPlayers = getExtendedPlayerData();
+                
+                players.forEach(playerString => {
+                    // Extract player info from the string format "NUMBER NAME"
+                    const parts = playerString.split(' ');
+                    const number = parts[0];
+                    const name = parts.slice(1).join(' ');
+                    
+                    // Try to find extended data for this player
+                    const extendedData = extendedPlayers.find(p => 
+                        p.name === name || 
+                        p.name === playerString ||
+                        (p.numero && p.numero.toString() === number)
+                    );
+                    
+                    const birthDate = extendedData?.dataNascita || '___/___/______';
+                    const matricola = extendedData?.matricola || '__________';
+                    
+                    rows += `
+                        <tr style="border-bottom: 1px solid #000;">
+                            <td style="padding: 8px; border: 1px solid #000;">${number}</td>
+                            <td style="padding: 8px; border: 1px solid #000;">${name}</td>
+                            <td style="padding: 8px; border: 1px solid #000;">${birthDate}</td>
+                            <td style="padding: 8px; border: 1px solid #000;">${matricola}</td>
+                        </tr>
+                    `;
+                });
+                
+                return rows;
+            }
+            
+            function createCoachRows() {
+                let rows = '';
+                
+                if (companyCoaches && companyCoaches.length > 0) {
+                    companyCoaches.forEach(coach => {
+                        rows += `
+                            <p style="margin: 5px 0;">
+                                <strong>${coach.nome || coach.name}</strong> - Matricola: ${coach.matricola || '__________'}
+                            </p>
+                        `;
+                    });
+                } else {
+                    // Default coach entries
+                    rows = `
+                        <p style="margin: 5px 0;">
+                            <strong>Allenatore:</strong> ________________ - Matricola: __________
+                        </p>
+                        <p style="margin: 5px 0;">
+                            <strong>Dirigente:</strong> ________________ - Matricola: __________
+                        </p>
+                    `;
+                }
+                
+                return rows;
+            }
+            
+            function getExtendedPlayerData() {
+                // Try to get full player data from various sources
+                let players = [];
+                
+                // Try from companyPlayers first
+                if (companyPlayers && companyPlayers.length > 0) {
+                    players = companyPlayers;
+                } else {
+                    // Fallback: try to get from localStorage
+                    try {
+                        const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
+                        if (savedPlayers) {
+                            players = JSON.parse(savedPlayers);
+                        }
+                    } catch (error) {
+                        console.warn('Could not parse saved players:', error);
+                    }
+                }
+                
+                return players;
+            }
+            
+            // Distinta Action Functions
+            function copyDistintaToClipboard() {
+                const content = distintaContent.innerText;
+                
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(content).then(() => {
+                        showMessage("Distinta copiata negli appunti!", "text-green-600");
+                    }).catch(err => {
+                        console.error('Errore nel copiare negli appunti:', err);
+                        fallbackCopyText(content);
+                    });
+                } else {
+                    fallbackCopyText(content);
+                }
+            }
+            
+            function fallbackCopyText(text) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    document.execCommand('copy');
+                    showMessage("Distinta copiata negli appunti!", "text-green-600");
+                } catch (err) {
+                    console.error('Fallback copy failed:', err);
+                    showMessage("Errore nel copiare negli appunti.", "text-red-600");
+                }
+                
+                document.body.removeChild(textArea);
+            }
+            
+            function printDistinta() {
+                const content = distintaContent.innerHTML;
+                const printWindow = window.open('', '_blank');
+                
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Distinta Ufficiale</title>
+                        <style>
+                            body { 
+                                font-family: 'Courier New', monospace; 
+                                margin: 20px;
+                                line-height: 1.4;
+                            }
+                            table { 
+                                width: 100%; 
+                                border-collapse: collapse; 
+                            }
+                            th, td { 
+                                border: 1px solid #000; 
+                                padding: 8px; 
+                                text-align: left; 
+                            }
+                            @media print {
+                                body { margin: 0; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        ${content}
+                    </body>
+                    </html>
+                `);
+                
+                printWindow.document.close();
+                printWindow.focus();
+                printWindow.print();
+            }
+            
+            function shareDistinta() {
+                const content = distintaContent.innerText;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Distinta Ufficiale',
+                        text: content
+                    }).catch(err => {
+                        console.error('Errore nella condivisione:', err);
+                        copyDistintaToClipboard(); // Fallback to copy
+                    });
+                } else {
+                    // Fallback for browsers without Web Share API
+                    copyDistintaToClipboard();
+                }
+            }
+
             // Event listeners for new company-based navigation
             verifyCompanyButton.addEventListener('click', async () => {
                 const companyCode = companyCodeInput.value.trim();
@@ -4829,6 +5184,15 @@
             cancelAlreadyCalledButton.addEventListener('click', hideAlreadyCalledModal);
             saveNotesButton.addEventListener('click', saveNotes);
 
+            // Distinta Modal Event Listeners
+            closeDistintaLocationModalButton.addEventListener('click', hideDistintaLocationModal);
+            closeDistintaDisplayModalButton.addEventListener('click', hideDistintaDisplayModal);
+            distintaHomeButton.addEventListener('click', () => generateDistinta('casa'));
+            distintaAwayButton.addEventListener('click', () => generateDistinta('trasferta'));
+            copyDistintaButton.addEventListener('click', copyDistintaToClipboard);
+            printDistintaButton.addEventListener('click', printDistinta);
+            shareDistintaButton.addEventListener('click', shareDistinta);
+
             // Close modals when clicking outside of them
             statusModal.addEventListener('click', (e) => {
                 if (e.target === statusModal) {
@@ -4851,6 +5215,18 @@
             alreadyCalledModal.addEventListener('click', (e) => {
                 if (e.target === alreadyCalledModal) {
                     hideAlreadyCalledModal();
+                }
+            });
+
+            distintaLocationModal.addEventListener('click', (e) => {
+                if (e.target === distintaLocationModal) {
+                    hideDistintaLocationModal();
+                }
+            });
+
+            distintaDisplayModal.addEventListener('click', (e) => {
+                if (e.target === distintaDisplayModal) {
+                    hideDistintaDisplayModal();
                 }
             });
 
