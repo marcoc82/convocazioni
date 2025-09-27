@@ -221,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.8</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.0</span>
             </div>
         </div>
 
@@ -2675,8 +2675,12 @@
                     li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
                     li.dataset.player = playerKey;
                     
-                    // Check for unavailable players first (higher priority)
-                    if (unavailablePlayers.has(playerKey)) {
+                    // Check if player was already called up today FIRST (highest priority for Mister view)
+                    if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
+                        li.classList.add('already-called-today');
+                    }
+                    // Check for unavailable players (only if not already called today)
+                    else if (unavailablePlayers.has(playerKey)) {
                         const status = unavailablePlayers.get(playerKey);
                         if (status === 'Infortunato' || status === 'Squalificato') {
                             li.classList.add('selected-marco-black');
@@ -2689,10 +2693,6 @@
                         } else {
                             li.classList.add('selected-marco');
                         }
-                    } 
-                    // Check if player was already called up today (only if not unavailable)
-                    else if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
-                        li.classList.add('already-called-today');
                     }
 
                     li.addEventListener('click', () => {
