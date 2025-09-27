@@ -4178,7 +4178,18 @@
             const companyPartitaIvaInput = document.getElementById('company-partita-iva');
 
             // Function to save company information
-            function saveCompanyInfo() {
+            async function saveCompanyInfo() {
+                if (!currentCompanyCode) {
+                    console.error("Codice società non disponibile");
+                    saveCompanyMessageArea.textContent = "Errore: Codice società non disponibile.";
+                    saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-red-600";
+                    saveCompanyMessageArea.classList.remove('hidden');
+                    setTimeout(() => {
+                        saveCompanyMessageArea.classList.add('hidden');
+                    }, 5000);
+                    return;
+                }
+
                 const companyInfo = {
                     categoria: teamCategoriaInput.value.trim(),
                     ragioneSociale: companyRagioneSocialeInput.value.trim(),
@@ -4189,41 +4200,159 @@
                     lastUpdated: new Date().toISOString()
                 };
 
+                // Demo mode - save to localStorage only
+                if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                    try {
+                        console.log("Demo mode: company info saved locally", companyInfo);
+                        localStorage.setItem(`companyInfo_${currentCompanyCode}`, JSON.stringify(companyInfo));
+                        
+                        saveCompanyMessageArea.textContent = "Informazioni società salvate con successo! (Modalità Demo)";
+                        saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-green-600";
+                        saveCompanyMessageArea.classList.remove('hidden');
+                        setTimeout(() => {
+                            saveCompanyMessageArea.classList.add('hidden');
+                        }, 5000);
+                        return;
+                    } catch (error) {
+                        console.error("Error saving company info in demo mode:", error);
+                        saveCompanyMessageArea.textContent = "Errore nel salvataggio. Riprova.";
+                        saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-red-600";
+                        saveCompanyMessageArea.classList.remove('hidden');
+                        setTimeout(() => {
+                            saveCompanyMessageArea.classList.add('hidden');
+                        }, 5000);
+                        return;
+                    }
+                }
+
+                // Firebase mode - save to Firebase with localStorage fallback
+                if (!window.db) {
+                    // Firebase not available, fallback to localStorage
+                    console.log("Firebase not available, saving company info to localStorage as fallback");
+                    try {
+                        localStorage.setItem(`companyInfo_${currentCompanyCode}`, JSON.stringify(companyInfo));
+                        
+                        saveCompanyMessageArea.textContent = "Informazioni società salvate localmente (Firebase non disponibile).";
+                        saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-orange-600";
+                        saveCompanyMessageArea.classList.remove('hidden');
+                        setTimeout(() => {
+                            saveCompanyMessageArea.classList.add('hidden');
+                        }, 5000);
+                        return;
+                    } catch (fallbackError) {
+                        console.error("Fallback to localStorage also failed:", fallbackError);
+                        saveCompanyMessageArea.textContent = "Errore nel salvataggio. Riprova.";
+                        saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-red-600";
+                        saveCompanyMessageArea.classList.remove('hidden');
+                        setTimeout(() => {
+                            saveCompanyMessageArea.classList.add('hidden');
+                        }, 5000);
+                        return;
+                    }
+                }
+
                 try {
-                    // Save to localStorage
-                    const storageKey = `companyInfo_${currentCompanyCode}`;
-                    localStorage.setItem(storageKey, JSON.stringify(companyInfo));
+                    // Save to Firebase - company info document in subcollection
+                    const companyInfoRef = window.doc(window.db, "societa", currentCompanyDocumentId, "companyInfo", "main");
+                    await window.setDoc(companyInfoRef, companyInfo);
                     
-                    // Show success message
-                    saveCompanyMessageArea.textContent = "Informazioni società salvate con successo!";
+                    // Also save to localStorage as backup
+                    localStorage.setItem(`companyInfo_${currentCompanyCode}`, JSON.stringify(companyInfo));
+                    
+                    console.log("✅ Company information saved to Firebase:", companyInfo);
+                    
+                    saveCompanyMessageArea.textContent = "Informazioni società salvate con successo su Firebase!";
                     saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-green-600";
                     saveCompanyMessageArea.classList.remove('hidden');
                     setTimeout(() => {
                         saveCompanyMessageArea.classList.add('hidden');
                     }, 5000);
                     
-                    console.log("Company information saved:", companyInfo);
-                } catch (error) {
-                    console.error("Error saving company info:", error);
-                    saveCompanyMessageArea.textContent = "Errore nel salvataggio. Riprova.";
-                    saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-red-600";
-                    saveCompanyMessageArea.classList.remove('hidden');
-                    setTimeout(() => {
-                        saveCompanyMessageArea.classList.add('hidden');
-                    }, 5000);
+                } catch (firebaseError) {
+                    console.error("❌ Firebase save failed, using localStorage fallback:", firebaseError);
+                    // Fallback to localStorage
+                    try {
+                        localStorage.setItem(`companyInfo_${currentCompanyCode}`, JSON.stringify(companyInfo));
+                        console.log("Company info saved to localStorage as fallback");
+                        
+                        saveCompanyMessageArea.textContent = "Informazioni salvate localmente (errore Firebase).";
+                        saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-orange-600";
+                        saveCompanyMessageArea.classList.remove('hidden');
+                        setTimeout(() => {
+                            saveCompanyMessageArea.classList.add('hidden');
+                        }, 5000);
+                    } catch (fallbackError) {
+                        console.error("Fallback to localStorage also failed:", fallbackError);
+                        saveCompanyMessageArea.textContent = "Errore nel salvataggio. Riprova.";
+                        saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-red-600";
+                        saveCompanyMessageArea.classList.remove('hidden');
+                        setTimeout(() => {
+                            saveCompanyMessageArea.classList.add('hidden');
+                        }, 5000);
+                    }
                 }
             }
 
             // Function to load company information
-            function loadCompanyInfo() {
-                if (!currentCompanyCode) return;
+            async function loadCompanyInfo() {
+                if (!currentCompanyCode) {
+                    console.log("Nessun codice società disponibile per caricare le informazioni");
+                    return;
+                }
                 
+                console.log(`🏢 Caricamento informazioni società per: ${currentCompanyCode}`);
+
+                // Demo mode - load from localStorage only
+                if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                    try {
+                        const savedInfo = localStorage.getItem(`companyInfo_${currentCompanyCode}`);
+                        if (savedInfo) {
+                            const companyInfo = JSON.parse(savedInfo);
+                            teamCategoriaInput.value = companyInfo.categoria || '';
+                            companyRagioneSocialeInput.value = companyInfo.ragioneSociale || '';
+                            companyIndirizzoInput.value = companyInfo.indirizzo || '';
+                            companyTelefonoInput.value = companyInfo.telefono || '';
+                            companyMailInput.value = companyInfo.mail || '';
+                            companyPartitaIvaInput.value = companyInfo.partitaIva || '';
+                            
+                            console.log("📁 Demo mode: company info loaded from localStorage:", companyInfo);
+                        }
+                    } catch (error) {
+                        console.error("Error loading company info in demo mode:", error);
+                    }
+                    return;
+                }
+
+                // Firebase mode - load from Firebase with localStorage fallback
+                if (!window.db) {
+                    // Firebase not available, try localStorage fallback
+                    console.log("Firebase not available, trying localStorage fallback");
+                    try {
+                        const savedInfo = localStorage.getItem(`companyInfo_${currentCompanyCode}`);
+                        if (savedInfo) {
+                            const companyInfo = JSON.parse(savedInfo);
+                            teamCategoriaInput.value = companyInfo.categoria || '';
+                            companyRagioneSocialeInput.value = companyInfo.ragioneSociale || '';
+                            companyIndirizzoInput.value = companyInfo.indirizzo || '';
+                            companyTelefonoInput.value = companyInfo.telefono || '';
+                            companyMailInput.value = companyInfo.mail || '';
+                            companyPartitaIvaInput.value = companyInfo.partitaIva || '';
+                            
+                            console.log("📁 Company info loaded from localStorage fallback:", companyInfo);
+                        }
+                    } catch (error) {
+                        console.error("Error loading company info from localStorage fallback:", error);
+                    }
+                    return;
+                }
+
                 try {
-                    const storageKey = `companyInfo_${currentCompanyCode}`;
-                    const savedInfo = localStorage.getItem(storageKey);
+                    // Try to load from Firebase first
+                    const companyInfoRef = window.doc(window.db, "societa", currentCompanyDocumentId, "companyInfo", "main");
+                    const companyInfoSnap = await window.getDoc(companyInfoRef);
                     
-                    if (savedInfo) {
-                        const companyInfo = JSON.parse(savedInfo);
+                    if (companyInfoSnap.exists()) {
+                        const companyInfo = companyInfoSnap.data();
                         teamCategoriaInput.value = companyInfo.categoria || '';
                         companyRagioneSocialeInput.value = companyInfo.ragioneSociale || '';
                         companyIndirizzoInput.value = companyInfo.indirizzo || '';
@@ -4231,22 +4360,62 @@
                         companyMailInput.value = companyInfo.mail || '';
                         companyPartitaIvaInput.value = companyInfo.partitaIva || '';
                         
-                        console.log("Company information loaded:", companyInfo);
+                        // Also save to localStorage as backup
+                        localStorage.setItem(`companyInfo_${currentCompanyCode}`, JSON.stringify(companyInfo));
+                        
+                        console.log("✅ Company info loaded from Firebase:", companyInfo);
+                    } else {
+                        console.log("🔍 No company info found in Firebase, trying localStorage fallback");
+                        
+                        // Try localStorage fallback
+                        const savedInfo = localStorage.getItem(`companyInfo_${currentCompanyCode}`);
+                        if (savedInfo) {
+                            const companyInfo = JSON.parse(savedInfo);
+                            teamCategoriaInput.value = companyInfo.categoria || '';
+                            companyRagioneSocialeInput.value = companyInfo.ragioneSociale || '';
+                            companyIndirizzoInput.value = companyInfo.indirizzo || '';
+                            companyTelefonoInput.value = companyInfo.telefono || '';
+                            companyMailInput.value = companyInfo.mail || '';
+                            companyPartitaIvaInput.value = companyInfo.partitaIva || '';
+                            
+                            console.log("📁 Company info loaded from localStorage fallback:", companyInfo);
+                        } else {
+                            console.log("ℹ️ No company info found in Firebase or localStorage - starting with empty fields");
+                        }
                     }
-                } catch (error) {
-                    console.error("Error loading company info:", error);
+                    
+                } catch (firebaseError) {
+                    console.error("❌ Firebase load failed, using localStorage fallback:", firebaseError);
+                    
+                    // Fallback to localStorage
+                    try {
+                        const savedInfo = localStorage.getItem(`companyInfo_${currentCompanyCode}`);
+                        if (savedInfo) {
+                            const companyInfo = JSON.parse(savedInfo);
+                            teamCategoriaInput.value = companyInfo.categoria || '';
+                            companyRagioneSocialeInput.value = companyInfo.ragioneSociale || '';
+                            companyIndirizzoInput.value = companyInfo.indirizzo || '';
+                            companyTelefonoInput.value = companyInfo.telefono || '';
+                            companyMailInput.value = companyInfo.mail || '';
+                            companyPartitaIvaInput.value = companyInfo.partitaIva || '';
+                            
+                            console.log("🔄 Fallback: company info loaded from localStorage after Firebase error");
+                        }
+                    } catch (parseError) {
+                        console.error("❌ Error parsing localStorage fallback:", parseError);
+                    }
                 }
             }
 
-            saveCompanyInfoButton.addEventListener('click', () => {
-                saveCompanyInfo();
+            saveCompanyInfoButton.addEventListener('click', async () => {
+                await saveCompanyInfo();
             });
 
             // Load company info when switching to player management screen
             const originalShowPlayerManagement = showPlayerManagement;
-            showPlayerManagement = function() {
+            showPlayerManagement = async function() {
                 originalShowPlayerManagement.call(this);
-                loadCompanyInfo();
+                await loadCompanyInfo();
             };
 
             // Coach management event listeners
