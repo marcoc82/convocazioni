@@ -276,7 +276,50 @@
         <!-- Player Management Screen -->
         <div id="player-management-screen" class="hidden">
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Gestione Squadra</h2>
+            
+            <!-- Team Category Section -->
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Categoria Squadra</h3>
+                <div class="mb-4">
+                    <label for="team-categoria" class="block text-sm font-medium text-gray-700">🏆 Categoria</label>
+                    <input type="text" id="team-categoria" placeholder="Inserisci categoria (es. Juniores, Senior, etc.)" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                </div>
+            </div>
+
+            <!-- Company Information Section -->
+            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Informazioni Società</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div class="md:col-span-2">
+                        <label for="company-ragione-sociale" class="block text-sm font-medium text-gray-700">🏢 Ragione Sociale</label>
+                        <input type="text" id="company-ragione-sociale" placeholder="Nome completo della società" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="company-indirizzo" class="block text-sm font-medium text-gray-700">📍 Indirizzo</label>
+                        <input type="text" id="company-indirizzo" placeholder="Via, Città, CAP" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="company-telefono" class="block text-sm font-medium text-gray-700">📞 Telefono</label>
+                        <input type="tel" id="company-telefono" placeholder="+39 123 456 7890" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="company-mail" class="block text-sm font-medium text-gray-700">📧 Email</label>
+                        <input type="email" id="company-mail" placeholder="info@societa.it" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="company-partita-iva" class="block text-sm font-medium text-gray-700">🆔 Partita IVA</label>
+                        <input type="text" id="company-partita-iva" placeholder="IT12345678901" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                </div>
+                <button id="save-company-info-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 mb-4">
+                    Salva Informazioni Società
+                </button>
+                <div id="save-company-message-area" class="mt-2 mb-4 text-center text-sm font-medium text-gray-600 hidden"></div>
+            </div>
+
+            <!-- Player Management Section -->
+            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Giocatori</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="player-numero" class="block text-sm font-medium text-gray-700">🔢 Numero</label>
@@ -4123,6 +4166,88 @@
             backFromPlayersButton.addEventListener('click', () => {
                 showCompanyWelcome();
             });
+
+            // Company information event handlers
+            const saveCompanyInfoButton = document.getElementById('save-company-info-button');
+            const saveCompanyMessageArea = document.getElementById('save-company-message-area');
+            const teamCategoriaInput = document.getElementById('team-categoria');
+            const companyRagioneSocialeInput = document.getElementById('company-ragione-sociale');
+            const companyIndirizzoInput = document.getElementById('company-indirizzo');
+            const companyTelefonoInput = document.getElementById('company-telefono');
+            const companyMailInput = document.getElementById('company-mail');
+            const companyPartitaIvaInput = document.getElementById('company-partita-iva');
+
+            // Function to save company information
+            function saveCompanyInfo() {
+                const companyInfo = {
+                    categoria: teamCategoriaInput.value.trim(),
+                    ragioneSociale: companyRagioneSocialeInput.value.trim(),
+                    indirizzo: companyIndirizzoInput.value.trim(),
+                    telefono: companyTelefonoInput.value.trim(),
+                    mail: companyMailInput.value.trim(),
+                    partitaIva: companyPartitaIvaInput.value.trim(),
+                    lastUpdated: new Date().toISOString()
+                };
+
+                try {
+                    // Save to localStorage
+                    const storageKey = `companyInfo_${currentCompanyCode}`;
+                    localStorage.setItem(storageKey, JSON.stringify(companyInfo));
+                    
+                    // Show success message
+                    saveCompanyMessageArea.textContent = "Informazioni società salvate con successo!";
+                    saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-green-600";
+                    saveCompanyMessageArea.classList.remove('hidden');
+                    setTimeout(() => {
+                        saveCompanyMessageArea.classList.add('hidden');
+                    }, 5000);
+                    
+                    console.log("Company information saved:", companyInfo);
+                } catch (error) {
+                    console.error("Error saving company info:", error);
+                    saveCompanyMessageArea.textContent = "Errore nel salvataggio. Riprova.";
+                    saveCompanyMessageArea.className = "mt-2 mb-4 text-center text-sm font-medium text-red-600";
+                    saveCompanyMessageArea.classList.remove('hidden');
+                    setTimeout(() => {
+                        saveCompanyMessageArea.classList.add('hidden');
+                    }, 5000);
+                }
+            }
+
+            // Function to load company information
+            function loadCompanyInfo() {
+                if (!currentCompanyCode) return;
+                
+                try {
+                    const storageKey = `companyInfo_${currentCompanyCode}`;
+                    const savedInfo = localStorage.getItem(storageKey);
+                    
+                    if (savedInfo) {
+                        const companyInfo = JSON.parse(savedInfo);
+                        teamCategoriaInput.value = companyInfo.categoria || '';
+                        companyRagioneSocialeInput.value = companyInfo.ragioneSociale || '';
+                        companyIndirizzoInput.value = companyInfo.indirizzo || '';
+                        companyTelefonoInput.value = companyInfo.telefono || '';
+                        companyMailInput.value = companyInfo.mail || '';
+                        companyPartitaIvaInput.value = companyInfo.partitaIva || '';
+                        
+                        console.log("Company information loaded:", companyInfo);
+                    }
+                } catch (error) {
+                    console.error("Error loading company info:", error);
+                }
+            }
+
+            saveCompanyInfoButton.addEventListener('click', () => {
+                saveCompanyInfo();
+            });
+
+            // Load company info when switching to player management screen
+            const originalShowPlayerManagement = showPlayerManagement;
+            showPlayerManagement = function() {
+                originalShowPlayerManagement.call(this);
+                loadCompanyInfo();
+            };
 
             // Coach management event listeners
             addCoachButton.addEventListener('click', async () => {
