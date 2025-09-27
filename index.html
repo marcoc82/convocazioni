@@ -3876,7 +3876,7 @@
                     } else {
                         // New format: object with all fields
                         const birthDate = new Date(player.dataNascita);
-                        const formattedDate = birthDate.toLocaleDateString('it-IT');
+                        const formattedDate = birthDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                         
                         playerDisplay = `
                             <div class="text-gray-700">
@@ -4157,6 +4157,7 @@
                             <p style="margin: 1px 0;"><strong>Orario:</strong> ${convocationData.details.orarioPartita || 'N/D'}</p>
                             <p style="margin: 1px 0;"><strong>Campo:</strong> ${convocationData.details.campo || 'N/D'}</p>
                             <p style="margin: 1px 0;"><strong>Avversario:</strong> ${convocationData.details.avversario || 'N/D'}</p>
+                            ${companyInfo.categoria ? `<p style="margin: 1px 0;"><strong>Categoria:</strong> ${companyInfo.categoria}</p>` : ''}
                             <p style="margin: 1px 0;"><strong>Girone:</strong> <span style="border-bottom: 1px solid #000; padding-bottom: 2px; display: inline-block; min-width: 150px;" contenteditable="true" id="editable-girone">______________</span></p>
                         </div>
                         
@@ -4213,7 +4214,17 @@
                         (p.numero && p.numero.toString() === number)
                     );
                     
-                    const birthDate = extendedData?.dataNascita || '___/___/______';
+                    let birthDate = '___/___/______';
+                    if (extendedData?.dataNascita) {
+                        // Format the birth date as DD/MM/YYYY
+                        const date = new Date(extendedData.dataNascita);
+                        if (!isNaN(date.getTime())) {
+                            birthDate = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                        } else {
+                            // If the date is already in string format, use it as is
+                            birthDate = extendedData.dataNascita;
+                        }
+                    }
                     const matricola = extendedData?.matricola || '__________';
                     
                     rows += `
