@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Already Called Today Fix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .player-item {
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease-in-out, background-color 0.2s;
+        }
+        .player-item.selected-mister {
+            background-color: #d1e5f4;
+            color: #1e40af;
+            font-weight: bold;
+            border-color: #3b82f6;
+        }
+        .player-item.already-called-today {
+            background-color: #d1d5db;
+            color: #6b7280;
+            font-weight: normal;
+            border-color: #9ca3af;
+        }
+        .player-item.already-called-today:hover {
+            background-color: #9ca3af;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-4">Test: Fix for "Already Called Today" Functionality</h1>
+        
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h2 class="text-lg font-semibold mb-2">Test Description</h2>
+            <p class="text-sm text-gray-600 mb-4">
+                This test verifies that the isPlayerCalledToday function now correctly compares 
+                the <strong>convocation creation date</strong> with today's date, instead of the match date.
+            </p>
+            
+            <div class="mb-4">
+                <h3 class="font-semibold">Test Data:</h3>
+                <ul class="text-sm text-gray-600 ml-4 list-disc">
+                    <li>Convocation created today with players: "1 ROSSI MARIO", "10 AZZURRI LUCA"</li>
+                    <li>Match date: 2024-02-15 (different from today)</li>
+                    <li>Expected: Players should be grayed out because convocation was created today</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h2 class="text-lg font-semibold mb-2">Lista Giocatori</h2>
+            <p class="text-sm text-gray-500 mb-4" id="players-list-message">Clicca sui nomi per selezionare i convocati.</p>
+            <ul id="players-list" class="grid grid-cols-2 gap-2">
+                <!-- Players will be added here -->
+            </ul>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h2 class="text-lg font-semibold mb-2">Test Results</h2>
+            <div id="test-results" class="space-y-2">
+                <!-- Test results will appear here -->
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow">
+            <h2 class="text-lg font-semibold mb-2">Convocation History (Demo Data)</h2>
+            <div id="history-display" class="text-sm text-gray-600">
+                <!-- History will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Already Called Today Confirmation Modal -->
+    <div id="already-called-modal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
+            <h2 class="text-xl font-bold mb-4 text-center text-orange-600">⚠️ Giocatore Già Convocato</h2>
+            <div class="text-center mb-6">
+                <p class="text-lg font-semibold text-gray-800 mb-2" id="already-called-player-name">Nome Giocatore</p>
+                <p class="text-gray-600 mb-2">Questo giocatore è già stato convocato oggi.</p>
+                <p class="text-sm text-gray-500">Vuoi confermarlo ugualmente?</p>
+            </div>
+            <button id="confirm-already-called-button" class="w-full py-3 mb-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg">
+                Conferma Convocazione
+            </button>
+            <button id="cancel-already-called-button" class="w-full py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg">
+                Annulla
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Test data
+        const players = [
+            "1 ROSSI MARIO",
+            "2 VERDI GIUSEPPE", 
+            "3 BIANCHI ALESSANDRO",
+            "4 NERI FRANCESCO",
+            "5 GIALLI LORENZO",
+            "10 AZZURRI LUCA"
+        ];
+
+        // Demo convocation history - created today but match is in the future
+        const convocationHistory = [
+            {
+                id: 'demo-today',
+                createdAt: new Date().toISOString(), // TODAY's date and time
+                details: {
+                    avversario: 'Test Team',
+                    campo: 'Campo Test',
+                    data: '2024-02-15', // FUTURE match date - different from today
+                    orarioConvocazione: '14:30',
+                    orarioPartita: '15:00',
+                    tipo: 'Amichevole'
+                },
+                players: ['1 ROSSI MARIO', '10 AZZURRI LUCA'] // These players were called up today
+            }
+        ];
+
+        let userRole = 'mister';
+        let tempAlreadyCalledPlayerName = null;
+
+        // DOM elements
+        const playersList = document.getElementById('players-list');
+        const testResults = document.getElementById('test-results');
+        const historyDisplay = document.getElementById('history-display');
+        const alreadyCalledModal = document.getElementById('already-called-modal');
+        const alreadyCalledPlayerName = document.getElementById('already-called-player-name');
+        const confirmAlreadyCalledButton = document.getElementById('confirm-already-called-button');
+        const cancelAlreadyCalledButton = document.getElementById('cancel-already-called-button');
+
+        // Fixed isPlayerCalledToday function - compares convocation creation date with today
+        function isPlayerCalledToday(playerName) {
+            if (!convocationHistory || convocationHistory.length === 0) {
+                return false;
+            }
+            
+            const today = new Date();
+            const todayDateString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+            
+            // Check each convocation in history
+            for (const convocation of convocationHistory) {
+                if (!convocation.createdAt || !convocation.players) {
+                    continue;
+                }
+                
+                // Compare convocation creation date with today's date (not match date)
+                const convocationDate = new Date(convocation.createdAt);
+                const convocationDateString = convocationDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+                if (convocationDateString === todayDateString) {
+                    // Check if player is in the players list
+                    const isInList = convocation.players.some(player => {
+                        if (typeof player === 'string') {
+                            return player === playerName;
+                        } else {
+                            return `${player.numero} ${player.nome}` === playerName;
+                        }
+                    });
+                    
+                    if (isInList) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        function renderPlayers() {
+            playersList.innerHTML = '';
+            players.forEach(playerName => {
+                const li = document.createElement('li');
+                li.textContent = playerName;
+                li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
+                li.dataset.player = playerName;
+                
+                // Check if player was already called up today
+                if (userRole === 'mister' && isPlayerCalledToday(playerName)) {
+                    li.classList.add('already-called-today');
+                    logTest(`✅ Player "${playerName}" correctly identified as already called today (grayed out)`);
+                } else {
+                    logTest(`ℹ️ Player "${playerName}" is available for selection`);
+                }
+
+                li.addEventListener('click', () => {
+                    if (userRole === 'mister') {
+                        // Check if player was already called up today
+                        if (isPlayerCalledToday(playerName)) {
+                            showAlreadyCalledModal(playerName);
+                            return; // Show confirmation modal instead of direct selection
+                        }
+                        
+                        li.classList.toggle('selected-mister');
+                    }
+                });
+                
+                playersList.appendChild(li);
+            });
+        }
+
+        function showAlreadyCalledModal(playerName) {
+            alreadyCalledPlayerName.textContent = playerName;
+            alreadyCalledModal.classList.remove('hidden');
+            tempAlreadyCalledPlayerName = playerName;
+            logTest(`⚠️ Confirmation modal shown for "${playerName}" - already called today`);
+        }
+
+        function hideAlreadyCalledModal() {
+            alreadyCalledModal.classList.add('hidden');
+            tempAlreadyCalledPlayerName = null;
+        }
+
+        function confirmAlreadyCalledSelection() {
+            if (typeof tempAlreadyCalledPlayerName === 'string' && tempAlreadyCalledPlayerName.length > 0) {
+                const playerItem = document.querySelector(`.player-item[data-player="${tempAlreadyCalledPlayerName}"]`);
+                if (playerItem) {
+                    playerItem.classList.add('selected-mister');
+                    logTest(`✅ Player "${tempAlreadyCalledPlayerName}" confirmed and selected despite being already called today`);
+                }
+            }
+            hideAlreadyCalledModal();
+        }
+
+        function displayHistory() {
+            const today = new Date().toISOString().split('T')[0];
+            const convocation = convocationHistory[0];
+            const createdDate = new Date(convocation.createdAt).toISOString().split('T')[0];
+            
+            historyDisplay.innerHTML = `
+                <div class="mb-2">
+                    <strong>Convocation Data:</strong>
+                    <ul class="ml-4 list-disc">
+                        <li>Created At: ${convocation.createdAt}</li>
+                        <li>Created Date: ${createdDate}</li>
+                        <li>Today's Date: ${today}</li>
+                        <li>Match Date: ${convocation.details.data}</li>
+                        <li>Players Called: ${convocation.players.join(', ')}</li>
+                    </ul>
+                </div>
+                <div class="text-sm ${createdDate === today ? 'text-green-600' : 'text-red-600'}">
+                    <strong>Comparison Result:</strong> 
+                    ${createdDate === today ? '✅ Convocation created today' : '❌ Convocation not created today'}
+                </div>
+            `;
+        }
+
+        function logTest(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = 'text-sm p-2 bg-gray-50 rounded';
+            div.textContent = `[${timestamp}] ${message}`;
+            testResults.appendChild(div);
+        }
+
+        function runTests() {
+            logTest("🧪 Starting tests for isPlayerCalledToday function fix");
+            logTest(`📅 Today's date: ${new Date().toISOString().split('T')[0]}`);
+            
+            // Test the fix
+            const testPlayer1 = "1 ROSSI MARIO";
+            const testPlayer2 = "10 AZZURRI LUCA";
+            const testPlayer3 = "2 VERDI GIUSEPPE";
+            
+            const result1 = isPlayerCalledToday(testPlayer1);
+            const result2 = isPlayerCalledToday(testPlayer2);
+            const result3 = isPlayerCalledToday(testPlayer3);
+            
+            logTest(`🔍 Testing "${testPlayer1}": ${result1 ? '✅ Already called today' : '❌ Not called today'}`);
+            logTest(`🔍 Testing "${testPlayer2}": ${result2 ? '✅ Already called today' : '❌ Not called today'}`);
+            logTest(`🔍 Testing "${testPlayer3}": ${result3 ? '✅ Already called today' : '❌ Not called today'}`);
+            
+            if (result1 && result2 && !result3) {
+                logTest("🎉 TEST PASSED: Fix working correctly - comparing convocation creation date, not match date");
+            } else {
+                logTest("❌ TEST FAILED: Fix not working as expected");
+            }
+        }
+
+        // Event listeners
+        confirmAlreadyCalledButton.addEventListener('click', confirmAlreadyCalledSelection);
+        cancelAlreadyCalledButton.addEventListener('click', hideAlreadyCalledModal);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            displayHistory();
+            runTests();
+            renderPlayers();
+        });
+    </script>
+</body>
+</html>
