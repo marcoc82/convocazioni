@@ -114,9 +114,20 @@
             font-weight: bold;
             border-color: #7c3aed;
         }
-        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange):not(.selected-marco-black):not(.selected-marco-purple) {
+        .player-item.already-called-today {
+            background-color: #d1d5db;
+            color: #6b7280;
+            font-weight: normal;
+            border-color: #9ca3af;
+        }
+        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange):not(.selected-marco-black):not(.selected-marco-purple):not(.already-called-today) {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .player-item.already-called-today:hover {
+            background-color: #9ca3af;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
         }
         .modal {
             background-color: rgba(0, 0, 0, 0.5);
@@ -210,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.6</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.8</span>
             </div>
         </div>
 
@@ -775,6 +786,24 @@
         </div>
     </div>
 
+    <!-- Already Called Today Confirmation Modal -->
+    <div id="already-called-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300">
+            <h2 class="text-xl font-bold mb-4 text-center text-orange-600">⚠️ Giocatore Già Convocato</h2>
+            <div class="text-center mb-6">
+                <p class="text-lg font-semibold text-gray-800 mb-2" id="already-called-player-name">Nome Giocatore</p>
+                <p class="text-gray-600 mb-2">Questo giocatore è già stato convocato oggi.</p>
+                <p class="text-sm text-gray-500">Vuoi confermarlo ugualmente?</p>
+            </div>
+            <button id="confirm-already-called-button" class="w-full py-3 mb-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                Conferma Convocazione
+            </button>
+            <button id="cancel-already-called-button" class="w-full py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors duration-200">
+                Annulla
+            </button>
+        </div>
+    </div>
+
     <!-- Share Modal -->
     <div id="share-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
         <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform scale-95 transition-transform duration-300">
@@ -1257,6 +1286,12 @@
             const unavailablePlayerReason = document.getElementById('unavailable-player-reason');
             const convocaComunqueButton = document.getElementById('convoca-comunque-button'); // nuovo bottone
 
+            // Already Called Today Modal Elements
+            const alreadyCalledModal = document.getElementById('already-called-modal');
+            const alreadyCalledPlayerName = document.getElementById('already-called-player-name');
+            const confirmAlreadyCalledButton = document.getElementById('confirm-already-called-button');
+            const cancelAlreadyCalledButton = document.getElementById('cancel-already-called-button');
+
             // Share Modal Elements
             const shareModal = document.getElementById('share-modal');
             const closeShareModalButton = document.getElementById('close-share-modal');
@@ -1280,6 +1315,7 @@
             let currentNotes = '';
             let tempPlayerName = null;
             let tempUnavailablePlayerName = null; // per "convoca comunque"
+            let tempAlreadyCalledPlayerName = null; // per giocatori già convocati oggi
             let unsubscribeListeners = [];
             let historyPreviousView = null; // track where history was accessed from
             let attendancePreviousView = null; // track where attendance was accessed from
@@ -1288,6 +1324,42 @@
             // Helper function to check if user has dirigente/marco privileges
             function isDirigente() {
                 return userRole === 'marco' || userRole === 'dirigente';
+            }
+
+            // Helper function to check if a player was already called up today
+            function isPlayerCalledToday(playerName) {
+                if (!convocationHistory || convocationHistory.length === 0) {
+                    return false;
+                }
+                
+                const today = new Date();
+                const todayDateString = today.toISOString().split('T')[0]; // YYYY-MM-DD format
+                
+                // Check each convocation in history
+                for (const convocation of convocationHistory) {
+                    if (!convocation.details || !convocation.details.data || !convocation.players) {
+                        continue;
+                    }
+                    
+                    // Compare match date with today's date
+                    const matchDate = convocation.details.data;
+                    if (matchDate === todayDateString) {
+                        // Check if player is in the players list
+                        const isInList = convocation.players.some(player => {
+                            if (typeof player === 'string') {
+                                return player === playerName;
+                            } else {
+                                return `${player.numero} ${player.nome}` === playerName;
+                            }
+                        });
+                        
+                        if (isInList) {
+                            return true;
+                        }
+                    }
+                }
+                
+                return false;
             }
 
             // Initial Firebase setup
@@ -2210,6 +2282,11 @@
                 
                 // Update filtered attendance tables after loading history data
                 updateAttendanceTables();
+                
+                // Re-render players to apply already-called-today styling
+                if (userRole === 'mister') {
+                    renderPlayers();
+                }
             }
 
             // Function to load and display attendance summary from Firestore
@@ -2372,8 +2449,25 @@
             // Demo version for loadHistory when Firebase is not available
             function loadHistoryDemo() {
                 historyList.innerHTML = '';
+                // Get today's date in YYYY-MM-DD format
+                const today = new Date();
+                const todayString = today.toISOString().split('T')[0];
+                
                 // Create sample demo data for history using consistent player names from attendance data
                 const demoHistory = [
+                    {
+                        id: 'demo-today',
+                        createdAt: new Date().toISOString(),
+                        details: {
+                            avversario: 'Test Oggi',
+                            campo: 'Campo Oggi',
+                            data: todayString, // TODAY'S DATE
+                            orarioConvocazione: '14:30',
+                            orarioPartita: '15:00',
+                            tipo: 'Amichevole'
+                        },
+                        players: ['10 AZZURRI LUCA', '1 ROSSI MARIO'] // Players called up today
+                    },
                     {
                         id: 'demo-1',
                         createdAt: new Date(2024, 1, 15, 14, 30).toISOString(),
@@ -2551,6 +2645,11 @@
                 
                 // Update filtered attendance tables for demo mode
                 updateAttendanceTables();
+                
+                // Re-render players to apply already-called-today styling
+                if (userRole === 'mister') {
+                    renderPlayers();
+                }
             }
 
             function renderPlayers() {
@@ -2575,6 +2674,7 @@
                     li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
                     li.dataset.player = playerKey;
                     
+                    // Check for unavailable players first (higher priority)
                     if (unavailablePlayers.has(playerKey)) {
                         const status = unavailablePlayers.get(playerKey);
                         if (status === 'Infortunato' || status === 'Squalificato') {
@@ -2588,6 +2688,10 @@
                         } else {
                             li.classList.add('selected-marco');
                         }
+                    } 
+                    // Check if player was already called up today (only if not unavailable)
+                    else if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
+                        li.classList.add('already-called-today');
                     }
 
                     li.addEventListener('click', () => {
@@ -2597,6 +2701,13 @@
                                 showUnavailablePlayerModal(playerKey, status);
                                 return; // Don't allow selection of unavailable players (unless forzato)
                             }
+                            
+                            // Check if player was already called up today
+                            if (isPlayerCalledToday(playerKey)) {
+                                showAlreadyCalledModal(playerKey);
+                                return; // Show confirmation modal instead of direct selection
+                            }
+                            
                             li.classList.toggle('selected-mister');
                             updateSelectedPlayersLiveList(playerKey, li.classList.contains('selected-mister'));
                         } else if (isDirigente()) {
@@ -3839,6 +3950,19 @@
                 tempUnavailablePlayerName = null;
             }
 
+            function showAlreadyCalledModal(playerName) {
+                alreadyCalledPlayerName.textContent = playerName;
+                alreadyCalledModal.classList.remove('hidden', 'opacity-0');
+                alreadyCalledModal.classList.add('flex', 'opacity-100');
+                tempAlreadyCalledPlayerName = playerName;
+            }
+
+            function hideAlreadyCalledModal() {
+                alreadyCalledModal.classList.remove('flex', 'opacity-100');
+                alreadyCalledModal.classList.add('hidden', 'opacity-0');
+                tempAlreadyCalledPlayerName = null;
+            }
+
             function showShareModal() {
                 if (userRole !== 'mister') {
                     showMessage("Solo il Mister può condividere le convocazioni.", "text-red-600");
@@ -4700,6 +4824,8 @@
             closeModalButton.addEventListener('click', hideModal);
             closeUnavailableModalButton.addEventListener('click', hideUnavailablePlayerModal);
             closeShareModalButton.addEventListener('click', hideShareModal);
+            confirmAlreadyCalledButton.addEventListener('click', confirmAlreadyCalledSelection);
+            cancelAlreadyCalledButton.addEventListener('click', hideAlreadyCalledModal);
             saveNotesButton.addEventListener('click', saveNotes);
 
             // Close modals when clicking outside of them
@@ -4718,6 +4844,12 @@
             shareModal.addEventListener('click', (e) => {
                 if (e.target === shareModal) {
                     hideShareModal();
+                }
+            });
+
+            alreadyCalledModal.addEventListener('click', (e) => {
+                if (e.target === alreadyCalledModal) {
+                    hideAlreadyCalledModal();
                 }
             });
 
@@ -4772,6 +4904,18 @@
                 }
                 hideUnavailablePlayerModal();
             });
+
+            // *** NUOVA: Gestione conferma giocatore già convocato oggi ***
+            function confirmAlreadyCalledSelection() {
+                if (typeof tempAlreadyCalledPlayerName === 'string' && tempAlreadyCalledPlayerName.length > 0) {
+                    const playerItem = document.querySelector(`.player-item[data-player="${tempAlreadyCalledPlayerName}"]`);
+                    if (playerItem) {
+                        playerItem.classList.add('selected-mister');
+                        updateSelectedPlayersLiveList(tempAlreadyCalledPlayerName, true);
+                    }
+                }
+                hideAlreadyCalledModal();
+            }
 
             function copyAppId() {
                 const tempInput = document.createElement('textarea');
