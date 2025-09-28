@@ -1132,6 +1132,16 @@
                         }
                     };
                 }
+                // Test POLIS PIEVE 2010 company for campionato functionality
+                if (code === "POLIS PIEVE 2010" || code === "polis pieve 2010") {
+                    return {
+                        name: "POLIS PIEVE 2010",
+                        passwords: {
+                            mister: "mister123",
+                            marco: "marco123"
+                        }
+                    };
+                }
                 // Test Polis company for visibility functionality
                 if (code && code.toUpperCase().includes("POLIS")) {
                     return {
