@@ -286,6 +286,9 @@
 
         <!-- Player Management Screen -->
         <div id="player-management-screen" class="hidden">
+            <button id="top-back-from-players-button" class="w-full mb-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Indietro
+            </button>
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Gestione Squadra</h2>
             
             <!-- Team Category Section -->
@@ -401,7 +404,7 @@
             </div>
             
             <button id="back-from-players-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
-                Torna al Menu
+                Indietro
             </button>
         </div>
 
@@ -594,17 +597,23 @@
 
         <!-- Convocations History View (using Firestore) -->
         <div id="history-view" class="hidden">
+            <button id="top-back-from-history-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Indietro
+            </button>
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Storico Convocazioni</h2>
             <div id="history-list" class="space-y-4">
                 <!-- History items will be populated here -->
             </div>
             <button id="back-from-history-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
-                Torna Indietro
+                Indietro
             </button>
         </div>
 
         <!-- Attendance Summary View -->
         <div id="attendance-view" class="hidden">
+            <button id="top-back-from-attendance-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Indietro
+            </button>
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Riepilogo Convocazioni</h2>
             
             <!-- Total Attendance Table -->
@@ -672,12 +681,15 @@
             </div>
 
             <button id="back-from-attendance-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
-                Torna Indietro
+                Indietro
             </button>
         </div>
 
         <!-- Training Attendance View -->
         <div id="training-attendance-view" class="hidden">
+            <button id="top-back-from-training-attendance-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Indietro
+            </button>
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Presenze Allenamenti</h2>
             
             <!-- Display allenamentiTotali prominently -->
@@ -719,7 +731,7 @@
             </div>
 
             <button id="back-from-training-attendance-button" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
-                Torna Indietro
+                Indietro
             </button>
         </div>
 
@@ -1282,6 +1294,7 @@
             const savePlayersButton = document.getElementById('save-players-button');
             const savePlayersMessageArea = document.getElementById('save-players-message-area');
             const backFromPlayersButton = document.getElementById('back-from-players-button');
+            const topBackFromPlayersButton = document.getElementById('top-back-from-players-button');
             
             // Coach management elements
             const newCoachInput = document.getElementById('new-coach-input');
@@ -1321,7 +1334,9 @@
             const historyButton = document.getElementById('history-button');
             const attendanceButton = document.getElementById('attendance-button');
             const backFromHistoryButton = document.getElementById('back-from-history-button');
+            const topBackFromHistoryButton = document.getElementById('top-back-from-history-button');
             const backFromAttendanceButton = document.getElementById('back-from-attendance-button');
+            const topBackFromAttendanceButton = document.getElementById('top-back-from-attendance-button');
             const historyList = document.getElementById('history-list');
             const attendanceList = document.getElementById('attendance-list');
             const attendanceListAmichevoli = document.getElementById('attendance-list-amichevoli');
@@ -4968,6 +4983,10 @@
             backFromPlayersButton.addEventListener('click', () => {
                 showCompanyWelcome();
             });
+            
+            topBackFromPlayersButton.addEventListener('click', () => {
+                showCompanyWelcome();
+            });
 
             // Company information event handlers
             const saveCompanyInfoButton = document.getElementById('save-company-info-button');
@@ -5565,7 +5584,39 @@
                 }
                 historyPreviousView = null; // reset for next time
             });
+            
+            topBackFromHistoryButton.addEventListener('click', () => {
+                historyView.classList.add('hidden');
+                if (historyPreviousView === 'welcome') {
+                    // Came from welcome screen, go back to welcome
+                    if (currentCompanyCode) {
+                        showCompanyWelcome();
+                    } else {
+                        mainView.classList.remove('hidden');
+                    }
+                } else {
+                    // Came from main view (Mister/Dirigente), go back to main view
+                    mainView.classList.remove('hidden');
+                }
+                historyPreviousView = null; // reset for next time
+            });
             backFromAttendanceButton.addEventListener('click', () => {
+                attendanceView.classList.add('hidden');
+                if (attendancePreviousView === 'welcome') {
+                    // Came from welcome screen, go back to welcome
+                    if (currentCompanyCode) {
+                        showCompanyWelcome();
+                    } else {
+                        mainView.classList.remove('hidden');
+                    }
+                } else {
+                    // Came from main view (Mister/Dirigente), go back to main view
+                    mainView.classList.remove('hidden');
+                }
+                attendancePreviousView = null; // reset for next time
+            });
+            
+            topBackFromAttendanceButton.addEventListener('click', () => {
                 attendanceView.classList.add('hidden');
                 if (attendancePreviousView === 'welcome') {
                     // Came from welcome screen, go back to welcome
@@ -5819,9 +5870,20 @@
 
             // Training attendance event listeners
             const backFromTrainingAttendanceButton = document.getElementById('back-from-training-attendance-button');
+            const topBackFromTrainingAttendanceButton = document.getElementById('top-back-from-training-attendance-button');
             const refreshTrainingButton = document.getElementById('refresh-training-button');
 
             backFromTrainingAttendanceButton.addEventListener('click', () => {
+                trainingAttendanceView.classList.add('hidden');
+                // Always go back to company welcome screen since training attendance is only available from there
+                if (currentCompanyCode) {
+                    showCompanyWelcome();
+                } else {
+                    mainView.classList.remove('hidden');
+                }
+            });
+            
+            topBackFromTrainingAttendanceButton.addEventListener('click', () => {
                 trainingAttendanceView.classList.add('hidden');
                 // Always go back to company welcome screen since training attendance is only available from there
                 if (currentCompanyCode) {
