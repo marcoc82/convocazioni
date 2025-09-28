@@ -749,7 +749,6 @@
             <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">📊 Risultati</h3>
                 <div class="text-center text-gray-600">
-                    <p>Sezione in sviluppo</p>
                 </div>
             </div>
             
@@ -758,7 +757,7 @@
                 <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">🏆 Classifica</h3>
                 <div class="w-full overflow-x-auto">
                     <iframe src="https://www.tuttocampo.it/WidgetV2/Classifica/4736d246-7989-4f4d-acb7-464de2591ce7" 
-                            width="100%" 
+                            width="80%" 
                             height="800" 
                             style="min-width: 500px;" 
                             scrolling="no" 
@@ -773,7 +772,7 @@
                 <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">⚽ Marcatori</h3>
                 <div class="w-full overflow-x-auto">
                     <iframe src="https://www.tuttocampo.it/WidgetV2/Marcatori/4736d246-7989-4f4d-acb7-464de2591ce7" 
-                            width="100%" 
+                            width="80%" 
                             height="700" 
                             style="min-width: 500px;" 
                             scrolling="no" 
@@ -788,7 +787,7 @@
                 <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">🎯 Ultima Partita</h3>
                 <div class="w-full overflow-x-auto">
                     <iframe src="https://www.tuttocampo.it/WidgetV2/Partita/4736d246-7989-4f4d-acb7-464de2591ce7" 
-                            width="100%" 
+                            width="50%" 
                             height="400" 
                             style="min-width: 500px;" 
                             scrolling="no" 
@@ -803,7 +802,7 @@
                 <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">🔜 Prossima Partita</h3>
                 <div class="w-full overflow-x-auto">
                     <iframe src="https://www.tuttocampo.it/WidgetV2/ProssimaPartita/4736d246-7989-4f4d-acb7-464de2591ce7" 
-                            width="100%" 
+                            width="50%" 
                             height="400" 
                             style="min-width: 500px;" 
                             scrolling="no" 
@@ -900,7 +899,7 @@
     <!-- Already Called Today Confirmation Modal -->
     <div id="already-called-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
         <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300">
-            <h2 class="text-xl font-bold mb-4 text-center text-orange-600">⚠️ Giocatore Già Convocato</h2>
+            <h2 class="text-xl font-bold mb-4 text-center text-orange-600">⚠️ Giocatore Già Convocato ⚠️</h2>
             <div class="text-center mb-6">
                 <p class="text-lg font-semibold text-gray-800 mb-2" id="already-called-player-name">Nome Giocatore</p>
                 <p class="text-gray-600 mb-2">Questo giocatore è già stato convocato oggi.</p>
@@ -2537,10 +2536,10 @@
                         <div class="font-bold text-lg mb-2 text-gray-800">${data.details.avversario}</div>
                         <div class="text-sm text-gray-600 mb-2">
                             <p>Salvataggio: ${formattedDate} alle ${formattedTime}</p>
-                            <p>Campo: ${data.details.campo}</p>
-                            <p>Data Partita: ${formattedMatchDate}</p>
-                            <p>Orario Convocazione: ${data.details.orarioConvocazione}</p>
-                            <p>Orario Partita: ${data.details.orarioPartita}</p>
+                            <p>🏟️ Campo: ${data.details.campo}</p>
+                            <p>📅 Data Partita: ${formattedMatchDate}</p>
+                            <p>🕒 Orario Convocazione: ${data.details.orarioConvocazione}</p>
+                            <p>🕒 Orario Partita: ${data.details.orarioPartita}</p>
                             <p>Tipo: ${data.details.tipo || 'N/D'}</p>
                             <p>👤 Mister: ${data.details.misterPartita || 'N/D'}</p>
                             <p>👤 Mister: ${data.details.misterTipo || 'N/D'}</p>
@@ -6035,6 +6034,7 @@
     </script>
 </body>
 </html>
+
 
 
 
