@@ -1556,7 +1556,7 @@
             let tempAlreadyCalledPlayerName = null; // per giocatori già convocati oggi
             let unsubscribeListeners = [];
             let selectedDistintaLocation = null; // home/away selection for distinta
-            let selectedDistintaDirigenti = []; // selected dirigenti for distinta
+            let selectedDirigenti = []; // selected dirigenti for distinta
             let historyPreviousView = null; // track where history was accessed from
             let attendancePreviousView = null; // track where attendance was accessed from
             let convocationHistory = []; // store convocation history data for attendance filtering
@@ -4636,7 +4636,7 @@
                 distintaDirigentiModal.classList.remove('flex', 'opacity-100');
                 distintaDirigentiModal.classList.add('hidden', 'opacity-0');
                 // Clear selections
-                selectedDistintaDirigenti = [];
+                selectedDirigenti = [];
             }
 
             function populateDirigentiSelection() {
@@ -4707,21 +4707,21 @@
                     return;
                 }
 
-                selectedDistintaDirigenti = [];
+                selectedDirigenti = [];
                 checkboxes.forEach((checkbox, index) => {
                     const dataIndex = parseInt(checkbox.getAttribute('data-index'));
                     console.log(`📋 Processing checkbox ${index}: data-index=${dataIndex}`);
                     if (companyDirectors[dataIndex]) {
-                        selectedDistintaDirigenti.push(companyDirectors[dataIndex]);
+                        selectedDirigenti.push(companyDirectors[dataIndex]);
                         console.log(`✅ Added dirigente: ${companyDirectors[dataIndex].name} ${companyDirectors[dataIndex].surname}`);
                     } else {
                         console.error(`❌ No dirigente found at index ${dataIndex}`);
                     }
                 });
 
-                console.log('🎯 Final selectedDistintaDirigenti:', selectedDistintaDirigenti);
-                console.log('🎯 Selected dirigenti count:', selectedDistintaDirigenti.length);
-                console.log('🎯 Selected dirigenti names:', selectedDistintaDirigenti.map(d => `${d.name} ${d.surname}`));
+                console.log('🎯 Final selectedDirigenti:', selectedDirigenti);
+                console.log('🎯 Selected dirigenti count:', selectedDirigenti.length);
+                console.log('🎯 Selected dirigenti names:', selectedDirigenti.map(d => `${d.name} ${d.surname}`));
 
                 console.log('🚪 DISTINTA FLOW: Hiding dirigenti modal...');
                 hideDistintaDirigentiModal();
@@ -4730,7 +4730,7 @@
                 console.log('🔍 Pre-generateDistinta state check:');
                 console.log('   - currentDistintaData exists:', !!window.currentDistintaData);
                 console.log('   - selectedDistintaLocation:', selectedDistintaLocation);
-                console.log('   - selectedDistintaDirigenti count:', selectedDistintaDirigenti.length);
+                console.log('   - selectedDirigenti count:', selectedDirigenti.length);
                 
                 generateDistinta();
             }
@@ -4740,8 +4740,8 @@
                 console.log('📊 Function entry state:');
                 console.log('   - currentDistintaData:', window.currentDistintaData);
                 console.log('   - selectedDistintaLocation:', selectedDistintaLocation);
-                console.log('   - selectedDistintaDirigenti:', selectedDistintaDirigenti);
-                console.log('   - selectedDistintaDirigenti length:', selectedDistintaDirigenti?.length || 0);
+                console.log('   - selectedDirigenti:', selectedDirigenti);
+                console.log('   - selectedDirigenti length:', selectedDirigenti?.length || 0);
                 
                 // Validation check 1: currentDistintaData
                 if (!window.currentDistintaData) {
@@ -4761,15 +4761,15 @@
                 }
                 console.log('✅ DISTINTA FLOW: selectedDistintaLocation validation passed');
 
-                // Validation check 3: selectedDistintaDirigenti
-                if (selectedDistintaDirigenti.length === 0) {
+                // Validation check 3: selectedDirigenti
+                if (selectedDirigenti.length === 0) {
                     console.error('❌ DISTINTA FLOW ERROR: no dirigenti selected');
-                    console.log('🔍 selectedDistintaDirigenti:', selectedDistintaDirigenti);
-                    console.log('🔍 selectedDistintaDirigenti length:', selectedDistintaDirigenti.length);
+                    console.log('🔍 selectedDirigenti:', selectedDirigenti);
+                    console.log('🔍 selectedDirigenti length:', selectedDirigenti.length);
                     showMessage("Errore: nessun dirigente selezionato.", "text-red-600");
                     return;
                 }
-                console.log('✅ DISTINTA FLOW: selectedDistintaDirigenti validation passed');
+                console.log('✅ DISTINTA FLOW: selectedDirigenti validation passed');
                 console.log('🎯 All validations passed, proceeding with distinta generation...');
                 
                 const convocationData = window.currentDistintaData;
@@ -5017,8 +5017,8 @@
                 
                 // Right side: Directors (only selected ones)
                 let directorsRows = '';
-                if (selectedDistintaDirigenti && selectedDistintaDirigenti.length > 0) {
-                    selectedDistintaDirigenti.forEach(director => {
+                if (selectedDirigenti && selectedDirigenti.length > 0) {
+                    selectedDirigenti.forEach(director => {
                         const fullName = `${director.name || ''} ${director.surname || ''}`.trim();
                         const matricola = director.matricola || '__________';
                         directorsRows += `
