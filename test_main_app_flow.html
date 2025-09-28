@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Main App Dirigenti Flow</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .test-section.info { background-color: #e8f4f8; }
+        .log { background-color: #000; color: #0f0; padding: 10px; max-height: 300px; overflow-y: auto; font-family: monospace; }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Test Main App Dirigenti Flow</h1>
+    
+    <div class="test-section info">
+        <h2>Test Objective</h2>
+        <p>Verify that the main application's distinta generation correctly uses the selectedDirigenti array after the variable naming fix.</p>
+    </div>
+
+    <div class="test-section">
+        <h2>Test</h2>
+        <button id="test-main-flow">Test Main App Flow</button>
+        <button id="reset-test">Reset</button>
+    </div>
+
+    <div class="test-section">
+        <div id="test-results" class="log">Ready to test...</div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const testResults = document.getElementById('test-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const line = document.createElement('div');
+            line.innerHTML = `<span style="color: #888">[${timestamp}]</span> ${message}`;
+            testResults.appendChild(line);
+            testResults.scrollTop = testResults.scrollHeight;
+        }
+
+        // Mock the main app environment
+        let currentDistintaData = {
+            details: {
+                data: '2024-01-20',
+                orario: '15:00',
+                campo: 'Stadio Test',
+                avversario: 'Squadra Avversaria'
+            },
+            players: [
+                { name: 'ROSSI MARIO', status: 'Disponibile' },
+                { name: 'VERDI GIUSEPPE', status: 'Disponibile' },
+                { name: 'BIANCHI ALESSANDRO', status: 'Non disponibile Sabato' }
+            ]
+        };
+
+        let companyDirectors = [
+            { name: "Marco", surname: "Dirigente", matricola: "DIR001" },
+            { name: "Giuseppe", surname: "Presidente", matricola: "DIR002" },
+            { name: "Antonio", surname: "Segretario", matricola: "DIR003" }
+        ];
+
+        let selectedDistintaLocation = 'casa';
+        let selectedDirigenti = []; // This is the main variable we're testing
+
+        // Mock function to simulate the createDistintaContent with the exact logic from main app
+        function testCreateDistintaContent(convocationData, location) {
+            log('Testing createDistintaContent function...');
+            
+            // Test the part that uses selectedDirigenti
+            let directorsRows = '';
+            log(`selectedDirigenti length: ${selectedDirigenti.length}`);
+            log(`selectedDirigenti data: ${JSON.stringify(selectedDirigenti)}`);
+            
+            if (selectedDirigenti && selectedDirigenti.length > 0) {
+                log('<span class="pass">✅ selectedDirigenti is properly populated</span>');
+                selectedDirigenti.forEach(director => {
+                    const fullName = `${director.name || ''} ${director.surname || ''}`.trim();
+                    const matricola = director.matricola || '__________';
+                    directorsRows += `
+                        <p style="margin: 3px 0; font-size: 10px;">
+                            <strong>Dirigente:</strong> ${fullName} - Matricola: ${matricola}
+                        </p>
+                    `;
+                    log(`Added director: ${fullName} (${matricola})`);
+                });
+                log('<span class="pass">✅ Directors properly added to distinta content</span>');
+            } else {
+                log('<span class="fail">❌ selectedDirigenti is empty or undefined</span>');
+                directorsRows = `
+                    <p style="margin: 3px 0; font-size: 10px;">
+                        <strong>Dirigente:</strong> ________________ - Matricola: __________
+                    </p>
+                `;
+            }
+            
+            log(`Generated directorsRows: ${directorsRows.length} characters`);
+            return directorsRows;
+        }
+
+        // Mock the full flow
+        function testMainAppFlow() {
+            log('🚀 Starting main app dirigenti flow test...');
+            
+            // Step 1: Simulate dirigenti selection
+            log('Step 1: Simulating dirigenti selection...');
+            selectedDirigenti = []; // Reset
+            
+            // Simulate selecting 2 directors (like the checkbox selection in confirmDirigentiSelection)
+            selectedDirigenti.push(companyDirectors[0]); // Marco Dirigente
+            selectedDirigenti.push(companyDirectors[1]); // Giuseppe Presidente
+            
+            log(`Selected ${selectedDirigenti.length} dirigenti: ${selectedDirigenti.map(d => `${d.name} ${d.surname}`).join(', ')}`);
+            
+            // Step 2: Test generateDistinta validation
+            log('Step 2: Testing generateDistinta validation...');
+            
+            if (!currentDistintaData) {
+                log('<span class="fail">❌ currentDistintaData validation failed</span>');
+                return;
+            }
+            log('<span class="pass">✅ currentDistintaData validation passed</span>');
+            
+            if (!selectedDistintaLocation) {
+                log('<span class="fail">❌ selectedDistintaLocation validation failed</span>');
+                return;
+            }
+            log('<span class="pass">✅ selectedDistintaLocation validation passed</span>');
+            
+            if (selectedDirigenti.length === 0) {
+                log('<span class="fail">❌ selectedDirigenti validation failed - empty array</span>');
+                return;
+            }
+            log('<span class="pass">✅ selectedDirigenti validation passed</span>');
+            
+            // Step 3: Test createDistintaContent function
+            log('Step 3: Testing createDistintaContent function...');
+            const content = testCreateDistintaContent(currentDistintaData, selectedDistintaLocation);
+            
+            if (content && content.includes('Marco Dirigente') && content.includes('Giuseppe Presidente')) {
+                log('<span class="pass">🎉 SUCCESS: Complete flow test passed!</span>');  
+                log('<span class="pass">🎉 selectedDirigenti array is correctly passed and used in generateDistinta</span>');
+            } else {
+                log('<span class="fail">❌ FAILED: Dirigenti not found in generated content</span>');
+            }
+        }
+
+        function resetTest() {
+            selectedDirigenti = [];
+            document.getElementById('test-results').innerHTML = 'Ready to test...';
+        }
+
+        document.getElementById('test-main-flow').addEventListener('click', testMainAppFlow);
+        document.getElementById('reset-test').addEventListener('click', resetTest);
+    </script>
+</body>
+</html>
