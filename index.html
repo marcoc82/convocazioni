@@ -975,6 +975,25 @@
         </div>
     </div>
 
+    <!-- Modal for Dirigenti Selection -->
+    <div id="distinta-dirigenti-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform scale-95 transition-transform duration-300">
+            <h2 class="text-xl font-bold mb-4 text-center">Selezione Dirigenti</h2>
+            <p class="text-gray-600 text-center mb-6">Seleziona i dirigenti da includere nella distinta (minimo 1):</p>
+            <div id="dirigenti-selection-list" class="space-y-2 mb-6 max-h-60 overflow-y-auto">
+                <!-- Dirigenti checkboxes will be added here -->
+            </div>
+            <div class="flex space-x-3">
+                <button id="confirm-dirigenti-selection" class="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                    Conferma
+                </button>
+                <button id="close-distinta-dirigenti-modal" class="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                    Annulla
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal for Distinta Display -->
     <div id="distinta-display-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
         <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
@@ -1501,6 +1520,11 @@
             const distintaAwayButton = document.getElementById('distinta-away-button');
             const closeDistintaLocationModalButton = document.getElementById('close-distinta-location-modal');
             
+            const distintaDirigentiModal = document.getElementById('distinta-dirigenti-modal');
+            const dirigentiSelectionList = document.getElementById('dirigenti-selection-list');
+            const confirmDirigentiSelectionButton = document.getElementById('confirm-dirigenti-selection');
+            const closeDistintaDirigentiModalButton = document.getElementById('close-distinta-dirigenti-modal');
+            
             const distintaDisplayModal = document.getElementById('distinta-display-modal');
             const distintaContent = document.getElementById('distinta-content');
             const closeDistintaDisplayModalButton = document.getElementById('close-distinta-display-modal');
@@ -1524,6 +1548,8 @@
             let tempUnavailablePlayerName = null; // per "convoca comunque"
             let tempAlreadyCalledPlayerName = null; // per giocatori già convocati oggi
             let unsubscribeListeners = [];
+            let selectedDistintaLocation = null; // home/away selection for distinta
+            let selectedDistintaDirigenti = []; // selected dirigenti for distinta
             let historyPreviousView = null; // track where history was accessed from
             let attendancePreviousView = null; // track where attendance was accessed from
             let convocationHistory = []; // store convocation history data for attendance filtering
@@ -4548,6 +4574,45 @@
                 distintaLocationModal.classList.add('hidden', 'opacity-0');
             }
 
+            function showDistintaDirigentiModal() {
+                // Populate the dirigenti list
+                populateDirigentiSelection();
+                distintaDirigentiModal.classList.remove('hidden', 'opacity-0');
+                distintaDirigentiModal.classList.add('flex', 'opacity-100');
+            }
+
+            function hideDistintaDirigentiModal() {
+                distintaDirigentiModal.classList.remove('flex', 'opacity-100');
+                distintaDirigentiModal.classList.add('hidden', 'opacity-0');
+                // Clear selections
+                selectedDistintaDirigenti = [];
+            }
+
+            function populateDirigentiSelection() {
+                dirigentiSelectionList.innerHTML = '';
+                
+                if (companyDirectors.length === 0) {
+                    dirigentiSelectionList.innerHTML = '<p class="text-gray-500 text-center">Nessun dirigente configurato per questa società.</p>';
+                    return;
+                }
+
+                companyDirectors.forEach((director, index) => {
+                    const fullName = `${director.surname || ''} ${director.name || ''}`.trim() || 'Nome non specificato';
+                    const checkboxId = `dirigente-${index}`;
+                    
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.className = 'flex items-center p-2 border border-gray-200 rounded hover:bg-gray-50';
+                    checkboxDiv.innerHTML = `
+                        <input type="checkbox" id="${checkboxId}" class="dirigente-checkbox mr-3" data-index="${index}">
+                        <label for="${checkboxId}" class="flex-1 cursor-pointer">
+                            <span class="font-medium">${fullName}</span>
+                            ${director.matricola ? `<span class="text-sm text-gray-500 block">Matricola: ${director.matricola}</span>` : ''}
+                        </label>
+                    `;
+                    dirigentiSelectionList.appendChild(checkboxDiv);
+                });
+            }
+
             function showDistintaDisplayModal() {
                 distintaDisplayModal.classList.remove('hidden', 'opacity-0');
                 distintaDisplayModal.classList.add('flex', 'opacity-100');
@@ -4559,16 +4624,47 @@
             }
 
             // Distinta Generation Functions
-            function generateDistinta(location) {
+            function selectDistintaLocation(location) {
                 hideDistintaLocationModal();
-                
+                selectedDistintaLocation = location;
+                showDistintaDirigentiModal();
+            }
+
+            function confirmDirigentiSelection() {
+                const checkboxes = document.querySelectorAll('.dirigente-checkbox:checked');
+                if (checkboxes.length === 0) {
+                    alert('Devi selezionare almeno un dirigente per continuare.');
+                    return;
+                }
+
+                selectedDistintaDirigenti = [];
+                checkboxes.forEach(checkbox => {
+                    const index = parseInt(checkbox.getAttribute('data-index'));
+                    selectedDistintaDirigenti.push(companyDirectors[index]);
+                });
+
+                hideDistintaDirigentiModal();
+                generateDistinta();
+            }
+
+            function generateDistinta() {
                 if (!window.currentDistintaData) {
                     showMessage("Errore: dati convocazione non disponibili.", "text-red-600");
                     return;
                 }
                 
+                if (!selectedDistintaLocation) {
+                    showMessage("Errore: ubicazione partita non selezionata.", "text-red-600");
+                    return;
+                }
+
+                if (selectedDistintaDirigenti.length === 0) {
+                    showMessage("Errore: nessun dirigente selezionato.", "text-red-600");
+                    return;
+                }
+                
                 const convocationData = window.currentDistintaData;
-                const content = createDistintaContent(convocationData, location);
+                const content = createDistintaContent(convocationData, selectedDistintaLocation);
                 
                 distintaContent.innerHTML = content;
                 showDistintaDisplayModal();
@@ -4622,12 +4718,12 @@
                             <!-- Team positioning based on home/away - ENHANCED for better visibility -->
                             <div style="margin: 12px 0; display: flex; justify-content: space-between; align-items: center; border: 2px solid #000; padding: 16px; background-color: #f8f9fa;">
                                 ${location === 'casa' ? 
-                                    `<div style="text-align: left; font-weight: bold; font-size: 16px; width: 45%;">${companyName}</div>
+                                    `<div style="text-align: left; font-weight: bold; font-size: 16px; width: 45%;">${companyName.toUpperCase()}</div>
                                      <div style="text-align: center; font-weight: bold; font-size: 18px; width: 10%;">VS</div>
-                                     <div style="text-align: right; font-weight: bold; font-size: 16px; width: 45%;">${convocationData.details.avversario || 'N/D'}</div>` :
-                                    `<div style="text-align: left; font-weight: bold; font-size: 16px; width: 45%;">${convocationData.details.avversario || 'N/D'}</div>
+                                     <div style="text-align: right; font-weight: bold; font-size: 16px; width: 45%;">${(convocationData.details.avversario || 'N/D').toUpperCase()}</div>` :
+                                    `<div style="text-align: left; font-weight: bold; font-size: 16px; width: 45%;">${(convocationData.details.avversario || 'N/D').toUpperCase()}</div>
                                      <div style="text-align: center; font-weight: bold; font-size: 18px; width: 10%;">VS</div>
-                                     <div style="text-align: right; font-weight: bold; font-size: 16px; width: 45%;">${companyName}</div>`
+                                     <div style="text-align: right; font-weight: bold; font-size: 16px; width: 45%;">${companyName.toUpperCase()}</div>`
                                 }
                             </div>
                         </div>
@@ -4773,10 +4869,10 @@
                     `;
                 }
                 
-                // Right side: Directors
+                // Right side: Directors (only selected ones)
                 let directorsRows = '';
-                if (companyDirectors && companyDirectors.length > 0) {
-                    companyDirectors.forEach(director => {
+                if (selectedDistintaDirigenti && selectedDistintaDirigenti.length > 0) {
+                    selectedDistintaDirigenti.forEach(director => {
                         const fullName = `${director.name || ''} ${director.surname || ''}`.trim();
                         const matricola = director.matricola || '__________';
                         directorsRows += `
@@ -5879,9 +5975,11 @@
 
             // Distinta Modal Event Listeners
             closeDistintaLocationModalButton.addEventListener('click', hideDistintaLocationModal);
+            closeDistintaDirigentiModalButton.addEventListener('click', hideDistintaDirigentiModal);
+            confirmDirigentiSelectionButton.addEventListener('click', confirmDirigentiSelection);
             closeDistintaDisplayModalButton.addEventListener('click', hideDistintaDisplayModal);
-            distintaHomeButton.addEventListener('click', () => generateDistinta('casa'));
-            distintaAwayButton.addEventListener('click', () => generateDistinta('trasferta'));
+            distintaHomeButton.addEventListener('click', () => selectDistintaLocation('casa'));
+            distintaAwayButton.addEventListener('click', () => selectDistintaLocation('trasferta'));
             copyDistintaButton.addEventListener('click', copyDistintaToClipboard);
             printDistintaButton.addEventListener('click', printDistinta);
             shareDistintaButton.addEventListener('click', shareDistinta);
