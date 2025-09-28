@@ -221,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.4</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.5</span>
             </div>
         </div>
 
@@ -378,6 +378,26 @@
                     Salva Mister
                 </button>
                 <div id="save-coaches-message-area" class="mt-2 text-center text-sm font-medium text-gray-600 hidden"></div>
+            </div>
+            
+            <!-- Directors Management Section -->
+            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Dirigenti</h3>
+                <div class="flex flex-col gap-4 mb-4">
+                    <input type="text" id="new-director-name-input" placeholder="Nome dirigente" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <input type="text" id="new-director-surname-input" placeholder="Cognome dirigente" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <input type="text" id="new-director-matricola-input" placeholder="Matricola dirigente" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <button id="add-director-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Aggiungi Dirigente
+                    </button>
+                </div>
+                <div id="company-directors-list" class="space-y-2 mb-4">
+                    <!-- Company directors will be loaded here -->
+                </div>
+                <button id="save-directors-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    Salva Dirigenti
+                </button>
+                <div id="save-directors-message-area" class="mt-2 text-center text-sm font-medium text-gray-600 hidden"></div>
             </div>
             
             <button id="back-from-players-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
@@ -1271,6 +1291,15 @@
             const saveCoachesButton = document.getElementById('save-coaches-button');
             const saveCoachesMessageArea = document.getElementById('save-coaches-message-area');
             
+            // Director management elements
+            const newDirectorNameInput = document.getElementById('new-director-name-input');
+            const newDirectorSurnameInput = document.getElementById('new-director-surname-input');
+            const newDirectorMatricolaInput = document.getElementById('new-director-matricola-input');
+            const addDirectorButton = document.getElementById('add-director-button');
+            const companyDirectorsList = document.getElementById('company-directors-list');
+            const saveDirectorsButton = document.getElementById('save-directors-button');
+            const saveDirectorsMessageArea = document.getElementById('save-directors-message-area');
+            
             const nameEntryScreen = document.getElementById('name-entry-screen');
             const nameInput = document.getElementById('name-input');
             const enterButton = document.getElementById('enter-button');
@@ -1373,6 +1402,7 @@
             let currentCompanyData = null;
             let companyPlayers = [];
             let companyCoaches = [];
+            let companyDirectors = [];
             let pendingRole = null; // for password verification
             let unavailablePlayers = new Map();
             let currentNotes = '';
@@ -1467,6 +1497,7 @@
                             userRole = savedRole;
                             companyPlayers = await loadCompanyPlayers();
                             companyCoaches = await loadCompanyCoaches();
+                            companyDirectors = await loadCompanyDirectors();
                             startApp(savedAppId);
                         } else if (savedCompanyCode && savedCompanyData) {
                             // Show welcome screen with company data
@@ -1486,6 +1517,7 @@
                             window.currentCompanyData = currentCompanyData;
                             companyPlayers = await loadCompanyPlayers();
                             companyCoaches = await loadCompanyCoaches();
+                            companyDirectors = await loadCompanyDirectors();
                             showCompanyWelcome();
                         } else {
                             // Show company entry screen
@@ -1995,6 +2027,91 @@
                 }
             }
 
+            async function saveCompanyDirectors(directorsList) {
+                if (!currentCompanyCode) {
+                    throw new Error("Codice società non disponibile");
+                }
+                
+                // Demo mode - save to localStorage
+                if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                    console.log("Demo mode: directors saved locally", directorsList);
+                    localStorage.setItem(`directors_${currentCompanyCode}`, JSON.stringify(directorsList));
+                    return;
+                }
+                
+                // Firebase mode - save to directors subcollection
+                if (!window.db) {
+                    // Firebase not available, fallback to localStorage
+                    console.log("Firebase not available, saving directors to localStorage as fallback");
+                    localStorage.setItem(`directors_${currentCompanyCode}`, JSON.stringify(directorsList));
+                    return;
+                }
+                
+                try {
+                    // First, get existing directors from subcollection to identify what to remove
+                    const directorsCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "dirigenti");
+                    const existingDirectorsSnapshot = await window.getDocs(directorsCollectionRef);
+                    
+                    // Create a set of existing director full names for comparison
+                    const existingDirectorNames = new Set();
+                    const existingDirectorDocs = new Map();
+                    existingDirectorsSnapshot.forEach((doc) => {
+                        const directorData = doc.data();
+                        const fullName = `${directorData.name || ''} ${directorData.surname || ''}`.trim();
+                        existingDirectorNames.add(fullName);
+                        existingDirectorDocs.set(fullName, doc.id);
+                    });
+                    
+                    // Add new directors to subcollection
+                    for (const director of directorsList) {
+                        const fullName = `${director.name || ''} ${director.surname || ''}`.trim();
+                        
+                        if (!existingDirectorNames.has(fullName)) {
+                            // Create a new document for this director
+                            const directorDocRef = window.doc(directorsCollectionRef);
+                            const directorData = {
+                                name: director.name || '',
+                                surname: director.surname || '',
+                                matricola: director.matricola || '',
+                                createdAt: new Date().toISOString(),
+                                active: true
+                            };
+                            
+                            await window.setDoc(directorDocRef, directorData);
+                            console.log(`Dirigente aggiunto: ${fullName} (Matricola: ${director.matricola})`);
+                        }
+                    }
+                    
+                    // Remove directors that are no longer in the list
+                    for (const [fullName, docId] of existingDirectorDocs) {
+                        const stillExists = directorsList.some(director => {
+                            const currentFullName = `${director.name || ''} ${director.surname || ''}`.trim();
+                            return currentFullName === fullName;
+                        });
+                        
+                        if (!stillExists) {
+                            const directorDocRef = window.doc(window.db, "societa", currentCompanyDocumentId, "dirigenti", docId);
+                            await window.deleteDoc(directorDocRef);
+                            console.log(`Dirigente rimosso: ${fullName}`);
+                        }
+                    }
+                    
+                    console.log("Dirigenti salvati con successo nella subcollection Firebase");
+                } catch (error) {
+                    console.error("Errore nel salvataggio dirigenti nella subcollection Firebase:", error);
+                    // Fallback to localStorage if Firebase fails
+                    console.log("Falling back to localStorage due to Firebase error");
+                    try {
+                        localStorage.setItem(`directors_${currentCompanyCode}`, JSON.stringify(directorsList));
+                        console.log("Directors saved to localStorage as fallback");
+                        // Don't throw error since localStorage save succeeded
+                    } catch (fallbackError) {
+                        console.error("Fallback to localStorage also failed:", fallbackError);
+                        throw new Error("Salvataggio dirigenti fallito sia su Firebase che su localStorage");
+                    }
+                }
+            }
+
             async function loadCompanyCoaches() {
                 if (!currentCompanyCode) {
                     console.log("Nessun codice società disponibile per caricare i mister");
@@ -2047,6 +2164,55 @@
                     // Try localStorage fallback
                     const storedCoaches = localStorage.getItem(`coaches_${currentCompanyCode}`);
                     return storedCoaches ? JSON.parse(storedCoaches) : [];
+                }
+            }
+
+            async function loadCompanyDirectors() {
+                if (!currentCompanyCode) {
+                    console.log("Nessun codice società disponibile per caricare i dirigenti");
+                    return [];
+                }
+
+                // Demo mode - load from localStorage
+                if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
+                    const storedDirectors = localStorage.getItem(`directors_${currentCompanyCode}`);
+                    return storedDirectors ? JSON.parse(storedDirectors) : [];
+                }
+
+                // Firebase mode - load from directors subcollection
+                if (!window.db) {
+                    // Firebase not available, try localStorage fallback
+                    const storedDirectors = localStorage.getItem(`directors_${currentCompanyCode}`);
+                    return storedDirectors ? JSON.parse(storedDirectors) : [];
+                }
+
+                try {
+                    const directorsCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "dirigenti");
+                    const directorsSnapshot = await window.getDocs(directorsCollectionRef);
+                    
+                    const directors = [];
+                    directorsSnapshot.forEach((doc) => {
+                        const directorData = doc.data();
+                        if (directorData.active !== false) { // Include active directors or those without active field
+                            directors.push({
+                                name: directorData.name || directorData.nome,
+                                surname: directorData.surname || directorData.cognome,
+                                matricola: directorData.matricola
+                            });
+                        }
+                    });
+
+                    // Sort directors by surname, then name
+                    return directors.sort((a, b) => {
+                        const surnameCompare = (a.surname || '').localeCompare(b.surname || '');
+                        if (surnameCompare !== 0) return surnameCompare;
+                        return (a.name || '').localeCompare(b.name || '');
+                    });
+                } catch (error) {
+                    console.error("Errore nel caricamento dirigenti da Firebase:", error);
+                    // Try localStorage fallback
+                    const storedDirectors = localStorage.getItem(`directors_${currentCompanyCode}`);
+                    return storedDirectors ? JSON.parse(storedDirectors) : [];
                 }
             }
 
@@ -3640,8 +3806,10 @@
                 hidePlayerLoadingError(); // Clear any previous error messages
                 renderCompanyPlayers();
                 renderCompanyCoaches();
+                renderCompanyDirectors();
                 updateSavePlayersButtonState();
                 updateSaveCoachesButtonState();
+                updateSaveDirectorsButtonState();
             }
 
             function hideAllScreens() {
@@ -3966,6 +4134,60 @@
                 showCoachMessage("Mister rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
             };
 
+            function renderCompanyDirectors() {
+                companyDirectorsList.innerHTML = '';
+                
+                companyDirectors.forEach((director, index) => {
+                    const directorDiv = document.createElement('div');
+                    directorDiv.className = 'flex items-center justify-between p-2 bg-white border border-gray-300 rounded-lg';
+                    
+                    const fullName = `${director.name || ''} ${director.surname || ''}`.trim();
+                    const directorMatricola = director.matricola || '';
+                    
+                    const directorInfoHtml = `<div class="text-gray-700">
+                                               <div class="font-medium">${fullName}</div>
+                                               <div class="text-sm text-gray-500">Matricola: ${directorMatricola}</div>
+                                             </div>`;
+                    
+                    directorDiv.innerHTML = `
+                        ${directorInfoHtml}
+                        <button onclick="removeDirector(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
+                            Rimuovi
+                        </button>
+                    `;
+                    companyDirectorsList.appendChild(directorDiv);
+                });
+                
+                updateSaveDirectorsButtonState();
+            }
+
+            function updateSaveDirectorsButtonState() {
+                // Enable the button only if there are directors to save
+                const hasDirectors = companyDirectors.length > 0;
+                saveDirectorsButton.disabled = !hasDirectors;
+                
+                if (hasDirectors) {
+                    saveDirectorsButton.classList.remove('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
+                } else {
+                    saveDirectorsButton.classList.add('disabled:bg-gray-400', 'disabled:cursor-not-allowed');
+                }
+            }
+
+            window.removeDirector = async function(index) {
+                companyDirectors.splice(index, 1);
+                renderCompanyDirectors();
+                showDirectorMessage("Dirigente rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
+            };
+
+            function showDirectorMessage(message, className) {
+                saveDirectorsMessageArea.textContent = message;
+                saveDirectorsMessageArea.className = `mt-2 text-center text-sm font-medium ${className}`;
+                saveDirectorsMessageArea.classList.remove('hidden');
+                setTimeout(() => {
+                    saveDirectorsMessageArea.classList.add('hidden');
+                }, 5000);
+            }
+
             function showMessage(message, className) {
                 messageArea.textContent = message;
                 messageArea.className = `mt-4 text-center text-sm font-medium ${className}`;
@@ -4136,7 +4358,7 @@
                 const playerRows = createPlayerRows(convocationData.players);
                 
                 // Create coach rows with only match-specific coaches
-                const coachRows = createCoachRows(convocationData);
+                const staffRows = createStaffRows(convocationData);
                 
                 const locationText = location === 'casa' ? 'IN CASA' : 'IN TRASFERTA';
                 
@@ -4188,7 +4410,7 @@
                         
                         <div style="margin: 15px 0;">
                             <h3 style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">STAFF TECNICO:</h3>
-                            ${coachRows}
+                            ${staffRows}
                         </div>
                         
                         <div style="margin-top: 25px; display: flex; justify-content: space-between;">
@@ -4251,7 +4473,7 @@
                 return rows;
             }
             
-            function createCoachRows(convocationData) {
+            function createStaffRows(convocationData) {
                 let rows = '';
                 
                 // Function to get coach matricola by name
@@ -4273,10 +4495,13 @@
                 const misterPartita = convocationData?.details?.misterPartita;
                 const misterTipo = convocationData?.details?.misterTipo;
                 
-                // Show both coaches as "Allenatore" instead of "Allenatore" and "Dirigente"
+                // Left side: Coaches
+                let coachesRows = '';
+                
+                // Show both coaches as "Allenatore"
                 if (misterPartita && misterPartita !== 'N/D' && misterPartita !== 'Seleziona mister') {
                     const matricola = getCoachMatricola(misterPartita);
-                    rows += `
+                    coachesRows += `
                         <p style="margin: 3px 0; font-size: 10px;">
                             <strong>Allenatore:</strong> ${misterPartita} - Matricola: ${matricola}
                         </p>
@@ -4285,7 +4510,7 @@
                 
                 if (misterTipo && misterTipo !== 'N/D' && misterTipo !== 'Seleziona mister' && misterTipo !== misterPartita) {
                     const matricola = getCoachMatricola(misterTipo);
-                    rows += `
+                    coachesRows += `
                         <p style="margin: 3px 0; font-size: 10px;">
                             <strong>Allenatore:</strong> ${misterTipo} - Matricola: ${matricola}
                         </p>
@@ -4293,16 +4518,45 @@
                 }
                 
                 // If no specific coaches are assigned, show default empty fields
-                if (!rows) {
-                    rows = `
-                        <p style="margin: 3px 0; font-size: 10px;">
-                            <strong>Allenatore:</strong> ________________ - Matricola: __________
-                        </p>
+                if (!coachesRows) {
+                    coachesRows = `
                         <p style="margin: 3px 0; font-size: 10px;">
                             <strong>Allenatore:</strong> ________________ - Matricola: __________
                         </p>
                     `;
                 }
+                
+                // Right side: Directors
+                let directorsRows = '';
+                if (companyDirectors && companyDirectors.length > 0) {
+                    companyDirectors.forEach(director => {
+                        const fullName = `${director.name || ''} ${director.surname || ''}`.trim();
+                        const matricola = director.matricola || '__________';
+                        directorsRows += `
+                            <p style="margin: 3px 0; font-size: 10px;">
+                                <strong>Dirigente:</strong> ${fullName} - Matricola: ${matricola}
+                            </p>
+                        `;
+                    });
+                } else {
+                    directorsRows = `
+                        <p style="margin: 3px 0; font-size: 10px;">
+                            <strong>Dirigente:</strong> ________________ - Matricola: __________
+                        </p>
+                    `;
+                }
+                
+                // Combine both sides with proper layout
+                rows = `
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="width: 48%;">
+                            ${coachesRows}
+                        </div>
+                        <div style="width: 48%; text-align: right;">
+                            ${directorsRows}
+                        </div>
+                    </div>
+                `;
                 
                 return rows;
             }
@@ -4461,6 +4715,7 @@
                         window.currentCompanyData = currentCompanyData;
                         companyPlayers = await loadCompanyPlayers();
                         companyCoaches = await loadCompanyCoaches();
+                        companyDirectors = await loadCompanyDirectors();
                         
                         if (rememberCompanyCheckbox.checked) {
                             localStorage.setItem('companyCode', companyCode);
@@ -4610,6 +4865,7 @@
                     // Load company players from Firebase database
                     companyPlayers = await loadCompanyPlayers();
                     companyCoaches = await loadCompanyCoaches();
+                    companyDirectors = await loadCompanyDirectors();
                     
                     // Use document ID as app ID (fallback to company code for demo mode)
                     const companyAppId = currentCompanyDocumentId || currentCompanyCode;
@@ -5034,6 +5290,88 @@
                     saveCoachesButton.disabled = false;
                     saveCoachesButton.textContent = "Salva Mister";
                     updateSaveCoachesButtonState();
+                }
+            });
+
+            // Directors event listeners
+            addDirectorButton.addEventListener('click', async () => {
+                const directorName = newDirectorNameInput.value.trim();
+                const directorSurname = newDirectorSurnameInput.value.trim();
+                const directorMatricola = newDirectorMatricolaInput.value.trim();
+                
+                if (!directorName) {
+                    showDirectorMessage("Inserisci il nome del dirigente.", "text-red-600");
+                    return;
+                }
+
+                if (!directorSurname) {
+                    showDirectorMessage("Inserisci il cognome del dirigente.", "text-red-600");
+                    return;
+                }
+
+                if (!directorMatricola) {
+                    showDirectorMessage("Inserisci la matricola del dirigente.", "text-red-600");
+                    return;
+                }
+
+                // Check if director with same name and surname already exists
+                const fullName = `${directorName} ${directorSurname}`;
+                const existingDirector = companyDirectors.find(director => 
+                    `${director.name} ${director.surname}` === fullName
+                );
+                if (existingDirector) {
+                    showDirectorMessage("Dirigente già presente nella lista.", "text-red-600");
+                    return;
+                }
+
+                // Check if director with same matricola already exists
+                const existingMatricola = companyDirectors.find(director => 
+                    director.matricola === directorMatricola
+                );
+                if (existingMatricola) {
+                    showDirectorMessage("Matricola già presente nella lista.", "text-red-600");
+                    return;
+                }
+
+                // Add new director
+                const directorObj = {
+                    name: directorName,
+                    surname: directorSurname,
+                    matricola: directorMatricola
+                };
+
+                companyDirectors.push(directorObj);
+                companyDirectors.sort((a, b) => {
+                    const surnameCompare = (a.surname || '').localeCompare(b.surname || '');
+                    if (surnameCompare !== 0) return surnameCompare;
+                    return (a.name || '').localeCompare(b.name || '');
+                });
+                newDirectorNameInput.value = '';
+                newDirectorSurnameInput.value = '';
+                newDirectorMatricolaInput.value = '';
+                renderCompanyDirectors();
+                showDirectorMessage("Dirigente aggiunto alla lista. Ricorda di salvare!", "text-blue-600");
+            });
+
+            saveDirectorsButton.addEventListener('click', async () => {
+                if (companyDirectors.length === 0) {
+                    showDirectorMessage("Nessun dirigente da salvare.", "text-orange-600");
+                    return;
+                }
+
+                saveDirectorsButton.disabled = true;
+                saveDirectorsButton.textContent = "Salvataggio in corso...";
+                
+                try {
+                    await saveCompanyDirectors(companyDirectors);
+                    showDirectorMessage("Dirigenti salvati con successo!", "text-green-600");
+                } catch (error) {
+                    console.error("Errore nel salvataggio dirigenti:", error);
+                    showDirectorMessage("Errore nel salvataggio dei dirigenti.", "text-red-600");
+                } finally {
+                    saveDirectorsButton.disabled = false;
+                    saveDirectorsButton.textContent = "Salva Dirigenti";
+                    updateSaveDirectorsButtonState();
                 }
             });
 
