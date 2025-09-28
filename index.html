@@ -221,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.7</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.8</span>
             </div>
         </div>
 
@@ -249,6 +249,9 @@
                     </button>
                     <button id="training-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
                         Presenze Allenamenti
+                    </button>
+                    <button id="campionato-button" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
+                        ⚽ Campionato
                     </button>
                     <button id="manage-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Gestione Squadra
@@ -735,6 +738,82 @@
             </button>
         </div>
 
+        <!-- Campionato View -->
+        <div id="campionato-view" class="hidden">
+            <button id="back-from-campionato-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Indietro
+            </button>
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">⚽ Campionato</h2>
+            
+            <!-- Risultati Section -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">📊 Risultati</h3>
+                <div class="text-center text-gray-600">
+                    <p>Sezione in sviluppo</p>
+                </div>
+            </div>
+            
+            <!-- Classifica Section -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">🏆 Classifica</h3>
+                <div class="w-full overflow-x-auto">
+                    <iframe src="https://www.tuttocampo.it/WidgetV2/Classifica/4736d246-7989-4f4d-acb7-464de2591ce7" 
+                            width="100%" 
+                            height="800" 
+                            style="min-width: 500px;" 
+                            scrolling="no" 
+                            frameborder="0" 
+                            loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+            
+            <!-- Marcatori Section -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">⚽ Marcatori</h3>
+                <div class="w-full overflow-x-auto">
+                    <iframe src="https://www.tuttocampo.it/WidgetV2/Marcatori/4736d246-7989-4f4d-acb7-464de2591ce7" 
+                            width="100%" 
+                            height="700" 
+                            style="min-width: 500px;" 
+                            scrolling="no" 
+                            frameborder="0" 
+                            loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+            
+            <!-- Ultima Partita Section -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">🎯 Ultima Partita</h3>
+                <div class="w-full overflow-x-auto">
+                    <iframe src="https://www.tuttocampo.it/WidgetV2/Partita/4736d246-7989-4f4d-acb7-464de2591ce7" 
+                            width="100%" 
+                            height="400" 
+                            style="min-width: 500px;" 
+                            scrolling="no" 
+                            frameborder="0" 
+                            loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+            
+            <!-- Prossima Partita Section -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">🔜 Prossima Partita</h3>
+                <div class="w-full overflow-x-auto">
+                    <iframe src="https://www.tuttocampo.it/WidgetV2/ProssimaPartita/4736d246-7989-4f4d-acb7-464de2591ce7" 
+                            width="100%" 
+                            height="400" 
+                            style="min-width: 500px;" 
+                            scrolling="no" 
+                            frameborder="0" 
+                            loading="lazy">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+
         <!-- Shareable View (Hidden for image generation) -->
         <div id="share-view" class="absolute w-[600px] h-auto top-[-9999px] left-[-9999px] bg-white rounded-xl shadow-2xl p-6 border border-gray-200">
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Convocazioni Ufficiali</h2>
@@ -993,6 +1072,7 @@
             const enterMisterButton = document.getElementById('enter-mister-button');
             const enterDirigenteButton = document.getElementById('enter-dirigente-button');
             const trainingAttendanceButton = document.getElementById('training-attendance-button');
+            const campionatoButton = document.getElementById('campionato-button');
             
             const passwordEntryScreen = document.getElementById('password-entry-screen');
             const rolePrompt = document.getElementById('role-prompt');
@@ -1072,11 +1152,19 @@
                 // Show/hide training attendance button based on company name
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
+                const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
                 
                 if (isPolisCompany) {
                     trainingAttendanceButton.classList.remove('hidden');
                 } else {
                     trainingAttendanceButton.classList.add('hidden');
+                }
+                
+                // Show/hide campionato button for POLIS PIEVE 2010
+                if (isPolisPieveCompany) {
+                    campionatoButton.classList.remove('hidden');
+                } else {
+                    campionatoButton.classList.add('hidden');
                 }
                 
                 // Show company details with document ID and codici field
@@ -1273,6 +1361,7 @@
             const viewHistoryButton = document.getElementById('view-history-button');
             const welcomeAttendanceButton = document.getElementById('welcome-attendance-button');
             const trainingAttendanceButton = document.getElementById('training-attendance-button');
+            const campionatoButton = document.getElementById('campionato-button');
             const managePlayersButton = document.getElementById('manage-players-button');
             const companyLogoutButton = document.getElementById('company-logout-button');
             
@@ -1324,6 +1413,7 @@
             const historyView = document.getElementById('history-view');
             const attendanceView = document.getElementById('attendance-view');
             const trainingAttendanceView = document.getElementById('training-attendance-view');
+            const campionatoView = document.getElementById('campionato-view');
             const playersList = document.getElementById('players-list');
             const playersListMessage = document.getElementById('players-list-message');
             const selectedPlayersLiveList = document.getElementById('selected-players-live-list');
@@ -3796,11 +3886,19 @@
                 // Show/hide training attendance button based on company name
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
+                const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
                 
                 if (isPolisCompany) {
                     trainingAttendanceButton.classList.remove('hidden');
                 } else {
                     trainingAttendanceButton.classList.add('hidden');
+                }
+                
+                // Show/hide campionato button for POLIS PIEVE 2010
+                if (isPolisPieveCompany) {
+                    campionatoButton.classList.remove('hidden');
+                } else {
+                    campionatoButton.classList.add('hidden');
                 }
                 
                 companyWelcomeScreen.classList.remove('hidden');
@@ -3838,6 +3936,7 @@
                 historyView.classList.add('hidden');
                 attendanceView.classList.add('hidden');
                 trainingAttendanceView.classList.add('hidden');
+                campionatoView.classList.add('hidden');
             }
 
             // Firebase Realtime Database integration for training attendance
@@ -4829,6 +4928,12 @@
                 hideAllScreens();
                 trainingAttendanceView.classList.remove('hidden');
                 loadTrainingAttendance(); // Load data when opening the view
+            });
+
+            campionatoButton.addEventListener('click', () => {
+                console.log('⚽ Opening Campionato View...');
+                hideAllScreens();
+                campionatoView.classList.remove('hidden');
             });
 
             managePlayersButton.addEventListener('click', () => {
@@ -5902,6 +6007,19 @@
 
             refreshTrainingButton.addEventListener('click', () => {
                 loadTrainingAttendance();
+            });
+            
+            // Campionato event listeners
+            const backFromCampionatoButton = document.getElementById('back-from-campionato-button');
+            
+            backFromCampionatoButton.addEventListener('click', () => {
+                campionatoView.classList.add('hidden');
+                // Always go back to company welcome screen since campionato is only available from there
+                if (currentCompanyCode) {
+                    showCompanyWelcome();
+                } else {
+                    mainView.classList.remove('hidden');
+                }
             });
         });
     </script>
