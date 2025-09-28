@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Distinta Issue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-4">Debug Distinta Generation Issue</h1>
+        
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h2 class="text-lg font-semibold mb-2">Test Setup</h2>
+            <button id="setup-test" class="bg-blue-600 text-white px-4 py-2 rounded">Setup Test Environment</button>
+            <button id="test-distinta-flow" class="bg-green-600 text-white px-4 py-2 rounded ml-2">Test Distinta Flow</button>
+        </div>
+        
+        <div id="debug-log" class="bg-black text-green-400 p-4 rounded font-mono text-sm min-h-64 overflow-y-auto">
+            <div>Debug log will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const debugLog = document.getElementById('debug-log');
+            const line = document.createElement('div');
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            debugLog.appendChild(line);
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
+        // Mock the environment variables and functions that would exist in the main app
+        let currentCompanyCode = 'DEMO';
+        let companyDirectors = [];
+        let selectedDistintaLocation = null;
+        let selectedDistintaDirigenti = [];
+        
+        window.currentDistintaData = {
+            details: {
+                data: '2024-01-20',
+                orario: '15:00',
+                campo: 'Stadio Test',
+                avversario: 'Squadra Test'
+            },
+            players: [
+                { name: 'ROSSI MARIO', status: 'Disponibile' },
+                { name: 'VERDI GIUSEPPE', status: 'Disponibile' },
+                { name: 'BIANCHI ALESSANDRO', status: 'Disponibile' }
+            ]
+        };
+
+        function mockLoadCompanyDirectors() {
+            return [
+                { name: "Marco", surname: "Dirigente", matricola: "DIR001" },
+                { name: "Giuseppe", surname: "Presidente", matricola: "DIR002" },
+                { name: "Antonio", surname: "Segretario", matricola: "DIR003" }
+            ];
+        }
+
+        function mockConfirmDirigentiSelection() {
+            log('Starting confirmDirigentiSelection()');
+            
+            // Mock checkbox selection
+            selectedDistintaDirigenti = companyDirectors.slice(0, 2); // Select first 2 directors
+            log(`Selected ${selectedDistintaDirigenti.length} dirigenti: ${selectedDistintaDirigenti.map(d => d.name + ' ' + d.surname).join(', ')}`);
+            
+            log('Calling generateDistinta()');
+            mockGenerateDistinta();
+        }
+
+        function mockGenerateDistinta() {
+            log('Inside generateDistinta()');
+            
+            if (!window.currentDistintaData) {
+                log('ERROR: currentDistintaData not available');
+                return;
+            }
+            log('✓ currentDistintaData is available');
+            
+            if (!selectedDistintaLocation) {
+                log('ERROR: selectedDistintaLocation not available');
+                return;
+            }
+            log(`✓ selectedDistintaLocation: ${selectedDistintaLocation}`);
+
+            if (selectedDistintaDirigenti.length === 0) {
+                log('ERROR: no dirigenti selected');
+                return;
+            }
+            log(`✓ ${selectedDistintaDirigenti.length} dirigenti selected`);
+            
+            log('Creating distinta content...');
+            const content = mockCreateDistintaContent(window.currentDistintaData, selectedDistintaLocation);
+            log(`✓ Content created (${content.length} characters)`);
+            
+            log('Setting innerHTML and showing modal...');
+            // Mock the final steps
+            log('✓ Modal should be displayed now');
+        }
+
+        function mockCreateDistintaContent(convocationData, location) {
+            return `<h1>Test Distinta Content - Location: ${location}</h1><p>Data: ${convocationData.details.data}</p>`;
+        }
+
+        document.getElementById('setup-test').addEventListener('click', () => {
+            log('Setting up test environment...');
+            companyDirectors = mockLoadCompanyDirectors();
+            selectedDistintaLocation = 'casa';
+            log(`✓ Loaded ${companyDirectors.length} company directors`);
+            log(`✓ Set location to: ${selectedDistintaLocation}`);
+            log('✓ Test environment ready');
+        });
+
+        document.getElementById('test-distinta-flow').addEventListener('click', () => {
+            log('Testing distinta generation flow...');
+            mockConfirmDirigentiSelection();
+        });
+    </script>
+</body>
+</html>

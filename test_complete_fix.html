@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Complete Distinta Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .log { background: #000; color: #0f0; padding: 10px; font-family: monospace; font-size: 12px; height: 200px; overflow-y: auto; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 300px; border-radius: 8px; }
+        .modal.show { display: block; }
+        .checkbox-container { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Complete Distinta Fix</h1>
+        <p>This test simulates the exact scenario described in the problem statement.</p>
+        
+        <div class="test-section info">
+            <h2>Scenario</h2>
+            <p>1. User is in "storico convocazioni" (history) as dirigente/mister</p>
+            <p>2. User clicks "Distinta" button on a historical convocation</p>
+            <p>3. Location selection modal appears</p>
+            <p>4. User selects location (casa/trasferta)</p>
+            <p>5. Dirigenti selection modal appears with loaded directors</p>
+            <p>6. User selects at least one dirigente and clicks "Conferma"</p>
+            <p>7. Distinta should be generated and displayed</p>
+        </div>
+
+        <div class="test-section">
+            <h2>Test</h2>
+            <button id="start-test">Start Full Test</button>
+            <button id="reset-test">Reset</button>
+        </div>
+
+        <div class="test-section">
+            <div id="log" class="log">Ready to test...</div>
+        </div>
+    </div>
+
+    <!-- Location Selection Modal -->
+    <div id="location-modal" class="modal">
+        <div class="modal-content">
+            <h3>Seleziona Ubicazione Partita</h3>
+            <button onclick="selectLocation('casa')">🏠 In Casa</button>
+            <button onclick="selectLocation('trasferta')">✈️ In Trasferta</button>
+        </div>
+    </div>
+
+    <!-- Dirigenti Selection Modal -->
+    <div id="dirigenti-modal" class="modal">
+        <div class="modal-content">
+            <h3>Selezione Dirigenti</h3>
+            <p>Seleziona i dirigenti da includere nella distinta (minimo 1):</p>
+            <div id="dirigenti-list"></div>
+            <button onclick="confirmSelection()">Conferma</button>
+            <button onclick="closeModal('dirigenti-modal')">Annulla</button>
+        </div>
+    </div>
+
+    <!-- Distinta Display Modal -->
+    <div id="distinta-modal" class="modal">
+        <div class="modal-content" style="width: 600px;">
+            <h3>Distinta Ufficiale</h3>
+            <div id="distinta-content"></div>
+            <button onclick="closeModal('distinta-modal')">Chiudi</button>
+        </div>
+    </div>
+
+    <script>
+        // Test environment
+        let companyDirectors = [];
+        let selectedLocation = null;
+        let selectedDirigenti = [];
+        
+        const currentDistintaData = {
+            details: {
+                data: '2024-01-20',
+                orario: '15:00',
+                campo: 'Stadio Test',
+                avversario: 'Squadra Avversaria'
+            },
+            players: [
+                { name: 'ROSSI MARIO', status: 'Disponibile' },
+                { name: 'VERDI GIUSEPPE', status: 'Disponibile' },
+                { name: 'BIANCHI ALESSANDRO', status: 'Non disponibile Sabato' }
+            ]
+        };
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const line = document.createElement('div');
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(line);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        // Mock the fixed async loading function
+        async function loadCompanyDirectors() {
+            log('🔄 Loading company directors...');
+            // Simulate async operation
+            await new Promise(resolve => setTimeout(resolve, 500));
+            return [
+                { name: "Marco", surname: "Dirigente", matricola: "DIR001" },
+                { name: "Giuseppe", surname: "Presidente", matricola: "DIR002" },
+                { name: "Antonio", surname: "Segretario", matricola: "DIR003" }
+            ];
+        }
+
+        // FIXED VERSION: Async function that loads directors when needed
+        async function showDistintaDirigentiModal() {
+            log('🔧 showDistintaDirigentiModal() called (WITH FIX)');
+            
+            // Ensure companyDirectors is loaded before populating the list
+            if (companyDirectors.length === 0) {
+                log('📥 companyDirectors is empty, loading...');
+                companyDirectors = await loadCompanyDirectors();
+                log(`✅ Loaded ${companyDirectors.length} directors`);
+            } else {
+                log(`✅ companyDirectors already has ${companyDirectors.length} directors`);
+            }
+            
+            // Populate the dirigenti list
+            populateDirigentiSelection();
+            showModal('dirigenti-modal');
+            log('👥 Dirigenti selection modal shown');
+        }
+
+        function populateDirigentiSelection() {
+            const dirigentiList = document.getElementById('dirigenti-list');
+            dirigentiList.innerHTML = '';
+            
+            if (companyDirectors.length === 0) {
+                dirigentiList.innerHTML = '<p>Nessun dirigente configurato per questa società.</p>';
+                log('❌ No directors available');
+                return;
+            }
+
+            companyDirectors.forEach((director, index) => {
+                const fullName = `${director.surname || ''} ${director.name || ''}`.trim();
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'checkbox-container';
+                checkboxDiv.innerHTML = `
+                    <input type="checkbox" id="dirigente-${index}" data-index="${index}">
+                    <label for="dirigente-${index}">
+                        <strong>${fullName}</strong>
+                        ${director.matricola ? `<br><small>Matricola: ${director.matricola}</small>` : ''}
+                    </label>
+                `;
+                dirigentiList.appendChild(checkboxDiv);
+            });
+            log(`✅ Created ${companyDirectors.length} director checkboxes`);
+        }
+
+        async function selectLocation(location) {
+            log(`📍 Location selected: ${location}`);
+            selectedLocation = location;
+            closeModal('location-modal');
+            await showDistintaDirigentiModal();
+        }
+
+        function confirmSelection() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            if (checkboxes.length === 0) {
+                alert('Devi selezionare almeno un dirigente per continuare.');
+                return;
+            }
+
+            selectedDirigenti = [];
+            checkboxes.forEach(checkbox => {
+                const index = parseInt(checkbox.getAttribute('data-index'));
+                selectedDirigenti.push(companyDirectors[index]);
+            });
+
+            log(`✅ Selected ${selectedDirigenti.length} dirigenti: ${selectedDirigenti.map(d => d.name + ' ' + d.surname).join(', ')}`);
+            closeModal('dirigenti-modal');
+            generateDistinta();
+        }
+
+        function generateDistinta() {
+            log('📋 Generating distinta...');
+            
+            if (!currentDistintaData) {
+                log('❌ ERROR: currentDistintaData not available');
+                return;
+            }
+            
+            if (!selectedLocation) {
+                log('❌ ERROR: selectedLocation not available');
+                return;
+            }
+
+            if (selectedDirigenti.length === 0) {
+                log('❌ ERROR: no dirigenti selected');
+                return;
+            }
+            
+            const content = createDistintaContent(currentDistintaData, selectedLocation);
+            document.getElementById('distinta-content').innerHTML = content;
+            showModal('distinta-modal');
+            log('🎉 SUCCESS: Distinta generated and displayed!');
+        }
+
+        function createDistintaContent(convocationData, location) {
+            const locationText = location === 'casa' ? 'IN CASA' : 'IN TRASFERTA';
+            
+            return `
+                <div style="font-family: monospace; font-size: 12px; line-height: 1.4;">
+                    <div style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 8px;">
+                        <h1 style="font-size: 16px; margin: 0;">Società Demo</h1>
+                        <h2 style="font-size: 14px; margin: 6px 0;">DISTINTA UFFICIALE</h2>
+                        <p style="font-size: 12px; margin: 3px 0;"><strong>Partita ${locationText}</strong></p>
+                    </div>
+                    
+                    <div style="margin-bottom: 10px; font-size: 10px;">
+                        <p style="margin: 1px 0;"><strong>Data:</strong> ${convocationData.details.data}</p>
+                        <p style="margin: 1px 0;"><strong>Orario:</strong> ${convocationData.details.orario}</p>
+                        <p style="margin: 1px 0;"><strong>Campo:</strong> ${convocationData.details.campo}</p>
+                        <p style="margin: 1px 0;"><strong>Avversario:</strong> ${convocationData.details.avversario}</p>
+                    </div>
+
+                    <div style="margin: 10px 0;">
+                        <h3 style="font-size: 12px; margin: 5px 0;">Dirigenti Selezionati:</h3>
+                        ${selectedDirigenti.map(d => `<p style="margin: 2px 0; font-size: 10px;">• ${d.surname} ${d.name} (${d.matricola})</p>`).join('')}
+                    </div>
+
+                    <div style="margin: 10px 0;">
+                        <h3 style="font-size: 12px; margin: 5px 0;">Giocatori:</h3>
+                        ${convocationData.players.map((p, i) => `<p style="margin: 2px 0; font-size: 10px;">${i+1}. ${p.name} - ${p.status}</p>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function startFullTest() {
+            log('🚀 Starting full distinta generation test...');
+            log('👤 User role: dirigente');
+            log('📜 Accessing storico convocazioni (history view)');
+            log('🖱️ Clicking "Distinta" button on historical convocation');
+            
+            // Reset test environment
+            companyDirectors = [];
+            selectedLocation = null;
+            selectedDirigenti = [];
+            
+            // Start the flow
+            setTimeout(() => {
+                log('🏠 Showing location selection modal...');
+                showModal('location-modal');
+            }, 1000);
+        }
+
+        function resetTest() {
+            companyDirectors = [];
+            selectedLocation = null;
+            selectedDirigenti = [];
+            closeModal('location-modal');
+            closeModal('dirigenti-modal');
+            closeModal('distinta-modal');
+            document.getElementById('log').innerHTML = 'Test reset. Ready to test...';
+        }
+
+        document.getElementById('start-test').addEventListener('click', startFullTest);
+        document.getElementById('reset-test').addEventListener('click', resetTest);
+    </script>
+</body>
+</html>

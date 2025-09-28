@@ -221,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.9</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.0</span>
             </div>
         </div>
 
@@ -4589,7 +4589,12 @@
                 distintaLocationModal.classList.add('hidden', 'opacity-0');
             }
 
-            function showDistintaDirigentiModal() {
+            async function showDistintaDirigentiModal() {
+                // Ensure companyDirectors is loaded before populating the list
+                if (companyDirectors.length === 0) {
+                    companyDirectors = await loadCompanyDirectors();
+                }
+                
                 // Populate the dirigenti list
                 populateDirigentiSelection();
                 distintaDirigentiModal.classList.remove('hidden', 'opacity-0');
@@ -4639,10 +4644,10 @@
             }
 
             // Distinta Generation Functions
-            function selectDistintaLocation(location) {
+            async function selectDistintaLocation(location) {
                 hideDistintaLocationModal();
                 selectedDistintaLocation = location;
-                showDistintaDirigentiModal();
+                await showDistintaDirigentiModal();
             }
 
             function confirmDirigentiSelection() {
@@ -5993,8 +5998,8 @@
             closeDistintaDirigentiModalButton.addEventListener('click', hideDistintaDirigentiModal);
             confirmDirigentiSelectionButton.addEventListener('click', confirmDirigentiSelection);
             closeDistintaDisplayModalButton.addEventListener('click', hideDistintaDisplayModal);
-            distintaHomeButton.addEventListener('click', () => selectDistintaLocation('casa'));
-            distintaAwayButton.addEventListener('click', () => selectDistintaLocation('trasferta'));
+            distintaHomeButton.addEventListener('click', async () => await selectDistintaLocation('casa'));
+            distintaAwayButton.addEventListener('click', async () => await selectDistintaLocation('trasferta'));
             copyDistintaButton.addEventListener('click', copyDistintaToClipboard);
             printDistintaButton.addEventListener('click', printDistinta);
             shareDistintaButton.addEventListener('click', shareDistinta);
