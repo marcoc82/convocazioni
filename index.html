@@ -4181,9 +4181,14 @@
                     
                     playerDiv.innerHTML = `
                         ${playerDisplay}
-                        <button onclick="removePlayer(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                            Rimuovi
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="editPlayer(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                ✏️ Modifica
+                            </button>
+                            <button onclick="removePlayer(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                Rimuovi
+                            </button>
+                        </div>
                     `;
                     companyPlayersList.appendChild(playerDiv);
                 });
@@ -4211,6 +4216,53 @@
                 }
             };
 
+            window.editPlayer = async function(index) {
+                const player = companyPlayers[index];
+                
+                if (typeof player === 'string') {
+                    // Handle legacy format
+                    const parts = player.split(' ');
+                    const numero = parts[0];
+                    const nome = parts.slice(1).join(' ');
+                    
+                    const newNumero = prompt('Numero giocatore:', numero);
+                    if (newNumero === null) return; // User cancelled
+                    
+                    const newNome = prompt('Nome giocatore:', nome);
+                    if (newNome === null) return; // User cancelled
+                    
+                    if (newNumero.trim() && newNome.trim()) {
+                        companyPlayers[index] = `${newNumero.trim()} ${newNome.trim()}`;
+                        renderCompanyPlayers();
+                        showMessage("Giocatore modificato. Ricorda di salvare!", "text-green-600");
+                    }
+                } else {
+                    // Handle new object format
+                    const newNumero = prompt('Numero giocatore:', player.numero);
+                    if (newNumero === null) return;
+                    
+                    const newNome = prompt('Nome giocatore:', player.nome);
+                    if (newNome === null) return;
+                    
+                    const newDataNascita = prompt('Data nascita (YYYY-MM-DD):', player.dataNascita);
+                    if (newDataNascita === null) return;
+                    
+                    const newMatricola = prompt('Matricola:', player.matricola);
+                    if (newMatricola === null) return;
+                    
+                    if (newNumero.trim() && newNome.trim() && newDataNascita.trim() && newMatricola.trim()) {
+                        companyPlayers[index] = {
+                            numero: newNumero.trim(),
+                            nome: newNome.trim(),
+                            dataNascita: newDataNascita.trim(),
+                            matricola: newMatricola.trim()
+                        };
+                        renderCompanyPlayers();
+                        showMessage("Giocatore modificato. Ricorda di salvare!", "text-green-600");
+                    }
+                }
+            };
+
             function renderCompanyCoaches() {
                 companyCoachesList.innerHTML = '';
                 
@@ -4231,9 +4283,14 @@
                     
                     coachDiv.innerHTML = `
                         ${coachInfoHtml}
-                        <button onclick="removeCoach(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
-                            Rimuovi
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="editCoach(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm transition-colors">
+                                ✏️
+                            </button>
+                            <button onclick="removeCoach(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
+                                Rimuovi
+                            </button>
+                        </div>
                     `;
                     companyCoachesList.appendChild(coachDiv);
                 });
@@ -4261,6 +4318,38 @@
                 }
             };
 
+            window.editCoach = async function(index) {
+                const coach = companyCoaches[index];
+                
+                if (typeof coach === 'string') {
+                    // Handle legacy string format
+                    const newName = prompt('Nome mister:', coach);
+                    if (newName === null) return; // User cancelled
+                    
+                    if (newName.trim()) {
+                        companyCoaches[index] = newName.trim();
+                        renderCompanyCoaches();
+                        showCoachMessage("Mister modificato. Ricorda di salvare!", "text-green-600");
+                    }
+                } else {
+                    // Handle object format
+                    const newName = prompt('Nome mister:', coach.name || '');
+                    if (newName === null) return;
+                    
+                    const newMatricola = prompt('Matricola:', coach.matricola || '');
+                    if (newMatricola === null) return;
+                    
+                    if (newName.trim()) {
+                        companyCoaches[index] = {
+                            name: newName.trim(),
+                            matricola: newMatricola.trim()
+                        };
+                        renderCompanyCoaches();
+                        showCoachMessage("Mister modificato. Ricorda di salvare!", "text-green-600");
+                    }
+                }
+            };
+
             function renderCompanyDirectors() {
                 companyDirectorsList.innerHTML = '';
                 
@@ -4278,9 +4367,14 @@
                     
                     directorDiv.innerHTML = `
                         ${directorInfoHtml}
-                        <button onclick="removeDirector(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
-                            Rimuovi
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="editDirector(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm transition-colors">
+                                ✏️
+                            </button>
+                            <button onclick="removeDirector(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
+                                Rimuovi
+                            </button>
+                        </div>
                     `;
                     companyDirectorsList.appendChild(directorDiv);
                 });
@@ -4305,6 +4399,29 @@
                     companyDirectors.splice(index, 1);
                     renderCompanyDirectors();
                     showDirectorMessage("Dirigente rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
+                }
+            };
+
+            window.editDirector = async function(index) {
+                const director = companyDirectors[index];
+                
+                const newName = prompt('Nome dirigente:', director.name || '');
+                if (newName === null) return; // User cancelled
+                
+                const newSurname = prompt('Cognome dirigente:', director.surname || '');
+                if (newSurname === null) return;
+                
+                const newMatricola = prompt('Matricola:', director.matricola || '');
+                if (newMatricola === null) return;
+                
+                if (newName.trim() || newSurname.trim()) {
+                    companyDirectors[index] = {
+                        name: newName.trim(),
+                        surname: newSurname.trim(),
+                        matricola: newMatricola.trim()
+                    };
+                    renderCompanyDirectors();
+                    showDirectorMessage("Dirigente modificato. Ricorda di salvare!", "text-green-600");
                 }
             };
 
@@ -4502,15 +4619,15 @@
                             <h2 style="font-size: 14px; font-weight: bold; margin: 6px 0;">DISTINTA UFFICIALE</h2>
                             <p style="font-size: 12px; margin: 3px 0;"><strong>Partita ${locationText}</strong></p>
                             
-                            <!-- Team positioning based on home/away - MOVED UP -->
-                            <div style="margin: 8px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #000; padding: 8px;">
+                            <!-- Team positioning based on home/away - ENHANCED for better visibility -->
+                            <div style="margin: 12px 0; display: flex; justify-content: space-between; align-items: center; border: 2px solid #000; padding: 16px; background-color: #f8f9fa;">
                                 ${location === 'casa' ? 
-                                    `<div style="text-align: left; font-weight: bold; width: 45%;">${companyName}</div>
-                                     <div style="text-align: center; width: 10%;">VS</div>
-                                     <div style="text-align: right; width: 45%;">${convocationData.details.avversario || 'N/D'}</div>` :
-                                    `<div style="text-align: left; font-weight: bold; width: 45%;">${convocationData.details.avversario || 'N/D'}</div>
-                                     <div style="text-align: center; width: 10%;">VS</div>
-                                     <div style="text-align: right; width: 45%;">${companyName}</div>`
+                                    `<div style="text-align: left; font-weight: bold; font-size: 16px; width: 45%;">${companyName}</div>
+                                     <div style="text-align: center; font-weight: bold; font-size: 18px; width: 10%;">VS</div>
+                                     <div style="text-align: right; font-weight: bold; font-size: 16px; width: 45%;">${convocationData.details.avversario || 'N/D'}</div>` :
+                                    `<div style="text-align: left; font-weight: bold; font-size: 16px; width: 45%;">${convocationData.details.avversario || 'N/D'}</div>
+                                     <div style="text-align: center; font-weight: bold; font-size: 18px; width: 10%;">VS</div>
+                                     <div style="text-align: right; font-weight: bold; font-size: 16px; width: 45%;">${companyName}</div>`
                                 }
                             </div>
                         </div>
