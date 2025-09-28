@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Version: 2024-01-20 - Fixed dirigenti selection bug in distinta generation -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -4635,8 +4636,7 @@
             function hideDistintaDirigentiModal() {
                 distintaDirigentiModal.classList.remove('flex', 'opacity-100');
                 distintaDirigentiModal.classList.add('hidden', 'opacity-0');
-                // Clear selections
-                selectedDirigenti = [];
+                // Note: selectedDirigenti is NOT cleared here to preserve selection for distinta generation
             }
 
             function populateDirigentiSelection() {
