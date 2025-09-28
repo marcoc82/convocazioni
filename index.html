@@ -221,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.3</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.4</span>
             </div>
         </div>
 
@@ -4156,7 +4156,18 @@
                             <p style="margin: 1px 0;"><strong>Data:</strong> ${formattedMatchDate}</p>
                             <p style="margin: 1px 0;"><strong>Orario:</strong> ${convocationData.details.orarioPartita || 'N/D'}</p>
                             <p style="margin: 1px 0;"><strong>Campo:</strong> ${convocationData.details.campo || 'N/D'}</p>
-                            <p style="margin: 1px 0;"><strong>Avversario:</strong> ${convocationData.details.avversario || 'N/D'}</p>
+                            
+                            <!-- Team positioning based on home/away -->
+                            <div style="margin: 8px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #000; padding: 8px;">
+                                ${location === 'casa' ? 
+                                    `<div style="text-align: left; font-weight: bold; width: 45%;">${companyName}</div>
+                                     <div style="text-align: center; width: 10%;">VS</div>
+                                     <div style="text-align: right; width: 45%;">${convocationData.details.avversario || 'N/D'}</div>` :
+                                    `<div style="text-align: left; font-weight: bold; width: 45%;">${convocationData.details.avversario || 'N/D'}</div>
+                                     <div style="text-align: center; width: 10%;">VS</div>
+                                     <div style="text-align: right; width: 45%;">${companyName}</div>`
+                                }
+                            </div>
                             ${companyInfo.categoria ? `<p style="margin: 1px 0;"><strong>Categoria:</strong> ${companyInfo.categoria}</p>` : ''}
                             <p style="margin: 1px 0;"><strong>Girone:</strong> <span style="border-bottom: 1px solid #000; padding-bottom: 2px; display: inline-block; min-width: 150px;" contenteditable="true" id="editable-girone">______________</span></p>
                         </div>
@@ -4165,7 +4176,7 @@
                             <thead>
                                 <tr style="border-bottom: 2px solid #000;">
                                     <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 8%;">N°</th>
-                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 42%;">NOME E COGNOME</th>
+                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 42%;">Cognome e Nome</th>
                                     <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 25%;">DATA NASCITA</th>
                                     <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 25%;">MATRICOLA</th>
                                 </tr>
