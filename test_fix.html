@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Distinta Fix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-4">Test Distinta Fix</h1>
+        
+        <div class="bg-white p-4 rounded shadow mb-4">
+            <h2 class="text-lg font-semibold mb-2">Scenario: Empty companyDirectors initially</h2>
+            <p class="text-sm text-gray-600 mb-4">This tests the fix where companyDirectors is loaded when needed</p>
+            <button id="test-without-fix" class="bg-red-600 text-white px-4 py-2 rounded">Test Without Fix</button>
+            <button id="test-with-fix" class="bg-green-600 text-white px-4 py-2 rounded ml-2">Test With Fix</button>
+        </div>
+        
+        <div id="debug-log" class="bg-black text-green-400 p-4 rounded font-mono text-sm min-h-64 overflow-y-auto">
+            <div>Click a test button to start...</div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const debugLog = document.getElementById('debug-log');
+            const line = document.createElement('div');
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            debugLog.appendChild(line);
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
+        // Mock environment
+        let companyDirectors = [];
+        let selectedDistintaLocation = null;
+        let selectedDistintaDirigenti = [];
+        let currentCompanyCode = 'DEMO';
+
+        window.currentDistintaData = {
+            details: {
+                data: '2024-01-20',
+                orario: '15:00',
+                campo: 'Stadio Test',
+                avversario: 'Squadra Test'
+            },
+            players: [
+                { name: 'ROSSI MARIO', status: 'Disponibile' }
+            ]
+        };
+
+        async function mockLoadCompanyDirectors() {
+            log('loadCompanyDirectors() called - simulating async load...');
+            // Simulate async delay
+            await new Promise(resolve => setTimeout(resolve, 100));
+            return [
+                { name: "Marco", surname: "Dirigente", matricola: "DIR001" },
+                { name: "Giuseppe", surname: "Presidente", matricola: "DIR002" }
+            ];
+        }
+
+        // OLD VERSION (without fix) - doesn't load companyDirectors
+        function showDistintaDirigentiModalOld() {
+            log('showDistintaDirigentiModal() (OLD) - NOT loading companyDirectors');
+            populateDirigentiSelection();
+            log('Modal would be shown now');
+        }
+
+        // NEW VERSION (with fix) - loads companyDirectors if needed
+        async function showDistintaDirigentiModalNew() {
+            log('showDistintaDirigentiModal() (NEW) - checking companyDirectors...');
+            if (companyDirectors.length === 0) {
+                log('companyDirectors is empty, loading...');
+                companyDirectors = await mockLoadCompanyDirectors();
+                log(`✓ Loaded ${companyDirectors.length} directors`);
+            } else {
+                log(`✓ companyDirectors already has ${companyDirectors.length} directors`);
+            }
+            
+            populateDirigentiSelection();
+            log('Modal would be shown now');
+        }
+
+        function populateDirigentiSelection() {
+            log('populateDirigentiSelection() called');
+            if (companyDirectors.length === 0) {
+                log('❌ No directors available - would show "Nessun dirigente configurato"');
+                return;
+            }
+            log(`✓ Would create ${companyDirectors.length} checkboxes for directors`);
+        }
+
+        function selectDistintaLocationOld(location) {
+            log(`selectDistintaLocation('${location}') - OLD VERSION`);
+            selectedDistintaLocation = location;
+            showDistintaDirigentiModalOld();
+        }
+
+        async function selectDistintaLocationNew(location) {
+            log(`selectDistintaLocation('${location}') - NEW VERSION`);
+            selectedDistintaLocation = location;
+            await showDistintaDirigentiModalNew();
+        }
+
+        function resetTest() {
+            companyDirectors = [];
+            selectedDistintaLocation = null;
+            selectedDistintaDirigenti = [];
+            log('--- Test environment reset ---');
+        }
+
+        document.getElementById('test-without-fix').addEventListener('click', () => {
+            resetTest();
+            log('Testing WITHOUT fix (directors not loaded)...');
+            selectDistintaLocationOld('casa');
+        });
+
+        document.getElementById('test-with-fix').addEventListener('click', async () => {
+            resetTest();
+            log('Testing WITH fix (directors loaded when needed)...');
+            await selectDistintaLocationNew('casa');
+        });
+    </script>
+</body>
+</html>
