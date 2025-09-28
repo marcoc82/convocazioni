@@ -221,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.0</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.1</span>
             </div>
         </div>
 
@@ -2657,12 +2657,22 @@
                     const distintaButtons = historyList.querySelectorAll('.distinta-history-btn');
                     distintaButtons.forEach(btn => {
                         btn.addEventListener('click', (e) => {
+                            console.log('🎯 DISTINTA FLOW START: Distinta button clicked from storico convocazioni');
+                            console.log('👤 User role:', userRole);
+                            console.log('🏢 Company code:', currentCompanyCode);
+                            
                             const convocationData = safeJSONParse(btn.getAttribute('data-convocation'));
+                            console.log('📊 Raw convocation data from button attribute:', btn.getAttribute('data-convocation'));
+                            console.log('📋 Parsed convocation data:', convocationData);
+                            
                             if (convocationData) {
                                 // Store the convocation data globally for the distinta generation
                                 window.currentDistintaData = convocationData;
+                                console.log('✅ DISTINTA FLOW: currentDistintaData stored globally:', window.currentDistintaData);
+                                console.log('📍 DISTINTA FLOW: Showing location modal...');
                                 showDistintaLocationModal();
                             } else {
+                                console.error('❌ DISTINTA FLOW ERROR: Failed to parse convocation data');
                                 showMessage("Errore nel recupero dei dati per la distinta.", "text-red-600");
                             }
                         });
@@ -4590,15 +4600,29 @@
             }
 
             async function showDistintaDirigentiModal() {
+                console.log('👥 DISTINTA FLOW: showDistintaDirigentiModal() called');
+                console.log('🔍 Current companyDirectors length:', companyDirectors?.length || 0);
+                
                 // Ensure companyDirectors is loaded before populating the list
                 if (companyDirectors.length === 0) {
+                    console.log('📥 DISTINTA FLOW: Loading company directors...');
                     companyDirectors = await loadCompanyDirectors();
+                    console.log('✅ DISTINTA FLOW: Company directors loaded, count:', companyDirectors?.length || 0);
+                } else {
+                    console.log('✅ DISTINTA FLOW: Company directors already loaded, count:', companyDirectors.length);
                 }
                 
+                console.log('🎯 Company directors data:', companyDirectors);
+                
+                console.log('🏗️ DISTINTA FLOW: Populating dirigenti selection...');
                 // Populate the dirigenti list
                 populateDirigentiSelection();
+                console.log('✅ DISTINTA FLOW: Dirigenti selection populated');
+                
+                console.log('🎭 DISTINTA FLOW: Showing dirigenti modal...');
                 distintaDirigentiModal.classList.remove('hidden', 'opacity-0');
                 distintaDirigentiModal.classList.add('flex', 'opacity-100');
+                console.log('✅ DISTINTA FLOW: Dirigenti modal displayed');
             }
 
             function hideDistintaDirigentiModal() {
@@ -4645,55 +4669,135 @@
 
             // Distinta Generation Functions
             async function selectDistintaLocation(location) {
+                console.log('📍 DISTINTA FLOW: selectDistintaLocation() called with location:', location);
+                console.log('🔍 Current state before location selection:');
+                console.log('   - currentDistintaData exists:', !!window.currentDistintaData);
+                console.log('   - userRole:', userRole);
+                console.log('   - companyDirectors loaded:', companyDirectors?.length || 0);
+                
                 hideDistintaLocationModal();
                 selectedDistintaLocation = location;
+                console.log('✅ DISTINTA FLOW: Location set to:', selectedDistintaLocation);
+                
+                console.log('👥 DISTINTA FLOW: About to show dirigenti modal...');
                 await showDistintaDirigentiModal();
+                console.log('✅ DISTINTA FLOW: Dirigenti modal should now be visible');
             }
 
             function confirmDirigentiSelection() {
+                console.log('🔄 DISTINTA FLOW: confirmDirigentiSelection() called');
+                console.log('🎯 Current state - userRole:', userRole);
+                console.log('🎯 Current state - currentDistintaData exists:', !!window.currentDistintaData);
+                console.log('🎯 Current state - selectedDistintaLocation:', selectedDistintaLocation);
+                console.log('🎯 Current state - companyDirectors length:', companyDirectors?.length || 0);
+                
                 const checkboxes = document.querySelectorAll('.dirigente-checkbox:checked');
+                console.log('📊 Found checked dirigente checkboxes:', checkboxes.length);
+                
                 if (checkboxes.length === 0) {
+                    console.warn('⚠️ DISTINTA FLOW WARNING: No dirigenti selected');
                     alert('Devi selezionare almeno un dirigente per continuare.');
                     return;
                 }
 
                 selectedDistintaDirigenti = [];
-                checkboxes.forEach(checkbox => {
-                    const index = parseInt(checkbox.getAttribute('data-index'));
-                    selectedDistintaDirigenti.push(companyDirectors[index]);
+                checkboxes.forEach((checkbox, index) => {
+                    const dataIndex = parseInt(checkbox.getAttribute('data-index'));
+                    console.log(`📋 Processing checkbox ${index}: data-index=${dataIndex}`);
+                    if (companyDirectors[dataIndex]) {
+                        selectedDistintaDirigenti.push(companyDirectors[dataIndex]);
+                        console.log(`✅ Added dirigente: ${companyDirectors[dataIndex].name} ${companyDirectors[dataIndex].surname}`);
+                    } else {
+                        console.error(`❌ No dirigente found at index ${dataIndex}`);
+                    }
                 });
 
+                console.log('🎯 Final selectedDistintaDirigenti:', selectedDistintaDirigenti);
+                console.log('🎯 Selected dirigenti count:', selectedDistintaDirigenti.length);
+                console.log('🎯 Selected dirigenti names:', selectedDistintaDirigenti.map(d => `${d.name} ${d.surname}`));
+
+                console.log('🚪 DISTINTA FLOW: Hiding dirigenti modal...');
                 hideDistintaDirigentiModal();
+                
+                console.log('🎯 DISTINTA FLOW: About to call generateDistinta()');
+                console.log('🔍 Pre-generateDistinta state check:');
+                console.log('   - currentDistintaData exists:', !!window.currentDistintaData);
+                console.log('   - selectedDistintaLocation:', selectedDistintaLocation);
+                console.log('   - selectedDistintaDirigenti count:', selectedDistintaDirigenti.length);
+                
                 generateDistinta();
             }
 
             function generateDistinta() {
+                console.log('🚀 DISTINTA FLOW: generateDistinta() function called');
+                console.log('📊 Function entry state:');
+                console.log('   - currentDistintaData:', window.currentDistintaData);
+                console.log('   - selectedDistintaLocation:', selectedDistintaLocation);
+                console.log('   - selectedDistintaDirigenti:', selectedDistintaDirigenti);
+                console.log('   - selectedDistintaDirigenti length:', selectedDistintaDirigenti?.length || 0);
+                
+                // Validation check 1: currentDistintaData
                 if (!window.currentDistintaData) {
+                    console.error('❌ DISTINTA FLOW ERROR: currentDistintaData not available');
+                    console.log('🔍 window.currentDistintaData value:', window.currentDistintaData);
                     showMessage("Errore: dati convocazione non disponibili.", "text-red-600");
                     return;
                 }
+                console.log('✅ DISTINTA FLOW: currentDistintaData validation passed');
                 
+                // Validation check 2: selectedDistintaLocation
                 if (!selectedDistintaLocation) {
+                    console.error('❌ DISTINTA FLOW ERROR: selectedDistintaLocation not available');
+                    console.log('🔍 selectedDistintaLocation value:', selectedDistintaLocation);
                     showMessage("Errore: ubicazione partita non selezionata.", "text-red-600");
                     return;
                 }
+                console.log('✅ DISTINTA FLOW: selectedDistintaLocation validation passed');
 
+                // Validation check 3: selectedDistintaDirigenti
                 if (selectedDistintaDirigenti.length === 0) {
+                    console.error('❌ DISTINTA FLOW ERROR: no dirigenti selected');
+                    console.log('🔍 selectedDistintaDirigenti:', selectedDistintaDirigenti);
+                    console.log('🔍 selectedDistintaDirigenti length:', selectedDistintaDirigenti.length);
                     showMessage("Errore: nessun dirigente selezionato.", "text-red-600");
                     return;
                 }
+                console.log('✅ DISTINTA FLOW: selectedDistintaDirigenti validation passed');
+                console.log('🎯 All validations passed, proceeding with distinta generation...');
                 
                 const convocationData = window.currentDistintaData;
-                const content = createDistintaContent(convocationData, selectedDistintaLocation);
+                console.log('📋 Using convocation data for distinta generation:', convocationData);
+                console.log('📍 Using location for distinta generation:', selectedDistintaLocation);
                 
-                distintaContent.innerHTML = content;
+                console.log('🏗️ DISTINTA FLOW: Calling createDistintaContent()...');
+                const content = createDistintaContent(convocationData, selectedDistintaLocation);
+                console.log('✅ DISTINTA FLOW: createDistintaContent() completed');
+                console.log('📄 Generated content length:', content?.length || 0);
+                console.log('📄 Generated content preview (first 200 chars):', content?.substring(0, 200) || 'No content');
+                
+                console.log('🖼️ DISTINTA FLOW: Setting innerHTML on distintaContent element...');
+                if (distintaContent) {
+                    distintaContent.innerHTML = content;
+                    console.log('✅ DISTINTA FLOW: distintaContent.innerHTML set successfully');
+                } else {
+                    console.error('❌ DISTINTA FLOW ERROR: distintaContent element not found');
+                    return;
+                }
+                
+                console.log('🎉 DISTINTA FLOW: Showing distinta display modal...');
                 showDistintaDisplayModal();
+                console.log('🎊 DISTINTA FLOW COMPLETE: Distinta should now be visible to user');
             }
             
             function createDistintaContent(convocationData, location) {
+                console.log('🏗️ CREATE DISTINTA: createDistintaContent() called');
+                console.log('📋 Input convocation data:', convocationData);
+                console.log('📍 Input location:', location);
+                
                 // Get company info
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || 'Società Demo';
                 const companyCategory = localStorage.getItem(`categoria_${currentCompanyCode}`) || '';
+                console.log('🏢 Company info - name:', companyName, 'category:', companyCategory);
                 
                 // Get complete company information from localStorage
                 let companyInfo = {};
@@ -4701,12 +4805,16 @@
                     const savedInfo = localStorage.getItem(`companyInfo_${currentCompanyCode}`);
                     if (savedInfo) {
                         companyInfo = JSON.parse(savedInfo);
+                        console.log('✅ CREATE DISTINTA: Company info loaded from localStorage:', companyInfo);
+                    } else {
+                        console.log('ℹ️ CREATE DISTINTA: No company info in localStorage');
                     }
                 } catch (error) {
-                    console.warn('Could not parse company info:', error);
+                    console.warn('⚠️ CREATE DISTINTA: Could not parse company info:', error);
                 }
                 
                 // Format match date
+                console.log('📅 CREATE DISTINTA: Formatting match date...');
                 let formattedMatchDate = convocationData.details.data;
                 if (convocationData.details.data && convocationData.details.data !== 'N/D') {
                     const matchDate = new Date(convocationData.details.data + 'T00:00:00');
@@ -4715,14 +4823,22 @@
                     const dateString = matchDate.toLocaleDateString('it-IT', dateOptions);
                     formattedMatchDate = `${dayOfWeek} ${dateString}`;
                 }
+                console.log('📅 CREATE DISTINTA: Formatted match date:', formattedMatchDate);
                 
                 // Create player rows with proper formatting
+                console.log('👥 CREATE DISTINTA: Creating player rows...');
                 const playerRows = createPlayerRows(convocationData.players);
+                console.log('👥 CREATE DISTINTA: Player rows created, length:', playerRows?.length || 0);
                 
                 // Create coach rows with only match-specific coaches
+                console.log('👔 CREATE DISTINTA: Creating staff rows...');
                 const staffRows = createStaffRows(convocationData);
+                console.log('👔 CREATE DISTINTA: Staff rows created, length:', staffRows?.length || 0);
                 
                 const locationText = location === 'casa' ? 'IN CASA' : 'IN TRASFERTA';
+                console.log('📍 CREATE DISTINTA: Location text:', locationText);
+                
+                console.log('🏗️ CREATE DISTINTA: Building HTML content...');
                 
                 return `
                     <div style="font-family: 'Courier New', monospace; line-height: 1.2; font-size: 11px;">
@@ -4788,6 +4904,9 @@
                         </div>
                     </div>
                 `;
+                
+                console.log('✅ CREATE DISTINTA: HTML content template generation completed successfully');
+                return content;
             }
             
             function createPlayerRows(players) {
