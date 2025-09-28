@@ -221,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.5</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.7</span>
             </div>
         </div>
 
@@ -4096,9 +4096,11 @@
             }
 
             window.removePlayer = async function(index) {
-                companyPlayers.splice(index, 1);
-                renderCompanyPlayers();
-                showMessage("Giocatore rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
+                if (confirm('Sei sicuro di voler rimuovere questo giocatore dalla lista?')) {
+                    companyPlayers.splice(index, 1);
+                    renderCompanyPlayers();
+                    showMessage("Giocatore rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
+                }
             };
 
             function renderCompanyCoaches() {
@@ -4144,9 +4146,11 @@
             }
 
             window.removeCoach = async function(index) {
-                companyCoaches.splice(index, 1);
-                renderCompanyCoaches();
-                showCoachMessage("Mister rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
+                if (confirm('Sei sicuro di voler rimuovere questo mister dalla lista?')) {
+                    companyCoaches.splice(index, 1);
+                    renderCompanyCoaches();
+                    showCoachMessage("Mister rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
+                }
             };
 
             function renderCompanyDirectors() {
@@ -4189,9 +4193,11 @@
             }
 
             window.removeDirector = async function(index) {
-                companyDirectors.splice(index, 1);
-                renderCompanyDirectors();
-                showDirectorMessage("Dirigente rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
+                if (confirm('Sei sicuro di voler rimuovere questo dirigente dalla lista?')) {
+                    companyDirectors.splice(index, 1);
+                    renderCompanyDirectors();
+                    showDirectorMessage("Dirigente rimosso dalla lista. Ricorda di salvare!", "text-blue-600");
+                }
             };
 
             function showDirectorMessage(message, className) {
@@ -4387,14 +4393,8 @@
                             ${companyCategory ? `<p style="font-size: 12px; margin: 3px 0;"><strong>Categoria:</strong> ${companyCategory}</p>` : ''}
                             <h2 style="font-size: 14px; font-weight: bold; margin: 6px 0;">DISTINTA UFFICIALE</h2>
                             <p style="font-size: 12px; margin: 3px 0;"><strong>Partita ${locationText}</strong></p>
-                        </div>
-                        
-                        <div style="margin-bottom: 10px; font-size: 10px;">
-                            <p style="margin: 1px 0;"><strong>Data:</strong> ${formattedMatchDate}</p>
-                            <p style="margin: 1px 0;"><strong>Orario:</strong> ${convocationData.details.orarioPartita || 'N/D'}</p>
-                            <p style="margin: 1px 0;"><strong>Campo:</strong> ${convocationData.details.campo || 'N/D'}</p>
                             
-                            <!-- Team positioning based on home/away -->
+                            <!-- Team positioning based on home/away - MOVED UP -->
                             <div style="margin: 8px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #000; padding: 8px;">
                                 ${location === 'casa' ? 
                                     `<div style="text-align: left; font-weight: bold; width: 45%;">${companyName}</div>
@@ -4405,6 +4405,13 @@
                                      <div style="text-align: right; width: 45%;">${companyName}</div>`
                                 }
                             </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px; font-size: 10px;">
+                            <p style="margin: 1px 0;"><strong>Data:</strong> ${formattedMatchDate}</p>
+                            <p style="margin: 1px 0;"><strong>Orario:</strong> ${convocationData.details.orarioPartita || 'N/D'}</p>
+                            <p style="margin: 1px 0;"><strong>Campo:</strong> ${convocationData.details.campo || 'N/D'}</p>
+                            
                             ${companyInfo.categoria ? `<p style="margin: 1px 0;"><strong>Categoria:</strong> ${companyInfo.categoria}</p>` : ''}
                             <p style="margin: 1px 0;"><strong>Girone:</strong> <span style="border-bottom: 1px solid #000; padding-bottom: 2px; display: inline-block; min-width: 150px;" contenteditable="true" id="editable-girone">______________</span></p>
                         </div>
