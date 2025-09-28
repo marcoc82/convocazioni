@@ -221,7 +221,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.8</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 3.9</span>
             </div>
         </div>
 
@@ -1562,6 +1562,11 @@
                 return userRole === 'marco' || userRole === 'dirigente';
             }
 
+            // Helper function to check if user can access distinta functionality (both mister and dirigente)
+            function canAccessDistinta() {
+                return userRole === 'marco' || userRole === 'dirigente' || userRole === 'mister';
+            }
+
             // Helper function to check if a player was already called up today
             function isPlayerCalledToday(playerName) {
                 if (!convocationHistory || convocationHistory.length === 0) {
@@ -2313,10 +2318,20 @@
                     return [];
                 }
 
-                // Demo mode - load from localStorage
+                // Demo mode - load from localStorage or provide defaults
                 if (currentCompanyCode === "DEMO" || currentCompanyCode === "demo") {
                     const storedDirectors = localStorage.getItem(`directors_${currentCompanyCode}`);
-                    return storedDirectors ? JSON.parse(storedDirectors) : [];
+                    if (storedDirectors) {
+                        return JSON.parse(storedDirectors);
+                    } else {
+                        // Provide default directors for demo mode
+                        const defaultDirectors = [
+                            { name: "Marco", surname: "Dirigente", matricola: "DIR001" },
+                            { name: "Giuseppe", surname: "Presidente", matricola: "DIR002" },
+                            { name: "Antonio", surname: "Segretario", matricola: "DIR003" }
+                        ];
+                        return defaultDirectors;
+                    }
                 }
 
                 // Firebase mode - load from directors subcollection
@@ -2584,7 +2599,7 @@
                         </div>
                         <div class="mt-3 flex gap-2">
                             <button class="share-history-btn bg-blue-500 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded" data-convocation='${safeJSONStringify(data)}'>Condividi</button>
-                            ${isDirigente() ? `<button class="distinta-history-btn bg-green-500 hover:bg-green-700 text-white text-xs px-3 py-1 rounded" data-convocation='${safeJSONStringify(data)}'>Distinta</button>` : ''}
+                            ${canAccessDistinta() ? `<button class="distinta-history-btn bg-green-500 hover:bg-green-700 text-white text-xs px-3 py-1 rounded" data-convocation='${safeJSONStringify(data)}'>Distinta</button>` : ''}
                             ${isDirigente() ? `<button class="delete-history-btn bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 rounded" data-docid="${data.id}">Elimina</button>` : ''}
                         </div>
                     `;
@@ -2638,7 +2653,7 @@
                 });
 
                 // Listener sui pulsanti "Distinta" per singole convocazioni
-                if (isDirigente()) {
+                if (canAccessDistinta()) {
                     const distintaButtons = historyList.querySelectorAll('.distinta-history-btn');
                     distintaButtons.forEach(btn => {
                         btn.addEventListener('click', (e) => {
@@ -2934,7 +2949,7 @@
                         </div>
                         <div class="mt-3 flex gap-2">
                             <button class="share-history-btn bg-blue-500 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded" data-convocation='${safeJSONStringify(data)}'>Condividi</button>
-                            ${isDirigente() ? `<button class="distinta-history-btn bg-green-500 hover:bg-green-700 text-white text-xs px-3 py-1 rounded" data-convocation='${safeJSONStringify(data)}'>Distinta</button>` : ''}
+                            ${canAccessDistinta() ? `<button class="distinta-history-btn bg-green-500 hover:bg-green-700 text-white text-xs px-3 py-1 rounded" data-convocation='${safeJSONStringify(data)}'>Distinta</button>` : ''}
                             ${isDirigente() ? `<button class="delete-history-btn bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 rounded" data-docid="${data.id}">Elimina (Demo)</button>` : ''}
                         </div>
                         <div class="mt-2 text-xs text-blue-600 italic">Modalità Demo - Dati di esempio</div>
