@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, aligned DIRIGENTE text, added director columns, added new distinta player columns (CAPITANO, AMMONITO, ESPULSO), centered attendance numbers, show all players including zero attendance, updated to V5.0, implemented guest access via ospitecode map, improved UI button spacing, enabled share button for dirigente users in history, changed distinta share to create image instead of text, added official declaration text before signatures -->
+<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, aligned DIRIGENTE text, added director columns, added new distinta player columns (CAPITANO, AMMONITO, ESPULSO), centered attendance numbers, show all players including zero attendance, updated to V5.1, implemented guest access via ospitecode map, improved UI button spacing, enabled share button for dirigente users in history, changed distinta share to create PDF instead of image, fixed campionato button visibility for guest users, added official declaration text before signatures -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +18,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- CONFIGURAZIONE FIREBASE -->
     <script type="module">
   import { cercaSocietaDaCodice } from './cercaSocietaDaCodice.js';
@@ -222,7 +224,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 5.0</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 5.1</span>
             </div>
         </div>
 
@@ -4074,8 +4076,17 @@
                     // Show training attendance for specific companies and guests
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                     const isPolisCompany = companyName === 'POLIS';
+                    const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
+                    
                     if (isPolisCompany) {
                         trainingAttendanceButton.classList.remove('hidden');
+                    }
+                    
+                    // Show/hide campionato button for POLIS PIEVE 2010 (also for guests)
+                    if (isPolisPieveCompany) {
+                        campionatoButton.classList.remove('hidden');
+                    } else {
+                        campionatoButton.classList.add('hidden');
                     }
                     
                     console.log('👤 Guest login detected - restricted UI enabled');
@@ -5304,7 +5315,100 @@
             }
             
             function shareDistinta() {
-                shareDistintaAsImage();
+                shareDistintaAsPDF();
+            }
+            
+            async function shareDistintaAsPDF() {
+                try {
+                    // Generate PDF from distinta content
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF({
+                        orientation: 'portrait',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    
+                    // Get the distinta content element
+                    const element = distintaContent;
+                    
+                    // Use html2canvas to convert to image first, then add to PDF
+                    const canvas = await html2canvas(element, {
+                        scale: 2,
+                        backgroundColor: '#ffffff',
+                        useCORS: true,
+                        allowTaint: true
+                    });
+                    
+                    const imgData = canvas.toDataURL('image/png');
+                    
+                    // Calculate dimensions to fit A4
+                    const imgWidth = 210; // A4 width in mm
+                    const pageHeight = 295; // A4 height in mm
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    let heightLeft = imgHeight;
+                    
+                    let position = 0;
+                    
+                    // Add first page
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                    
+                    // Add additional pages if needed
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+                    
+                    // Generate filename with match details
+                    const matchDate = document.getElementById('share-data-partita')?.textContent || new Date().toLocaleDateString('it-IT');
+                    const opponent = document.getElementById('share-avversario')?.textContent || 'Partita';
+                    const filename = `Distinta_${opponent.replace(/\s+/g, '_')}_${matchDate.replace(/\//g, '-')}.pdf`;
+                    
+                    // Check if device supports Web Share API with files
+                    if (navigator.share && navigator.canShare) {
+                        try {
+                            // Convert PDF to blob
+                            const pdfBlob = pdf.output('blob');
+                            const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+                            
+                            const shareData = {
+                                title: 'Distinta Ufficiale',
+                                text: 'Distinta ufficiale della partita',
+                                files: [file]
+                            };
+                            
+                            if (navigator.canShare(shareData)) {
+                                await navigator.share(shareData);
+                                showMessage("Distinta PDF condivisa con successo!", "text-green-600");
+                                console.log('✅ PDF shared successfully via Web Share API');
+                                return;
+                            }
+                        } catch (webShareError) {
+                            console.log('Web Share with PDF failed:', webShareError);
+                        }
+                    }
+                    
+                    // Fallback: download the PDF
+                    pdf.save(filename);
+                    showMessage("PDF della distinta scaricato!", "text-green-600");
+                    console.log('📁 PDF downloaded:', filename);
+                    
+                } catch (error) {
+                    console.error('❌ Error generating PDF:', error);
+                    // Fallback to the old image method if PDF generation fails
+                    try {
+                        console.log('🔄 Falling back to image sharing...');
+                        await shareDistintaAsImage();
+                        showMessage("Errore PDF, condivisa come immagine!", "text-orange-600");
+                    } catch (fallbackError) {
+                        console.error('❌ Image fallback also failed:', fallbackError);
+                        showMessage("Errore nella generazione del file. Usa 'Copia Distinta' come alternativa.", "text-red-600");
+                        // Final fallback to text copy
+                        copyDistintaToClipboard();
+                    }
+                }
             }
             
             async function shareDistintaAsImage() {
