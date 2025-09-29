@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Changes - Convocazioni V4.9</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .code { background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; margin: 10px 0; }
+        .highlight { background-color: #fff3cd; padding: 2px 4px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>✅ Convocazioni V4.9 - Changes Implemented</h1>
+    
+    <div class="section success">
+        <h2>Summary of Changes Made</h2>
+        <ul>
+            <li><strong>Issue 1 ✅ ALREADY CORRECT:</strong> Login with ospitecode (map) correctly checks using <code>Object.values(societa.ospitecode).includes(codiceInserito)</code></li>
+            <li><strong>Issue 2 ✅ FIXED:</strong> "Condividi" button in historical convocations now available for dirigente users</li>
+            <li><strong>Issue 3 ✅ FIXED:</strong> Distinta "Condividi" button now creates image screenshot instead of text file</li>
+            <li><strong>Issue 4 ✅ FIXED:</strong> Updated HTML version from V 4.8 to V 4.9</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Issue 1: Guest Login with ospitecode Map ✅</h2>
+        <p><strong>Status:</strong> Already correctly implemented</p>
+        <p><strong>Location:</strong> <code>cercaSocietaDaCodice.js</code> lines 192-193</p>
+        <div class="code">
+            <strong>Existing correct code:</strong><br>
+            const guestCodes = Object.values(societaData.ospitecode);<br>
+            isGuestLogin = guestCodes.includes(codiceNormalizzato);
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Issue 2: Share Button for Dirigente in History ✅</h2>
+        <p><strong>Changes made:</strong></p>
+        <ol>
+            <li>Added new <code>canShareHistory()</code> function that allows both mister and dirigente roles</li>
+            <li>Updated historical share buttons to use <code>canShareHistory()</code> instead of <code>canShare()</code></li>
+            <li>Applied to both regular and demo history sections</li>
+        </ol>
+        <div class="code">
+            <strong>New function added:</strong><br>
+            function canShareHistory() {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;return !isGuestUser && (userRole === 'mister' || userRole === 'dirigente');<br>
+            }
+        </div>
+        <div class="code">
+            <strong>Updated button code:</strong><br>
+            ${canShareHistory() ? `&lt;button class="share-history-btn"&gt;Condividi&lt;/button&gt;` : ''}
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Issue 3: Distinta Share as Image ✅</h2>
+        <p><strong>Changes made:</strong></p>
+        <ol>
+            <li>Replaced text-based <code>shareDistinta()</code> function with image-based sharing</li>
+            <li>Uses <code>html2canvas</code> to capture distinta content as PNG image</li>
+            <li>Supports Web Share API with image files on mobile devices</li>
+            <li>Falls back to image download if sharing is not available</li>
+            <li>Added <code>downloadDistintaImage()</code> helper function</li>
+        </ol>
+        <div class="code">
+            <strong>New sharing process:</strong><br>
+            1. Capture distinta content with html2canvas<br>
+            2. Try Web Share API with image file<br>
+            3. Fallback to text share + image download<br>
+            4. Final fallback: image download only
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Issue 4: Version Update ✅</h2>
+        <p><strong>Changes made:</strong></p>
+        <ol>
+            <li>Updated version display from V 4.8 to <span class="highlight">V 4.9</span></li>
+            <li>Updated HTML comment with new change description</li>
+        </ol>
+        <div class="code">
+            <strong>Version display updated:</strong><br>
+            &lt;span&gt;V 4.9&lt;/span&gt;
+        </div>
+        <div class="code">
+            <strong>Comment updated:</strong><br>
+            &lt;!-- Version: 2024-01-20 - ... updated to V4.9, ... enabled share button for dirigente users in history, changed distinta share to create image instead of text --&gt;
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Technical Details</h2>
+        <p><strong>Files Modified:</strong></p>
+        <ul>
+            <li><code>index.html</code> - Main application file with all the logic changes</li>
+            <li><code>cercaSocietaDaCodice.js</code> - Verified (no changes needed, already correct)</li>
+        </ul>
+        
+        <p><strong>Functions Added/Modified:</strong></p>
+        <ul>
+            <li><code>canShareHistory()</code> - New function to check share permissions for history</li>
+            <li><code>shareDistinta()</code> - Modified to call image sharing function</li>
+            <li><code>shareDistintaAsImage()</code> - New function for image-based sharing</li>
+            <li><code>downloadDistintaImage()</code> - New helper for image downloads</li>
+        </ul>
+    </div>
+
+    <script>
+        console.log('🧪 Test page loaded - All changes implemented for V4.9');
+        console.log('✅ Issue 1: ospitecode login - already correct');
+        console.log('✅ Issue 2: dirigente share button - added canShareHistory()');
+        console.log('✅ Issue 3: distinta image sharing - implemented');
+        console.log('✅ Issue 4: version update - V4.8 → V4.9');
+    </script>
+</body>
+</html>
