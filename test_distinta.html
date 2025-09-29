@@ -10,6 +10,7 @@
         table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10px; }
         th, td { border: 1px solid #000; padding: 4px; text-align: left; }
         th { font-weight: bold; }
+        .captain-col, .warned-col, .expelled-col { text-align: center; }
         .team-vs { margin: 12px 0; display: flex; justify-content: space-between; align-items: center; border: 2px solid #000; padding: 16px; background-color: #f8f9fa; }
         .team-left { text-align: left; font-weight: bold; font-size: 16px; width: 45%; }
         .team-vs-center { text-align: center; font-weight: bold; font-size: 18px; width: 10%; }
@@ -17,13 +18,14 @@
     </style>
 </head>
 <body>
-    <h1>Test Distinta Changes - V3.9</h1>
+    <h1>Test Distinta Changes - V4.5</h1>
     
     <h2>Changes Made:</h2>
     <ol>
         <li><strong>Column Header:</strong> Changed from "NOME E COGNOME" to "Cognome e Nome"</li>
         <li><strong>Team Positioning:</strong> Added dynamic team vs opponent positioning for home/away games</li>
         <li><strong>Enhanced Team Visibility (V3.9):</strong> Increased font size, padding, border thickness, and added background color for better team field prominence</li>
+        <li><strong>New Player Columns (V4.5):</strong> Added three new columns for players: CAPITANO, AMMONITO, ESPULSO</li>
     </ol>
 
     <h2>Home Game Example</h2>
@@ -50,10 +52,13 @@
         <table>
             <thead>
                 <tr style="border-bottom: 2px solid #000;">
-                    <th style="width: 8%;">N°</th>
-                    <th style="width: 42%;">Cognome e Nome</th> <!-- CHANGED from "NOME E COGNOME" -->
-                    <th style="width: 25%;">DATA NASCITA</th>
-                    <th style="width: 25%;">MATRICOLA</th>
+                    <th style="width: 6%;">N°</th>
+                    <th style="width: 26%;">Cognome e Nome</th> <!-- CHANGED from "NOME E COGNOME" -->
+                    <th style="width: 16%;">DATA NASCITA</th>
+                    <th style="width: 16%;">MATRICOLA</th>
+                    <th style="width: 12%;" class="captain-col">CAPITANO</th> <!-- NEW COLUMN -->
+                    <th style="width: 12%;" class="warned-col">AMMONITO</th> <!-- NEW COLUMN -->
+                    <th style="width: 12%;" class="expelled-col">ESPULSO</th> <!-- NEW COLUMN -->
                 </tr>
             </thead>
             <tbody>
@@ -62,18 +67,27 @@
                     <td>ROSSI MARIO</td>
                     <td>01/01/1990</td>
                     <td>ABC123</td>
+                    <td class="captain-col"></td> <!-- Empty for manual completion -->
+                    <td class="warned-col"></td> <!-- Empty for manual completion -->
+                    <td class="expelled-col"></td> <!-- Empty for manual completion -->
                 </tr>
                 <tr>
                     <td>2</td>
                     <td>VERDI GIUSEPPE</td>
                     <td>02/02/1991</td>
                     <td>DEF456</td>
+                    <td class="captain-col"></td> <!-- Empty for manual completion -->
+                    <td class="warned-col"></td> <!-- Empty for manual completion -->
+                    <td class="expelled-col"></td> <!-- Empty for manual completion -->
                 </tr>
                 <tr>
                     <td>3</td>
                     <td>BIANCHI ALESSANDRO</td>
                     <td>03/03/1992</td>
                     <td>GHI789</td>
+                    <td class="captain-col"></td> <!-- Empty for manual completion -->
+                    <td class="warned-col"></td> <!-- Empty for manual completion -->
+                    <td class="expelled-col"></td> <!-- Empty for manual completion -->
                 </tr>
             </tbody>
         </table>
@@ -103,10 +117,13 @@
         <table>
             <thead>
                 <tr style="border-bottom: 2px solid #000;">
-                    <th style="width: 8%;">N°</th>
-                    <th style="width: 42%;">Cognome e Nome</th> <!-- CHANGED from "NOME E COGNOME" -->
-                    <th style="width: 25%;">DATA NASCITA</th>
-                    <th style="width: 25%;">MATRICOLA</th>
+                    <th style="width: 6%;">N°</th>
+                    <th style="width: 26%;">Cognome e Nome</th> <!-- CHANGED from "NOME E COGNOME" -->
+                    <th style="width: 16%;">DATA NASCITA</th>
+                    <th style="width: 16%;">MATRICOLA</th>
+                    <th style="width: 12%;" class="captain-col">CAPITANO</th> <!-- NEW COLUMN -->
+                    <th style="width: 12%;" class="warned-col">AMMONITO</th> <!-- NEW COLUMN -->
+                    <th style="width: 12%;" class="expelled-col">ESPULSO</th> <!-- NEW COLUMN -->
                 </tr>
             </thead>
             <tbody>
@@ -115,18 +132,27 @@
                     <td>ROSSI MARIO</td>
                     <td>01/01/1990</td>
                     <td>ABC123</td>
+                    <td class="captain-col"></td> <!-- Empty for manual completion -->
+                    <td class="warned-col"></td> <!-- Empty for manual completion -->
+                    <td class="expelled-col"></td> <!-- Empty for manual completion -->
                 </tr>
                 <tr>
                     <td>2</td>
                     <td>VERDI GIUSEPPE</td>
                     <td>02/02/1991</td>
                     <td>DEF456</td>
+                    <td class="captain-col"></td> <!-- Empty for manual completion -->
+                    <td class="warned-col"></td> <!-- Empty for manual completion -->
+                    <td class="expelled-col"></td> <!-- Empty for manual completion -->
                 </tr>
                 <tr>
                     <td>3</td>
                     <td>BIANCHI ALESSANDRO</td>
                     <td>03/03/1992</td>
                     <td>GHI789</td>
+                    <td class="captain-col"></td> <!-- Empty for manual completion -->
+                    <td class="warned-col"></td> <!-- Empty for manual completion -->
+                    <td class="expelled-col"></td> <!-- Empty for manual completion -->
                 </tr>
             </tbody>
         </table>
@@ -137,7 +163,8 @@
         <li><strong>Column Header:</strong> Now shows "Cognome e Nome" instead of "NOME E COGNOME"</li>
         <li><strong>Home Game:</strong> Company name (Società Demo) on the left, opponent (Squadra Avversaria) on the right</li>
         <li><strong>Away Game:</strong> Opponent (Squadra Avversaria) on the left, company name (Società Demo) on the right</li>
-        <li><strong>Version:</strong> App version updated to V3.4</li>
+        <li><strong>Version:</strong> App version updated to V4.5</li>
+        <li><strong>New Columns:</strong> Added CAPITANO, AMMONITO, ESPULSO columns for players (empty for manual completion)</li>
     </ul>
 </body>
 </html>
