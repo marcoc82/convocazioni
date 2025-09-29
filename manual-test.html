@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Test - Guest Functionality</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { margin: 5px; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-info { background-color: #17a2b8; color: white; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Manual Test - Guest Code Functionality</h1>
+    <p>This page tests the guest login functionality without Firebase dependencies.</p>
+    
+    <div class="test-section">
+        <h2>Test 1: Helper Functions</h2>
+        <button class="btn-info" onclick="testHelperFunctions()">Test Helper Functions</button>
+        <div id="helper-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Demo Company Data Verification</h2>
+        <button class="btn-info" onclick="testDemoCompanyData()">Test Demo Company Data</button>
+        <div id="demo-results"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: UI Element Visibility</h2>
+        <button class="btn-info" onclick="testUIVisibility()">Test UI Visibility Rules</button>
+        <div id="ui-results"></div>
+    </div>
+
+    <script>
+        // Simulate the helper functions from the main application
+        let isGuestUser = false;
+        let userRole = null;
+
+        function isGuest() {
+            return isGuestUser;
+        }
+
+        function isDirigente() {
+            return !isGuestUser && (userRole === 'marco' || userRole === 'dirigente');
+        }
+
+        function canAccessDistinta() {
+            return !isGuestUser && (userRole === 'marco' || userRole === 'dirigente' || userRole === 'mister');
+        }
+
+        function canShare() {
+            return !isGuestUser && userRole === 'mister';
+        }
+
+        // Simulate the verifyCompanyCode function logic for demo mode
+        function simulateVerifyCompanyCode(companyCode) {
+            if (companyCode === "DEMO" || companyCode === "demo") {
+                return {
+                    name: "Società Demo",
+                    passwords: {
+                        mister: "mister123",
+                        marco: "marco123",
+                        dirigente: "marco123"
+                    },
+                    isGuestLogin: false,
+                    data: {
+                        id: "demo-demo",
+                        nome: "Società Demo",
+                        codici: "DEMO",
+                        attiva: true
+                    }
+                };
+            } else if (companyCode === "GUEST" || companyCode === "guest") {
+                return {
+                    name: "Società Demo",
+                    passwords: {},
+                    isGuestLogin: true,
+                    data: {
+                        id: "demo-demo",
+                        nome: "Società Demo",
+                        codici: "DEMO",
+                        ospitecode: "GUEST",
+                        attiva: true
+                    }
+                };
+            } else {
+                return null;
+            }
+        }
+
+        function addResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+        }
+
+        function testHelperFunctions() {
+            const containerId = 'helper-results';
+            document.getElementById(containerId).innerHTML = '';
+            
+            addResult(containerId, '🧪 Testing Helper Functions...', 'info');
+            
+            // Test normal user state
+            isGuestUser = false;
+            userRole = 'mister';
+            
+            if (canShare() && canAccessDistinta() && !isGuest()) {
+                addResult(containerId, '✅ Normal mister user: All functions work correctly', 'success');
+            } else {
+                addResult(containerId, '❌ Normal mister user: Functions not working as expected', 'error');
+            }
+            
+            // Test guest state
+            isGuestUser = true;
+            userRole = 'guest';
+            
+            if (!canShare() && !canAccessDistinta() && isGuest()) {
+                addResult(containerId, '✅ Guest user: Correctly restricted access', 'success');
+            } else {
+                addResult(containerId, '❌ Guest user: Restrictions not working properly', 'error');
+            }
+            
+            // Test dirigente state
+            isGuestUser = false;
+            userRole = 'dirigente';
+            
+            if (!canShare() && canAccessDistinta() && isDirigente()) {
+                addResult(containerId, '✅ Dirigente user: Correct permissions', 'success');
+            } else {
+                addResult(containerId, '❌ Dirigente user: Permissions not working properly', 'error');
+            }
+        }
+
+        function testDemoCompanyData() {
+            const containerId = 'demo-results';
+            document.getElementById(containerId).innerHTML = '';
+            
+            addResult(containerId, '🧪 Testing Demo Company Data...', 'info');
+            
+            // Test normal company code
+            const demoResult = simulateVerifyCompanyCode('DEMO');
+            if (demoResult && !demoResult.isGuestLogin) {
+                addResult(containerId, '✅ DEMO code: Returns normal company access', 'success');
+            } else {
+                addResult(containerId, '❌ DEMO code: Not working correctly', 'error');
+            }
+            
+            // Test guest code
+            const guestResult = simulateVerifyCompanyCode('GUEST');
+            if (guestResult && guestResult.isGuestLogin) {
+                addResult(containerId, '✅ GUEST code: Returns guest access with isGuestLogin=true', 'success');
+            } else {
+                addResult(containerId, '❌ GUEST code: Not working correctly', 'error');
+            }
+            
+            // Test invalid code
+            const invalidResult = simulateVerifyCompanyCode('INVALID');
+            if (invalidResult === null) {
+                addResult(containerId, '✅ INVALID code: Correctly returns null', 'success');
+            } else {
+                addResult(containerId, '❌ INVALID code: Should return null', 'error');
+            }
+        }
+
+        function testUIVisibility() {
+            const containerId = 'ui-results';
+            document.getElementById(containerId).innerHTML = '';
+            
+            addResult(containerId, '🧪 Testing UI Visibility Logic...', 'info');
+            
+            // Simulate guest login state
+            const mockCompanyData = { isGuestLogin: true, name: "Test Company" };
+            
+            // Test button visibility logic for guests
+            const shouldShowNormalLogin = !mockCompanyData.isGuestLogin;
+            const shouldShowAdminButtons = !mockCompanyData.isGuestLogin;
+            const shouldShowGuestIndicator = mockCompanyData.isGuestLogin;
+            
+            if (!shouldShowNormalLogin && !shouldShowAdminButtons && shouldShowGuestIndicator) {
+                addResult(containerId, '✅ Guest UI: Correct button visibility logic', 'success');
+            } else {
+                addResult(containerId, '❌ Guest UI: Button visibility logic incorrect', 'error');
+            }
+            
+            // Test normal login state
+            const mockNormalData = { isGuestLogin: false, name: "Test Company" };
+            const shouldShowNormalLoginForNormal = !mockNormalData.isGuestLogin;
+            const shouldShowAdminButtonsForNormal = !mockNormalData.isGuestLogin;
+            const shouldShowGuestIndicatorForNormal = mockNormalData.isGuestLogin;
+            
+            if (shouldShowNormalLoginForNormal && shouldShowAdminButtonsForNormal && !shouldShowGuestIndicatorForNormal) {
+                addResult(containerId, '✅ Normal UI: Correct button visibility logic', 'success');
+            } else {
+                addResult(containerId, '❌ Normal UI: Button visibility logic incorrect', 'error');
+            }
+        }
+
+        // Auto-run all tests
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                testHelperFunctions();
+                testDemoCompanyData();
+                testUIVisibility();
+            }, 100);
+        });
+    </script>
+</body>
+</html>

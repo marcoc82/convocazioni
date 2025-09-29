@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Guest Code Functionality</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>Test Guest Code Functionality</h1>
+    <div id="test-results"></div>
+
+    <script type="module">
+        // Import the cercaSocietaDaCodice function
+        import { cercaSocietaDaCodice } from '/cercaSocietaDaCodice.js';
+
+        const testResults = document.getElementById('test-results');
+
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            testResults.appendChild(div);
+        }
+
+        async function runTests() {
+            addResult('🧪 Starting Guest Code Tests...', 'info');
+            
+            try {
+                // Test 1: Normal company code (should work without guest flag)
+                addResult('Test 1: Testing normal company code DEMO', 'info');
+                const normalResult = await cercaSocietaDaCodice('DEMO');
+                if (normalResult && !normalResult.isGuestLogin) {
+                    addResult('✅ Test 1 PASSED: Normal company code works correctly', 'success');
+                } else {
+                    addResult('❌ Test 1 FAILED: Normal company code not working as expected', 'error');
+                }
+
+                // Test 2: Guest code (should work with guest flag)
+                addResult('Test 2: Testing guest code GUEST', 'info');
+                const guestResult = await cercaSocietaDaCodice('GUEST');
+                if (guestResult && guestResult.isGuestLogin) {
+                    addResult('✅ Test 2 PASSED: Guest code works with isGuestLogin flag', 'success');
+                } else {
+                    addResult('❌ Test 2 FAILED: Guest code not working or missing isGuestLogin flag', 'error');
+                }
+
+                // Test 3: Invalid code (should return null)
+                addResult('Test 3: Testing invalid code INVALID', 'info');
+                const invalidResult = await cercaSocietaDaCodice('INVALID');
+                if (invalidResult === null) {
+                    addResult('✅ Test 3 PASSED: Invalid code correctly returns null', 'success');
+                } else {
+                    addResult('❌ Test 3 FAILED: Invalid code should return null', 'error');
+                }
+
+                addResult('🏁 All tests completed!', 'info');
+
+            } catch (error) {
+                addResult(`❌ Error during testing: ${error.message}`, 'error');
+                console.error('Test error:', error);
+            }
+        }
+
+        // Run tests when page loads
+        runTests();
+    </script>
+</body>
+</html>
