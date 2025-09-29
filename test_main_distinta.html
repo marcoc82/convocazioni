@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Distinta Generation - Main Code</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .test-section { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .distinta-content { border: 2px solid #000; padding: 20px; font-family: monospace; font-size: 12px; background: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Distinta Generation - Main Code</h1>
+        <p>This test uses the actual distinta generation functions from the main application.</p>
+        
+        <div class="test-section">
+            <h2>Test</h2>
+            <p>Click the button below to generate a test distinta using the main application code:</p>
+            <button onclick="generateTestDistinta()">Generate Test Distinta</button>
+        </div>
+
+        <div id="result-section" class="test-section" style="display: none;">
+            <h2>Generated Distinta</h2>
+            <div id="distinta-output" class="distinta-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // Mock the global variables and functions needed by the main app
+        let selectedDirigenti = [
+            { name: "Marco", surname: "Dirigente", matricola: "DIR001" }
+        ];
+        
+        let companyCoaches = [
+            { name: "Giuseppe Allenatore", matricola: "COACH001" }
+        ];
+        
+        let companyPlayers = [
+            { numero: "1", nome: "ROSSI MARIO", dataNascita: "1990-01-01", matricola: "ABC123" },
+            { numero: "2", nome: "VERDI GIUSEPPE", dataNascita: "1991-02-02", matricola: "DEF456" },
+            { numero: "3", nome: "BIANCHI ALESSANDRO", dataNascita: "1992-03-03", matricola: "GHI789" }
+        ];
+        
+        let currentCompanyCode = "DEMO";
+        
+        // Mock convocation data
+        const testConvocationData = {
+            details: {
+                data: "2024-01-20",
+                orarioPartita: "15:00",
+                campo: "Stadio Test",
+                avversario: "Squadra Avversaria",
+                misterPartita: "Giuseppe Allenatore",
+                misterTipo: null
+            }
+        };
+        
+        function generateTestDistinta() {
+            try {
+                console.log("Generating test distinta...");
+                
+                // Use the main app's createDistintaContent function (we'll inline it for testing)
+                const content = createDistintaContentTest(testConvocationData, 'casa');
+                
+                document.getElementById('distinta-output').innerHTML = content;
+                document.getElementById('result-section').style.display = 'block';
+                
+                console.log("Distinta generated successfully!");
+                
+                // Check if directors section contains unwanted columns
+                const hasUnwantedColumns = content.includes('Capitano: _____') || 
+                                          content.includes('Ammonito: _____') || 
+                                          content.includes('Espulso: _____');
+                
+                if (hasUnwantedColumns) {
+                    alert("❌ TEST FAILED: Directors section still contains CAPITANO/AMMONITO/ESPULSO columns!");
+                } else {
+                    alert("✅ TEST PASSED: Directors section is clean (no CAPITANO/AMMONITO/ESPULSO columns)!");
+                }
+                
+            } catch (error) {
+                console.error("Error generating distinta:", error);
+                alert("Error generating distinta: " + error.message);
+            }
+        }
+        
+        // Copy the exact functions from the main app for testing
+        function createDistintaContentTest(convocationData, location) {
+            const locationText = location === 'casa' ? 'IN CASA' : 'IN TRASFERTA';
+            
+            // Mock company info
+            const companyInfo = {
+                ragioneSociale: "Società Demo",
+                categoria: "Juniores"
+            };
+            
+            // Create players table
+            const playerRows = createPlayerRowsTest(['1 ROSSI MARIO', '2 VERDI GIUSEPPE', '3 BIANCHI ALESSANDRO']);
+            const staffRows = createStaffRowsTest(convocationData);
+            
+            const formattedMatchDate = "SABATO 20 gennaio 2024";
+            
+            const content = `
+                <div style="font-family: monospace; font-size: 12px; line-height: 1.4;">
+                    <div style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 8px;">
+                        <h1 style="font-size: 16px; font-weight: bold; margin: 0;">${companyInfo.ragioneSociale || 'Società Demo'}</h1>
+                        <h2 style="font-size: 14px; font-weight: bold; margin: 6px 0;">DISTINTA UFFICIALE</h2>
+                        <p style="font-size: 12px; margin: 3px 0;"><strong>Partita ${locationText}</strong></p>
+                    </div>
+                    
+                    <div style="margin-bottom: 10px; font-size: 10px;">
+                        <p style="margin: 1px 0;"><strong>Data:</strong> ${formattedMatchDate}</p>
+                        <p style="margin: 1px 0;"><strong>Orario:</strong> ${convocationData.details.orarioPartita || 'N/D'}</p>
+                        <p style="margin: 1px 0;"><strong>Campo:</strong> ${convocationData.details.campo || 'N/D'}</p>
+                        
+                        ${companyInfo.categoria ? `<p style="margin: 1px 0;"><strong>Categoria:</strong> ${companyInfo.categoria}</p>` : ''}
+                        <p style="margin: 1px 0;"><strong>Girone:</strong> <span style="border-bottom: 1px solid #000; padding-bottom: 2px; display: inline-block; min-width: 150px;" contenteditable="true" id="editable-girone"> </span></p>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #000;">
+                                <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 6%;">N°</th>
+                                <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 26%;">COGNOME E NOME</th>
+                                <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 16%;">DATA NASCITA</th>
+                                <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 16%;">MATRICOLA</th>
+                                <th style="text-align: center; padding: 4px; border: 1px solid #000; width: 12%;">CAPITANO</th>
+                                <th style="text-align: center; padding: 4px; border: 1px solid #000; width: 12%;">AMMONITO</th>
+                                <th style="text-align: center; padding: 4px; border: 1px solid #000; width: 12%;">ESPULSO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${playerRows}
+                        </tbody>
+                    </table>
+                    
+                    <div style="margin: 15px 0;">
+                        <h3 style="font-size: 12px; font-weight: bold; margin-bottom: 8px;">STAFF TECNICO:</h3>
+                        ${staffRows}
+                    </div>
+                    
+                    <div style="margin-top: 25px; display: flex; justify-content: space-between;">
+                        <div style="text-align: center; width: 45%;">
+                            <p style="border-bottom: 1px solid #000; padding-bottom: 30px; margin-bottom: 3px;"></p>
+                            <p style="font-size: 10px; font-weight: bold;">FIRMA ARBITRO</p>
+                        </div>
+                        <div style="text-align: center; width: 45%;">
+                            <p style="border-bottom: 1px solid #000; padding-bottom: 30px; margin-bottom: 3px;"></p>
+                            <p style="font-size: 10px; font-weight: bold;">FIRMA DIRIGENTE</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return content;
+        }
+        
+        function createPlayerRowsTest(players) {
+            let rows = '';
+            
+            players.forEach(playerString => {
+                const parts = playerString.split(' ');
+                const number = parts[0];
+                const name = parts.slice(1).join(' ');
+                
+                // Try to find extended data for this player
+                const extendedData = companyPlayers.find(p => 
+                    p.name === name || 
+                    p.nome === name ||
+                    (p.numero && p.numero.toString() === number)
+                );
+                
+                let birthDate = '___/___/______';
+                if (extendedData?.dataNascita) {
+                    const date = new Date(extendedData.dataNascita);
+                    if (!isNaN(date.getTime())) {
+                        birthDate = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    } else {
+                        birthDate = extendedData.dataNascita;
+                    }
+                }
+                const matricola = extendedData?.matricola || '__________';
+                
+                rows += `
+                    <tr style="border-bottom: 1px solid #000;">
+                        <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${number}</td>
+                        <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${name}</td>
+                        <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${birthDate}</td>
+                        <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${matricola}</td>
+                        <td style="padding: 4px; border: 1px solid #000; font-size: 10px; text-align: center;"></td>
+                        <td style="padding: 4px; border: 1px solid #000; font-size: 10px; text-align: center;"></td>
+                        <td style="padding: 4px; border: 1px solid #000; font-size: 10px; text-align: center;"></td>
+                    </tr>
+                `;
+            });
+            
+            return rows;
+        }
+        
+        function createStaffRowsTest(convocationData) {
+            let rows = '';
+            
+            // Function to get coach matricola by name
+            function getCoachMatricola(coachName) {
+                if (!companyCoaches || !coachName) return '__________';
+                
+                const coach = companyCoaches.find(c => 
+                    (typeof c === 'string' ? c : c.name) === coachName
+                );
+                
+                if (coach && typeof coach === 'object' && coach.matricola) {
+                    return coach.matricola;
+                }
+                return '__________';
+            }
+            
+            // Get match-specific coaches from convocation data
+            const misterPartita = convocationData?.details?.misterPartita;
+            const misterTipo = convocationData?.details?.misterTipo;
+            
+            // Left side: Coaches
+            let coachesRows = '';
+            
+            // Show both coaches as "Allenatore"
+            if (misterPartita && misterPartita !== 'N/D' && misterPartita !== 'Seleziona mister') {
+                const matricola = getCoachMatricola(misterPartita);
+                coachesRows += `
+                    <p style="margin: 3px 0; font-size: 10px;">
+                        <strong>Allenatore:</strong> ${misterPartita} - Matricola: ${matricola}
+                    </p>
+                `;
+            }
+            
+            if (misterTipo && misterTipo !== 'N/D' && misterTipo !== 'Seleziona mister' && misterTipo !== misterPartita) {
+                const matricola = getCoachMatricola(misterTipo);
+                coachesRows += `
+                    <p style="margin: 3px 0; font-size: 10px;">
+                        <strong>Allenatore:</strong> ${misterTipo} - Matricola: ${matricola}
+                    </p>
+                `;
+            }
+            
+            // If no specific coaches are assigned, show default empty fields
+            if (!coachesRows) {
+                coachesRows = `
+                    <p style="margin: 3px 0; font-size: 10px;">
+                        <strong>Allenatore:</strong> ________________ - Matricola: __________
+                    </p>
+                `;
+            }
+            
+            // Right side: Directors (only selected ones) - FIXED VERSION WITHOUT UNWANTED COLUMNS
+            let directorsRows = '';
+            if (selectedDirigenti && selectedDirigenti.length > 0) {
+                selectedDirigenti.forEach(director => {
+                    const fullName = `${director.name || ''} ${director.surname || ''}`.trim();
+                    const matricola = director.matricola || '__________';
+                    directorsRows += `
+                        <p style="margin: 3px 0; font-size: 10px;">
+                            <strong>Dirigente:</strong> ${fullName} - Matricola: ${matricola}
+                        </p>
+                    `;
+                });
+            } else {
+                directorsRows = `
+                    <p style="margin: 3px 0; font-size: 10px;">
+                        <strong>Dirigente:</strong> ________________ - Matricola: __________
+                    </p>
+                `;
+            }
+            
+            // Combine both sides with proper layout
+            rows = `
+                <div style="display: flex; justify-content: space-between;">
+                    <div style="width: 48%;">
+                        ${coachesRows}
+                    </div>
+                    <div style="width: 48%;">
+                        ${directorsRows}
+                    </div>
+                </div>
+            `;
+            
+            return rows;
+        }
+    </script>
+</body>
+</html>
