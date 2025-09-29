@@ -65,36 +65,62 @@ async function cercaSocietaDaCodice(codice) {
         });
 
         // Creazione della query per cercare nella collection "societa"
-        // dove il campo "codici" corrisponde al codice inserito
+        // Primo tentativo: cerca nel campo "codici" (accesso normale)
         const collectionPath = 'societa';
         const societaRef = collection(db, collectionPath);
         
         console.log('📂 DEBUG - Collection path:', collectionPath);
         
-        const q = query(societaRef, where('codici', '==', codiceNormalizzato));
+        let q = query(societaRef, where('codici', '==', codiceNormalizzato));
         
-        console.log('🔎 DEBUG - Query costruita:', {
+        console.log('🔎 DEBUG - Query costruita per codici:', {
             collection: collectionPath,
             campo: 'codici',
             operatore: '==',
             valore: codiceNormalizzato,
-            tipoQuery: 'ricerca esatta'
+            tipoQuery: 'ricerca normale'
         });
 
-        // Esecuzione della query
-        console.log('⚡ DEBUG - Esecuzione query in corso...');
-        const querySnapshot = await getDocs(q);
+        // Esecuzione della prima query (codici normali)
+        console.log('⚡ DEBUG - Esecuzione query codici in corso...');
+        let querySnapshot = await getDocs(q);
 
-        // Log del numero di risultati trovati
-        console.log('📊 DEBUG - Risultati query:', {
+        // Log del numero di risultati trovati per codici normali
+        console.log('📊 DEBUG - Risultati query codici:', {
             numeroDocumenti: querySnapshot.size,
             isEmpty: querySnapshot.empty,
             timestamp: new Date().toISOString()
         });
 
-        // Verifica se sono stati trovati risultati
+        // Se non trovato nei codici normali, prova nei codici ospite
         if (querySnapshot.empty) {
-            console.log(`❌ DEBUG - Nessuna società trovata con codice: ${codiceNormalizzato}`);
+            console.log('🔍 DEBUG - Codice non trovato in "codici", tentativo con "ospitecode"...');
+            
+            q = query(societaRef, where('ospitecode', '==', codiceNormalizzato));
+            
+            console.log('🔎 DEBUG - Query costruita per ospitecode:', {
+                collection: collectionPath,
+                campo: 'ospitecode',
+                operatore: '==',
+                valore: codiceNormalizzato,
+                tipoQuery: 'ricerca ospite'
+            });
+
+            // Esecuzione della seconda query (codici ospite)
+            console.log('⚡ DEBUG - Esecuzione query ospitecode in corso...');
+            querySnapshot = await getDocs(q);
+
+            // Log del numero di risultati trovati per codici ospite
+            console.log('📊 DEBUG - Risultati query ospitecode:', {
+                numeroDocumenti: querySnapshot.size,
+                isEmpty: querySnapshot.empty,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Verifica se sono stati trovati risultati in entrambe le query
+        if (querySnapshot.empty) {
+            console.log(`❌ DEBUG - Nessuna società trovata con codice: ${codiceNormalizzato} (cercato in "codici" e "ospitecode")`);
             return null;
         }
 
@@ -107,12 +133,17 @@ async function cercaSocietaDaCodice(codice) {
         const societaDoc = querySnapshot.docs[0];
         const societaData = societaDoc.data();
 
+        // Determina se questo è un accesso ospite o normale
+        const isGuestLogin = societaData.ospitecode === codiceNormalizzato;
+
         console.log('📄 DEBUG - Dettagli documento trovato:', {
             documentId: societaDoc.id,
+            isGuestLogin: isGuestLogin,
             esisteCampoNome: 'nome' in societaData,
             esisteCampoConfig: 'config' in societaData,
             esisteCampoGiocatori: 'giocatori' in societaData,
             esisteCampoCodici: 'codici' in societaData,
+            esisteCampoOspitecode: 'ospitecode' in societaData,
             esisteCampoAttiva: 'attiva' in societaData,
             numeroCampiTotali: Object.keys(societaData).length,
             campiDisponibili: Object.keys(societaData)
@@ -125,6 +156,8 @@ async function cercaSocietaDaCodice(codice) {
             config: societaData.config || {},
             giocatori: societaData.giocatori || [],
             codici: societaData.codici,
+            ospitecode: societaData.ospitecode,
+            isGuestLogin: isGuestLogin,
             // Eventuali altri campi utili
             dataCreazione: societaData.dataCreazione || null,
             attiva: societaData.attiva !== undefined ? societaData.attiva : true
@@ -136,11 +169,13 @@ async function cercaSocietaDaCodice(codice) {
             numeroGiocatori: risultato.giocatori.length,
             numeroConfigurazioni: Object.keys(risultato.config).length,
             codici: risultato.codici,
+            ospitecode: risultato.ospitecode,
+            isGuestLogin: risultato.isGuestLogin,
             attiva: risultato.attiva,
             dataCreazione: risultato.dataCreazione
         });
 
-        console.log(`✅ Società trovata: ${risultato.nome}`);
+        console.log(`✅ Società trovata: ${risultato.nome} ${risultato.isGuestLogin ? '(Accesso Ospite)' : '(Accesso Normale)'}`);
         return risultato;
 
     } catch (error) {
