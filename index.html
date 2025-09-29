@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, aligned DIRIGENTE text, added director columns, added new distinta player columns (CAPITANO, AMMONITO, ESPULSO), centered attendance numbers, show all players including zero attendance, and updated to V4.6 -->
+<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, aligned DIRIGENTE text, added director columns, added new distinta player columns (CAPITANO, AMMONITO, ESPULSO), centered attendance numbers, show all players including zero attendance, updated to V4.8, implemented guest access via ospitecode map, improved UI button spacing -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -222,7 +222,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.7</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.8</span>
             </div>
         </div>
 
@@ -240,7 +240,7 @@
                     <div>Codice: <span id="company-code-display" class="font-mono bg-blue-100 px-2 py-1 rounded"></span></div>
                 </div>
                 <!-- Normal login buttons (hidden for guests) -->
-                <div id="normal-login-buttons" class="grid grid-cols-1 gap-3">
+                <div id="normal-login-buttons" class="grid grid-cols-1 gap-3 mb-4">
                     <button id="enter-mister-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Entra come Mister
                     </button>
@@ -249,7 +249,7 @@
                     </button>
                 </div>
                 <!-- Guest buttons (shown for both normal and guest users, but restricted for guests) -->
-                <div id="guest-allowed-buttons" class="grid grid-cols-1 gap-3">
+                <div id="guest-allowed-buttons" class="grid grid-cols-1 gap-3 mb-4">
                     <button id="view-history-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Storico Convocazioni
                     </button>
@@ -3770,6 +3770,7 @@
                     roleMessage.classList.remove('hidden');
                     saveButton.textContent = "Salva Convocazione";
                     shareButton.disabled = false;
+                    shareButton.style.display = ''; // Show share button for mister
                     historyButton.disabled = false;
                     attendanceButton.disabled = false;
                     shareButton.classList.replace('bg-gray-400', 'bg-blue-600');
@@ -3858,6 +3859,33 @@
                         saveButton.classList.remove('w-full');
                         saveButton.classList.add('w-full');
                     }
+                } else if (isGuestUser) {
+                    // Guest user: limited functionality
+                    selectedPlayersTitle.textContent = "";
+                    playersListMessage.textContent = "Accesso Ospite - Solo visualizzazione.";
+                    roleMessage.textContent = "Accesso ospite: puoi solo visualizzare lo storico e le presenze.";
+                    roleMessage.classList.remove('hidden');
+                    
+                    // Hide main action buttons for guests
+                    saveButton.style.display = 'none';
+                    shareButton.style.display = 'none'; // Hide share button for guests
+                    historyButton.disabled = false;
+                    attendanceButton.disabled = false;
+                    historyButton.classList.replace('bg-gray-400', 'bg-purple-600');
+                    attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
+                    
+                    // Hide sections that are not relevant for guests
+                    unavailablePlayersView.classList.add('hidden');
+                    matchDetailsSection.classList.add('hidden');
+                    notesSection.classList.add('hidden');
+                    resetSelectionsButton.classList.add('hidden');
+                    esciButton.classList.add('hidden');
+                    
+                    // Hide mister selection dropdowns for guest
+                    document.getElementById('mister-selection-1').classList.add('hidden');
+                    document.getElementById('mister-selection-2').classList.add('hidden');
+                    
+                    console.log('👤 Guest UI updated - limited functionality enabled');
                 }
                 
                 updateNotesDisplay();
@@ -4032,8 +4060,18 @@
                     isGuestUser = true;
                     userRole = 'guest';
                     
-                    // Show guest-allowed buttons
+                    // Show only guest-allowed buttons for guest users
                     guestAllowedButtons.classList.remove('hidden');
+                    
+                    // Hide training attendance button for guests by default
+                    trainingAttendanceButton.classList.add('hidden');
+                    
+                    // Show training attendance for specific companies and guests
+                    const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                    const isPolisCompany = companyName === 'POLIS';
+                    if (isPolisCompany) {
+                        trainingAttendanceButton.classList.remove('hidden');
+                    }
                     
                     console.log('👤 Guest login detected - restricted UI enabled');
                 } else {
@@ -4047,28 +4085,25 @@
                     isGuestUser = false;
                     userRole = null;
                     
+                    // Show/hide training attendance button based on company name for normal users
+                    const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                    const isPolisCompany = companyName === 'POLIS';
+                    const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
+                    
+                    if (isPolisCompany) {
+                        trainingAttendanceButton.classList.remove('hidden');
+                    } else {
+                        trainingAttendanceButton.classList.add('hidden');
+                    }
+                    
+                    // Show/hide campionato button for POLIS PIEVE 2010
+                    if (isPolisPieveCompany) {
+                        campionatoButton.classList.remove('hidden');
+                    } else {
+                        campionatoButton.classList.add('hidden');
+                    }
+                    
                     console.log('🏢 Normal company login - full UI enabled');
-                }
-                
-                // Show/hide training attendance button based on company name
-                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
-                const isPolisCompany = companyName === 'POLIS';
-                const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
-                
-                if (isPolisCompany && !isGuestUser) {
-                    trainingAttendanceButton.classList.remove('hidden');
-                } else if (isPolisCompany && isGuestUser) {
-                    // Show training attendance for guests on POLIS company
-                    trainingAttendanceButton.classList.remove('hidden');
-                } else {
-                    trainingAttendanceButton.classList.add('hidden');
-                }
-                
-                // Show/hide campionato button for POLIS PIEVE 2010 (not for guests)
-                if (isPolisPieveCompany && !isGuestUser) {
-                    campionatoButton.classList.remove('hidden');
-                } else {
-                    campionatoButton.classList.add('hidden');
                 }
                 
                 companyWelcomeScreen.classList.remove('hidden');

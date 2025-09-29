@@ -96,26 +96,72 @@ async function cercaSocietaDaCodice(codice) {
         if (querySnapshot.empty) {
             console.log('🔍 DEBUG - Codice non trovato in "codici", tentativo con "ospitecode"...');
             
+            // Prima prova con ospitecode come stringa (backward compatibility)
             q = query(societaRef, where('ospitecode', '==', codiceNormalizzato));
             
-            console.log('🔎 DEBUG - Query costruita per ospitecode:', {
+            console.log('🔎 DEBUG - Query costruita per ospitecode (stringa):', {
                 collection: collectionPath,
                 campo: 'ospitecode',
                 operatore: '==',
                 valore: codiceNormalizzato,
-                tipoQuery: 'ricerca ospite'
+                tipoQuery: 'ricerca ospite stringa'
             });
 
-            // Esecuzione della seconda query (codici ospite)
-            console.log('⚡ DEBUG - Esecuzione query ospitecode in corso...');
+            // Esecuzione della seconda query (codici ospite come stringa)
+            console.log('⚡ DEBUG - Esecuzione query ospitecode (stringa) in corso...');
             querySnapshot = await getDocs(q);
 
-            // Log del numero di risultati trovati per codici ospite
-            console.log('📊 DEBUG - Risultati query ospitecode:', {
+            // Log del numero di risultati trovati per codici ospite stringa
+            console.log('📊 DEBUG - Risultati query ospitecode (stringa):', {
                 numeroDocumenti: querySnapshot.size,
                 isEmpty: querySnapshot.empty,
                 timestamp: new Date().toISOString()
             });
+
+            // Se non trovato come stringa, cerca nell'intera collection per controllare ospitecode come oggetto
+            if (querySnapshot.empty) {
+                console.log('🔍 DEBUG - Codice non trovato in "ospitecode" come stringa, controllo ospitecode come oggetto...');
+                
+                // Ottieni tutti i documenti della collection per verificare ospitecode come oggetto
+                const allDocsQuery = query(societaRef);
+                const allDocsSnapshot = await getDocs(allDocsQuery);
+                
+                console.log('📊 DEBUG - Controllo di tutti i documenti per ospitecode oggetto:', {
+                    numeroDocumenti: allDocsSnapshot.size,
+                    codiceRicercato: codiceNormalizzato
+                });
+
+                // Cerca manualmente tra tutti i documenti
+                let foundDoc = null;
+                allDocsSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.ospitecode && typeof data.ospitecode === 'object') {
+                        const guestCodes = Object.values(data.ospitecode);
+                        console.log(`🔍 DEBUG - Controllo documento ${doc.id} con ospitecode oggetto:`, {
+                            ospitecode: data.ospitecode,
+                            valori: guestCodes,
+                            contieneCodice: guestCodes.includes(codiceNormalizzato)
+                        });
+                        
+                        if (guestCodes.includes(codiceNormalizzato)) {
+                            foundDoc = doc;
+                            console.log(`✅ DEBUG - Trovato codice ospite ${codiceNormalizzato} nel documento ${doc.id}`);
+                        }
+                    }
+                });
+
+                if (foundDoc) {
+                    // Crea un querySnapshot fittizio con il documento trovato
+                    querySnapshot = {
+                        empty: false,
+                        size: 1,
+                        docs: [foundDoc]
+                    };
+                    console.log('📊 DEBUG - Risultato ricerca ospitecode oggetto: trovato documento');
+                } else {
+                    console.log('📊 DEBUG - Risultato ricerca ospitecode oggetto: nessun documento trovato');
+                }
+            }
         }
 
         // Verifica se sono stati trovati risultati in entrambe le query
@@ -134,7 +180,19 @@ async function cercaSocietaDaCodice(codice) {
         const societaData = societaDoc.data();
 
         // Determina se questo è un accesso ospite o normale
-        const isGuestLogin = societaData.ospitecode === codiceNormalizzato;
+        let isGuestLogin = false;
+        
+        // Controlla se è un accesso ospite
+        if (societaData.ospitecode) {
+            if (typeof societaData.ospitecode === 'string') {
+                // ospitecode come stringa (backward compatibility)
+                isGuestLogin = societaData.ospitecode === codiceNormalizzato;
+            } else if (typeof societaData.ospitecode === 'object') {
+                // ospitecode come oggetto/mappa
+                const guestCodes = Object.values(societaData.ospitecode);
+                isGuestLogin = guestCodes.includes(codiceNormalizzato);
+            }
+        }
 
         console.log('📄 DEBUG - Dettagli documento trovato:', {
             documentId: societaDoc.id,
