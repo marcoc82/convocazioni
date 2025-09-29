@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, and updated to V4.3 -->
+<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, aligned DIRIGENTE text, added director columns, and updated to V4.4 -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -222,7 +222,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.3</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.4</span>
             </div>
         </div>
 
@@ -580,6 +580,9 @@
             </button>
             <button id="attendance-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Riepilogo Convocazioni
+            </button>
+            <button id="esci-button" class="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
+                ESCI
             </button>
             <div id="message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
         </div>
@@ -1460,6 +1463,7 @@
             const shareButton = document.getElementById('share-button');
             const historyButton = document.getElementById('history-button');
             const attendanceButton = document.getElementById('attendance-button');
+            const esciButton = document.getElementById('esci-button');
             const backFromHistoryButton = document.getElementById('back-from-history-button');
             const topBackFromHistoryButton = document.getElementById('top-back-from-history-button');
             const backFromAttendanceButton = document.getElementById('back-from-attendance-button');
@@ -3765,6 +3769,16 @@
                         avversarioInput.style.fontSize = '1.5rem';
                     }
 
+                    // Show ESCI button for Mister
+                    esciButton.classList.remove('hidden');
+                    
+                    // Restore normal grid layout for mister (in case it was changed for dirigente)
+                    const actionButtonsContainer = saveButton.parentElement;
+                    if (!actionButtonsContainer.classList.contains('grid')) {
+                        actionButtonsContainer.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-2', 'gap-4');
+                        actionButtonsContainer.classList.remove('space-y-4');
+                    }
+
                 } else if (isDirigente()) {
                     selectedPlayersTitle.textContent = "";
                     playersListMessage.textContent = "Clicca sui nomi per segnalare l'indisponibilità.";
@@ -3793,6 +3807,19 @@
 
                     // Show reset button for Dirigente
                     resetSelectionsButton.classList.remove('hidden');
+                    
+                    // Show ESCI button for Dirigente
+                    esciButton.classList.remove('hidden');
+                    
+                    // Make SALVA INDISPONIBILITA button same width as STORICO CONVOCAZIONI for dirigente
+                    // Change from grid layout to full width for save button
+                    const actionButtonsContainer = saveButton.parentElement;
+                    if (actionButtonsContainer.classList.contains('grid')) {
+                        actionButtonsContainer.classList.remove('grid', 'grid-cols-1', 'sm:grid-cols-2', 'gap-4');
+                        actionButtonsContainer.classList.add('space-y-4');
+                        saveButton.classList.remove('w-full');
+                        saveButton.classList.add('w-full');
+                    }
                 }
                 
                 updateNotesDisplay();
@@ -5023,14 +5050,14 @@
                         const matricola = director.matricola || '__________';
                         directorsRows += `
                             <p style="margin: 3px 0; font-size: 10px;">
-                                <strong>Dirigente:</strong> ${fullName} - Matricola: ${matricola}
+                                <strong>Dirigente:</strong> ${fullName} - Matricola: ${matricola} - Capitano: _____ - Ammonito: _____ - Espulso: _____
                             </p>
                         `;
                     });
                 } else {
                     directorsRows = `
                         <p style="margin: 3px 0; font-size: 10px;">
-                            <strong>Dirigente:</strong> ________________ - Matricola: __________
+                            <strong>Dirigente:</strong> ________________ - Matricola: __________ - Capitano: _____ - Ammonito: _____ - Espulso: _____
                         </p>
                     `;
                 }
@@ -5041,7 +5068,7 @@
                         <div style="width: 48%;">
                             ${coachesRows}
                         </div>
-                        <div style="width: 48%; text-align: right;">
+                        <div style="width: 48%;">
                             ${directorsRows}
                         </div>
                     </div>
@@ -5969,6 +5996,7 @@
             forgetDataButton.addEventListener('click', forgetDataAndReset);
             changeTeamButton.addEventListener('click', logoutToCompanyWelcome);
             resetSelectionsButton.addEventListener('click', resetPlayerSelections);
+            esciButton.addEventListener('click', logoutToCompanyWelcome);
             
             // Enhanced share button handler - prioritizes Web Share API on mobile
             async function handleMainShareButton() {
