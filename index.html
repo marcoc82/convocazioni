@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, aligned DIRIGENTE text, added director columns, added new distinta player columns (CAPITANO, AMMONITO, ESPULSO), centered attendance numbers, show all players including zero attendance, updated to V5.2, implemented guest access via ospitecode map, improved UI button spacing, enabled share button for dirigente users in history, changed distinta share to create PDF instead of image, fixed campionato button visibility for guest users, added official declaration text before signatures, optimized PDF formatting for single A4 page with compact layout and centered content -->
+<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, aligned DIRIGENTE text, added director columns, added new distinta player columns (CAPITANO, AMMONITO, ESPULSO), centered attendance numbers, show all players including zero attendance, updated to V5.3, implemented guest access via ospitecode map, improved UI button spacing, enabled share button for dirigente users in history, changed distinta share to create PDF instead of image, fixed campionato button visibility for guest users to check PIEVE2010 society name, added official declaration text before signatures, optimized PDF formatting for single A4 page with compact layout and centered content -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -224,7 +224,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 5.2</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 5.3</span>
             </div>
         </div>
 
@@ -1175,10 +1175,10 @@
                         }
                     };
                 }
-                // Test POLIS PIEVE 2010 company for campionato functionality
-                if (code === "POLIS PIEVE 2010" || code === "polis pieve 2010") {
+                // Test PIEVE2010 company for campionato functionality
+                if (code === "PIEVE2010" || code === "pieve2010") {
                     return {
-                        name: "POLIS PIEVE 2010",
+                        name: "PIEVE2010",
                         passwords: {
                             mister: "mister123",
                             marco: "marco123"
@@ -1205,7 +1205,7 @@
                 // Show/hide training attendance button based on company name
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
-                const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
+                const isPolisPieveCompany = companyName === 'PIEVE2010';
                 
                 if (isPolisCompany) {
                     trainingAttendanceButton.classList.remove('hidden');
@@ -1213,7 +1213,7 @@
                     trainingAttendanceButton.classList.add('hidden');
                 }
                 
-                // Show/hide campionato button for POLIS PIEVE 2010
+                // Show/hide campionato button for PIEVE2010
                 if (isPolisPieveCompany) {
                     campionatoButton.classList.remove('hidden');
                 } else {
@@ -4076,13 +4076,13 @@
                     // Show training attendance for specific companies and guests
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                     const isPolisCompany = companyName === 'POLIS';
-                    const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
+                    const isPolisPieveCompany = companyName === 'PIEVE2010';
                     
                     if (isPolisCompany) {
                         trainingAttendanceButton.classList.remove('hidden');
                     }
                     
-                    // Show/hide campionato button for POLIS PIEVE 2010 (also for guests)
+                    // Show/hide campionato button for PIEVE2010 (also for guests)
                     if (isPolisPieveCompany) {
                         campionatoButton.classList.remove('hidden');
                     } else {
@@ -4104,7 +4104,7 @@
                     // Show/hide training attendance button based on company name for normal users
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                     const isPolisCompany = companyName === 'POLIS';
-                    const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
+                    const isPolisPieveCompany = companyName === 'PIEVE2010';
                     
                     if (isPolisCompany) {
                         trainingAttendanceButton.classList.remove('hidden');
@@ -4112,7 +4112,7 @@
                         trainingAttendanceButton.classList.add('hidden');
                     }
                     
-                    // Show/hide campionato button for POLIS PIEVE 2010
+                    // Show/hide campionato button for PIEVE2010
                     if (isPolisPieveCompany) {
                         campionatoButton.classList.remove('hidden');
                     } else {
@@ -5637,15 +5637,15 @@
                 hideAllScreens();
                 campionatoView.classList.remove('hidden');
                 
-                // Center "Risultati" widget only for POLIS PIEVE 2010 company
+                // Center "Risultati" widget only for PIEVE2010 company
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
-                if (companyName === 'POLIS PIEVE 2010') {
+                if (companyName === 'PIEVE2010') {
                     const risultatiContainer = document.getElementById('risultati-widget-container');
                     if (risultatiContainer) {
                         risultatiContainer.style.display = 'flex';
                         risultatiContainer.style.justifyContent = 'center';
                         risultatiContainer.style.alignItems = 'center';
-                        console.log('🎯 Risultati widget centered for POLIS PIEVE 2010');
+                        console.log('🎯 Risultati widget centered for PIEVE2010');
                     }
                 }
             });
