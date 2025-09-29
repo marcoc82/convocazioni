@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-20 - Fixed dirigenti selection bug in distinta generation -->
+<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, and updated to V4.3 -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -222,7 +222,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.2</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.3</span>
             </div>
         </div>
 
@@ -749,7 +749,7 @@
             <!-- Risultati Section -->
             <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4 text-center">📊 Risultati</h3>
-                <div class="text-center text-gray-600">
+                <div id="risultati-widget-container" class="text-center text-gray-600">
                     <iframe src='https://www.tuttocampo.it/WidgetV2/Risultati/4736d246-7989-4f4d-acb7-464de2591ce7'
                         width='90%' 
                         height='600' 
@@ -3771,10 +3771,9 @@
                     roleMessage.textContent = "Sei entrato come Dirigente. Puoi segnare e salvare i giocatori non disponibili.";
                     roleMessage.classList.remove('hidden');
                     saveButton.textContent = "Salva Indisponibilità";
-                    shareButton.disabled = true;
+                    shareButton.style.display = 'none'; // Hide share button completely for dirigente
                     historyButton.disabled = false;
                     attendanceButton.disabled = false;
-                    shareButton.classList.replace('bg-blue-600', 'bg-gray-400');
                     historyButton.classList.replace('bg-gray-400', 'bg-purple-600');
                     attendanceButton.classList.replace('bg-gray-400', 'bg-purple-600');
                     unavailablePlayersView.classList.remove('hidden');
@@ -4885,7 +4884,7 @@
                             <thead>
                                 <tr style="border-bottom: 2px solid #000;">
                                     <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 8%;">N°</th>
-                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 42%;">Cognome e Nome</th>
+                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 42%;">COGNOME E NOME</th>
                                     <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 25%;">DATA NASCITA</th>
                                     <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 25%;">MATRICOLA</th>
                                 </tr>
@@ -4902,11 +4901,11 @@
                         
                         <div style="margin-top: 25px; display: flex; justify-content: space-between;">
                             <div style="text-align: center; width: 45%;">
-                                <p style="border-bottom: 1px solid #000; padding-bottom: 30px; margin-bottom: 3px;">________________</p>
+                                <p style="border-bottom: 1px solid #000; padding-bottom: 30px; margin-bottom: 3px;"></p>
                                 <p style="font-size: 10px; font-weight: bold;">FIRMA ARBITRO</p>
                             </div>
                             <div style="text-align: center; width: 45%;">
-                                <p style="border-bottom: 1px solid #000; padding-bottom: 30px; margin-bottom: 3px;">________________</p>
+                                <p style="border-bottom: 1px solid #000; padding-bottom: 30px; margin-bottom: 3px;"></p>
                                 <p style="font-size: 10px; font-weight: bold;">FIRMA DIRIGENTE</p>
                             </div>
                         </div>
@@ -5303,6 +5302,18 @@
                 console.log('⚽ Opening Campionato View...');
                 hideAllScreens();
                 campionatoView.classList.remove('hidden');
+                
+                // Center "Risultati" widget only for POLIS PIEVE 2010 company
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                if (companyName === 'POLIS PIEVE 2010') {
+                    const risultatiContainer = document.getElementById('risultati-widget-container');
+                    if (risultatiContainer) {
+                        risultatiContainer.style.display = 'flex';
+                        risultatiContainer.style.justifyContent = 'center';
+                        risultatiContainer.style.alignItems = 'center';
+                        console.log('🎯 Risultati widget centered for POLIS PIEVE 2010');
+                    }
+                }
             });
 
             managePlayersButton.addEventListener('click', () => {
