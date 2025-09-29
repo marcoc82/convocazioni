@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, aligned DIRIGENTE text, added director columns, and updated to V4.4 -->
+<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, aligned DIRIGENTE text, added director columns, added new distinta player columns (CAPITANO, AMMONITO, ESPULSO), and updated to V4.5 -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -222,7 +222,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.4</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 4.5</span>
             </div>
         </div>
 
@@ -4910,10 +4910,13 @@
                         <table style="width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10px;">
                             <thead>
                                 <tr style="border-bottom: 2px solid #000;">
-                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 8%;">N°</th>
-                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 42%;">COGNOME E NOME</th>
-                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 25%;">DATA NASCITA</th>
-                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 25%;">MATRICOLA</th>
+                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 6%;">N°</th>
+                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 26%;">COGNOME E NOME</th>
+                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 16%;">DATA NASCITA</th>
+                                    <th style="text-align: left; padding: 4px; border: 1px solid #000; width: 16%;">MATRICOLA</th>
+                                    <th style="text-align: center; padding: 4px; border: 1px solid #000; width: 12%;">CAPITANO</th>
+                                    <th style="text-align: center; padding: 4px; border: 1px solid #000; width: 12%;">AMMONITO</th>
+                                    <th style="text-align: center; padding: 4px; border: 1px solid #000; width: 12%;">ESPULSO</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -4982,6 +4985,9 @@
                             <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${name}</td>
                             <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${birthDate}</td>
                             <td style="padding: 4px; border: 1px solid #000; font-size: 10px;">${matricola}</td>
+                            <td style="padding: 4px; border: 1px solid #000; font-size: 10px; text-align: center;"></td>
+                            <td style="padding: 4px; border: 1px solid #000; font-size: 10px; text-align: center;"></td>
+                            <td style="padding: 4px; border: 1px solid #000; font-size: 10px; text-align: center;"></td>
                         </tr>
                     `;
                 });
