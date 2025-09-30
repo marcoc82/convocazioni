@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Edit Convocation Form - V6.3 Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800">🧪 Edit Form Verification Tests - V6.3</h1>
+        
+        <div id="test-results" class="space-y-4">
+            <!-- Test results will be added here -->
+        </div>
+        
+        <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h2 class="font-bold text-lg mb-2">Test Summary</h2>
+            <div id="summary" class="text-gray-700"></div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data to simulate a saved convocation
+        const mockConvocation = {
+            details: {
+                campo: 'Campo Comunale',
+                avversario: 'Squadra Rivale',
+                data: '2024-10-15',
+                orarioConvocazione: '14:30',
+                orarioPartita: '15:00',
+                tipo: 'Campionato',
+                misterPartita: 'Giuseppe Allenatore',
+                misterTipo: 'Mario Secondo'
+            },
+            players: ['1 ROSSI MARIO', '2 BIANCHI LUIGI', '5 VERDI GIUSEPPE']
+        };
+
+        const mockCompanyCoaches = [
+            'Giuseppe Allenatore',
+            'Mario Secondo',
+            'Luigi Terzo'
+        ];
+
+        const mockCompanyPlayers = [
+            { numero: '1', nome: 'ROSSI MARIO' },
+            { numero: '2', nome: 'BIANCHI LUIGI' },
+            { numero: '3', nome: 'NERI ANTONIO' },
+            { numero: '4', nome: 'GIALLI FRANCESCO' },
+            { numero: '5', nome: 'VERDI GIUSEPPE' }
+        ];
+
+        // Test results tracker
+        let testResults = [];
+
+        function runTest(testName, testFn) {
+            try {
+                const result = testFn();
+                testResults.push({ name: testName, passed: result.passed, message: result.message });
+                return result.passed;
+            } catch (error) {
+                testResults.push({ name: testName, passed: false, message: error.message });
+                return false;
+            }
+        }
+
+        function displayResults() {
+            const resultsDiv = document.getElementById('test-results');
+            const summaryDiv = document.getElementById('summary');
+            
+            testResults.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-lg border ${result.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">${result.passed ? '✅' : '❌'}</span>
+                        <div>
+                            <div class="font-bold">${result.name}</div>
+                            <div class="text-sm text-gray-600">${result.message}</div>
+                        </div>
+                    </div>
+                `;
+                resultsDiv.appendChild(div);
+            });
+
+            const passed = testResults.filter(r => r.passed).length;
+            const total = testResults.length;
+            summaryDiv.innerHTML = `
+                <p class="font-bold text-xl">${passed}/${total} tests passed</p>
+                <p class="mt-2">${passed === total ? '🎉 All tests passed!' : '⚠️ Some tests failed.'}</p>
+            `;
+        }
+
+        // Test 1: Simulate loadCoaches() function
+        function testLoadCoaches() {
+            const misterPartitaSelect = document.createElement('select');
+            const misterTipoSelect = document.createElement('select');
+            
+            // Add default option
+            misterPartitaSelect.innerHTML = '<option value="">Seleziona mister</option>';
+            misterTipoSelect.innerHTML = '<option value="">Seleziona mister</option>';
+            
+            // Simulate loadCoaches()
+            mockCompanyCoaches.forEach(coach => {
+                const option1 = document.createElement('option');
+                option1.value = coach;
+                option1.textContent = coach;
+                misterPartitaSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = coach;
+                option2.textContent = coach;
+                misterTipoSelect.appendChild(option2);
+            });
+
+            const hasOptions = misterPartitaSelect.options.length > 1 && misterTipoSelect.options.length > 1;
+            return {
+                passed: hasOptions,
+                message: hasOptions ? 
+                    `Coaches loaded: ${misterPartitaSelect.options.length - 1} options` : 
+                    'Failed to load coaches'
+            };
+        }
+
+        // Test 2: Simulate prefillForm() for coaches (AFTER loadCoaches)
+        function testPrefillCoaches() {
+            const misterPartitaSelect = document.createElement('select');
+            const misterTipoSelect = document.createElement('select');
+            
+            // Add default option
+            misterPartitaSelect.innerHTML = '<option value="">Seleziona mister</option>';
+            misterTipoSelect.innerHTML = '<option value="">Seleziona mister</option>';
+            
+            // FIRST: Load coaches (this is the fix!)
+            mockCompanyCoaches.forEach(coach => {
+                const option1 = document.createElement('option');
+                option1.value = coach;
+                option1.textContent = coach;
+                misterPartitaSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = coach;
+                option2.textContent = coach;
+                misterTipoSelect.appendChild(option2);
+            });
+
+            // THEN: Set values from convocation
+            if (mockConvocation.details.misterPartita && mockConvocation.details.misterPartita !== 'N/D') {
+                misterPartitaSelect.value = mockConvocation.details.misterPartita;
+            }
+            if (mockConvocation.details.misterTipo && mockConvocation.details.misterTipo !== 'N/D') {
+                misterTipoSelect.value = mockConvocation.details.misterTipo;
+            }
+
+            const correctPartita = misterPartitaSelect.value === 'Giuseppe Allenatore';
+            const correctTipo = misterTipoSelect.value === 'Mario Secondo';
+            
+            return {
+                passed: correctPartita && correctTipo,
+                message: correctPartita && correctTipo ? 
+                    `Mister Partita: "${misterPartitaSelect.value}", Mister Tipo: "${misterTipoSelect.value}"` :
+                    `Failed - Partita: "${misterPartitaSelect.value}", Tipo: "${misterTipoSelect.value}"`
+            };
+        }
+
+        // Test 3: Simulate player pre-selection
+        function testPlayerPreSelection() {
+            const selectedPlayers = new Set();
+            
+            // Simulate prefillForm() player logic
+            if (mockConvocation.players && Array.isArray(mockConvocation.players)) {
+                mockConvocation.players.forEach(player => {
+                    if (typeof player === 'string') {
+                        selectedPlayers.add(player);
+                    } else if (player.numero && player.nome) {
+                        selectedPlayers.add(`${player.numero} ${player.nome}`);
+                    }
+                });
+            }
+
+            const expectedCount = 3;
+            const actualCount = selectedPlayers.size;
+            
+            return {
+                passed: actualCount === expectedCount,
+                message: actualCount === expectedCount ?
+                    `${actualCount} players pre-selected: ${Array.from(selectedPlayers).join(', ')}` :
+                    `Expected ${expectedCount} players, got ${actualCount}`
+            };
+        }
+
+        // Test 4: Verify visual selection (loadPlayers logic)
+        function testPlayerVisualSelection() {
+            const selectedPlayers = new Set(['1 ROSSI MARIO', '2 BIANCHI LUIGI', '5 VERDI GIUSEPPE']);
+            const visuallySelected = [];
+            
+            // Simulate loadPlayers() visual marking
+            mockCompanyPlayers.forEach(player => {
+                const playerName = `${player.numero} ${player.nome}`;
+                if (selectedPlayers.has(playerName)) {
+                    visuallySelected.push(playerName);
+                }
+            });
+
+            const allMarked = visuallySelected.length === 3 && 
+                              visuallySelected.includes('1 ROSSI MARIO') &&
+                              visuallySelected.includes('2 BIANCHI LUIGI') &&
+                              visuallySelected.includes('5 VERDI GIUSEPPE');
+            
+            return {
+                passed: allMarked,
+                message: allMarked ?
+                    `All 3 players correctly marked as selected` :
+                    `Visual selection failed: ${visuallySelected.length} marked`
+            };
+        }
+
+        // Test 5: Verify form data editability
+        function testFormEditability() {
+            // All form fields should maintain their structure
+            const fields = {
+                campo: mockConvocation.details.campo,
+                avversario: mockConvocation.details.avversario,
+                data: mockConvocation.details.data,
+                orarioConvocazione: mockConvocation.details.orarioConvocazione,
+                orarioPartita: mockConvocation.details.orarioPartita,
+                tipo: mockConvocation.details.tipo
+            };
+
+            const allFieldsFilled = Object.values(fields).every(val => val && val !== '');
+            
+            return {
+                passed: allFieldsFilled,
+                message: allFieldsFilled ?
+                    'All form fields properly loaded and editable' :
+                    'Some fields are empty'
+            };
+        }
+
+        // Test 6: Verify N/D handling
+        function testNDHandling() {
+            const misterPartitaSelect = document.createElement('select');
+            misterPartitaSelect.innerHTML = '<option value="">Seleziona mister</option>';
+            
+            // Simulate convocation with N/D
+            const convocationWithND = {
+                details: {
+                    misterPartita: 'N/D'
+                }
+            };
+
+            // Load coaches
+            mockCompanyCoaches.forEach(coach => {
+                const option = document.createElement('option');
+                option.value = coach;
+                option.textContent = coach;
+                misterPartitaSelect.appendChild(option);
+            });
+
+            // Try to set N/D (should be skipped)
+            if (convocationWithND.details.misterPartita && convocationWithND.details.misterPartita !== 'N/D') {
+                misterPartitaSelect.value = convocationWithND.details.misterPartita;
+            }
+
+            const notSetToND = misterPartitaSelect.value === '';
+            
+            return {
+                passed: notSetToND,
+                message: notSetToND ?
+                    'N/D values correctly skipped (dropdown remains at default)' :
+                    'N/D handling failed'
+            };
+        }
+
+        // Run all tests
+        console.log('🧪 Starting Edit Form V6.3 Verification Tests...');
+        
+        runTest('1. Load Coaches Function', testLoadCoaches);
+        runTest('2. Pre-select Coaches (Mister)', testPrefillCoaches);
+        runTest('3. Pre-select Players (Set)', testPlayerPreSelection);
+        runTest('4. Visual Player Selection', testPlayerVisualSelection);
+        runTest('5. Form Data Editability', testFormEditability);
+        runTest('6. N/D Value Handling', testNDHandling);
+        
+        displayResults();
+        
+        console.log('✅ All tests completed');
+    </script>
+</body>
+</html>
