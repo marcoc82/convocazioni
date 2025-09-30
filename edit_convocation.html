@@ -226,21 +226,32 @@
                 giocatoriSnapshot.forEach((doc) => {
                     const giocatoreData = doc.data();
                     
-                    // Log raw structure for debugging
+                    // Log raw structure for debugging - show available fields
                     console.log('   📄 Giocatore documento completo:', {
                         id: doc.id,
-                        rawData: giocatoreData
+                        rawData: giocatoreData,
+                        hasRaw: !!giocatoreData.raw,
+                        hasRawNome: !!(giocatoreData.raw && giocatoreData.raw.nome),
+                        directFields: {
+                            numero: giocatoreData.numero,
+                            nome: giocatoreData.nome
+                        }
                     });
                     
-                    // Extract fields from nested structure (raw.nome) with fallback to direct fields
+                    // Extract fields from nested structure (raw.nome) with enhanced fallback
                     let numero, nome, dataNascita, matricola;
+                    let extractionSource = 'unknown';
                     
-                    // Try nested structure first (raw.nome.campo)
-                    if (giocatoreData.raw && giocatoreData.raw.nome) {
+                    // Strategy 1: Try nested structure first (raw.nome.campo)
+                    // This is the current primary structure in Firestore
+                    // Check that raw.nome exists AND has the required fields
+                    if (giocatoreData.raw && giocatoreData.raw.nome && 
+                        (giocatoreData.raw.nome.numero || giocatoreData.raw.nome.nome)) {
                         numero = giocatoreData.raw.nome.numero;
                         nome = giocatoreData.raw.nome.nome;
                         dataNascita = giocatoreData.raw.nome.dataNascita;
                         matricola = giocatoreData.raw.nome.matricola;
+                        extractionSource = 'raw.nome';
                         console.log('   ✅ Dati estratti da raw.nome:', {
                             numero,
                             nome,
@@ -248,13 +259,45 @@
                             matricola
                         });
                     }
-                    // Fallback to direct fields (legacy structure)
+                    // Strategy 2: Try rawData.nome structure (alternative naming)
+                    // Check that rawData.nome exists AND has the required fields
+                    else if (giocatoreData.rawData && giocatoreData.rawData.nome &&
+                             (giocatoreData.rawData.nome.numero || giocatoreData.rawData.nome.nome)) {
+                        numero = giocatoreData.rawData.nome.numero;
+                        nome = giocatoreData.rawData.nome.nome;
+                        dataNascita = giocatoreData.rawData.nome.dataNascita;
+                        matricola = giocatoreData.rawData.nome.matricola;
+                        extractionSource = 'rawData.nome';
+                        console.log('   ✅ Dati estratti da rawData.nome:', {
+                            numero,
+                            nome,
+                            dataNascita,
+                            matricola
+                        });
+                    }
+                    // Strategy 3: Try just raw object (flat nested structure)
+                    // Check that raw exists AND has the required fields directly
+                    else if (giocatoreData.raw && (giocatoreData.raw.numero || giocatoreData.raw.nome)) {
+                        numero = giocatoreData.raw.numero;
+                        nome = giocatoreData.raw.nome;
+                        dataNascita = giocatoreData.raw.dataNascita;
+                        matricola = giocatoreData.raw.matricola;
+                        extractionSource = 'raw';
+                        console.log('   ℹ️ Dati estratti da raw (struttura piatta):', {
+                            numero,
+                            nome,
+                            dataNascita,
+                            matricola
+                        });
+                    }
+                    // Strategy 4: Fallback to direct fields (legacy structure)
                     else {
                         numero = giocatoreData.numero;
                         nome = giocatoreData.nome;
                         dataNascita = giocatoreData.dataNascita;
                         matricola = giocatoreData.matricola;
-                        console.log('   ℹ️ Dati estratti direttamente (fallback):', {
+                        extractionSource = 'direct';
+                        console.log('   ℹ️ Dati estratti direttamente (fallback legacy):', {
                             numero,
                             nome,
                             dataNascita,
@@ -262,20 +305,25 @@
                         });
                     }
                     
-                    // Store giocatore objects with numero and nome
+                    // Validate and store giocatore object
                     if (numero && nome) {
                         companyPlayers.push({
                             numero: numero,
                             nome: nome,
-                            dataNascita: dataNascita,
-                            matricola: matricola
+                            dataNascita: dataNascita || 'N/D',
+                            matricola: matricola || 'N/D'
                         });
-                        console.log('   ➕ Giocatore aggiunto alla lista:', `${numero} ${nome}`);
+                        console.log(`   ➕ Giocatore aggiunto [${extractionSource}]:`, `${numero} ${nome}`, {
+                            dataNascita: dataNascita || 'N/D',
+                            matricola: matricola || 'N/D'
+                        });
                     } else {
                         console.warn('   ⚠️ Giocatore ignorato (mancano numero o nome):', {
                             id: doc.id,
-                            numero,
-                            nome
+                            extractionSource,
+                            numero: numero || 'MANCANTE',
+                            nome: nome || 'MANCANTE',
+                            availableFields: Object.keys(giocatoreData)
                         });
                     }
                 });
