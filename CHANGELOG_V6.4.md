@@ -1,10 +1,14 @@
 # Changelog V6.4
 
-## Version 6.4 - Fix Navigation from Edit Convocation to History View
+## Version 6.4 - Fix Navigation from Edit Convocation to History View & Mister Loading
 **Date**: December 2024
 
 ### Summary
-This release fixes the issue where users were redirected to the login screen instead of the history view after editing or canceling a convocation from the history screen. The solution implements hash-based navigation and sessionStorage to maintain application state.
+This release fixes two critical issues:
+1. Users were redirected to the login screen instead of the history view after editing or canceling a convocation from the history screen
+2. Mister (coach) loading order ensured that dropdown options are loaded before setting selected values
+
+The solution implements hash-based navigation and sessionStorage to maintain application state, and ensures proper loading sequence for form pre-population.
 
 ### Problem Statement
 When a user:
@@ -13,6 +17,11 @@ When a user:
 3. Edits the convocation and clicks "Annulla" (Cancel) or "Salva" (Save)
 4. The page redirected to `index.html` without any state
 5. This caused the application to show the login screen instead of returning to the history view
+
+Additionally, there was a timing issue where:
+- Mister (coach) selections were not properly pre-selected in the edit form
+- This was due to attempting to set dropdown values before the options were populated
+- The fix ensures `loadCoaches()` is called BEFORE `prefillForm()` to guarantee options exist
 
 ### Solution Implementation
 
@@ -77,6 +86,35 @@ sessionStorage.setItem('editAppId', currentAppId);
 - Added hashchange event listener for dynamic hash changes
 - Ensures proper cleanup of sessionStorage after state restoration
 
+#### 4. Verified Mister Loading Order in `edit_convocation.html`
+**Location**: Lines 226-229
+
+**Implementation:**
+```javascript
+// Load coaches first, then pre-fill the form
+loadCoaches();
+prefillForm(originalConvocation);
+loadPlayers();
+```
+
+**Key Points:**
+- `loadCoaches()` is called FIRST (line 227) to populate dropdown options
+- `prefillForm()` is called SECOND (line 228) to set selected values
+- This ensures dropdown options exist before attempting to set the selected value
+- If saved mister value is 'N/D' or not in the list, the dropdown remains at default "Seleziona mister"
+- No setTimeout workarounds needed - fully synchronous execution
+
+**Validation in prefillForm() (lines 246-251):**
+```javascript
+// Set mister selections if available (coaches already loaded)
+if (convocation.details.misterPartita && convocation.details.misterPartita !== 'N/D') {
+    misterPartitaSelect.value = convocation.details.misterPartita;
+}
+if (convocation.details.misterTipo && convocation.details.misterTipo !== 'N/D') {
+    misterTipoSelect.value = convocation.details.misterTipo;
+}
+```
+
 ### Technical Details
 
 #### SessionStorage Keys Used:
@@ -109,23 +147,33 @@ sessionStorage.setItem('editAppId', currentAppId);
 - ✅ Uses browser-native features (hash, sessionStorage)
 - ✅ Automatic cleanup of temporary state
 - ✅ Works with both "Annulla" and "Salva" actions
+- ✅ Mister selections properly pre-loaded in edit form
+- ✅ Synchronous loading order prevents timing issues
+- ✅ Handles 'N/D' values gracefully (leaves at default)
 
 ### Testing Recommendations
 1. Open application and login
 2. Navigate to "Storico Convocazioni"
 3. Click "Modifica" on any convocation
-4. Click "Annulla" - should return to history view
-5. Click "Modifica" again
-6. Make changes and click "Salva Modifiche" - should return to history view after success message
-7. Verify no login screen is shown in either case
-8. Verify history data is properly loaded and displayed
+4. **Verify mister dropdowns show previously selected coaches**
+5. Click "Annulla" - should return to history view
+6. Click "Modifica" again
+7. Make changes and click "Salva Modifiche" - should return to history view after success message
+8. Verify no login screen is shown in either case
+9. Verify history data is properly loaded and displayed
+10. **Test editing a convocation with 'N/D' mister values - should show default dropdown**
 
 ### Files Modified
-- `edit_convocation.html`: Modified goBack() function
+- `edit_convocation.html`: Modified goBack() function; verified mister loading order
 - `index.html`: Added sessionStorage state management and hash navigation handler
+- `manifest.json`: Updated version to V6.4
+- `CHANGELOG_V6.4.md`: Updated with comprehensive documentation
 
 ### Backward Compatibility
-- No breaking changes
-- Existing functionality preserved
-- Works with all existing user roles (mister, dirigente, marco)
-- Compatible with guest user mode (guest users cannot edit)
+- ✅ No breaking changes
+- ✅ Existing functionality preserved
+- ✅ Works with all existing user roles (mister, dirigente, marco)
+- ✅ Compatible with guest user mode (guest users cannot edit)
+- ✅ No database schema changes required
+- ✅ No forced re-login or session loss
+- ✅ Handles both new and legacy convocation data formats
