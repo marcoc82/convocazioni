@@ -215,16 +215,25 @@
 
                 originalConvocation = convocationSnap.data();
                 
-                // Load company data (players from main document)
-                const companyRef = window.doc(window.db, 'societa', companyDocId);
-                const companySnap = await window.getDoc(companyRef);
+                // Load giocatori from subcollection
+                const giocatoriCollectionRef = window.collection(window.db, 'societa', companyDocId, 'giocatori');
+                const giocatoriSnapshot = await window.getDocs(giocatoriCollectionRef);
                 
-                if (companySnap.exists()) {
-                    const companyData = companySnap.data();
-                    companyPlayers = companyData.giocatori || [];
-                    console.log('✅ [DEBUG] Company data loaded');
-                    console.log('   📊 Players:', companyPlayers.length);
-                }
+                companyPlayers = [];
+                giocatoriSnapshot.forEach((doc) => {
+                    const playerData = doc.data();
+                    // Store player objects with numero and nome
+                    if (playerData.numero && playerData.nome) {
+                        companyPlayers.push({
+                            numero: playerData.numero,
+                            nome: playerData.nome,
+                            dataNascita: playerData.dataNascita,
+                            matricola: playerData.matricola
+                        });
+                    }
+                });
+                console.log('✅ [DEBUG] Giocatori loaded from subcollection');
+                console.log('   📊 Giocatori:', companyPlayers.length);
 
                 // Load mister from subcollection
                 const misterCollectionRef = window.collection(window.db, 'societa', companyDocId, 'mister');
@@ -256,7 +265,7 @@
                 loadMister();
                 console.log('   2️⃣ Pre-filling form...');
                 prefillForm(originalConvocation);
-                console.log('   3️⃣ Loading players...');
+                console.log('   3️⃣ Loading giocatori...');
                 loadPlayers();
                 console.log('✅ [DEBUG] All loading complete');
 
