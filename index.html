@@ -6827,6 +6827,17 @@
                 }
             });
             
+            // Load history convocations when returning from edit page
+            function loadHistoryConvocations() {
+                console.log('📊 Loading history convocations after navigation');
+                console.log('   🏢 Company Document ID:', currentCompanyDocumentId);
+                console.log('   👤 User Role:', userRole);
+                console.log('   🆔 App ID:', currentAppId);
+                
+                // Setup Firestore listeners to load history data
+                setupFirestoreListeners(currentAppId);
+            }
+            
             // Check for hash navigation (returning from edit_convocation.html)
             function checkHashNavigation() {
                 const hash = window.location.hash;
