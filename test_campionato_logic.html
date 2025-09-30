@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Campionato Button Logic - V5.6</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .pass {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .fail {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Campionato Button Logic - V5.6</h1>
+    
+    <div class="test-section info">
+        <h2>Test Requirements</h2>
+        <p><strong>New Logic:</strong> The Campionato button should be visible if ANY of these fields equals "POLIS PIEVE 2010":</p>
+        <ul>
+            <li><code>societa.config.nome</code></li>
+            <li><code>societa.nome</code></li>
+            <li><code>societa.id</code></li>
+        </ul>
+        <p><strong>This should work for both:</strong></p>
+        <ul>
+            <li>Normal login</li>
+            <li>Guest login</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>Test Cases</h3>
+        <button class="btn-primary" onclick="runAllTests()">Run All Tests</button>
+        <button class="btn-success" onclick="runManualTest()">Manual Test</button>
+        
+        <div id="test-results" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        /**
+         * This is the exact logic from index.html V5.6
+         */
+        function isPolisPieve2010(companyData) {
+            const societa = companyData?.data;
+            if (!societa) return false;
+            
+            const configNome = societa?.config?.nome || '';
+            const nome = societa?.nome || '';
+            const id = societa?.id || '';
+            
+            const isMatch = configNome === 'POLIS PIEVE 2010' || 
+                           nome === 'POLIS PIEVE 2010' || 
+                           id === 'POLIS PIEVE 2010';
+            
+            console.log('🔍 DEBUG - isPolisPieve2010 check:', {
+                'config.nome': configNome,
+                'nome': nome,
+                'id': id,
+                'isPolisPieve2010': isMatch
+            });
+            
+            return isMatch;
+        }
+
+        function runTest(testCase) {
+            const result = isPolisPieve2010(testCase.companyData);
+            const passed = result === testCase.expected;
+            
+            return {
+                name: testCase.name,
+                expected: testCase.expected,
+                actual: result,
+                passed: passed,
+                details: testCase.details
+            };
+        }
+
+        function runAllTests() {
+            const testCases = [
+                {
+                    name: "Test 1: config.nome = POLIS PIEVE 2010",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "some-id",
+                            nome: "Some Name",
+                            config: {
+                                nome: "POLIS PIEVE 2010"
+                            }
+                        }
+                    },
+                    expected: true,
+                    details: "Should show button when config.nome matches"
+                },
+                {
+                    name: "Test 2: nome = POLIS PIEVE 2010",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "some-id",
+                            nome: "POLIS PIEVE 2010",
+                            config: {
+                                nome: "Other Config"
+                            }
+                        }
+                    },
+                    expected: true,
+                    details: "Should show button when nome matches"
+                },
+                {
+                    name: "Test 3: id = POLIS PIEVE 2010",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "POLIS PIEVE 2010",
+                            nome: "Some Name",
+                            config: {
+                                nome: "Other Config"
+                            }
+                        }
+                    },
+                    expected: true,
+                    details: "Should show button when id matches"
+                },
+                {
+                    name: "Test 4: No match",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "other-id",
+                            nome: "Other Name",
+                            config: {
+                                nome: "Other Config"
+                            }
+                        }
+                    },
+                    expected: false,
+                    details: "Should NOT show button when nothing matches"
+                },
+                {
+                    name: "Test 5: All three match (redundant)",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "POLIS PIEVE 2010",
+                            nome: "POLIS PIEVE 2010",
+                            config: {
+                                nome: "POLIS PIEVE 2010"
+                            }
+                        }
+                    },
+                    expected: true,
+                    details: "Should show button when all match"
+                },
+                {
+                    name: "Test 6: Empty data",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "",
+                            nome: "",
+                            config: {}
+                        }
+                    },
+                    expected: false,
+                    details: "Should NOT show button with empty data"
+                },
+                {
+                    name: "Test 7: Guest login with config.nome match",
+                    companyData: {
+                        name: "Test Company",
+                        isGuestLogin: true,
+                        data: {
+                            id: "some-id",
+                            nome: "Some Name",
+                            config: {
+                                nome: "POLIS PIEVE 2010"
+                            }
+                        }
+                    },
+                    expected: true,
+                    details: "Should show button for guest login when config.nome matches"
+                },
+                {
+                    name: "Test 8: Guest login with no match",
+                    companyData: {
+                        name: "Test Company",
+                        isGuestLogin: true,
+                        data: {
+                            id: "other-id",
+                            nome: "Other Name",
+                            config: {
+                                nome: "Other Config"
+                            }
+                        }
+                    },
+                    expected: false,
+                    details: "Should NOT show button for guest login when nothing matches"
+                },
+                {
+                    name: "Test 9: Partial match in config.nome",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "some-id",
+                            nome: "Some Name",
+                            config: {
+                                nome: "POLIS PIEVE"
+                            }
+                        }
+                    },
+                    expected: false,
+                    details: "Should NOT show button with partial match"
+                },
+                {
+                    name: "Test 10: Case sensitivity test",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "some-id",
+                            nome: "polis pieve 2010",
+                            config: {
+                                nome: "Other Config"
+                            }
+                        }
+                    },
+                    expected: false,
+                    details: "Should NOT show button with lowercase (case sensitive)"
+                }
+            ];
+
+            const results = testCases.map(tc => runTest(tc));
+            
+            displayResults(results);
+        }
+
+        function displayResults(results) {
+            const totalTests = results.length;
+            const passedTests = results.filter(r => r.passed).length;
+            const failedTests = totalTests - passedTests;
+            
+            let html = `
+                <h4>Test Results: ${passedTests}/${totalTests} passed</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>Expected</th>
+                            <th>Actual</th>
+                            <th>Result</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            results.forEach(result => {
+                const resultClass = result.passed ? 'pass' : 'fail';
+                const resultText = result.passed ? '✅ PASS' : '❌ FAIL';
+                
+                html += `
+                    <tr>
+                        <td>${result.name}</td>
+                        <td>${result.expected}</td>
+                        <td>${result.actual}</td>
+                        <td class="${resultClass}">${resultText}</td>
+                        <td>${result.details}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            if (failedTests > 0) {
+                html = `<div class="error">Some tests failed!</div>` + html;
+            } else {
+                html = `<div class="success">All tests passed! ✅</div>` + html;
+            }
+            
+            document.getElementById('test-results').innerHTML = html;
+        }
+
+        function runManualTest() {
+            const configNome = prompt("Enter config.nome value:", "POLIS PIEVE 2010");
+            const nome = prompt("Enter nome value:", "");
+            const id = prompt("Enter id value:", "");
+            
+            const companyData = {
+                name: "Manual Test",
+                data: {
+                    id: id || "",
+                    nome: nome || "",
+                    config: {
+                        nome: configNome || ""
+                    }
+                }
+            };
+            
+            const result = isPolisPieve2010(companyData);
+            
+            alert(`Result: ${result ? 'VISIBLE' : 'HIDDEN'}\n\nCheck console for details.`);
+        }
+
+        // Run tests automatically on load
+        window.addEventListener('load', () => {
+            console.log('Test page loaded. Click "Run All Tests" to test the logic.');
+        });
+    </script>
+</body>
+</html>

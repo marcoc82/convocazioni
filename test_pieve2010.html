@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test PIEVE2010 Campionato Button</title>
+    <title>Test PIEVE2010 Campionato Button - V5.6</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,12 +66,18 @@
     </style>
 </head>
 <body>
-    <h1>Test PIEVE2010 Campionato Button Visibility</h1>
+    <h1>Test PIEVE2010 Campionato Button Visibility - V5.6</h1>
     
     <div class="test-section info">
         <h2>Test Logic Verification</h2>
         <p>This page tests the logic that determines when the Campionato button should be visible.</p>
-        <p><strong>Requirement:</strong> The button should be visible for society with config.nome === "POLIS PIEVE 2010" regardless of login type.</p>
+        <p><strong>Requirement (V5.6):</strong> The button should be visible if ANY of these fields equals "POLIS PIEVE 2010":</p>
+        <ul>
+            <li><code>societa.config.nome</code></li>
+            <li><code>societa.nome</code></li>
+            <li><code>societa.id</code></li>
+        </ul>
+        <p><strong>This works for both:</strong> normal login and guest login</p>
     </div>
 
     <div class="test-section">
@@ -115,11 +121,17 @@
             resultsContent.appendChild(resultDiv);
         }
 
-        function testCompanyLogic(configNome, loginType = 'guest') {
-            // This is the exact logic from the main application
-            const isPolisPieveCompany = configNome === 'POLIS PIEVE 2010';
+        function testCompanyLogic(configNome, nome = '', id = '', loginType = 'guest') {
+            // This is the exact logic from the main application V5.6
+            // Checks config.nome, nome, or id for "POLIS PIEVE 2010"
+            const isPolisPieveCompany = configNome === 'POLIS PIEVE 2010' || 
+                                       nome === 'POLIS PIEVE 2010' || 
+                                       id === 'POLIS PIEVE 2010';
             
-            addResult(`Testing config.nome: "${configNome}" with login type: ${loginType}`, 'info');
+            addResult(`Testing with login type: ${loginType}`, 'info');
+            addResult(`  config.nome: "${configNome}"`, 'info');
+            addResult(`  nome: "${nome}"`, 'info');
+            addResult(`  id: "${id}"`, 'info');
             addResult(`isPolisPieveCompany = ${isPolisPieveCompany}`, 'info');
             
             if (isPolisPieveCompany) {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-21 - Fixed Campionato button visibility to check societa.config.nome === "POLIS PIEVE 2010" regardless of login type, updated to V5.5 -->
+<!-- Version: 2024-01-21 - Uniformed Campionato button visibility to check societa.config.nome, societa.nome, or societa.id === "POLIS PIEVE 2010" for both login types, added societa logging, updated to V5.6 -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -224,7 +224,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 5.5</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 5.6</span>
             </div>
         </div>
 
@@ -1198,6 +1198,33 @@
                 return null;
             }
 
+            /**
+             * Checks if the company is POLIS PIEVE 2010 by checking config.nome, nome, or id
+             * @param {Object} companyData - The company data object
+             * @returns {boolean} - True if the company is POLIS PIEVE 2010
+             */
+            function isPolisPieve2010(companyData) {
+                const societa = companyData?.data;
+                if (!societa) return false;
+                
+                const configNome = societa?.config?.nome || '';
+                const nome = societa?.nome || '';
+                const id = societa?.id || '';
+                
+                const isMatch = configNome === 'POLIS PIEVE 2010' || 
+                               nome === 'POLIS PIEVE 2010' || 
+                               id === 'POLIS PIEVE 2010';
+                
+                console.log('🔍 DEBUG - isPolisPieve2010 check:', {
+                    'config.nome': configNome,
+                    'nome': nome,
+                    'id': id,
+                    'isPolisPieve2010': isMatch
+                });
+                
+                return isMatch;
+            }
+
             function showCompanyWelcome() {
                 hideAllScreens();
                 companyNameDisplay.textContent = currentCompanyData.name;
@@ -1205,9 +1232,8 @@
                 // Show/hide training attendance button based on company name
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
-                // Check config.nome for "POLIS PIEVE 2010" to show Campionato button
-                const configNome = currentCompanyData?.data?.config?.nome || '';
-                const isPolisPieveCompany = configNome === 'POLIS PIEVE 2010';
+                // Check if company is POLIS PIEVE 2010 (checks config.nome, nome, or id)
+                const isPolisPieveCompany = isPolisPieve2010(currentCompanyData);
                 
                 if (isPolisCompany) {
                     trainingAttendanceButton.classList.remove('hidden');
@@ -1215,7 +1241,7 @@
                     trainingAttendanceButton.classList.add('hidden');
                 }
                 
-                // Show/hide campionato button for POLIS PIEVE 2010 (from config.nome)
+                // Show/hide campionato button for POLIS PIEVE 2010
                 if (isPolisPieveCompany) {
                     campionatoButton.classList.remove('hidden');
                 } else {
@@ -4048,10 +4074,43 @@
                 }
             }
 
+            /**
+             * Checks if the company is POLIS PIEVE 2010 by checking config.nome, nome, or id
+             * @param {Object} companyData - The company data object
+             * @returns {boolean} - True if the company is POLIS PIEVE 2010
+             */
+            function isPolisPieve2010(companyData) {
+                const societa = companyData?.data;
+                if (!societa) return false;
+                
+                const configNome = societa?.config?.nome || '';
+                const nome = societa?.nome || '';
+                const id = societa?.id || '';
+                
+                const isMatch = configNome === 'POLIS PIEVE 2010' || 
+                               nome === 'POLIS PIEVE 2010' || 
+                               id === 'POLIS PIEVE 2010';
+                
+                console.log('🔍 DEBUG - isPolisPieve2010 check:', {
+                    'config.nome': configNome,
+                    'nome': nome,
+                    'id': id,
+                    'isPolisPieve2010': isMatch
+                });
+                
+                return isMatch;
+            }
+
             // --- Company Navigation Functions ---
             function showCompanyWelcome() {
                 hideAllScreens();
                 companyNameDisplay.textContent = currentCompanyData.name;
+                
+                // Log societa data for debugging
+                console.log('📊 DEBUG - Societa data at login:', {
+                    societa: currentCompanyData?.data,
+                    isGuestLogin: currentCompanyData?.isGuestLogin
+                });
                 
                 // Show/hide elements based on guest login status
                 const guestRoleIndicator = document.getElementById('guest-role-indicator');
@@ -4078,9 +4137,8 @@
                     // Show training attendance for specific companies and guests
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                     const isPolisCompany = companyName === 'POLIS';
-                    // Check config.nome for "POLIS PIEVE 2010" to show Campionato button
-                    const configNome = currentCompanyData?.data?.config?.nome || '';
-                    const isPolisPieveCompany = configNome === 'POLIS PIEVE 2010';
+                    // Check if company is POLIS PIEVE 2010 (checks config.nome, nome, or id)
+                    const isPolisPieveCompany = isPolisPieve2010(currentCompanyData);
                     
                     if (isPolisCompany) {
                         trainingAttendanceButton.classList.remove('hidden');
@@ -4108,9 +4166,8 @@
                     // Show/hide training attendance button based on company name for normal users
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                     const isPolisCompany = companyName === 'POLIS';
-                    // Check config.nome for "POLIS PIEVE 2010" to show Campionato button
-                    const configNome = currentCompanyData?.data?.config?.nome || '';
-                    const isPolisPieveCompany = configNome === 'POLIS PIEVE 2010';
+                    // Check if company is POLIS PIEVE 2010 (checks config.nome, nome, or id)
+                    const isPolisPieveCompany = isPolisPieve2010(currentCompanyData);
                     
                     if (isPolisCompany) {
                         trainingAttendanceButton.classList.remove('hidden');
