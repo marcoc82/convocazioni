@@ -22,3 +22,6 @@ build/
 .idea/
 *.swp
 *.swo
+
+# Screenshots and images (temporary)
+*.png
