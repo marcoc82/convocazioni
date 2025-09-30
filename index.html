@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-21 - Uniformed Campionato button visibility to check societa.config.nome, societa.nome, or societa.id === "POLIS PIEVE 2010" for both login types, added societa logging, updated to V5.6 -->
+<!-- Version: 2024-01-22 - V5.7: Removed guest UI restriction for Campionato button when company is POLIS PIEVE 2010 by moving button outside admin-buttons container -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -224,7 +224,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 5.6</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 5.7</span>
             </div>
         </div>
 
@@ -262,11 +262,14 @@
                         Presenze Allenamenti
                     </button>
                 </div>
-                <!-- Admin buttons (hidden for guests) -->
-                <div id="admin-buttons" class="grid grid-cols-1 gap-3">
+                <!-- Campionato button (shown for POLIS PIEVE 2010 regardless of login type) -->
+                <div id="campionato-container" class="grid grid-cols-1 gap-3 mb-4">
                     <button id="campionato-button" class="w-full bg-purple-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
                         ⚽ Campionato
                     </button>
+                </div>
+                <!-- Admin buttons (hidden for guests) -->
+                <div id="admin-buttons" class="grid grid-cols-1 gap-3">
                     <button id="manage-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Gestione Squadra
                     </button>

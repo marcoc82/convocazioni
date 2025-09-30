@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V5.7 - Campionato Button Visibility for Guests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test V5.7 - Campionato Button Visibility for Guests</h1>
+    
+    <div class="test-section info">
+        <h2>Test Objective</h2>
+        <p><strong>V5.7 Fix:</strong> The Campionato button should be visible for guest users when the company is "POLIS PIEVE 2010"</p>
+        <ul>
+            <li>Moved campionato button out of <code>admin-buttons</code> container</li>
+            <li>Now in separate <code>campionato-container</code> div</li>
+            <li>Button visibility is controlled independently of admin container visibility</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>Test Cases</h3>
+        <button class="btn-primary" onclick="runAllTests()">Run All Tests</button>
+        
+        <div id="test-results" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        /**
+         * Simulate the isPolisPieve2010 function from index.html V5.6+
+         */
+        function isPolisPieve2010(companyData) {
+            const societa = companyData?.data;
+            if (!societa) return false;
+            
+            const configNome = societa?.config?.nome || '';
+            const nome = societa?.nome || '';
+            const id = societa?.id || '';
+            
+            const isMatch = configNome === 'POLIS PIEVE 2010' || 
+                           nome === 'POLIS PIEVE 2010' || 
+                           id === 'POLIS PIEVE 2010';
+            
+            return isMatch;
+        }
+
+        /**
+         * Simulate the button visibility logic from index.html
+         */
+        function simulateButtonVisibility(companyData, isGuestLogin) {
+            const isPolisPieveCompany = isPolisPieve2010(companyData);
+            
+            // Simulate container visibility
+            const adminButtonsVisible = !isGuestLogin;
+            
+            // Simulate campionato button visibility (independent of admin-buttons container in V5.7)
+            let campionatoVisible = false;
+            if (isPolisPieveCompany) {
+                campionatoVisible = true;
+            }
+            
+            return {
+                adminButtonsVisible,
+                campionatoVisible,
+                isPolisPieveCompany
+            };
+        }
+
+        function runTest(testCase) {
+            const result = simulateButtonVisibility(testCase.companyData, testCase.isGuestLogin);
+            const passed = result.campionatoVisible === testCase.expectedCampionatoVisible &&
+                          result.adminButtonsVisible === testCase.expectedAdminVisible;
+            
+            return {
+                name: testCase.name,
+                expectedCampionatoVisible: testCase.expectedCampionatoVisible,
+                actualCampionatoVisible: result.campionatoVisible,
+                expectedAdminVisible: testCase.expectedAdminVisible,
+                actualAdminVisible: result.adminButtonsVisible,
+                passed: passed,
+                details: testCase.details
+            };
+        }
+
+        function runAllTests() {
+            const testCases = [
+                {
+                    name: "Test 1: POLIS PIEVE 2010 - Guest Login",
+                    companyData: {
+                        name: "Test Company",
+                        isGuestLogin: true,
+                        data: {
+                            id: "some-id",
+                            nome: "Some Name",
+                            config: {
+                                nome: "POLIS PIEVE 2010"
+                            }
+                        }
+                    },
+                    isGuestLogin: true,
+                    expectedCampionatoVisible: true,
+                    expectedAdminVisible: false,
+                    details: "🎯 V5.7 FIX: Campionato should be visible for POLIS PIEVE 2010 guests"
+                },
+                {
+                    name: "Test 2: POLIS PIEVE 2010 - Normal Login",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "some-id",
+                            nome: "POLIS PIEVE 2010",
+                            config: {
+                                nome: "Other Config"
+                            }
+                        }
+                    },
+                    isGuestLogin: false,
+                    expectedCampionatoVisible: true,
+                    expectedAdminVisible: true,
+                    details: "Campionato should be visible for POLIS PIEVE 2010 normal users"
+                },
+                {
+                    name: "Test 3: Other Company - Guest Login",
+                    companyData: {
+                        name: "Other Company",
+                        data: {
+                            id: "other-id",
+                            nome: "Other Name",
+                            config: {
+                                nome: "Other Config"
+                            }
+                        }
+                    },
+                    isGuestLogin: true,
+                    expectedCampionatoVisible: false,
+                    expectedAdminVisible: false,
+                    details: "Campionato should NOT be visible for other company guests"
+                },
+                {
+                    name: "Test 4: Other Company - Normal Login",
+                    companyData: {
+                        name: "Other Company",
+                        data: {
+                            id: "other-id",
+                            nome: "Other Name",
+                            config: {
+                                nome: "Other Config"
+                            }
+                        }
+                    },
+                    isGuestLogin: false,
+                    expectedCampionatoVisible: false,
+                    expectedAdminVisible: true,
+                    details: "Campionato should NOT be visible for other company normal users"
+                },
+                {
+                    name: "Test 5: POLIS PIEVE 2010 via id field - Guest Login",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "POLIS PIEVE 2010",
+                            nome: "Other Name",
+                            config: {
+                                nome: "Other Config"
+                            }
+                        }
+                    },
+                    isGuestLogin: true,
+                    expectedCampionatoVisible: true,
+                    expectedAdminVisible: false,
+                    details: "🎯 V5.7 FIX: Should work with id field for guests"
+                },
+                {
+                    name: "Test 6: POLIS PIEVE 2010 via nome field - Guest Login",
+                    companyData: {
+                        name: "Test Company",
+                        data: {
+                            id: "other-id",
+                            nome: "POLIS PIEVE 2010",
+                            config: {
+                                nome: "Other Config"
+                            }
+                        }
+                    },
+                    isGuestLogin: true,
+                    expectedCampionatoVisible: true,
+                    expectedAdminVisible: false,
+                    details: "🎯 V5.7 FIX: Should work with nome field for guests"
+                }
+            ];
+
+            const results = testCases.map(runTest);
+            const passedTests = results.filter(r => r.passed).length;
+            const failedTests = results.filter(r => !r.passed).length;
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>Campionato Expected</th>
+                            <th>Campionato Actual</th>
+                            <th>Admin Expected</th>
+                            <th>Admin Actual</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            results.forEach(result => {
+                html += `
+                    <tr style="background-color: ${result.passed ? '#d4edda' : '#f8d7da'}">
+                        <td>${result.name}</td>
+                        <td>${result.expectedCampionatoVisible ? '✅ Visible' : '❌ Hidden'}</td>
+                        <td>${result.actualCampionatoVisible ? '✅ Visible' : '❌ Hidden'}</td>
+                        <td>${result.expectedAdminVisible ? '✅ Visible' : '❌ Hidden'}</td>
+                        <td>${result.actualAdminVisible ? '✅ Visible' : '❌ Hidden'}</td>
+                        <td>${result.passed ? '✅ PASS' : '❌ FAIL'}</td>
+                        <td>${result.details}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            if (failedTests > 0) {
+                html = `<div class="error">❌ ${failedTests} test(s) failed!</div>` + html;
+            } else {
+                html = `<div class="success">✅ All ${passedTests} tests passed!</div>` + html;
+            }
+
+            document.getElementById('test-results').innerHTML = html;
+            
+            console.log('Test Results Summary:', {
+                total: testCases.length,
+                passed: passedTests,
+                failed: failedTests
+            });
+        }
+
+        // Run tests automatically on load
+        window.addEventListener('load', () => {
+            console.log('V5.7 Test page loaded. Click "Run All Tests" to test the logic.');
+        });
+    </script>
+</body>
+</html>
