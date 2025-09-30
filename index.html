@@ -1205,7 +1205,7 @@
                 // Show/hide training attendance button based on company name
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
-                const isPolisPieveCompany = companyName === 'PIEVE2010';
+                const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
                 
                 if (isPolisCompany) {
                     trainingAttendanceButton.classList.remove('hidden');
@@ -4076,7 +4076,7 @@
                     // Show training attendance for specific companies and guests
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                     const isPolisCompany = companyName === 'POLIS';
-                    const isPolisPieveCompany = companyName === 'PIEVE2010';
+                    const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
                     
                     if (isPolisCompany) {
                         trainingAttendanceButton.classList.remove('hidden');
@@ -4104,7 +4104,7 @@
                     // Show/hide training attendance button based on company name for normal users
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                     const isPolisCompany = companyName === 'POLIS';
-                    const isPolisPieveCompany = companyName === 'PIEVE2010';
+                    const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
                     
                     if (isPolisCompany) {
                         trainingAttendanceButton.classList.remove('hidden');
@@ -5645,7 +5645,7 @@
                         risultatiContainer.style.display = 'flex';
                         risultatiContainer.style.justifyContent = 'center';
                         risultatiContainer.style.alignItems = 'center';
-                        console.log('🎯 Risultati widget centered for PIEVE2010');
+                        console.log('🎯 Risultati widget centered for POLIS PIEVE 2010');
                     }
                 }
             });
@@ -6742,6 +6742,7 @@
     </script>
 </body>
 </html>
+
 
 
 
