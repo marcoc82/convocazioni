@@ -71,13 +71,13 @@
     <div class="test-section info">
         <h2>Test Logic Verification</h2>
         <p>This page tests the logic that determines when the Campionato button should be visible.</p>
-        <p><strong>Requirement:</strong> The button should be visible for society with name "PIEVE2010" regardless of login type.</p>
+        <p><strong>Requirement:</strong> The button should be visible for society with config.nome === "POLIS PIEVE 2010" regardless of login type.</p>
     </div>
 
     <div class="test-section">
         <h3>Test Controls</h3>
-        <label for="company-name-input">Company Name:</label>
-        <input type="text" id="company-name-input" value="PIEVE2010" style="margin: 0 10px; padding: 5px;">
+        <label for="company-name-input">Config Nome:</label>
+        <input type="text" id="company-name-input" value="POLIS PIEVE 2010" style="margin: 0 10px; padding: 5px;">
         <button class="btn-primary" onclick="testCampionatoVisibility()">Test Visibility</button>
         <button class="btn-primary" onclick="testDifferentCompany()">Test Other Company</button>
     </div>
@@ -115,11 +115,11 @@
             resultsContent.appendChild(resultDiv);
         }
 
-        function testCompanyLogic(companyName, loginType = 'guest') {
+        function testCompanyLogic(configNome, loginType = 'guest') {
             // This is the exact logic from the main application
-            const isPolisPieveCompany = companyName === 'PIEVE2010';
+            const isPolisPieveCompany = configNome === 'POLIS PIEVE 2010';
             
-            addResult(`Testing company: "${companyName}" with login type: ${loginType}`, 'info');
+            addResult(`Testing config.nome: "${configNome}" with login type: ${loginType}`, 'info');
             addResult(`isPolisPieveCompany = ${isPolisPieveCompany}`, 'info');
             
             if (isPolisPieveCompany) {
@@ -147,24 +147,27 @@
         }
 
         function testCampionatoVisibility() {
-            const companyName = document.getElementById('company-name-input').value.trim();
+            const configNome = document.getElementById('company-name-input').value.trim();
             
-            if (!companyName) {
-                addResult('❌ Please enter a company name', 'error');
+            if (!configNome) {
+                addResult('❌ Please enter a config.nome value', 'error');
                 return;
             }
             
-            addResult(`🧪 Testing Campionato button visibility for company: "${companyName}"`, 'info');
+            addResult(`🧪 Testing Campionato button visibility for config.nome: "${configNome}"`, 'info');
             
             // Test for guest login
-            const guestResult = testCompanyLogic(companyName, 'guest');
+            const guestResult = testCompanyLogic(configNome, 'guest');
             
-            // Test for normal login
-            const normalResult = testCompanyLogic(companyName, 'normal');
+            // Test for normal login (dirigente)
+            const dirigenteResult = testCompanyLogic(configNome, 'dirigente');
             
-            // Both should have the same result according to the requirement
-            if (guestResult === normalResult) {
-                addResult('✅ Logic is consistent between guest and normal login', 'success');
+            // Test for mister login
+            const misterResult = testCompanyLogic(configNome, 'mister');
+            
+            // All should have the same result according to the requirement
+            if (guestResult === dirigenteResult && dirigenteResult === misterResult) {
+                addResult('✅ Logic is consistent across all login types (guest, dirigente, mister)', 'success');
                 updateButtonVisibility(guestResult);
             } else {
                 addResult('❌ Logic is inconsistent between login types', 'error');
@@ -187,9 +190,9 @@
                     testDifferentCompany();
                     
                     setTimeout(() => {
-                        // Reset to PIEVE2010 for final verification
-                        document.getElementById('company-name-input').value = 'PIEVE2010';
-                        addResult('🔄 Resetting to PIEVE2010 for final verification...', 'info');
+                        // Reset to POLIS PIEVE 2010 for final verification
+                        document.getElementById('company-name-input').value = 'POLIS PIEVE 2010';
+                        addResult('🔄 Resetting to POLIS PIEVE 2010 for final verification...', 'info');
                         testCampionatoVisibility();
                     }, 1000);
                 }, 1000);
