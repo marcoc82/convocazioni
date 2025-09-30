@@ -221,12 +221,20 @@
                     const companyData = companySnap.data();
                     companyPlayers = companyData.giocatori || [];
                     companyCoaches = companyData.allenatori || [];
+                    console.log('✅ [DEBUG] Company data loaded');
+                    console.log('   📊 Players:', companyPlayers.length);
+                    console.log('   📊 Coaches:', companyCoaches.length);
                 }
 
                 // Load coaches first, then pre-fill the form
+                console.log('🔄 [DEBUG] Loading sequence:');
+                console.log('   1️⃣ Loading coaches...');
                 loadCoaches();
+                console.log('   2️⃣ Pre-filling form...');
                 prefillForm(originalConvocation);
+                console.log('   3️⃣ Loading players...');
                 loadPlayers();
+                console.log('✅ [DEBUG] All loading complete');
 
             } catch (error) {
                 console.error("Error loading convocation:", error);
@@ -243,11 +251,24 @@
             tipoPartitaSelect.value = convocation.details.tipo || '';
             
             // Set mister selections if available (coaches already loaded)
+            console.log('🔄 [DEBUG] prefillForm() - Setting mister values');
+            console.log('   📋 misterPartita from convocation:', convocation.details.misterPartita);
+            console.log('   📋 misterTipo from convocation:', convocation.details.misterTipo);
+            
             if (convocation.details.misterPartita && convocation.details.misterPartita !== 'N/D') {
+                console.log('   ➡️ Setting misterPartitaSelect.value to:', convocation.details.misterPartita);
                 misterPartitaSelect.value = convocation.details.misterPartita;
+                console.log('   ✅ misterPartitaSelect.value after setting:', misterPartitaSelect.value);
+            } else {
+                console.log('   ⚠️ Not setting misterPartita (value is N/D or empty)');
             }
+            
             if (convocation.details.misterTipo && convocation.details.misterTipo !== 'N/D') {
+                console.log('   ➡️ Setting misterTipoSelect.value to:', convocation.details.misterTipo);
                 misterTipoSelect.value = convocation.details.misterTipo;
+                console.log('   ✅ misterTipoSelect.value after setting:', misterTipoSelect.value);
+            } else {
+                console.log('   ⚠️ Not setting misterTipo (value is N/D or empty)');
             }
 
             // Pre-select players
@@ -263,10 +284,18 @@
         }
 
         function loadCoaches() {
-            if (!companyCoaches || companyCoaches.length === 0) return;
+            console.log('🔄 [DEBUG] loadCoaches() - Start');
+            console.log('   📋 companyCoaches:', companyCoaches);
+            console.log('   📊 Number of coaches:', companyCoaches ? companyCoaches.length : 0);
+            
+            if (!companyCoaches || companyCoaches.length === 0) {
+                console.log('   ⚠️ No coaches to load');
+                return;
+            }
 
-            companyCoaches.forEach(coach => {
+            companyCoaches.forEach((coach, index) => {
                 const coachName = typeof coach === 'string' ? coach : coach.name;
+                console.log(`   ➕ Adding coach #${index + 1}: "${coachName}"`);
                 
                 const option1 = document.createElement('option');
                 option1.value = coachName;
@@ -278,6 +307,10 @@
                 option2.textContent = coachName;
                 misterTipoSelect.appendChild(option2);
             });
+            
+            console.log('   ✅ loadCoaches() - Complete');
+            console.log('   📊 misterPartitaSelect options:', misterPartitaSelect.options.length);
+            console.log('   📊 misterTipoSelect options:', misterTipoSelect.options.length);
         }
 
         function loadPlayers() {
