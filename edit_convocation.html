@@ -224,9 +224,9 @@
                     companyCoaches = companyData.allenatori || [];
                 }
 
-                // Pre-fill the form
-                prefillForm(originalConvocation);
+                // Load coaches first, then pre-fill the form
                 loadCoaches();
+                prefillForm(originalConvocation);
                 loadPlayers();
 
             } catch (error) {
@@ -243,16 +243,12 @@
             orarioPartitaInput.value = convocation.details.orarioPartita || '';
             tipoPartitaSelect.value = convocation.details.tipo || '';
             
-            // Set mister selections if available
-            if (convocation.details.misterPartita) {
-                setTimeout(() => {
-                    misterPartitaSelect.value = convocation.details.misterPartita;
-                }, 100);
+            // Set mister selections if available (coaches already loaded)
+            if (convocation.details.misterPartita && convocation.details.misterPartita !== 'N/D') {
+                misterPartitaSelect.value = convocation.details.misterPartita;
             }
-            if (convocation.details.misterTipo) {
-                setTimeout(() => {
-                    misterTipoSelect.value = convocation.details.misterTipo;
-                }, 100);
+            if (convocation.details.misterTipo && convocation.details.misterTipo !== 'N/D') {
+                misterTipoSelect.value = convocation.details.misterTipo;
             }
 
             // Pre-select players
