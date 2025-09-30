@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Navigation Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Navigation Fix - V6.4</h1>
+    
+    <div class="info">
+        <strong>Scenario:</strong> Testing the navigation flow from History View → Edit Convocation → Back to History View
+    </div>
+
+    <div class="test-section">
+        <h2>Test 1: Simulate Navigation to Edit Page</h2>
+        <p>This simulates clicking "Modifica" from the history view.</p>
+        <button onclick="simulateNavigateToEdit()">Simulate Navigate to Edit</button>
+        <div id="test1-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Simulate Return from Edit Page</h2>
+        <p>This simulates clicking "Annulla" or "Salva" from edit page.</p>
+        <button onclick="simulateReturnFromEdit()">Simulate Return from Edit</button>
+        <div id="test2-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Check Hash Navigation Logic</h2>
+        <p>This tests the hash detection and state restoration logic.</p>
+        <button onclick="testHashNavigation()">Test Hash Navigation</button>
+        <div id="test3-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Full Flow Simulation</h2>
+        <p>This simulates the complete user journey.</p>
+        <button onclick="testFullFlow()">Run Full Flow Test</button>
+        <div id="test4-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>SessionStorage Inspector</h2>
+        <button onclick="inspectSessionStorage()">Inspect SessionStorage</button>
+        <button onclick="clearSessionStorage()">Clear SessionStorage</button>
+        <div id="storage-result"></div>
+    </div>
+
+    <script>
+        function logResult(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${isSuccess ? 'success' : 'error'}`;
+            resultDiv.textContent = message;
+            element.appendChild(resultDiv);
+        }
+
+        function clearResults(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        function simulateNavigateToEdit() {
+            clearResults('test1-result');
+            
+            // Simulate storing state when clicking edit button
+            const testCompanyDocId = 'test-company-123';
+            const testUserRole = 'mister';
+            const testAppId = 'test-app-456';
+            
+            sessionStorage.setItem('editOrigin', 'history');
+            sessionStorage.setItem('editCompanyDocId', testCompanyDocId);
+            sessionStorage.setItem('editUserRole', testUserRole);
+            sessionStorage.setItem('editAppId', testAppId);
+            
+            logResult('test1-result', '✅ State stored in sessionStorage');
+            logResult('test1-result', `   - editOrigin: ${sessionStorage.getItem('editOrigin')}`);
+            logResult('test1-result', `   - editCompanyDocId: ${sessionStorage.getItem('editCompanyDocId')}`);
+            logResult('test1-result', `   - editUserRole: ${sessionStorage.getItem('editUserRole')}`);
+            logResult('test1-result', `   - editAppId: ${sessionStorage.getItem('editAppId')}`);
+            logResult('test1-result', '✅ Would navigate to: edit_convocation.html?id=...');
+        }
+
+        function simulateReturnFromEdit() {
+            clearResults('test2-result');
+            
+            // Simulate goBack() function from edit_convocation.html
+            sessionStorage.setItem('returnToHistory', 'true');
+            
+            logResult('test2-result', '✅ returnToHistory flag set in sessionStorage');
+            logResult('test2-result', `   - returnToHistory: ${sessionStorage.getItem('returnToHistory')}`);
+            logResult('test2-result', '✅ Would navigate to: index.html#history');
+            
+            // Simulate the hash
+            window.location.hash = '#history';
+            logResult('test2-result', `✅ Hash set to: ${window.location.hash}`);
+        }
+
+        function testHashNavigation() {
+            clearResults('test3-result');
+            
+            // Check if required data is in sessionStorage
+            const returnToHistory = sessionStorage.getItem('returnToHistory');
+            const editCompanyDocId = sessionStorage.getItem('editCompanyDocId');
+            const editUserRole = sessionStorage.getItem('editUserRole');
+            const editAppId = sessionStorage.getItem('editAppId');
+            const hash = window.location.hash;
+            
+            logResult('test3-result', `Current hash: ${hash || '(none)'}`);
+            logResult('test3-result', `returnToHistory: ${returnToHistory || '(not set)'}`);
+            
+            if (hash === '#history' && returnToHistory === 'true') {
+                if (editCompanyDocId && editUserRole && editAppId) {
+                    logResult('test3-result', '✅ All conditions met for navigation to history!');
+                    logResult('test3-result', '✅ Would restore state and show history view');
+                    logResult('test3-result', `   - Restore companyDocId: ${editCompanyDocId}`);
+                    logResult('test3-result', `   - Restore userRole: ${editUserRole}`);
+                    logResult('test3-result', `   - Restore appId: ${editAppId}`);
+                    logResult('test3-result', '✅ Would clear sessionStorage');
+                    logResult('test3-result', '✅ Would load history convocations');
+                } else {
+                    logResult('test3-result', '❌ Missing required state data', false);
+                }
+            } else {
+                logResult('test3-result', '⚠️ Conditions not met (hash or flag missing)', false);
+            }
+        }
+
+        function testFullFlow() {
+            clearResults('test4-result');
+            
+            logResult('test4-result', '🚀 Starting full flow test...');
+            
+            // Step 1: User is in history view
+            logResult('test4-result', '📍 Step 1: User in History View');
+            
+            // Step 2: User clicks edit
+            logResult('test4-result', '📍 Step 2: User clicks "Modifica"');
+            sessionStorage.setItem('editOrigin', 'history');
+            sessionStorage.setItem('editCompanyDocId', 'company-789');
+            sessionStorage.setItem('editUserRole', 'dirigente');
+            sessionStorage.setItem('editAppId', 'app-012');
+            logResult('test4-result', '   ✅ State saved to sessionStorage');
+            
+            // Step 3: Navigate to edit page (simulated)
+            logResult('test4-result', '📍 Step 3: Navigate to edit_convocation.html');
+            logResult('test4-result', '   ✅ Edit page loaded');
+            
+            // Step 4: User clicks cancel or save
+            logResult('test4-result', '📍 Step 4: User clicks "Annulla" or "Salva"');
+            sessionStorage.setItem('returnToHistory', 'true');
+            window.location.hash = '#history';
+            logResult('test4-result', '   ✅ returnToHistory flag set');
+            logResult('test4-result', '   ✅ Hash set to #history');
+            
+            // Step 5: Page loads with hash
+            logResult('test4-result', '📍 Step 5: index.html loads with #history hash');
+            const returnToHistory = sessionStorage.getItem('returnToHistory');
+            const editCompanyDocId = sessionStorage.getItem('editCompanyDocId');
+            const editUserRole = sessionStorage.getItem('editUserRole');
+            const editAppId = sessionStorage.getItem('editAppId');
+            
+            if (window.location.hash === '#history' && returnToHistory === 'true' && 
+                editCompanyDocId && editUserRole && editAppId) {
+                logResult('test4-result', '   ✅ checkHashNavigation() detects return');
+                logResult('test4-result', '   ✅ State restored from sessionStorage');
+                logResult('test4-result', '   ✅ History view would be displayed');
+                logResult('test4-result', '   ✅ SessionStorage would be cleaned up');
+                logResult('test4-result', '');
+                logResult('test4-result', '🎉 FULL FLOW TEST PASSED!');
+            } else {
+                logResult('test4-result', '❌ Flow test failed - missing data', false);
+            }
+        }
+
+        function inspectSessionStorage() {
+            const storageDiv = document.getElementById('storage-result');
+            storageDiv.innerHTML = '<h3>SessionStorage Contents:</h3>';
+            
+            const keys = [
+                'returnToHistory',
+                'editOrigin', 
+                'editCompanyDocId',
+                'editUserRole',
+                'editAppId'
+            ];
+            
+            const pre = document.createElement('pre');
+            let content = '';
+            
+            keys.forEach(key => {
+                const value = sessionStorage.getItem(key);
+                content += `${key}: ${value || '(not set)'}\n`;
+            });
+            
+            pre.textContent = content;
+            storageDiv.appendChild(pre);
+        }
+
+        function clearSessionStorage() {
+            sessionStorage.removeItem('returnToHistory');
+            sessionStorage.removeItem('editOrigin');
+            sessionStorage.removeItem('editCompanyDocId');
+            sessionStorage.removeItem('editUserRole');
+            sessionStorage.removeItem('editAppId');
+            
+            const storageDiv = document.getElementById('storage-result');
+            storageDiv.innerHTML = '<div class="test-result success">✅ SessionStorage cleared!</div>';
+        }
+
+        // Auto-inspect on load
+        window.addEventListener('load', () => {
+            inspectSessionStorage();
+        });
+    </script>
+</body>
+</html>

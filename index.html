@@ -2715,6 +2715,13 @@
                         btn.addEventListener('click', (e) => {
                             const docId = btn.getAttribute('data-docid');
                             console.log(`✏️ Modificando convocazione con ID: ${docId}`);
+                            
+                            // Store state in sessionStorage to restore history view after editing
+                            sessionStorage.setItem('editOrigin', 'history');
+                            sessionStorage.setItem('editCompanyDocId', currentCompanyDocumentId);
+                            sessionStorage.setItem('editUserRole', userRole);
+                            sessionStorage.setItem('editAppId', currentAppId);
+                            
                             // Navigate to edit page with parameters
                             window.location.href = `edit_convocation.html?id=${docId}&companyDocId=${currentCompanyDocumentId}&role=${userRole}`;
                         });
@@ -6819,6 +6826,55 @@
                     mainView.classList.remove('hidden');
                 }
             });
+            
+            // Check for hash navigation (returning from edit_convocation.html)
+            function checkHashNavigation() {
+                const hash = window.location.hash;
+                const returnToHistory = sessionStorage.getItem('returnToHistory');
+                
+                if (hash === '#history' && returnToHistory === 'true') {
+                    // Clear the flag
+                    sessionStorage.removeItem('returnToHistory');
+                    
+                    // Restore saved state
+                    const editCompanyDocId = sessionStorage.getItem('editCompanyDocId');
+                    const editUserRole = sessionStorage.getItem('editUserRole');
+                    const editAppId = sessionStorage.getItem('editAppId');
+                    
+                    if (editCompanyDocId && editUserRole && editAppId) {
+                        // Set current state
+                        currentCompanyDocumentId = editCompanyDocId;
+                        userRole = editUserRole;
+                        currentAppId = editAppId;
+                        
+                        // Clear edit state from sessionStorage
+                        sessionStorage.removeItem('editCompanyDocId');
+                        sessionStorage.removeItem('editUserRole');
+                        sessionStorage.removeItem('editAppId');
+                        sessionStorage.removeItem('editOrigin');
+                        
+                        // Hide all views and show history
+                        mainView.classList.add('hidden');
+                        attendanceView.classList.add('hidden');
+                        trainingAttendanceView.classList.add('hidden');
+                        campionatoView.classList.add('hidden');
+                        hideAllScreens();
+                        historyView.classList.remove('hidden');
+                        
+                        // Load history data
+                        loadHistoryConvocations();
+                        
+                        // Clear the hash from URL
+                        history.replaceState(null, null, ' ');
+                    }
+                }
+            }
+            
+            // Check hash on page load
+            checkHashNavigation();
+            
+            // Also check hash when it changes
+            window.addEventListener('hashchange', checkHashNavigation);
         });
     </script>
 </body>
