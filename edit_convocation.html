@@ -123,13 +123,13 @@
                     <p class="text-sm text-gray-500 mb-4">Clicca sui giocatori per selezionarli/deselezionarli</p>
                     <div id="players-list-container" class="mb-4">
                         <ul id="players-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                            <!-- Players will be loaded here -->
+                            <!-- Giocatori will be loaded here -->
                         </ul>
                     </div>
                     <div class="bg-white rounded-lg p-3 border border-gray-200">
                         <h3 class="text-md font-semibold text-gray-700 mb-2">Selezionati (<span id="selected-count">0</span>)</h3>
                         <ul id="selected-players-list" class="space-y-1 text-sm text-gray-600">
-                            <!-- Selected players will appear here -->
+                            <!-- Giocatori selezionati will appear here -->
                         </ul>
                     </div>
                 </div>
@@ -216,24 +216,42 @@
                 originalConvocation = convocationSnap.data();
                 
                 // Load giocatori from subcollection
+                console.log('🔄 [DEBUG] Caricamento giocatori da Firestore...');
+                console.log('   📍 Percorso: societa/' + companyDocId + '/giocatori');
+                
                 const giocatoriCollectionRef = window.collection(window.db, 'societa', companyDocId, 'giocatori');
                 const giocatoriSnapshot = await window.getDocs(giocatoriCollectionRef);
                 
                 companyPlayers = [];
                 giocatoriSnapshot.forEach((doc) => {
-                    const playerData = doc.data();
-                    // Store player objects with numero and nome
-                    if (playerData.numero && playerData.nome) {
+                    const giocatoreData = doc.data();
+                    console.log('   📄 Giocatore trovato:', {
+                        id: doc.id,
+                        numero: giocatoreData.numero,
+                        nome: giocatoreData.nome,
+                        dataNascita: giocatoreData.dataNascita,
+                        matricola: giocatoreData.matricola
+                    });
+                    // Store giocatore objects with numero and nome
+                    if (giocatoreData.numero && giocatoreData.nome) {
                         companyPlayers.push({
-                            numero: playerData.numero,
-                            nome: playerData.nome,
-                            dataNascita: playerData.dataNascita,
-                            matricola: playerData.matricola
+                            numero: giocatoreData.numero,
+                            nome: giocatoreData.nome,
+                            dataNascita: giocatoreData.dataNascita,
+                            matricola: giocatoreData.matricola
                         });
                     }
                 });
-                console.log('✅ [DEBUG] Giocatori loaded from subcollection');
-                console.log('   📊 Giocatori:', companyPlayers.length);
+                
+                if (companyPlayers.length === 0) {
+                    console.warn('⚠️ [DEBUG] Nessun giocatore trovato nella subcollection!');
+                    console.warn('   📍 Verifica che esistano documenti in: societa/' + companyDocId + '/giocatori');
+                    console.warn('   📝 Ogni documento deve avere i campi: nome, matricola, dataNascita, numero');
+                } else {
+                    console.log('✅ [DEBUG] Giocatori caricati dalla subcollection con successo');
+                    console.log('   📊 Totale giocatori:', companyPlayers.length);
+                    console.log('   👥 Lista giocatori:', companyPlayers.map(g => `${g.numero} ${g.nome}`).join(', '));
+                }
 
                 // Load mister from subcollection
                 const misterCollectionRef = window.collection(window.db, 'societa', companyDocId, 'mister');
@@ -304,7 +322,7 @@
                 console.log('   ⚠️ Not setting misterTipo (value is N/D or empty)');
             }
 
-            // Pre-select players
+            // Pre-select giocatori
             if (convocation.players && Array.isArray(convocation.players)) {
                 convocation.players.forEach(player => {
                     if (typeof player === 'string') {
@@ -347,22 +365,30 @@
         }
 
         function loadPlayers() {
+            console.log('🔄 [DEBUG] loadPlayers() - Popolamento lista giocatori nella UI');
+            console.log('   📊 Giocatori disponibili:', companyPlayers.length);
+            
             playersListUl.innerHTML = '';
             
             if (!companyPlayers || companyPlayers.length === 0) {
+                console.warn('⚠️ [DEBUG] Nessun giocatore disponibile da mostrare');
                 playersListUl.innerHTML = '<li class="col-span-full text-center text-gray-500">Nessun giocatore disponibile</li>';
                 return;
             }
 
-            // Sort players by numero
+            // Sort giocatori by numero
             const sortedPlayers = [...companyPlayers].sort((a, b) => {
                 const numA = parseInt(a.numero) || 0;
                 const numB = parseInt(b.numero) || 0;
                 return numA - numB;
             });
 
-            sortedPlayers.forEach(player => {
+            console.log('   📋 Lista giocatori ordinata per numero');
+            sortedPlayers.forEach((player, index) => {
                 const playerName = `${player.numero} ${player.nome}`;
+                if (index < 5) {
+                    console.log(`   ${index + 1}. ${playerName}`);
+                }
                 const li = document.createElement('li');
                 li.textContent = playerName;
                 li.className = 'p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors';
@@ -378,6 +404,10 @@
                 playersListUl.appendChild(li);
             });
 
+            if (sortedPlayers.length > 5) {
+                console.log(`   ... e altri ${sortedPlayers.length - 5} giocatori`);
+            }
+            console.log('✅ [DEBUG] Lista giocatori popolata correttamente nella UI');
             updateSelectedPlayersList();
         }
 
