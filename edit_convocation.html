@@ -196,11 +196,8 @@
 
         // Load convocation data
         async function loadConvocation() {
-            if (!window.db || !window.auth.currentUser) {
-                setTimeout(loadConvocation, 500);
-                return;
-            }
-
+            // Firebase is guaranteed to be ready since this is called from signInAnonymously().then()
+            // No setTimeout needed - synchronous logic
             try {
                 const historyBasePath = `societa/${companyDocId}`;
                 const convocationRef = window.doc(window.db, `${historyBasePath}/convocations_history`, convocationId);
