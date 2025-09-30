@@ -225,20 +225,57 @@
                 companyPlayers = [];
                 giocatoriSnapshot.forEach((doc) => {
                     const giocatoreData = doc.data();
-                    console.log('   📄 Giocatore trovato:', {
+                    
+                    // Log raw structure for debugging
+                    console.log('   📄 Giocatore documento completo:', {
                         id: doc.id,
-                        numero: giocatoreData.numero,
-                        nome: giocatoreData.nome,
-                        dataNascita: giocatoreData.dataNascita,
-                        matricola: giocatoreData.matricola
+                        rawData: giocatoreData
                     });
+                    
+                    // Extract fields from nested structure (raw.nome) with fallback to direct fields
+                    let numero, nome, dataNascita, matricola;
+                    
+                    // Try nested structure first (raw.nome.campo)
+                    if (giocatoreData.raw && giocatoreData.raw.nome) {
+                        numero = giocatoreData.raw.nome.numero;
+                        nome = giocatoreData.raw.nome.nome;
+                        dataNascita = giocatoreData.raw.nome.dataNascita;
+                        matricola = giocatoreData.raw.nome.matricola;
+                        console.log('   ✅ Dati estratti da raw.nome:', {
+                            numero,
+                            nome,
+                            dataNascita,
+                            matricola
+                        });
+                    }
+                    // Fallback to direct fields (legacy structure)
+                    else {
+                        numero = giocatoreData.numero;
+                        nome = giocatoreData.nome;
+                        dataNascita = giocatoreData.dataNascita;
+                        matricola = giocatoreData.matricola;
+                        console.log('   ℹ️ Dati estratti direttamente (fallback):', {
+                            numero,
+                            nome,
+                            dataNascita,
+                            matricola
+                        });
+                    }
+                    
                     // Store giocatore objects with numero and nome
-                    if (giocatoreData.numero && giocatoreData.nome) {
+                    if (numero && nome) {
                         companyPlayers.push({
-                            numero: giocatoreData.numero,
-                            nome: giocatoreData.nome,
-                            dataNascita: giocatoreData.dataNascita,
-                            matricola: giocatoreData.matricola
+                            numero: numero,
+                            nome: nome,
+                            dataNascita: dataNascita,
+                            matricola: matricola
+                        });
+                        console.log('   ➕ Giocatore aggiunto alla lista:', `${numero} ${nome}`);
+                    } else {
+                        console.warn('   ⚠️ Giocatore ignorato (mancano numero o nome):', {
+                            id: doc.id,
+                            numero,
+                            nome
                         });
                     }
                 });
