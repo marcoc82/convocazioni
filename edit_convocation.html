@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifica Convocazione - Rosterkick</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="favicon-192x192.png">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
+            authDomain: "polis-2013.firebaseapp.com",
+            projectId: "polis-2013",
+            storageBucket: "polis-2013.appspot.com",
+            messagingSenderId: "607738543737",
+            appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
+            measurementId: "G-94FT2YQNBM"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Expose globally
+        window.auth = auth;
+        window.db = db;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.updateDoc = updateDoc;
+
+        // Sign in anonymously
+        signInAnonymously(auth).then(() => {
+            console.log("✅ Firebase authenticated");
+            loadConvocation();
+        }).catch((error) => {
+            console.error("❌ Firebase auth error:", error);
+            showMessage("Errore di autenticazione. Ricarica la pagina.", "text-red-600");
+        });
+    </script>
+</head>
+<body class="bg-gradient-to-b from-slate-900 to-slate-800 min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-4xl">
+        <div class="bg-white rounded-xl shadow-2xl p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-2xl font-bold text-gray-800">Modifica Convocazione</h1>
+                <button id="back-button" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                    Annulla
+                </button>
+            </div>
+
+            <div id="message-area" class="mb-4 text-center text-sm font-medium hidden"></div>
+
+            <form id="edit-form" class="space-y-6">
+                <!-- Match Details Section -->
+                <div class="bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Dettagli Partita</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="campo" class="block text-sm font-medium text-gray-700">🏟️ Campo *</label>
+                            <input type="text" id="campo" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="avversario" class="block text-sm font-medium text-gray-700">🆚 Avversario *</label>
+                            <input type="text" id="avversario" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="data-partita" class="block text-sm font-medium text-gray-700">📅 Data Partita *</label>
+                            <input type="date" id="data-partita" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="orario-convocazione" class="block text-sm font-medium text-gray-700">🕒 Orario Convocazione *</label>
+                            <input type="time" id="orario-convocazione" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="orario-partita" class="block text-sm font-medium text-gray-700">🕒 Orario Partita *</label>
+                            <input type="time" id="orario-partita" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="tipo-partita" class="block text-sm font-medium text-gray-700">Tipo *</label>
+                            <select id="tipo-partita" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                                <option value="">Seleziona tipo</option>
+                                <option value="Amichevole">🤝 Amichevole</option>
+                                <option value="Torneo">🏆 Torneo</option>
+                                <option value="Campionato">⚽️ Campionato</option>
+                            </select>
+                        </div>
+                        <div id="mister-selection-1">
+                            <label for="mister-partita" class="block text-sm font-medium text-gray-700">👤 Mister</label>
+                            <select id="mister-partita" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                                <option value="">Seleziona mister</option>
+                            </select>
+                        </div>
+                        <div id="mister-selection-2">
+                            <label for="mister-tipo" class="block text-sm font-medium text-gray-700">👤 Mister</label>
+                            <select id="mister-tipo" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                                <option value="">Seleziona mister</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Players Selection Section -->
+                <div class="bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Giocatori Convocati *</h2>
+                    <p class="text-sm text-gray-500 mb-4">Clicca sui giocatori per selezionarli/deselezionarli</p>
+                    <div id="players-list-container" class="mb-4">
+                        <ul id="players-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                            <!-- Players will be loaded here -->
+                        </ul>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 border border-gray-200">
+                        <h3 class="text-md font-semibold text-gray-700 mb-2">Selezionati (<span id="selected-count">0</span>)</h3>
+                        <ul id="selected-players-list" class="space-y-1 text-sm text-gray-600">
+                            <!-- Selected players will appear here -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-4">
+                    <button type="button" id="cancel-button" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                        Annulla
+                    </button>
+                    <button type="submit" id="save-button" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                        Salva Modifiche
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const convocationId = urlParams.get('id');
+        const companyDocId = urlParams.get('companyDocId');
+        const userRole = urlParams.get('role');
+
+        // DOM elements
+        const messageArea = document.getElementById('message-area');
+        const editForm = document.getElementById('edit-form');
+        const campoInput = document.getElementById('campo');
+        const avversarioInput = document.getElementById('avversario');
+        const dataPartitaInput = document.getElementById('data-partita');
+        const orarioConvocazioneInput = document.getElementById('orario-convocazione');
+        const orarioPartitaInput = document.getElementById('orario-partita');
+        const tipoPartitaSelect = document.getElementById('tipo-partita');
+        const misterPartitaSelect = document.getElementById('mister-partita');
+        const misterTipoSelect = document.getElementById('mister-tipo');
+        const playersListUl = document.getElementById('players-list');
+        const selectedPlayersList = document.getElementById('selected-players-list');
+        const selectedCountSpan = document.getElementById('selected-count');
+        const backButton = document.getElementById('back-button');
+        const cancelButton = document.getElementById('cancel-button');
+
+        let companyPlayers = [];
+        let companyCoaches = [];
+        let selectedPlayers = new Set();
+        let originalConvocation = null;
+
+        // Authorization check
+        if (!convocationId || !companyDocId || !userRole) {
+            showMessage("Parametri mancanti. Torna allo storico.", "text-red-600");
+            setTimeout(() => goBack(), 2000);
+        } else if (userRole !== 'mister' && userRole !== 'marco' && userRole !== 'dirigente') {
+            showMessage("Non sei autorizzato a modificare le convocazioni.", "text-red-600");
+            setTimeout(() => goBack(), 2000);
+        }
+
+        function showMessage(message, colorClass) {
+            messageArea.textContent = message;
+            messageArea.className = `mb-4 text-center text-sm font-medium ${colorClass}`;
+            messageArea.classList.remove('hidden');
+            setTimeout(() => messageArea.classList.add('hidden'), 5000);
+        }
+
+        function goBack() {
+            window.location.href = `index.html`;
+        }
+
+        // Load convocation data
+        async function loadConvocation() {
+            if (!window.db || !window.auth.currentUser) {
+                setTimeout(loadConvocation, 500);
+                return;
+            }
+
+            try {
+                const historyBasePath = `societa/${companyDocId}`;
+                const convocationRef = window.doc(window.db, `${historyBasePath}/convocations_history`, convocationId);
+                const convocationSnap = await window.getDoc(convocationRef);
+
+                if (!convocationSnap.exists()) {
+                    showMessage("Convocazione non trovata.", "text-red-600");
+                    setTimeout(() => goBack(), 2000);
+                    return;
+                }
+
+                originalConvocation = convocationSnap.data();
+                
+                // Load company data (players and coaches)
+                const companyRef = window.doc(window.db, 'societa', companyDocId);
+                const companySnap = await window.getDoc(companyRef);
+                
+                if (companySnap.exists()) {
+                    const companyData = companySnap.data();
+                    companyPlayers = companyData.giocatori || [];
+                    companyCoaches = companyData.allenatori || [];
+                }
+
+                // Pre-fill the form
+                prefillForm(originalConvocation);
+                loadCoaches();
+                loadPlayers();
+
+            } catch (error) {
+                console.error("Error loading convocation:", error);
+                showMessage("Errore nel caricamento dei dati: " + error.message, "text-red-600");
+            }
+        }
+
+        function prefillForm(convocation) {
+            campoInput.value = convocation.details.campo || '';
+            avversarioInput.value = convocation.details.avversario || '';
+            dataPartitaInput.value = convocation.details.data || '';
+            orarioConvocazioneInput.value = convocation.details.orarioConvocazione || '';
+            orarioPartitaInput.value = convocation.details.orarioPartita || '';
+            tipoPartitaSelect.value = convocation.details.tipo || '';
+            
+            // Set mister selections if available
+            if (convocation.details.misterPartita) {
+                setTimeout(() => {
+                    misterPartitaSelect.value = convocation.details.misterPartita;
+                }, 100);
+            }
+            if (convocation.details.misterTipo) {
+                setTimeout(() => {
+                    misterTipoSelect.value = convocation.details.misterTipo;
+                }, 100);
+            }
+
+            // Pre-select players
+            if (convocation.players && Array.isArray(convocation.players)) {
+                convocation.players.forEach(player => {
+                    if (typeof player === 'string') {
+                        selectedPlayers.add(player);
+                    } else if (player.numero && player.nome) {
+                        selectedPlayers.add(`${player.numero} ${player.nome}`);
+                    }
+                });
+            }
+        }
+
+        function loadCoaches() {
+            if (!companyCoaches || companyCoaches.length === 0) return;
+
+            companyCoaches.forEach(coach => {
+                const coachName = typeof coach === 'string' ? coach : coach.name;
+                
+                const option1 = document.createElement('option');
+                option1.value = coachName;
+                option1.textContent = coachName;
+                misterPartitaSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = coachName;
+                option2.textContent = coachName;
+                misterTipoSelect.appendChild(option2);
+            });
+        }
+
+        function loadPlayers() {
+            playersListUl.innerHTML = '';
+            
+            if (!companyPlayers || companyPlayers.length === 0) {
+                playersListUl.innerHTML = '<li class="col-span-full text-center text-gray-500">Nessun giocatore disponibile</li>';
+                return;
+            }
+
+            // Sort players by numero
+            const sortedPlayers = [...companyPlayers].sort((a, b) => {
+                const numA = parseInt(a.numero) || 0;
+                const numB = parseInt(b.numero) || 0;
+                return numA - numB;
+            });
+
+            sortedPlayers.forEach(player => {
+                const playerName = `${player.numero} ${player.nome}`;
+                const li = document.createElement('li');
+                li.textContent = playerName;
+                li.className = 'p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors';
+                li.dataset.player = playerName;
+                
+                // Mark as selected if in original selection
+                if (selectedPlayers.has(playerName)) {
+                    li.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
+                    li.classList.remove('bg-white', 'text-gray-800', 'hover:bg-blue-50');
+                }
+                
+                li.addEventListener('click', () => togglePlayer(playerName, li));
+                playersListUl.appendChild(li);
+            });
+
+            updateSelectedPlayersList();
+        }
+
+        function togglePlayer(playerName, li) {
+            if (selectedPlayers.has(playerName)) {
+                selectedPlayers.delete(playerName);
+                li.classList.remove('bg-blue-500', 'text-white', 'hover:bg-blue-600');
+                li.classList.add('bg-white', 'text-gray-800', 'hover:bg-blue-50');
+            } else {
+                selectedPlayers.add(playerName);
+                li.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
+                li.classList.remove('bg-white', 'text-gray-800', 'hover:bg-blue-50');
+            }
+            updateSelectedPlayersList();
+        }
+
+        function updateSelectedPlayersList() {
+            selectedCountSpan.textContent = selectedPlayers.size;
+            selectedPlayersList.innerHTML = '';
+            
+            if (selectedPlayers.size === 0) {
+                selectedPlayersList.innerHTML = '<li class="text-gray-400 italic">Nessun giocatore selezionato</li>';
+                return;
+            }
+
+            const sortedSelected = Array.from(selectedPlayers).sort((a, b) => 
+                a.replace(/^\d+\s*/, '').localeCompare(b.replace(/^\d+\s*/, ''))
+            );
+
+            sortedSelected.forEach(player => {
+                const li = document.createElement('li');
+                li.textContent = player;
+                li.className = 'font-medium';
+                selectedPlayersList.appendChild(li);
+            });
+        }
+
+        // Form submission
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Validate all required fields
+            const campo = campoInput.value.trim();
+            const avversario = avversarioInput.value.trim();
+            const dataPartita = dataPartitaInput.value;
+            const orarioConvocazione = orarioConvocazioneInput.value;
+            const orarioPartita = orarioPartitaInput.value;
+            const tipo = tipoPartitaSelect.value;
+
+            if (!campo || !avversario || !dataPartita || !orarioConvocazione || !orarioPartita || !tipo) {
+                showMessage("Tutti i campi sono obbligatori. Compila tutti i dettagli della partita.", "text-red-600");
+                return;
+            }
+
+            if (selectedPlayers.size === 0) {
+                showMessage("Devi selezionare almeno un giocatore.", "text-red-600");
+                return;
+            }
+
+            try {
+                const historyBasePath = `societa/${companyDocId}`;
+                const convocationRef = window.doc(window.db, `${historyBasePath}/convocations_history`, convocationId);
+
+                const updatedDetails = {
+                    campo: campo,
+                    avversario: avversario,
+                    data: dataPartita,
+                    orarioConvocazione: orarioConvocazione,
+                    orarioPartita: orarioPartita,
+                    tipo: tipo,
+                    misterPartita: misterPartitaSelect.value || 'N/D',
+                    misterTipo: misterTipoSelect.value || 'N/D'
+                };
+
+                const sortedPlayers = Array.from(selectedPlayers).sort((a, b) => 
+                    a.replace(/^\d+\s*/, '').localeCompare(b.replace(/^\d+\s*/, ''))
+                );
+
+                await window.updateDoc(convocationRef, {
+                    details: updatedDetails,
+                    players: sortedPlayers,
+                    updatedAt: new Date().toISOString()
+                });
+
+                showMessage("Convocazione aggiornata con successo!", "text-green-600");
+                setTimeout(() => goBack(), 1500);
+
+            } catch (error) {
+                console.error("Error updating convocation:", error);
+                showMessage("Errore durante il salvataggio: " + error.message, "text-red-600");
+            }
+        });
+
+        // Cancel/Back buttons
+        backButton.addEventListener('click', goBack);
+        cancelButton.addEventListener('click', goBack);
+    </script>
+</body>
+</html>
