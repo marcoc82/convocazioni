@@ -19,7 +19,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -43,6 +43,8 @@
         window.doc = doc;
         window.getDoc = getDoc;
         window.updateDoc = updateDoc;
+        window.collection = collection;
+        window.getDocs = getDocs;
 
         // Sign in anonymously
         signInAnonymously(auth).then(() => {
@@ -170,7 +172,7 @@
         const cancelButton = document.getElementById('cancel-button');
 
         let companyPlayers = [];
-        let companyCoaches = [];
+        let companyMister = [];
         let selectedPlayers = new Set();
         let originalConvocation = null;
 
@@ -213,23 +215,45 @@
 
                 originalConvocation = convocationSnap.data();
                 
-                // Load company data (players and coaches)
+                // Load company data (players from main document)
                 const companyRef = window.doc(window.db, 'societa', companyDocId);
                 const companySnap = await window.getDoc(companyRef);
                 
                 if (companySnap.exists()) {
                     const companyData = companySnap.data();
                     companyPlayers = companyData.giocatori || [];
-                    companyCoaches = companyData.allenatori || [];
                     console.log('✅ [DEBUG] Company data loaded');
                     console.log('   📊 Players:', companyPlayers.length);
-                    console.log('   📊 Coaches:', companyCoaches.length);
                 }
 
-                // Load coaches first, then pre-fill the form
+                // Load mister from subcollection
+                const misterCollectionRef = window.collection(window.db, 'societa', companyDocId, 'mister');
+                const misterSnapshot = await window.getDocs(misterCollectionRef);
+                
+                companyMister = [];
+                misterSnapshot.forEach((doc) => {
+                    const misterData = doc.data();
+                    const misterName = misterData.name || misterData.nome || doc.id;
+                    if (misterData.active !== false) { // Include active mister or those without active field
+                        if (misterData.matricola) {
+                            // New format: object with name and matricola
+                            companyMister.push({
+                                name: misterName,
+                                matricola: misterData.matricola
+                            });
+                        } else {
+                            // Legacy format: just string name
+                            companyMister.push(misterName);
+                        }
+                    }
+                });
+                console.log('✅ [DEBUG] Mister data loaded from subcollection');
+                console.log('   📊 Mister:', companyMister.length);
+
+                // Load mister first, then pre-fill the form
                 console.log('🔄 [DEBUG] Loading sequence:');
-                console.log('   1️⃣ Loading coaches...');
-                loadCoaches();
+                console.log('   1️⃣ Loading mister...');
+                loadMister();
                 console.log('   2️⃣ Pre-filling form...');
                 prefillForm(originalConvocation);
                 console.log('   3️⃣ Loading players...');
@@ -250,7 +274,7 @@
             orarioPartitaInput.value = convocation.details.orarioPartita || '';
             tipoPartitaSelect.value = convocation.details.tipo || '';
             
-            // Set mister selections if available (coaches already loaded)
+            // Set mister selections if available (mister already loaded)
             console.log('🔄 [DEBUG] prefillForm() - Setting mister values');
             console.log('   📋 misterPartita from convocation:', convocation.details.misterPartita);
             console.log('   📋 misterTipo from convocation:', convocation.details.misterTipo);
@@ -283,32 +307,32 @@
             }
         }
 
-        function loadCoaches() {
-            console.log('🔄 [DEBUG] loadCoaches() - Start');
-            console.log('   📋 companyCoaches:', companyCoaches);
-            console.log('   📊 Number of coaches:', companyCoaches ? companyCoaches.length : 0);
+        function loadMister() {
+            console.log('🔄 [DEBUG] loadMister() - Start');
+            console.log('   📋 companyMister:', companyMister);
+            console.log('   📊 Number of mister:', companyMister ? companyMister.length : 0);
             
-            if (!companyCoaches || companyCoaches.length === 0) {
-                console.log('   ⚠️ No coaches to load');
+            if (!companyMister || companyMister.length === 0) {
+                console.log('   ⚠️ No mister to load');
                 return;
             }
 
-            companyCoaches.forEach((coach, index) => {
-                const coachName = typeof coach === 'string' ? coach : coach.name;
-                console.log(`   ➕ Adding coach #${index + 1}: "${coachName}"`);
+            companyMister.forEach((mister, index) => {
+                const misterName = typeof mister === 'string' ? mister : mister.name;
+                console.log(`   ➕ Adding mister #${index + 1}: "${misterName}"`);
                 
                 const option1 = document.createElement('option');
-                option1.value = coachName;
-                option1.textContent = coachName;
+                option1.value = misterName;
+                option1.textContent = misterName;
                 misterPartitaSelect.appendChild(option1);
                 
                 const option2 = document.createElement('option');
-                option2.value = coachName;
-                option2.textContent = coachName;
+                option2.value = misterName;
+                option2.textContent = misterName;
                 misterTipoSelect.appendChild(option2);
             });
             
-            console.log('   ✅ loadCoaches() - Complete');
+            console.log('   ✅ loadMister() - Complete');
             console.log('   📊 misterPartitaSelect options:', misterPartitaSelect.options.length);
             console.log('   📊 misterTipoSelect options:', misterTipoSelect.options.length);
         }
