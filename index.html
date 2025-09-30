@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-22 - V5.7: Removed guest UI restriction for Campionato button when company is POLIS PIEVE 2010 by moving button outside admin-buttons container -->
+<!-- Version: 2024-01-22 - V5.8: Fixed button spacing, improved distinta PDF layout (centered table content, removed Girone border, added Giornata field) -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -224,7 +224,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 5.7</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 5.8</span>
             </div>
         </div>
 
@@ -263,7 +263,7 @@
                     </button>
                 </div>
                 <!-- Campionato button (shown for POLIS PIEVE 2010 regardless of login type) -->
-                <div id="campionato-container" class="grid grid-cols-1 gap-3 mb-4">
+                <div id="campionato-container" class="grid grid-cols-1 gap-3">
                     <button id="campionato-button" class="w-full bg-purple-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
                         ⚽ Campionato
                     </button>
@@ -5096,16 +5096,17 @@
                             <p style="margin: 0.5px 0;"><strong>Campo:</strong> ${convocationData.details.campo || 'N/D'}</p>
                             
                             ${companyInfo.categoria ? `<p style="margin: 0.5px 0;"><strong>Categoria:</strong> ${companyInfo.categoria}</p>` : ''}
-                            <p style="margin: 0.5px 0;"><strong>Girone:</strong> <span style="border-bottom: 1px solid #000; padding-bottom: 1px; display: inline-block; min-width: 120px;" contenteditable="true" id="editable-girone"> </span></p>
+                            <p style="margin: 0.5px 0;"><strong>Girone:</strong> <span style="padding-left: 5px; display: inline-block; min-width: 120px;" contenteditable="true" id="editable-girone"> </span></p>
+                            <p style="margin: 0.5px 0;"><strong>Giornata:</strong> <span style="padding-left: 5px; display: inline-block; min-width: 120px;" contenteditable="true" id="editable-giornata"> </span></p>
                         </div>
                         
                         <table style="width: 100%; border-collapse: collapse; margin: 5px 0; font-size: 9px; page-break-inside: avoid;">
                             <thead>
                                 <tr style="border-bottom: 2px solid #000;">
-                                    <th style="text-align: left; padding: 2px; border: 1px solid #000; width: 6%;">N°</th>
-                                    <th style="text-align: left; padding: 2px; border: 1px solid #000; width: 26%;">COGNOME E NOME</th>
-                                    <th style="text-align: left; padding: 2px; border: 1px solid #000; width: 16%;">DATA NASCITA</th>
-                                    <th style="text-align: left; padding: 2px; border: 1px solid #000; width: 16%;">MATRICOLA</th>
+                                    <th style="text-align: center; padding: 2px; border: 1px solid #000; width: 6%;">N°</th>
+                                    <th style="text-align: center; padding: 2px; border: 1px solid #000; width: 26%;">COGNOME E NOME</th>
+                                    <th style="text-align: center; padding: 2px; border: 1px solid #000; width: 16%;">DATA NASCITA</th>
+                                    <th style="text-align: center; padding: 2px; border: 1px solid #000; width: 16%;">MATRICOLA</th>
                                     <th style="text-align: center; padding: 2px; border: 1px solid #000; width: 12%;">CAPITANO</th>
                                     <th style="text-align: center; padding: 2px; border: 1px solid #000; width: 12%;">AMMONITO</th>
                                     <th style="text-align: center; padding: 2px; border: 1px solid #000; width: 12%;">ESPULSO</th>
@@ -5179,10 +5180,10 @@
                     
                     rows += `
                         <tr style="border-bottom: 1px solid #000;">
-                            <td style="padding: 2px; border: 1px solid #000; font-size: 9px;">${number}</td>
-                            <td style="padding: 2px; border: 1px solid #000; font-size: 9px;">${name}</td>
-                            <td style="padding: 2px; border: 1px solid #000; font-size: 9px;">${birthDate}</td>
-                            <td style="padding: 2px; border: 1px solid #000; font-size: 9px;">${matricola}</td>
+                            <td style="padding: 2px; border: 1px solid #000; font-size: 9px; text-align: center;">${number}</td>
+                            <td style="padding: 2px; border: 1px solid #000; font-size: 9px; text-align: center;">${name}</td>
+                            <td style="padding: 2px; border: 1px solid #000; font-size: 9px; text-align: center;">${birthDate}</td>
+                            <td style="padding: 2px; border: 1px solid #000; font-size: 9px; text-align: center;">${matricola}</td>
                             <td style="padding: 2px; border: 1px solid #000; font-size: 9px; text-align: center;"></td>
                             <td style="padding: 2px; border: 1px solid #000; font-size: 9px; text-align: center;"></td>
                             <td style="padding: 2px; border: 1px solid #000; font-size: 9px; text-align: center;"></td>
