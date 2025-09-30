@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-20 - Fixed directed widget centering, share button visibility, distinta formatting, aligned DIRIGENTE text, added director columns, added new distinta player columns (CAPITANO, AMMONITO, ESPULSO), centered attendance numbers, show all players including zero attendance, updated to V5.3, implemented guest access via ospitecode map, improved UI button spacing, enabled share button for dirigente users in history, changed distinta share to create PDF instead of image, fixed campionato button visibility for guest users to check PIEVE2010 society name, added official declaration text before signatures, optimized PDF formatting for single A4 page with compact layout and centered content -->
+<!-- Version: 2024-01-21 - Fixed Campionato button visibility to check for PIEVE2010 company name (was POLIS PIEVE 2010), updated to V5.4 -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -1205,7 +1205,7 @@
                 // Show/hide training attendance button based on company name
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
-                const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
+                const isPolisPieveCompany = companyName === 'PIEVE2010';
                 
                 if (isPolisCompany) {
                     trainingAttendanceButton.classList.remove('hidden');
@@ -4076,7 +4076,7 @@
                     // Show training attendance for specific companies and guests
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                     const isPolisCompany = companyName === 'POLIS';
-                    const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
+                    const isPolisPieveCompany = companyName === 'PIEVE2010';
                     
                     if (isPolisCompany) {
                         trainingAttendanceButton.classList.remove('hidden');
@@ -4104,7 +4104,7 @@
                     // Show/hide training attendance button based on company name for normal users
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                     const isPolisCompany = companyName === 'POLIS';
-                    const isPolisPieveCompany = companyName === 'POLIS PIEVE 2010';
+                    const isPolisPieveCompany = companyName === 'PIEVE2010';
                     
                     if (isPolisCompany) {
                         trainingAttendanceButton.classList.remove('hidden');
