@@ -196,6 +196,17 @@
             // Store return flag and companyDocId in sessionStorage to indicate we should show history view
             sessionStorage.setItem('returnToHistory', 'true');
             sessionStorage.setItem('companyDocId', companyDocId);
+            
+            // Also preserve/set editUserRole and editAppId for checkHashNavigation()
+            // userRole comes from URL parameter, appId from localStorage
+            if (userRole) {
+                sessionStorage.setItem('editUserRole', userRole);
+            }
+            const appId = localStorage.getItem('convocazioniAppId');
+            if (appId) {
+                sessionStorage.setItem('editAppId', appId);
+            }
+            
             window.location.href = 'index.html#history';
         }
 
