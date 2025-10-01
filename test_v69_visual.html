@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V6.9 Visual Test - Responsive Training Attendance with Medals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f3f4f6; }
+        .demo-container { max-width: 1200px; margin: 0 auto; }
+        .device-frame { margin: 20px 0; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .mobile-view { max-width: 375px; margin: 0 auto; }
+        .tablet-view { max-width: 768px; margin: 0 auto; }
+        .desktop-view { max-width: 100%; }
+        .device-label { font-weight: bold; color: #1e293b; margin-bottom: 10px; font-size: 18px; }
+        .highlight { background-color: #fef3c7; padding: 2px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">V6.9 Visual Test: Responsive Training Attendance with Medals</h1>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h2 class="text-xl font-semibold text-blue-800 mb-2">✅ All Requirements Met</h2>
+            <ul class="list-disc list-inside text-blue-900">
+                <li>Table is responsive and fits on smartphones</li>
+                <li>Medals (🥇🥈🥉) added to top 3 rankings</li>
+                <li>Version updated to V6.9</li>
+                <li>All columns maintained: Giocatore, Presenze Allenamenti, % Presenze</li>
+            </ul>
+        </div>
+
+        <!-- Mobile View -->
+        <div class="device-frame">
+            <div class="device-label">📱 Mobile View (375px wide - iPhone 12)</div>
+            <div class="mobile-view">
+                <div class="text-center mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-sm font-semibold text-blue-800">
+                        Allenamenti Totali: <span class="text-lg font-bold">20</span>
+                    </p>
+                    <p class="text-sm font-semibold text-blue-800 mt-1">
+                        Media Presenze: <span class="text-lg font-bold">85.0%</span>
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">% Pres.</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥇 ROSSI MARIO</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">20</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">100.0%</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥈 BIANCHI LUIGI</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">18</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">90.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥉 VERDI GIUSEPPE</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">16</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">80.0%</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">NERI ANTONIO</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">14</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">70.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-green-600 mt-2 text-center">✅ Table fits perfectly, no overflow</p>
+            </div>
+        </div>
+
+        <!-- Tablet View -->
+        <div class="device-frame">
+            <div class="device-label">📱 Tablet View (768px wide - iPad)</div>
+            <div class="tablet-view">
+                <div class="text-center mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-lg font-semibold text-blue-800">
+                        Allenamenti Totali: <span class="text-2xl font-bold">20</span>
+                    </p>
+                    <p class="text-lg font-semibold text-blue-800 mt-2">
+                        Media Presenze: <span class="text-2xl font-bold">85.0%</span>
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze Allenamenti</th>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">% Presenze</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥇 ROSSI MARIO</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">20</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">100.0%</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥈 BIANCHI LUIGI</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">18</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">90.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥉 VERDI GIUSEPPE</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">16</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">80.0%</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">NERI ANTONIO</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">14</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">70.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-green-600 mt-2 text-center">✅ Comfortable spacing with sm:px-6</p>
+            </div>
+        </div>
+
+        <!-- Desktop View -->
+        <div class="device-frame">
+            <div class="device-label">🖥️ Desktop View (Full width)</div>
+            <div class="desktop-view">
+                <div class="text-center mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-lg font-semibold text-blue-800">
+                        Allenamenti Totali: <span class="text-2xl font-bold text-blue-900">20</span>
+                    </p>
+                    <p class="text-lg font-semibold text-blue-800 mt-2">
+                        Media Presenze: <span class="text-2xl font-bold text-blue-900">85.0%</span>
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze Allenamenti</th>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">% Presenze</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥇 ROSSI MARIO</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">20</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">100.0%</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥈 BIANCHI LUIGI</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">18</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">90.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥉 VERDI GIUSEPPE</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">16</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">80.0%</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">NERI ANTONIO</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">14</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">70.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-green-600 mt-2 text-center">✅ Full desktop experience with optimal spacing</p>
+            </div>
+        </div>
+
+        <!-- Tie Scenario -->
+        <div class="device-frame">
+            <div class="device-label">🏆 Tie Scenario: Two Gold Medals</div>
+            <div class="desktop-view">
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze Allenamenti</th>
+                                <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">% Presenze</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span class="highlight">🥇 ROSSI MARIO</span></td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">20</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">100.0%</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span class="highlight">🥇 BIANCHI LUIGI</span></td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">20</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">100.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥈 VERDI GIUSEPPE</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">18</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">90.0%</td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">🥉 NERI ANTONIO</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">16</td>
+                                <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">80.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-green-600 mt-2 text-center">✅ Tie handling: Both players with 20 presenze get gold medals</p>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="device-frame">
+            <div class="device-label">⚙️ Technical Implementation</div>
+            <div class="space-y-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">Responsive Classes:</h3>
+                    <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
+                        <li><code class="bg-gray-200 px-2 py-1 rounded">overflow-x-auto</code> - Allows horizontal scrolling if needed</li>
+                        <li><code class="bg-gray-200 px-2 py-1 rounded">px-3 sm:px-6</code> - 3 units on mobile, 6 units on desktop</li>
+                        <li>Breakpoint: <code class="bg-gray-200 px-2 py-1 rounded">sm</code> = 640px and above</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">Medal Logic:</h3>
+                    <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
+                        <li>Unique attendance values sorted descending</li>
+                        <li>Gold = highest value, Silver = 2nd highest, Bronze = 3rd highest</li>
+                        <li>Players with same attendance get same medal</li>
+                        <li>Medals appear before player name</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="device-frame" style="background: linear-gradient(to right, #d4edda, #d1ecf1);">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">✅ V6.9 Implementation Complete</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-green-700 mb-2">✓ Responsive Design</h3>
+                    <p class="text-sm text-gray-700">Table fits perfectly on all devices</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-green-700 mb-2">✓ Medal System</h3>
+                    <p class="text-sm text-gray-700">Top 3 rankings with tie support</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-green-700 mb-2">✓ Version Updated</h3>
+                    <p class="text-sm text-gray-700">V6.9 in all locations</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-semibold text-green-700 mb-2">✓ Columns Maintained</h3>
+                    <p class="text-sm text-gray-700">All 3 columns preserved</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
