@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V7.2 Visual Comparison - Name Stripping Enhancement</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .match-fail {
+            background-color: #ffebee;
+        }
+        .match-success {
+            background-color: #e8f5e9;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-lg shadow-lg p-6 mb-8">
+            <h1 class="text-3xl font-bold mb-2">V7.2 Visual Comparison</h1>
+            <p class="text-lg">Enhanced % Disponibilità Matching with Leading Character Stripping</p>
+            <div class="mt-4 bg-white/20 rounded p-3">
+                <p class="text-sm">✨ <strong>New in V7.2:</strong> Strips leading numbers and special characters before matching (e.g., "1 ROSSI MARIO" → "ROSSI MARIO")</p>
+            </div>
+        </div>
+
+        <!-- Firebase Data Sample -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 rounded">
+            <h3 class="font-bold text-blue-900 mb-2">📊 Firebase Realtime Database Sample</h3>
+            <pre class="text-xs bg-gray-900 text-gray-100 p-3 rounded overflow-x-auto"><code>{
+  "ROSSI MARIO": 0.85,          // No number prefix
+  "bianchi luigi": 0,           // Zero value, lowercase
+  "VERDI  GIUSEPPE": 75,        // Extra space, percentage format
+  "neri  ANTONIO ": 0.62,       // Mixed case, spaces
+  "Gialli Francesco": 1.0,      // Mixed case
+  "BLÙ Marco": 0.45            // Accent character
+}</code></pre>
+            <p class="text-xs text-gray-500 mt-2">V7.2 successfully matches all these variations even when table names have number prefixes!</p>
+        </div>
+
+        <!-- Comparison Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- V7.1 Results -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span class="mr-2">📊</span> V7.1 Results
+                </h2>
+                <h3 class="text-xl font-bold text-gray-800 mb-4">❌ Issues with Number Prefixes</h3>
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left p-2">Player</th>
+                                <th class="text-center p-2">% Disp.</th>
+                                <th class="text-center p-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b match-fail">
+                                <td class="p-2">1 ROSSI MARIO</td>
+                                <td class="text-center p-2 font-bold">N/D</td>
+                                <td class="text-center p-2 text-xs">❌ Number prefix</td>
+                            </tr>
+                            <tr class="border-b match-fail">
+                                <td class="p-2">2 BIANCHI LUIGI</td>
+                                <td class="text-center p-2 font-bold">N/D</td>
+                                <td class="text-center p-2 text-xs">❌ Number prefix</td>
+                            </tr>
+                            <tr class="border-b match-fail">
+                                <td class="p-2">3 VERDI GIUSEPPE</td>
+                                <td class="text-center p-2 font-bold">N/D</td>
+                                <td class="text-center p-2 text-xs">❌ Number prefix</td>
+                            </tr>
+                            <tr class="border-b match-fail">
+                                <td class="p-2">4 NERI ANTONIO</td>
+                                <td class="text-center p-2 font-bold">N/D</td>
+                                <td class="text-center p-2 text-xs">❌ Number prefix</td>
+                            </tr>
+                            <tr class="border-b match-fail">
+                                <td class="p-2">5 GIALLI FRANCESCO</td>
+                                <td class="text-center p-2 font-bold">N/D</td>
+                                <td class="text-center p-2 text-xs">❌ Number prefix</td>
+                            </tr>
+                            <tr class="border-b match-fail">
+                                <td class="p-2">6 BLU MARCO</td>
+                                <td class="text-center p-2 font-bold">N/D</td>
+                                <td class="text-center p-2 text-xs">❌ Number prefix</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-4 p-3 bg-red-50 rounded text-sm">
+                        <p class="font-semibold text-red-800 mb-1">Problem:</p>
+                        <ul class="list-disc list-inside text-red-700 text-xs">
+                            <li>Number prefixes prevent matching</li>
+                            <li>"1 ROSSI MARIO" normalized to "1 rossi mario"</li>
+                            <li>Firebase key "ROSSI MARIO" normalized to "rossi mario"</li>
+                            <li>"1 rossi mario" ≠ "rossi mario" → No match!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- V7.2 Results -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <span class="mr-2">🎯</span> V7.2 Results
+                </h2>
+                <h3 class="text-xl font-bold text-gray-800 mb-4">✅ Fixed with Character Stripping</h3>
+                <div class="bg-white rounded-lg p-4 shadow-sm">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b">
+                                <th class="text-left p-2">Player</th>
+                                <th class="text-center p-2">% Disp.</th>
+                                <th class="text-center p-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b match-success">
+                                <td class="p-2">1 ROSSI MARIO</td>
+                                <td class="text-center p-2">85.0%</td>
+                                <td class="text-center p-2 text-xs">✅ Matched</td>
+                            </tr>
+                            <tr class="border-b match-success">
+                                <td class="p-2">2 BIANCHI LUIGI</td>
+                                <td class="text-center p-2">0.0%</td>
+                                <td class="text-center p-2 text-xs">✅ Zero value</td>
+                            </tr>
+                            <tr class="border-b match-success">
+                                <td class="p-2">3 VERDI GIUSEPPE</td>
+                                <td class="text-center p-2">75.0%</td>
+                                <td class="text-center p-2 text-xs">✅ Matched</td>
+                            </tr>
+                            <tr class="border-b match-success">
+                                <td class="p-2">4 NERI ANTONIO</td>
+                                <td class="text-center p-2">62.0%</td>
+                                <td class="text-center p-2 text-xs">✅ Matched</td>
+                            </tr>
+                            <tr class="border-b match-success">
+                                <td class="p-2">5 GIALLI FRANCESCO</td>
+                                <td class="text-center p-2">100.0%</td>
+                                <td class="text-center p-2 text-xs">✅ Matched</td>
+                            </tr>
+                            <tr class="border-b match-success">
+                                <td class="p-2">6 BLU MARCO</td>
+                                <td class="text-center p-2">45.0%</td>
+                                <td class="text-center p-2 text-xs">✅ Accent handled</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-4 p-3 bg-green-50 rounded text-sm">
+                        <p class="font-semibold text-green-800 mb-1">Solution:</p>
+                        <ul class="list-disc list-inside text-green-700 text-xs">
+                            <li>✅ Strips leading numbers before normalization</li>
+                            <li>✅ "1 ROSSI MARIO" → "ROSSI MARIO" → "rossi mario"</li>
+                            <li>✅ Firebase "ROSSI MARIO" → "rossi mario"</li>
+                            <li>✅ "rossi mario" = "rossi mario" → Match!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matching Logic Comparison -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Matching Logic Comparison</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold text-red-700 mb-3">V7.1 Logic (No Stripping)</h3>
+                    <pre class="bg-gray-900 text-gray-100 p-4 rounded text-xs overflow-x-auto"><code>const normalizePlayerName = (name) => {
+    return name
+        .toLowerCase()
+        .trim()
+        .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
+        .replace(/[^a-z0-9\\s]/gi, '')
+        .replace(/\\s+/g, ' ');
+};
+
+// "1 ROSSI MARIO" → "1 rossi mario"
+// Firebase "ROSSI MARIO" → "rossi mario"
+// "1 rossi mario" ≠ "rossi mario" ❌</code></pre>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-green-700 mb-3">V7.2 Logic (With Stripping)</h3>
+                    <pre class="bg-gray-900 text-gray-100 p-4 rounded text-xs overflow-x-auto"><code>const normalizePlayerName = (name) => {
+    return name
+        .replace(/^[^a-zA-Z]+/, '')  // ✨ NEW!
+        .toLowerCase()
+        .trim()
+        .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
+        .replace(/[^a-z0-9\\s]/gi, '')
+        .replace(/\\s+/g, ' ');
+};
+
+// "1 ROSSI MARIO" → "ROSSI MARIO" → "rossi mario"
+// Firebase "ROSSI MARIO" → "rossi mario"
+// "rossi mario" = "rossi mario" ✅</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Test Cases -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Additional Test Cases</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-100 border-b-2">
+                            <th class="text-left p-3">Table Name</th>
+                            <th class="text-left p-3">After Stripping</th>
+                            <th class="text-left p-3">Final Normalized</th>
+                            <th class="text-center p-3">Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="p-3"><code>1 ROSSI MARIO</code></td>
+                            <td class="p-3"><code>ROSSI MARIO</code></td>
+                            <td class="p-3"><code>rossi mario</code></td>
+                            <td class="text-center p-3">✅</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3"><code>10 BIANCHI LUIGI</code></td>
+                            <td class="p-3"><code>BIANCHI LUIGI</code></td>
+                            <td class="p-3"><code>bianchi luigi</code></td>
+                            <td class="text-center p-3">✅</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3"><code>123 VERDI GIUSEPPE</code></td>
+                            <td class="p-3"><code>VERDI GIUSEPPE</code></td>
+                            <td class="p-3"><code>verdi giuseppe</code></td>
+                            <td class="text-center p-3">✅</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3"><code>12. GIALLI FRANCESCO</code></td>
+                            <td class="p-3"><code>GIALLI FRANCESCO</code></td>
+                            <td class="p-3"><code>gialli francesco</code></td>
+                            <td class="text-center p-3">✅</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3"><code>#3 NERI ANTONIO</code></td>
+                            <td class="p-3"><code>NERI ANTONIO</code></td>
+                            <td class="p-3"><code>neri antonio</code></td>
+                            <td class="text-center p-3">✅</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3"><code>  5  BLÙ MARCO  </code></td>
+                            <td class="p-3"><code>BLÙ MARCO  </code></td>
+                            <td class="p-3"><code>blu marco</code></td>
+                            <td class="text-center p-3">✅</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="p-3"><code>ROSSI MARIO</code></td>
+                            <td class="p-3"><code>ROSSI MARIO</code></td>
+                            <td class="p-3"><code>rossi mario</code></td>
+                            <td class="text-center p-3">✅</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📊 Impact Statistics</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg p-4 shadow">
+                    <div class="text-4xl font-bold text-red-600 mb-2">0/6</div>
+                    <div class="text-sm text-gray-600">V7.1 Matches with Number Prefixes</div>
+                </div>
+                <div class="bg-white rounded-lg p-4 shadow">
+                    <div class="text-4xl font-bold text-green-600 mb-2">6/6</div>
+                    <div class="text-sm text-gray-600">V7.2 Matches with Number Prefixes</div>
+                </div>
+                <div class="bg-white rounded-lg p-4 shadow">
+                    <div class="text-4xl font-bold text-blue-600 mb-2">+100%</div>
+                    <div class="text-sm text-gray-600">Improvement in Match Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('✅ V7.2 Visual Comparison loaded');
+        console.log('🎯 Demonstrates leading character stripping for better matching');
+        
+        // V7.2 normalization function for testing
+        const normalizePlayerName = (name) => {
+            if (!name) return '';
+            return name
+                .replace(/^[^a-zA-Z]+/, '')              // V7.2: Strip leading numbers and non-letter characters
+                .toLowerCase()
+                .trim()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+                .replace(/[^a-z0-9\s]/gi, '')            // Remove special characters
+                .replace(/\s+/g, ' ');                   // Collapse multiple spaces
+        };
+        
+        // Test it
+        console.log('Test: "1 ROSSI MARIO" →', normalizePlayerName("1 ROSSI MARIO"));
+        console.log('Test: "10 BIANCHI LUIGI" →', normalizePlayerName("10 BIANCHI LUIGI"));
+        console.log('Test: "ROSSI MARIO" →', normalizePlayerName("ROSSI MARIO"));
+    </script>
+</body>
+</html>
