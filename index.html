@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V7.0 - Added total match count, % Convocazione column, and % Disponibilità column (POLIS only) to Riepilogo Convocazioni -->
+<!-- Version: V7.1 - Improved % Disponibilità matching (case-insensitive, trim, special chars) and fixed 0% display for POLIS -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -2904,15 +2904,15 @@
                 const playersToShow = companyPlayers.length > 0 ? companyPlayers : players;
                 console.log(`📊 [DIAGNOSTIC] Visualizzazione presenze per ${playersToShow.length} giocatori della società`);
                 
-                // V7.0: Calculate total matches from convocationHistory
+                // V7.1: Calculate total matches from convocationHistory
                 const totalMatches = convocationHistory.length;
                 const totalMatchesCountElement = document.getElementById('total-matches-count');
                 if (totalMatchesCountElement) {
                     totalMatchesCountElement.textContent = totalMatches;
                 }
-                console.log(`📊 [V7.0] Partite totali: ${totalMatches}`);
+                console.log(`📊 [V7.1] Partite totali: ${totalMatches}`);
                 
-                // V7.0: Check if company is POLIS to show availability column
+                // V7.1: Check if company is POLIS to show availability column
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
                 const availabilityHeader = document.getElementById('availability-percentage-header');
@@ -2924,18 +2924,35 @@
                     }
                 }
                 
-                // V7.0: Fetch availability data from Firebase Realtime Database for POLIS
+                // V7.1: Helper function to normalize player names for matching
+                const normalizePlayerName = (name) => {
+                    if (!name) return '';
+                    return name
+                        .toLowerCase()
+                        .trim()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+                        .replace(/[^a-z0-9\s]/gi, '') // Remove special characters except spaces and alphanumeric
+                        .replace(/\s+/g, ' '); // Collapse multiple spaces to single space
+                };
+                
+                // V7.1: Fetch availability data from Firebase Realtime Database for POLIS
                 let availabilityData = {};
+                let availabilityDataNormalized = {}; // Normalized keys for matching
                 if (isPolisCompany) {
                     try {
                         const FIREBASE_CONVOCAZIONI_URL = 'https://polis-2013-default-rtdb.europe-west1.firebasedatabase.app/convocazioni.json';
                         const response = await fetch(FIREBASE_CONVOCAZIONI_URL);
                         if (response.ok) {
                             availabilityData = await response.json() || {};
-                            console.log(`📊 [V7.0] Dati disponibilità caricati da Firebase Realtime Database:`, availabilityData);
+                            // Create normalized version for case-insensitive matching
+                            Object.keys(availabilityData).forEach(key => {
+                                const normalizedKey = normalizePlayerName(key);
+                                availabilityDataNormalized[normalizedKey] = availabilityData[key];
+                            });
+                            console.log(`📊 [V7.1] Dati disponibilità caricati da Firebase Realtime Database (${Object.keys(availabilityData).length} giocatori):`, availabilityData);
                         }
                     } catch (error) {
-                        console.error('📊 [V7.0] Errore nel caricamento dei dati disponibilità:', error);
+                        console.error('📊 [V7.1] Errore nel caricamento dei dati disponibilità:', error);
                     }
                 }
                 
@@ -2959,17 +2976,33 @@
                 }).sort((a, b) => b.count - a.count);
 
                 sortedPlayers.forEach(player => {
-                    // V7.0: Calculate percentage of convocation
+                    // V7.1: Calculate percentage of convocation
                     const percentage = totalMatches > 0 ? ((player.count / totalMatches) * 100).toFixed(1) : '0.0';
                     
-                    // V7.0: Get availability percentage for POLIS
+                    // V7.1: Get availability percentage for POLIS with improved matching
                     let availabilityPercentage = 'N/D';
-                    if (isPolisCompany && availabilityData[player.name] !== undefined) {
-                        // Convert the value to percentage (assuming it's a decimal between 0 and 1)
-                        const rawValue = availabilityData[player.name];
-                        if (typeof rawValue === 'number') {
-                            // If value is between 0 and 1, multiply by 100, otherwise use as is
-                            availabilityPercentage = (rawValue <= 1 ? rawValue * 100 : rawValue).toFixed(1);
+                    if (isPolisCompany) {
+                        // Try exact match first
+                        let rawValue = availabilityData[player.name];
+                        
+                        // If no exact match, try normalized match
+                        if (rawValue === undefined) {
+                            const normalizedPlayerName = normalizePlayerName(player.name);
+                            rawValue = availabilityDataNormalized[normalizedPlayerName];
+                        }
+                        
+                        // Process the value if found
+                        if (rawValue !== undefined && rawValue !== null) {
+                            if (typeof rawValue === 'number') {
+                                // If value is between 0 and 1, multiply by 100, otherwise use as is
+                                availabilityPercentage = (rawValue <= 1 ? rawValue * 100 : rawValue).toFixed(1);
+                            } else if (typeof rawValue === 'string') {
+                                // Handle string numbers
+                                const numValue = parseFloat(rawValue);
+                                if (!isNaN(numValue)) {
+                                    availabilityPercentage = (numValue <= 1 ? numValue * 100 : numValue).toFixed(1);
+                                }
+                            }
                         }
                     }
                     
@@ -3255,15 +3288,15 @@
                     '7 VIOLA STEFANO': 4
                 };
                 
-                // V7.0: Calculate total matches from convocationHistory
+                // V7.1: Calculate total matches from convocationHistory
                 const totalMatches = convocationHistory.length;
                 const totalMatchesCountElement = document.getElementById('total-matches-count');
                 if (totalMatchesCountElement) {
                     totalMatchesCountElement.textContent = totalMatches;
                 }
-                console.log(`📊 [V7.0 Demo] Partite totali: ${totalMatches}`);
+                console.log(`📊 [V7.1 Demo] Partite totali: ${totalMatches}`);
                 
-                // V7.0: Check if company is POLIS to show availability column
+                // V7.1: Check if company is POLIS to show availability column
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
                 const availabilityHeader = document.getElementById('availability-percentage-header');
@@ -3296,7 +3329,7 @@
                 }).sort((a, b) => b.count - a.count);
 
                 sortedPlayers.forEach(player => {
-                    // V7.0: Calculate percentage of convocation
+                    // V7.1: Calculate percentage of convocation
                     const percentage = totalMatches > 0 ? ((player.count / totalMatches) * 100).toFixed(1) : '0.0';
                     
                     const row = document.createElement('tr');
