@@ -193,9 +193,10 @@
         }
 
         function goBack() {
-            // Store return flag in sessionStorage to indicate we should show history view
+            // Store return flag and companyDocId in sessionStorage to indicate we should show history view
             sessionStorage.setItem('returnToHistory', 'true');
-            window.location.href = `index.html#history`;
+            sessionStorage.setItem('companyDocId', companyDocId);
+            window.location.href = 'index.html#history';
         }
 
         // Load convocation data
