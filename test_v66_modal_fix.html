@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!-- Test V6.6 - Unavailable Player Modal Behavior -->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V6.6 - Modal Behavior</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .player-item {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .player-item:hover {
+            transform: scale(1.02);
+        }
+        .selected-mister {
+            background-color: #22c55e !important;
+            color: white;
+            font-weight: bold;
+        }
+        .selected-marco {
+            background-color: #fecaca;
+            color: #991b1b;
+        }
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-8">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h1 class="text-3xl font-bold mb-4 text-center text-blue-600">Test V6.6 - Unavailable Player Modal</h1>
+            <p class="text-center text-gray-600 mb-4">Test del comportamento del popup per giocatori non disponibili</p>
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4">
+                <p class="font-semibold">Test Scenario:</p>
+                <ol class="list-decimal ml-6 mt-2">
+                    <li>Click su giocatore non disponibile → Deve mostrare "Convoca ugualmente"</li>
+                    <li>Click "Convoca ugualmente" → Giocatore diventa verde (convocato)</li>
+                    <li>Click di nuovo sul giocatore → Deve mostrare SOLO "Togli dalla convocazione"</li>
+                    <li>Click "Togli dalla convocazione" → Giocatore torna allo stato iniziale</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Lista Giocatori</h2>
+            <div class="space-y-2">
+                <p class="text-sm text-gray-600 mb-2">Click sui giocatori non disponibili (rossi) per testare il popup</p>
+                <div id="players-container" class="space-y-2">
+                    <!-- Players will be added here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-4">Log Test</h2>
+            <div id="test-log" class="bg-gray-50 p-4 rounded border border-gray-200 h-64 overflow-y-auto font-mono text-sm">
+                <div class="text-gray-500">Test log will appear here...</div>
+            </div>
+            <button onclick="clearLog()" class="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                Clear Log
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal for Mister's Unavailable Player Info -->
+    <div id="unavailable-player-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300">
+            <h2 class="text-xl font-bold mb-4 text-center text-red-600">⚠️Giocatore Non Disponibile⚠️</h2>
+            <div class="text-center mb-6">
+                <p class="text-lg font-semibold text-gray-800 mb-2" id="unavailable-player-name">Nome Giocatore</p>
+                <p class="text-gray-600">Motivo:</p>
+                <p class="text-lg font-medium text-red-600" id="unavailable-player-reason">Motivo indisponibilità</p>
+            </div>
+            <button id="convoca-comunque-button" class="w-full py-3 mb-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                Convoca ugualmente
+            </button>
+            <!-- V6.6: Pulsante per rimuovere convocazione forzata -->
+            <button id="togli-convocazione-button" class="w-full py-3 mb-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200 hidden">
+                Togli dalla convocazione
+            </button>
+            <button id="close-unavailable-modal" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                Ok
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Test data
+        const testPlayers = [
+            { name: "1 ROSSI MARIO", status: "Zero allenamenti", unavailable: true },
+            { name: "2 VERDI GIUSEPPE", status: null, unavailable: false },
+            { name: "3 BIANCHI LUCA", status: "Infortunato", unavailable: true },
+            { name: "4 NERI FRANCESCO", status: null, unavailable: false },
+            { name: "5 GIALLI LORENZO", status: "Non disponibile Weekend", unavailable: true },
+        ];
+
+        // Modal elements
+        const unavailablePlayerModal = document.getElementById('unavailable-player-modal');
+        const unavailablePlayerName = document.getElementById('unavailable-player-name');
+        const unavailablePlayerReason = document.getElementById('unavailable-player-reason');
+        const convocaComunqueButton = document.getElementById('convoca-comunque-button');
+        const togliConvocazioneButton = document.getElementById('togli-convocazione-button');
+        const closeUnavailableModalButton = document.getElementById('close-unavailable-modal');
+        const testLog = document.getElementById('test-log');
+
+        let tempUnavailablePlayerName = null;
+        let selectedPlayers = [];
+
+        function logTest(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-blue-600',
+                success: 'text-green-600',
+                warning: 'text-yellow-600',
+                error: 'text-red-600'
+            };
+            const logEntry = document.createElement('div');
+            logEntry.className = `${colors[type]} mb-1`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            testLog.appendChild(logEntry);
+            testLog.scrollTop = testLog.scrollHeight;
+        }
+
+        function clearLog() {
+            testLog.innerHTML = '<div class="text-gray-500">Test log cleared...</div>';
+        }
+
+        function renderPlayers() {
+            const container = document.getElementById('players-container');
+            container.innerHTML = '';
+            
+            testPlayers.forEach(player => {
+                const div = document.createElement('div');
+                div.className = 'player-item p-4 rounded-lg border-2 border-gray-200';
+                div.dataset.player = player.name;
+                
+                if (player.unavailable) {
+                    div.classList.add('selected-marco');
+                } else {
+                    div.classList.add('bg-white');
+                }
+                
+                div.innerHTML = `
+                    <div class="font-semibold">${player.name}</div>
+                    ${player.status ? `<div class="text-sm mt-1">Stato: ${player.status}</div>` : ''}
+                `;
+                
+                div.addEventListener('click', () => {
+                    handlePlayerClick(player.name, player.status, player.unavailable);
+                });
+                
+                container.appendChild(div);
+            });
+        }
+
+        function handlePlayerClick(playerName, status, isUnavailable) {
+            const playerItem = document.querySelector(`.player-item[data-player="${playerName}"]`);
+            const isAlreadySelected = playerItem && playerItem.classList.contains('selected-mister');
+            
+            if (isUnavailable) {
+                logTest(`Click su giocatore non disponibile: ${playerName}`, 'info');
+                if (isAlreadySelected) {
+                    logTest(`Giocatore già convocato - mostra "Togli dalla convocazione"`, 'warning');
+                } else {
+                    logTest(`Giocatore non convocato - mostra "Convoca ugualmente"`, 'info');
+                }
+                showUnavailablePlayerModal(playerName, status);
+            } else {
+                // Normal player - toggle selection
+                if (isAlreadySelected) {
+                    playerItem.classList.remove('selected-mister');
+                    selectedPlayers = selectedPlayers.filter(p => p !== playerName);
+                    logTest(`Rimosso dalla convocazione: ${playerName}`, 'info');
+                } else {
+                    playerItem.classList.add('selected-mister');
+                    selectedPlayers.push(playerName);
+                    logTest(`Aggiunto alla convocazione: ${playerName}`, 'success');
+                }
+            }
+        }
+
+        function showUnavailablePlayerModal(playerName, reason) {
+            unavailablePlayerName.textContent = playerName;
+            unavailablePlayerReason.textContent = reason || "Non specificato";
+            
+            // V6.6: Check if player is already selected (forced convocation)
+            const playerItem = document.querySelector(`.player-item[data-player="${playerName}"]`);
+            const isAlreadySelected = playerItem && playerItem.classList.contains('selected-mister');
+            
+            // Show/hide buttons based on selection status
+            if (isAlreadySelected) {
+                // Player is already selected - show remove button, hide convoca button
+                convocaComunqueButton.classList.add('hidden');
+                togliConvocazioneButton.classList.remove('hidden');
+                logTest(`✅ TEST PASS: Modal mostra SOLO "Togli dalla convocazione"`, 'success');
+            } else {
+                // Player is not selected - show convoca button, hide remove button
+                convocaComunqueButton.classList.remove('hidden');
+                togliConvocazioneButton.classList.add('hidden');
+                logTest(`✅ TEST PASS: Modal mostra SOLO "Convoca ugualmente"`, 'success');
+            }
+            
+            unavailablePlayerModal.classList.remove('hidden', 'opacity-0');
+            unavailablePlayerModal.classList.add('flex', 'opacity-100');
+            tempUnavailablePlayerName = playerName;
+        }
+
+        function hideUnavailablePlayerModal() {
+            unavailablePlayerModal.classList.remove('flex', 'opacity-100');
+            unavailablePlayerModal.classList.add('hidden', 'opacity-0');
+            tempUnavailablePlayerName = null;
+        }
+
+        // V6.6: Event handlers
+        convocaComunqueButton.addEventListener('click', () => {
+            logTest(`Click su "Convoca ugualmente" per: ${tempUnavailablePlayerName}`, 'info');
+            if (typeof tempUnavailablePlayerName === 'string' && tempUnavailablePlayerName.length > 0) {
+                const playerItem = document.querySelector(`.player-item[data-player="${tempUnavailablePlayerName}"]`);
+                if (playerItem) {
+                    playerItem.classList.add('selected-mister');
+                    selectedPlayers.push(tempUnavailablePlayerName);
+                    logTest(`✅ TEST PASS: Giocatore convocato forzatamente: ${tempUnavailablePlayerName}`, 'success');
+                }
+            }
+            hideUnavailablePlayerModal();
+        });
+
+        togliConvocazioneButton.addEventListener('click', () => {
+            logTest(`Click su "Togli dalla convocazione" per: ${tempUnavailablePlayerName}`, 'info');
+            if (typeof tempUnavailablePlayerName === 'string' && tempUnavailablePlayerName.length > 0) {
+                const playerItem = document.querySelector(`.player-item[data-player="${tempUnavailablePlayerName}"]`);
+                if (playerItem) {
+                    playerItem.classList.remove('selected-mister');
+                    selectedPlayers = selectedPlayers.filter(p => p !== tempUnavailablePlayerName);
+                    logTest(`✅ TEST PASS: Giocatore rimosso dalla convocazione: ${tempUnavailablePlayerName}`, 'success');
+                }
+            }
+            hideUnavailablePlayerModal();
+        });
+
+        closeUnavailableModalButton.addEventListener('click', () => {
+            logTest(`Click su "Ok" - chiusura modal`, 'info');
+            hideUnavailablePlayerModal();
+        });
+
+        // Initialize
+        renderPlayers();
+        logTest('Test V6.6 inizializzato', 'success');
+        logTest('Clicca sui giocatori rossi (non disponibili) per testare il modal', 'info');
+    </script>
+</body>
+</html>
