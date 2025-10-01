@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V7.1 - Improved % Disponibilità matching (case-insensitive, trim, special chars) and fixed 0% display for POLIS -->
+<!-- Version: V7.2 - % Disponibilità: strip leading numbers/chars from player names before matching with Firebase (case-insensitive, trim) -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -2904,15 +2904,15 @@
                 const playersToShow = companyPlayers.length > 0 ? companyPlayers : players;
                 console.log(`📊 [DIAGNOSTIC] Visualizzazione presenze per ${playersToShow.length} giocatori della società`);
                 
-                // V7.1: Calculate total matches from convocationHistory
+                // V7.2: Calculate total matches from convocationHistory
                 const totalMatches = convocationHistory.length;
                 const totalMatchesCountElement = document.getElementById('total-matches-count');
                 if (totalMatchesCountElement) {
                     totalMatchesCountElement.textContent = totalMatches;
                 }
-                console.log(`📊 [V7.1] Partite totali: ${totalMatches}`);
+                console.log(`📊 [V7.2] Partite totali: ${totalMatches}`);
                 
-                // V7.1: Check if company is POLIS to show availability column
+                // V7.2: Check if company is POLIS to show availability column
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
                 const availabilityHeader = document.getElementById('availability-percentage-header');
@@ -2924,10 +2924,12 @@
                     }
                 }
                 
-                // V7.1: Helper function to normalize player names for matching
+                // V7.2: Helper function to normalize player names for matching
+                // Strips leading numbers/characters, then normalizes (lowercase, trim, remove accents/special chars)
                 const normalizePlayerName = (name) => {
                     if (!name) return '';
                     return name
+                        .replace(/^[^a-zA-Z]+/, '') // V7.2: Strip leading numbers and non-letter characters
                         .toLowerCase()
                         .trim()
                         .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
@@ -2935,7 +2937,7 @@
                         .replace(/\s+/g, ' '); // Collapse multiple spaces to single space
                 };
                 
-                // V7.1: Fetch availability data from Firebase Realtime Database for POLIS
+                // V7.2: Fetch availability data from Firebase Realtime Database for POLIS
                 let availabilityData = {};
                 let availabilityDataNormalized = {}; // Normalized keys for matching
                 if (isPolisCompany) {
@@ -2944,15 +2946,15 @@
                         const response = await fetch(FIREBASE_CONVOCAZIONI_URL);
                         if (response.ok) {
                             availabilityData = await response.json() || {};
-                            // Create normalized version for case-insensitive matching
+                            // V7.2: Create normalized version for case-insensitive matching (strips leading numbers)
                             Object.keys(availabilityData).forEach(key => {
                                 const normalizedKey = normalizePlayerName(key);
                                 availabilityDataNormalized[normalizedKey] = availabilityData[key];
                             });
-                            console.log(`📊 [V7.1] Dati disponibilità caricati da Firebase Realtime Database (${Object.keys(availabilityData).length} giocatori):`, availabilityData);
+                            console.log(`📊 [V7.2] Dati disponibilità caricati da Firebase Realtime Database (${Object.keys(availabilityData).length} giocatori):`, availabilityData);
                         }
                     } catch (error) {
-                        console.error('📊 [V7.1] Errore nel caricamento dei dati disponibilità:', error);
+                        console.error('📊 [V7.2] Errore nel caricamento dei dati disponibilità:', error);
                     }
                 }
                 
@@ -2976,22 +2978,23 @@
                 }).sort((a, b) => b.count - a.count);
 
                 sortedPlayers.forEach(player => {
-                    // V7.1: Calculate percentage of convocation
+                    // V7.2: Calculate percentage of convocation
                     const percentage = totalMatches > 0 ? ((player.count / totalMatches) * 100).toFixed(1) : '0.0';
                     
-                    // V7.1: Get availability percentage for POLIS with improved matching
+                    // V7.2: Get availability percentage for POLIS with improved matching
+                    // Strip leading numbers from player name before matching
                     let availabilityPercentage = 'N/D';
                     if (isPolisCompany) {
                         // Try exact match first
                         let rawValue = availabilityData[player.name];
                         
-                        // If no exact match, try normalized match
+                        // If no exact match, try normalized match (strips leading numbers)
                         if (rawValue === undefined) {
                             const normalizedPlayerName = normalizePlayerName(player.name);
                             rawValue = availabilityDataNormalized[normalizedPlayerName];
                         }
                         
-                        // Process the value if found
+                        // V7.2: Process the value if found (shows "0%" for zero, "N/D" only if missing)
                         if (rawValue !== undefined && rawValue !== null) {
                             if (typeof rawValue === 'number') {
                                 // If value is between 0 and 1, multiply by 100, otherwise use as is
@@ -3288,15 +3291,15 @@
                     '7 VIOLA STEFANO': 4
                 };
                 
-                // V7.1: Calculate total matches from convocationHistory
+                // V7.2: Calculate total matches from convocationHistory
                 const totalMatches = convocationHistory.length;
                 const totalMatchesCountElement = document.getElementById('total-matches-count');
                 if (totalMatchesCountElement) {
                     totalMatchesCountElement.textContent = totalMatches;
                 }
-                console.log(`📊 [V7.1 Demo] Partite totali: ${totalMatches}`);
+                console.log(`📊 [V7.2 Demo] Partite totali: ${totalMatches}`);
                 
-                // V7.1: Check if company is POLIS to show availability column
+                // V7.2: Check if company is POLIS to show availability column
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
                 const availabilityHeader = document.getElementById('availability-percentage-header');
@@ -3329,7 +3332,7 @@
                 }).sort((a, b) => b.count - a.count);
 
                 sortedPlayers.forEach(player => {
-                    // V7.1: Calculate percentage of convocation
+                    // V7.2: Calculate percentage of convocation
                     const percentage = totalMatches > 0 ? ((player.count / totalMatches) * 100).toFixed(1) : '0.0';
                     
                     const row = document.createElement('tr');
