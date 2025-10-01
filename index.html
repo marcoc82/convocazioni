@@ -1696,6 +1696,22 @@
                                                       sessionStorage.getItem('companyDocId') || 
                                                       localStorage.getItem('companyDocId');
                         
+                        // 🔍 IMPORTANT: If companyDocId is present AND we have hash=#history or returnToHistory flag,
+                        // skip login screen and let checkHashNavigation() handle showing history view
+                        const hash = window.location.hash;
+                        const returnToHistory = sessionStorage.getItem('returnToHistory');
+                        
+                        if (companyDocIdFromReturn && (hash === '#history' || returnToHistory === 'true')) {
+                            console.log('🏢 companyDocId found with hash=#history or returnToHistory flag');
+                            console.log('   📍 companyDocId:', companyDocIdFromReturn);
+                            console.log('   📍 hash:', hash);
+                            console.log('   📍 returnToHistory:', returnToHistory);
+                            console.log('   🔄 Waiting for checkHashNavigation() to show history view...');
+                            // Hide login screen explicitly - history view will be shown by checkHashNavigation()
+                            companyEntryScreen.classList.add('hidden');
+                            return; // Exit early - checkHashNavigation() will handle the rest
+                        }
+                        
                         // Check for saved company data
                         const savedCompanyCode = localStorage.getItem('companyCode');
                         const savedCompanyData = localStorage.getItem('companyData');
@@ -6849,16 +6865,39 @@
                 const hash = window.location.hash;
                 const returnToHistory = sessionStorage.getItem('returnToHistory');
                 
+                console.log('🔍 checkHashNavigation() called');
+                console.log('   📍 Hash:', hash);
+                console.log('   🔄 returnToHistory:', returnToHistory);
+                
                 if (hash === '#history' && returnToHistory === 'true') {
                     // Clear the flag
                     sessionStorage.removeItem('returnToHistory');
                     
                     // Restore saved state - check new companyDocId first, then fall back to editCompanyDocId
-                    const editCompanyDocId = sessionStorage.getItem('companyDocId') || sessionStorage.getItem('editCompanyDocId');
-                    const editUserRole = sessionStorage.getItem('editUserRole');
-                    const editAppId = sessionStorage.getItem('editAppId');
+                    let editCompanyDocId = sessionStorage.getItem('companyDocId') || sessionStorage.getItem('editCompanyDocId');
+                    let editUserRole = sessionStorage.getItem('editUserRole');
+                    let editAppId = sessionStorage.getItem('editAppId');
+                    
+                    console.log('   🏢 editCompanyDocId:', editCompanyDocId);
+                    console.log('   👤 editUserRole:', editUserRole);
+                    console.log('   🆔 editAppId:', editAppId);
+                    
+                    // If missing userRole or appId, try to get from localStorage as fallback
+                    if (editCompanyDocId && (!editUserRole || !editAppId)) {
+                        console.log('   ⚠️ Missing userRole or appId, checking localStorage...');
+                        if (!editUserRole) {
+                            editUserRole = localStorage.getItem('userRole');
+                            console.log('   👤 userRole from localStorage:', editUserRole);
+                        }
+                        if (!editAppId) {
+                            editAppId = localStorage.getItem('convocazioniAppId');
+                            console.log('   🆔 appId from localStorage:', editAppId);
+                        }
+                    }
                     
                     if (editCompanyDocId && editUserRole && editAppId) {
+                        console.log('✅ All required data present, showing history view');
+                        
                         // Set current state
                         currentCompanyDocumentId = editCompanyDocId;
                         userRole = editUserRole;
@@ -6876,14 +6915,20 @@
                         attendanceView.classList.add('hidden');
                         trainingAttendanceView.classList.add('hidden');
                         campionatoView.classList.add('hidden');
-                        hideAllScreens();
+                        hideAllScreens(); // This hides company-entry-screen
                         historyView.classList.remove('hidden');
                         
+                        console.log('   📊 Loading history data...');
                         // Load history data
                         loadHistoryConvocations();
                         
                         // Clear the hash from URL
                         history.replaceState(null, null, ' ');
+                    } else {
+                        console.log('❌ Missing required data for history view');
+                        console.log('   🏢 companyDocId:', editCompanyDocId);
+                        console.log('   👤 userRole:', editUserRole);
+                        console.log('   🆔 appId:', editAppId);
                     }
                 }
             }

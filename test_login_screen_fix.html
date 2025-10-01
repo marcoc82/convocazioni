@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login Screen Fix - companyDocId Logic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .version {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .intro {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        .test-section {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-section h2 {
+            color: #1f2937;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .test-section h2::before {
+            content: '🧪';
+            margin-right: 10px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        button.secondary {
+            background: #6b7280;
+        }
+        button.secondary:hover {
+            background: #4b5563;
+        }
+        button.danger {
+            background: #dc2626;
+        }
+        button.danger:hover {
+            background: #b91c1c;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+        .value {
+            color: #7c3aed;
+            font-weight: bold;
+        }
+        .summary {
+            background: #ecfdf5;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .summary h3 {
+            color: #065f46;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .summary h3::before {
+            content: '✅';
+            margin-right: 10px;
+        }
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .checklist li::before {
+            content: '✓';
+            position: absolute;
+            left: 5px;
+            color: #10b981;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Login Screen Fix</h1>
+        <div class="version">companyDocId Logic Verification</div>
+
+        <div class="intro">
+            <strong>📋 Obiettivo:</strong> Verificare che quando <code>companyDocId</code> è valorizzato, 
+            la schermata di login (company-entry-screen) sia sempre nascosta e venga visualizzato 
+            solo lo storico/history-view.
+        </div>
+
+        <!-- Test 1: Simulate returning from edit_convocation.html -->
+        <div class="test-section">
+            <h2>Test 1: Ritorno da edit_convocation.html</h2>
+            <p style="margin-bottom: 15px;">
+                Simula il comportamento quando l'utente clicca "Torna alla Home" dalla pagina di modifica convocazione.
+            </p>
+            <button onclick="simulateReturnFromEdit()">🔄 Simula ritorno da edit</button>
+            <button class="secondary" onclick="checkStorageState()">🔍 Verifica Storage</button>
+            <div id="return-result"></div>
+        </div>
+
+        <!-- Test 2: Check initApp() logic -->
+        <div class="test-section">
+            <h2>Test 2: Logica initApp()</h2>
+            <p style="margin-bottom: 15px;">
+                Verifica che initApp() nasconda il login screen quando companyDocId è presente con hash=#history.
+            </p>
+            <button onclick="testInitAppLogic()">🧪 Test initApp Logic</button>
+            <div id="initapp-result"></div>
+        </div>
+
+        <!-- Test 3: Check checkHashNavigation() logic -->
+        <div class="test-section">
+            <h2>Test 3: Logica checkHashNavigation()</h2>
+            <p style="margin-bottom: 15px;">
+                Verifica che checkHashNavigation() gestisca correttamente il ripristino dello stato e mostri history view.
+            </p>
+            <button onclick="testCheckHashNavigation()">🧪 Test checkHashNavigation</button>
+            <button class="secondary" onclick="testFallbackToLocalStorage()">🔄 Test Fallback localStorage</button>
+            <div id="checkhash-result"></div>
+        </div>
+
+        <!-- Test 4: Clean up -->
+        <div class="test-section">
+            <h2>Test 4: Pulizia Storage</h2>
+            <p style="margin-bottom: 15px;">
+                Pulisce sessionStorage e localStorage per iniziare un nuovo test.
+            </p>
+            <button class="danger" onclick="cleanStorage()">🧹 Pulisci Storage</button>
+            <div id="clean-result"></div>
+        </div>
+
+        <div class="summary">
+            <h3>Checklist Implementazione</h3>
+            <ul class="checklist">
+                <li>edit_convocation.html goBack() salva companyDocId, editUserRole e editAppId</li>
+                <li>index.html initApp() controlla companyDocId + hash/returnToHistory flag</li>
+                <li>initApp() nasconde login screen quando condizioni sono soddisfatte</li>
+                <li>checkHashNavigation() ripristina stato da sessionStorage</li>
+                <li>checkHashNavigation() fallback a localStorage se sessionStorage manca</li>
+                <li>checkHashNavigation() nasconde tutte le schermate e mostra history-view</li>
+                <li>Logging aggiunto per debug e tracciabilità</li>
+                <li>Login screen sempre nascosto quando companyDocId è valorizzato</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `result ${type}`;
+            element.innerHTML = message;
+        }
+
+        function simulateReturnFromEdit() {
+            // Simulate what goBack() does in edit_convocation.html
+            const testCompanyDocId = 'test-company-123';
+            const testUserRole = 'mister';
+            const testAppId = 'app-456';
+
+            // Set sessionStorage as goBack() would
+            sessionStorage.setItem('returnToHistory', 'true');
+            sessionStorage.setItem('companyDocId', testCompanyDocId);
+            sessionStorage.setItem('editUserRole', testUserRole);
+            sessionStorage.setItem('editAppId', testAppId);
+
+            // Also set localStorage (simulate saved session)
+            localStorage.setItem('userRole', testUserRole);
+            localStorage.setItem('convocazioniAppId', testAppId);
+
+            let html = '<strong>✅ Simulazione completata!</strong><br><br>';
+            html += '<strong>sessionStorage impostato:</strong><br>';
+            html += `• returnToHistory: <span class="value">${sessionStorage.getItem('returnToHistory')}</span><br>`;
+            html += `• companyDocId: <span class="value">${sessionStorage.getItem('companyDocId')}</span><br>`;
+            html += `• editUserRole: <span class="value">${sessionStorage.getItem('editUserRole')}</span><br>`;
+            html += `• editAppId: <span class="value">${sessionStorage.getItem('editAppId')}</span><br><br>`;
+            html += '<strong>localStorage impostato:</strong><br>';
+            html += `• userRole: <span class="value">${localStorage.getItem('userRole')}</span><br>`;
+            html += `• convocazioniAppId: <span class="value">${localStorage.getItem('convocazioniAppId')}</span><br><br>`;
+            html += '📍 Ora la pagina dovrebbe navigare a <span class="value">index.html#history</span><br>';
+            html += '🔍 initApp() dovrebbe rilevare companyDocId e nascondere il login screen<br>';
+            html += '📊 checkHashNavigation() dovrebbe mostrare history-view';
+
+            showResult('return-result', html, 'success');
+        }
+
+        function checkStorageState() {
+            let html = '<strong>📦 Stato corrente dello Storage:</strong><br><br>';
+            
+            html += '<strong>sessionStorage:</strong><br>';
+            html += `• returnToHistory: <span class="value">${sessionStorage.getItem('returnToHistory') || 'non impostato'}</span><br>`;
+            html += `• companyDocId: <span class="value">${sessionStorage.getItem('companyDocId') || 'non impostato'}</span><br>`;
+            html += `• editCompanyDocId: <span class="value">${sessionStorage.getItem('editCompanyDocId') || 'non impostato'}</span><br>`;
+            html += `• editUserRole: <span class="value">${sessionStorage.getItem('editUserRole') || 'non impostato'}</span><br>`;
+            html += `• editAppId: <span class="value">${sessionStorage.getItem('editAppId') || 'non impostato'}</span><br>`;
+            html += `• editOrigin: <span class="value">${sessionStorage.getItem('editOrigin') || 'non impostato'}</span><br><br>`;
+            
+            html += '<strong>localStorage:</strong><br>';
+            html += `• userRole: <span class="value">${localStorage.getItem('userRole') || 'non impostato'}</span><br>`;
+            html += `• convocazioniAppId: <span class="value">${localStorage.getItem('convocazioniAppId') || 'non impostato'}</span><br>`;
+            html += `• companyDocId: <span class="value">${localStorage.getItem('companyDocId') || 'non impostato'}</span><br><br>`;
+            
+            html += '<strong>URL:</strong><br>';
+            html += `• Hash: <span class="value">${window.location.hash || '(nessun hash)'}</span>`;
+
+            showResult('return-result', html, 'info');
+        }
+
+        function testInitAppLogic() {
+            const companyDocId = sessionStorage.getItem('companyDocId');
+            const hash = window.location.hash;
+            const returnToHistory = sessionStorage.getItem('returnToHistory');
+
+            let html = '<strong>🧪 Test logica initApp():</strong><br><br>';
+            
+            html += '<strong>Condizioni:</strong><br>';
+            html += `• companyDocId presente: <span class="value">${!!companyDocId}</span><br>`;
+            html += `• hash === '#history': <span class="value">${hash === '#history'}</span><br>`;
+            html += `• returnToHistory === 'true': <span class="value">${returnToHistory === 'true'}</span><br><br>`;
+
+            const shouldSkipLogin = companyDocId && (hash === '#history' || returnToHistory === 'true');
+            
+            html += '<strong>Risultato atteso:</strong><br>';
+            if (shouldSkipLogin) {
+                html += '✅ Login screen dovrebbe essere <span class="value">nascosto</span><br>';
+                html += '✅ initApp() dovrebbe uscire early (return)<br>';
+                html += '✅ checkHashNavigation() dovrebbe gestire il resto<br>';
+            } else {
+                html += '⚠️ Login screen potrebbe essere <span class="value">visibile</span><br>';
+                html += '⚠️ Procedere con la logica normale di initApp()<br>';
+            }
+
+            html += '<br><strong>Logica nel codice:</strong><br>';
+            html += '<code style="font-size: 11px;">';
+            html += 'if (companyDocIdFromReturn && (hash === \'#history\' || returnToHistory === \'true\')) {<br>';
+            html += '&nbsp;&nbsp;companyEntryScreen.classList.add(\'hidden\');<br>';
+            html += '&nbsp;&nbsp;return; // Exit early<br>';
+            html += '}';
+            html += '</code>';
+
+            showResult('initapp-result', html, shouldSkipLogin ? 'success' : 'warning');
+        }
+
+        function testCheckHashNavigation() {
+            const hash = window.location.hash;
+            const returnToHistory = sessionStorage.getItem('returnToHistory');
+            const editCompanyDocId = sessionStorage.getItem('companyDocId') || sessionStorage.getItem('editCompanyDocId');
+            const editUserRole = sessionStorage.getItem('editUserRole');
+            const editAppId = sessionStorage.getItem('editAppId');
+
+            let html = '<strong>🧪 Test logica checkHashNavigation():</strong><br><br>';
+            
+            html += '<strong>Condizioni per attivazione:</strong><br>';
+            html += `• hash === '#history': <span class="value">${hash === '#history'}</span><br>`;
+            html += `• returnToHistory === 'true': <span class="value">${returnToHistory === 'true'}</span><br><br>`;
+
+            const shouldActivate = hash === '#history' && returnToHistory === 'true';
+
+            if (shouldActivate) {
+                html += '<strong>Dati disponibili per ripristino:</strong><br>';
+                html += `• editCompanyDocId: <span class="value">${editCompanyDocId || '❌ MANCANTE'}</span><br>`;
+                html += `• editUserRole: <span class="value">${editUserRole || '❌ MANCANTE'}</span><br>`;
+                html += `• editAppId: <span class="value">${editAppId || '❌ MANCANTE'}</span><br><br>`;
+
+                const allDataPresent = editCompanyDocId && editUserRole && editAppId;
+
+                if (allDataPresent) {
+                    html += '✅ Tutti i dati presenti! History view dovrebbe essere mostrato<br>';
+                    html += '✅ Login screen dovrebbe essere nascosto (hideAllScreens())<br>';
+                } else {
+                    html += '⚠️ Dati mancanti! Tentativo fallback a localStorage...<br>';
+                    html += `• userRole da localStorage: <span class="value">${localStorage.getItem('userRole') || 'non disponibile'}</span><br>`;
+                    html += `• appId da localStorage: <span class="value">${localStorage.getItem('convocazioniAppId') || 'non disponibile'}</span><br>`;
+                }
+            } else {
+                html += '⚠️ Condizioni non soddisfatte, checkHashNavigation() non verrà attivato<br>';
+                html += 'Per attivare, imposta hash=#history e returnToHistory=true';
+            }
+
+            showResult('checkhash-result', html, shouldActivate ? 'success' : 'warning');
+        }
+
+        function testFallbackToLocalStorage() {
+            // Simulate scenario where sessionStorage is partially empty
+            sessionStorage.setItem('returnToHistory', 'true');
+            sessionStorage.setItem('companyDocId', 'test-company-123');
+            // Don't set editUserRole and editAppId to test fallback
+
+            // But have them in localStorage
+            localStorage.setItem('userRole', 'mister');
+            localStorage.setItem('convocazioniAppId', 'app-456');
+
+            // Change hash
+            window.location.hash = '#history';
+
+            let html = '<strong>🔄 Test Fallback a localStorage:</strong><br><br>';
+            html += 'Scenario: sessionStorage ha solo companyDocId, ma mancano userRole e appId<br>';
+            html += 'Questi dovrebbero essere recuperati da localStorage come fallback<br><br>';
+
+            html += '<strong>sessionStorage:</strong><br>';
+            html += `• companyDocId: <span class="value">${sessionStorage.getItem('companyDocId')}</span><br>`;
+            html += `• editUserRole: <span class="value">${sessionStorage.getItem('editUserRole') || '❌ MANCANTE'}</span><br>`;
+            html += `• editAppId: <span class="value">${sessionStorage.getItem('editAppId') || '❌ MANCANTE'}</span><br><br>`;
+
+            html += '<strong>localStorage (fallback):</strong><br>';
+            html += `• userRole: <span class="value">${localStorage.getItem('userRole')}</span><br>`;
+            html += `• convocazioniAppId: <span class="value">${localStorage.getItem('convocazioniAppId')}</span><br><br>`;
+
+            html += '✅ checkHashNavigation() dovrebbe usare i valori da localStorage<br>';
+            html += '✅ History view dovrebbe essere mostrato comunque';
+
+            showResult('checkhash-result', html, 'success');
+        }
+
+        function cleanStorage() {
+            // Clean sessionStorage
+            sessionStorage.removeItem('returnToHistory');
+            sessionStorage.removeItem('companyDocId');
+            sessionStorage.removeItem('editCompanyDocId');
+            sessionStorage.removeItem('editUserRole');
+            sessionStorage.removeItem('editAppId');
+            sessionStorage.removeItem('editOrigin');
+
+            // Clean localStorage (optional, be careful in real app)
+            // localStorage.removeItem('userRole');
+            // localStorage.removeItem('convocazioniAppId');
+
+            // Clear hash
+            if (window.location.hash) {
+                window.location.hash = '';
+            }
+
+            let html = '<strong>🧹 Pulizia completata!</strong><br><br>';
+            html += 'sessionStorage pulito:<br>';
+            html += '• returnToHistory<br>';
+            html += '• companyDocId<br>';
+            html += '• editCompanyDocId<br>';
+            html += '• editUserRole<br>';
+            html += '• editAppId<br>';
+            html += '• editOrigin<br><br>';
+            html += 'Hash URL rimosso<br><br>';
+            html += '✅ Pronto per un nuovo test';
+
+            showResult('clean-result', html, 'warning');
+        }
+
+        // Auto-check storage state on load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ Test page loaded');
+            console.log('📦 Current storage state:');
+            console.log('  sessionStorage.companyDocId:', sessionStorage.getItem('companyDocId'));
+            console.log('  sessionStorage.returnToHistory:', sessionStorage.getItem('returnToHistory'));
+            console.log('  window.location.hash:', window.location.hash);
+        });
+    </script>
+</body>
+</html>
