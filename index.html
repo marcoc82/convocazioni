@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V6.8 - Added % Presenze column and Media Presenze to training attendance view -->
+<!-- Version: V6.9 - Made training attendance table responsive and added medals (🥇🥈🥉) for top 3 attendance rankings -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -229,7 +229,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.8</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.9</span>
             </div>
         </div>
 
@@ -746,13 +746,13 @@
             </div>
             
             <!-- Training Attendance Table -->
-            <div id="training-attendance-content" class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+            <div id="training-attendance-content" class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6 overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze Allenamenti</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">% Presenze</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze Allenamenti</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">% Presenze</th>
                         </tr>
                     </thead>
                     <tbody id="training-attendance-list" class="bg-white divide-y divide-gray-200">
@@ -4422,7 +4422,7 @@
                 if (!data || data.length === 0) {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td colspan="3" class="px-6 py-4 text-center text-gray-500 italic">
+                        <td colspan="3" class="px-3 sm:px-6 py-4 text-center text-gray-500 italic">
                             Nessun dato disponibile
                         </td>
                     `;
@@ -4433,6 +4433,12 @@
                 
                 // Sort by attendance count (descending)
                 data.sort((a, b) => b.attendance - a.attendance);
+                
+                // V6.9: Determine medal positions (gold, silver, bronze) with tie handling
+                const attendanceValues = [...new Set(data.map(p => p.attendance))].sort((a, b) => b - a);
+                const goldValue = attendanceValues[0];
+                const silverValue = attendanceValues[1];
+                const bronzeValue = attendanceValues[2];
                 
                 // Calculate average attendance percentage
                 let totalPercentage = 0;
@@ -4448,10 +4454,20 @@
                     
                     totalPercentage += parseFloat(percentage);
                     
+                    // V6.9: Determine medal for this player
+                    let medal = '';
+                    if (player.attendance === goldValue) {
+                        medal = '🥇 ';
+                    } else if (player.attendance === silverValue) {
+                        medal = '🥈 ';
+                    } else if (player.attendance === bronzeValue) {
+                        medal = '🥉 ';
+                    }
+                    
                     row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${player.name}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${player.attendance}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${percentage}%</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">${medal}${player.name}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${player.attendance}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${percentage}%</td>
                     `;
                     
                     trainingAttendanceList.appendChild(row);
