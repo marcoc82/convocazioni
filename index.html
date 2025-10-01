@@ -2075,9 +2075,23 @@
                         const players = [];
                         playersSnapshot.forEach((doc) => {
                             const playerData = doc.data();
-                            // Use the player name from the document data, or fallback to document ID
-                            const playerName = playerData.name || playerData.nome || doc.id;
-                            players.push(playerName);
+                            
+                            // Check if player data has the new object format (numero, nome, dataNascita, matricola)
+                            if (playerData.numero && playerData.nome && playerData.dataNascita && playerData.matricola) {
+                                // New format: store as object
+                                players.push({
+                                    numero: playerData.numero,
+                                    nome: playerData.nome,
+                                    dataNascita: playerData.dataNascita,
+                                    matricola: playerData.matricola
+                                });
+                                console.log(`📋 Caricato giocatore (formato oggetto): ${playerData.numero} ${playerData.nome}`);
+                            } else {
+                                // Old format: store as string (name only)
+                                const playerName = playerData.name || playerData.nome || doc.id;
+                                players.push(playerName);
+                                console.log(`📋 Caricato giocatore (formato stringa): ${playerName}`);
+                            }
                         });
                         
                         console.log(`✅ Subcollection trovata: societa/${currentCompanyDocumentId}/giocatori`);
@@ -2132,38 +2146,77 @@
                     const playersCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "giocatori");
                     const existingPlayersSnapshot = await window.getDocs(playersCollectionRef);
                     
-                    // Create a set of existing player names for comparison
-                    const existingPlayerNames = new Set();
+                    // Create a set of existing player identifiers for comparison
+                    const existingPlayerIds = new Set();
                     const existingPlayerDocs = new Map();
                     existingPlayersSnapshot.forEach((doc) => {
                         const playerData = doc.data();
-                        const playerName = playerData.name || playerData.nome || doc.id;
-                        existingPlayerNames.add(playerName);
-                        existingPlayerDocs.set(playerName, doc.id);
+                        // Create identifier based on player data format
+                        let playerIdentifier;
+                        if (playerData.numero && playerData.nome) {
+                            playerIdentifier = `${playerData.numero} ${playerData.nome}`;
+                        } else {
+                            playerIdentifier = playerData.name || playerData.nome || doc.id;
+                        }
+                        existingPlayerIds.add(playerIdentifier);
+                        existingPlayerDocs.set(playerIdentifier, doc.id);
                     });
                     
                     // Add new players to subcollection
-                    for (const playerName of playersList) {
-                        if (!existingPlayerNames.has(playerName)) {
-                            // Create a new document for this player
-                            const playerDocRef = window.doc(playersCollectionRef);
-                            await window.setDoc(playerDocRef, {
-                                name: playerName,
-                                nome: playerName, // Keep both for compatibility
+                    for (const player of playersList) {
+                        // Determine player identifier and data based on format
+                        let playerIdentifier, playerDataToSave;
+                        
+                        if (typeof player === 'string') {
+                            // Old format: "10 ROSSI MARIO"
+                            playerIdentifier = player;
+                            playerDataToSave = {
+                                name: player,
+                                nome: player, // Keep both for compatibility
                                 createdAt: new Date().toISOString(),
                                 active: true
-                            });
-                            console.log(`✅ Nuovo giocatore aggiunto alla subcollection: ${playerName}`);
+                            };
+                        } else if (typeof player === 'object' && player.numero && player.nome) {
+                            // New format: object with numero, nome, dataNascita, matricola
+                            playerIdentifier = `${player.numero} ${player.nome}`;
+                            playerDataToSave = {
+                                numero: player.numero,
+                                nome: player.nome,
+                                dataNascita: player.dataNascita,
+                                matricola: player.matricola,
+                                name: playerIdentifier, // Also save combined name for compatibility
+                                createdAt: new Date().toISOString(),
+                                active: true
+                            };
+                        } else {
+                            console.warn(`⚠️ Formato giocatore non riconosciuto:`, player);
+                            continue;
+                        }
+                        
+                        if (!existingPlayerIds.has(playerIdentifier)) {
+                            // Create a new document for this player
+                            const playerDocRef = window.doc(playersCollectionRef);
+                            await window.setDoc(playerDocRef, playerDataToSave);
+                            console.log(`✅ Nuovo giocatore aggiunto alla subcollection: ${playerIdentifier}`);
                         }
                     }
                     
                     // Remove players that are no longer in the list
-                    for (const existingPlayerName of existingPlayerNames) {
-                        if (!playersList.includes(existingPlayerName)) {
-                            const docId = existingPlayerDocs.get(existingPlayerName);
+                    const currentPlayerIds = new Set();
+                    for (const player of playersList) {
+                        if (typeof player === 'string') {
+                            currentPlayerIds.add(player);
+                        } else if (typeof player === 'object' && player.numero && player.nome) {
+                            currentPlayerIds.add(`${player.numero} ${player.nome}`);
+                        }
+                    }
+                    
+                    for (const existingPlayerId of existingPlayerIds) {
+                        if (!currentPlayerIds.has(existingPlayerId)) {
+                            const docId = existingPlayerDocs.get(existingPlayerId);
                             const playerDocRef = window.doc(window.db, "societa", currentCompanyDocumentId, "giocatori", docId);
                             await window.deleteDoc(playerDocRef);
-                            console.log(`🗑️ Giocatore rimosso dalla subcollection: ${existingPlayerName}`);
+                            console.log(`🗑️ Giocatore rimosso dalla subcollection: ${existingPlayerId}`);
                         }
                     }
                     
