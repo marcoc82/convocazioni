@@ -1697,7 +1697,7 @@
                                                       localStorage.getItem('companyDocId');
                         
                         // 🔍 IMPORTANT: If companyDocId is present AND we have hash=#history or returnToHistory flag,
-                        // skip login screen and let checkHashNavigation() handle showing history view
+                        // hide login screen and show history view immediately
                         const hash = window.location.hash;
                         const returnToHistory = sessionStorage.getItem('returnToHistory');
                         
@@ -1706,10 +1706,16 @@
                             console.log('   📍 companyDocId:', companyDocIdFromReturn);
                             console.log('   📍 hash:', hash);
                             console.log('   📍 returnToHistory:', returnToHistory);
-                            console.log('   🔄 Waiting for checkHashNavigation() to show history view...');
-                            // Hide login screen explicitly - history view will be shown by checkHashNavigation()
+                            console.log('   ✅ Hiding login screen and showing history view immediately');
+                            
+                            // Hide login screen explicitly
                             companyEntryScreen.classList.add('hidden');
-                            return; // Exit early - checkHashNavigation() will handle the rest
+                            
+                            // Show history view explicitly
+                            historyView.classList.remove('hidden');
+                            
+                            console.log('   🔄 checkHashNavigation() will restore state and load history data...');
+                            return; // Exit early - checkHashNavigation() will restore state and load data
                         }
                         
                         // Check for saved company data
@@ -6910,12 +6916,17 @@
                         sessionStorage.removeItem('editAppId');
                         sessionStorage.removeItem('editOrigin');
                         
-                        // Hide all views and show history
+                        // Hide login screen explicitly and hide all other views
+                        console.log('   ✅ Hiding login screen explicitly');
+                        companyEntryScreen.classList.add('hidden');
                         mainView.classList.add('hidden');
                         attendanceView.classList.add('hidden');
                         trainingAttendanceView.classList.add('hidden');
                         campionatoView.classList.add('hidden');
-                        hideAllScreens(); // This hides company-entry-screen
+                        hideAllScreens(); // This ensures all screens ending with "-screen" are hidden
+                        
+                        // Show history view explicitly
+                        console.log('   ✅ Showing history view explicitly');
                         historyView.classList.remove('hidden');
                         
                         console.log('   📊 Loading history data...');
