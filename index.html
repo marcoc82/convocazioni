@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-22 - V6.3: Area Polis2013 button label corrected, visible to all users (guests included), opens without pre-filled access code -->
+<!-- Version: 2024-01-22 - V6.4: Risultati button always visible to all users, positioned after Campionato button, opens Polis2013 page without pre-filled code -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -224,7 +224,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.3</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.4</span>
             </div>
         </div>
 
@@ -268,10 +268,10 @@
                         ⚽ Campionato
                     </button>
                 </div>
-                <!-- Area Polis2013 button (shown for POLIS, POLIS PIEVE 2010, and PIEVE2010 regardless of login type) -->
+                <!-- Risultati button (always visible to all users, positioned after Campionato button) -->
                 <div id="area-polis2013-container" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="area-polis2013-button" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
-                        Area Polis2013
+                    <button id="area-polis2013-button" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        Risultati
                     </button>
                 </div>
                 <!-- Admin buttons (hidden for guests) -->
@@ -1257,23 +1257,9 @@
                     campionatoButton.classList.add('hidden');
                 }
                 
-                // Show/hide Area Polis2013 button for POLIS, POLIS PIEVE 2010, or PIEVE2010 (visible to all users)
-                const companyId = currentCompanyData?.data?.id || '';
-                const shouldShowPolis2013Button = 
-                    companyName === 'POLIS' || 
-                    companyName === 'POLIS PIEVE 2010' || 
-                    companyName === 'PIEVE2010' ||
-                    companyId === 'POLIS' || 
-                    companyId === 'POLIS PIEVE 2010' || 
-                    companyId === 'PIEVE2010' ||
-                    isPolisPieveCompany;
-                
-                if (shouldShowPolis2013Button) {
-                    areaPolis2013Button.classList.remove('hidden');
-                    console.log('✓ Area Polis2013 button shown for all users of company:', companyName || companyId);
-                } else {
-                    areaPolis2013Button.classList.add('hidden');
-                }
+                // Risultati button is always visible to all users (no conditional logic needed)
+                // Button always shows and opens https://marcoc82.github.io/polis2013/ without pre-filled code
+                console.log('✓ Risultati button is visible to all users');
                 
                 // Show company details with document ID and codici field
                 const companyDetails = document.getElementById('company-details');
@@ -4239,23 +4225,9 @@
                         campionatoButton.classList.add('hidden');
                     }
                     
-                    // Show/hide Area Polis2013 button for POLIS, POLIS PIEVE 2010, or PIEVE2010 (visible to guests too)
-                    const companyId = currentCompanyData?.data?.id || '';
-                    const shouldShowPolis2013Button = 
-                        companyName === 'POLIS' || 
-                        companyName === 'POLIS PIEVE 2010' || 
-                        companyName === 'PIEVE2010' ||
-                        companyId === 'POLIS' || 
-                        companyId === 'POLIS PIEVE 2010' || 
-                        companyId === 'PIEVE2010' ||
-                        isPolisPieveCompany;
-                    
-                    if (shouldShowPolis2013Button) {
-                        areaPolis2013Button.classList.remove('hidden');
-                        console.log('✓ Area Polis2013 button shown for guest of company:', companyName || companyId);
-                    } else {
-                        areaPolis2013Button.classList.add('hidden');
-                    }
+                    // Risultati button is always visible to all users including guests (no conditional logic needed)
+                    // Button always shows and opens https://marcoc82.github.io/polis2013/ without pre-filled code
+                    console.log('✓ Risultati button is visible to all users including guests');
                     
                     console.log('👤 Guest login detected - restricted UI enabled');
                 } else {
@@ -5824,27 +5796,13 @@
                 showPlayerManagement();
             });
 
-            // Area Polis2013 button handler - Opens Polis2013 site in new tab
-            // Note: Access code is NOT pre-filled. User must manually enter:
-            // - POLIS2013 for POLIS company
-            // - PIEVE2010 for POLIS PIEVE 2010/PIEVE2010 companies
+            // Risultati button handler - Opens Polis2013 site in new tab (no pre-filled code)
+            // This button is ALWAYS visible to ALL users regardless of company
             areaPolis2013Button.addEventListener('click', () => {
-                console.log('🔗 Opening Area Polis2013...');
-                
-                // Get company name/id to log which access code user should use
-                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
-                const companyId = currentCompanyData?.data?.id || '';
-                
-                // Log which access code the user should manually enter
-                if (companyName === 'POLIS' || companyId === 'POLIS') {
-                    console.log('ℹ️ Company is POLIS - user should manually enter access code: POLIS2013');
-                }
-                else if (companyName === 'POLIS PIEVE 2010' || companyName === 'PIEVE2010' || 
-                         companyId === 'POLIS PIEVE 2010' || companyId === 'PIEVE2010') {
-                    console.log('ℹ️ Company is POLIS PIEVE 2010/PIEVE2010 - user should manually enter access code: PIEVE2010');
-                }
+                console.log('🔗 Opening Risultati (Polis2013 page)...');
                 
                 // Open main page in new tab (without pre-filled code)
+                // Users must manually enter their access code
                 const url = 'https://marcoc82.github.io/polis2013/';
                 console.log('🔗 Opening:', url);
                 window.open(url, '_blank');
