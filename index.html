@@ -3259,7 +3259,8 @@
                     // Check for unavailable players (only if not already called today)
                     else if (unavailablePlayers.has(playerKey)) {
                         const status = unavailablePlayers.get(playerKey);
-                        // Use applyPlayerStatusStyle to handle both single and multiple statuses
+                        // V6.5: Use applyPlayerStatusStyle to handle both single and multiple statuses
+                        // Supports legacy single status (string) and new multiple statuses (array) with gradient
                         const statusArray = Array.isArray(status) ? status : [status];
                         applyPlayerStatusStyle(li, statusArray);
                     }
@@ -4019,7 +4020,8 @@
                 }
                 unavailablePlayers.forEach((status, player) => {
                     const li = document.createElement('li');
-                    // Handle both single status (string) and multiple statuses (array)
+                    // V6.5: Handle both single status (string) and multiple statuses (array)
+                    // Multiple statuses are displayed comma-separated (e.g., "Squalificato, Non disponibile Domenica")
                     const statusText = Array.isArray(status) ? status.join(', ') : status;
                     li.textContent = `${player}: ${statusText}`;
                     li.className = 'font-medium';
@@ -4829,15 +4831,16 @@
 
             // --- Modal Functions ---
             function showModal() {
-                // Pre-check existing statuses for this player
+                // V6.5: Pre-check existing statuses for this player
+                // Supports both legacy single status (string) and new multiple statuses (array)
                 const existingStatuses = unavailablePlayers.get(tempPlayerName);
                 const statusArray = existingStatuses 
                     ? (Array.isArray(existingStatuses) ? existingStatuses : [existingStatuses])
                     : [];
                 
-                console.log('🔍 Opening modal for:', tempPlayerName, 'with statuses:', statusArray);
+                console.log('🔍 [V6.5] Opening modal for:', tempPlayerName, 'with statuses:', statusArray);
                 
-                // Reset all checkboxes first
+                // Reset all checkboxes first, then check the ones that match existing statuses
                 statusCheckboxes.forEach(checkbox => {
                     checkbox.checked = statusArray.includes(checkbox.dataset.status);
                 });
@@ -4855,7 +4858,8 @@
 
             function showUnavailablePlayerModal(playerName, reason) {
                 unavailablePlayerName.textContent = playerName;
-                // Handle both single status (string) and multiple statuses (array)
+                // V6.5: Handle both single status (string) and multiple statuses (array)
+                // Multiple statuses displayed as comma-separated list for Mister view
                 const reasonText = Array.isArray(reason) ? reason.join(', ') : reason;
                 unavailablePlayerReason.textContent = reasonText;
                 unavailablePlayerModal.classList.remove('hidden', 'opacity-0');
@@ -6706,18 +6710,19 @@
             copyLinkButton.addEventListener('click', handleCopyLink);
             downloadImageButton.addEventListener('click', handleDownloadImage);
 
-            // NEW: Multi-select status handler for Dirigente/Marco with checkboxes
+            // NEW V6.5: Multi-select status handler for Dirigente/Marco with checkboxes
+            // This replaces the old single-select button approach
             // Confirm button handler - applies selected statuses to player
             confirmStatusButton.addEventListener('click', () => {
-                console.log('✅ Confermando selezione indisponibilità per:', tempPlayerName);
+                console.log('✅ [V6.5] Confermando selezione indisponibilità per:', tempPlayerName);
                 const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
                 
-                // Get all checked statuses
+                // Get all checked statuses from checkboxes
                 const selectedStatuses = Array.from(statusCheckboxes)
                     .filter(checkbox => checkbox.checked)
                     .map(checkbox => checkbox.dataset.status);
                 
-                console.log('📋 Statuses selezionati:', selectedStatuses);
+                console.log('📋 [V6.5] Statuses selezionati:', selectedStatuses);
                 
                 // Store as array if multiple statuses, or single string for backward compatibility
                 if (selectedStatuses.length === 0) {
@@ -6726,11 +6731,11 @@
                     currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'multi-status');
                     currentPlayerItem.style.background = ''; // Clear any gradient
                 } else if (selectedStatuses.length === 1) {
-                    // Single status - store as string for backward compatibility
+                    // Single status - store as string for backward compatibility with V6.4 and earlier
                     unavailablePlayers.set(tempPlayerName, selectedStatuses[0]);
                     applyPlayerStatusStyle(currentPlayerItem, selectedStatuses);
                 } else {
-                    // Multiple statuses - store as array
+                    // Multiple statuses - store as array (NEW in V6.5)
                     unavailablePlayers.set(tempPlayerName, selectedStatuses);
                     applyPlayerStatusStyle(currentPlayerItem, selectedStatuses);
                 }
@@ -6742,7 +6747,7 @@
             
             // Clear status button - marks player as available
             clearStatusButton.addEventListener('click', () => {
-                console.log('✅ Rendendo disponibile:', tempPlayerName);
+                console.log('✅ [V6.5] Rendendo disponibile:', tempPlayerName);
                 const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
                 
                 unavailablePlayers.delete(tempPlayerName);
@@ -6754,9 +6759,10 @@
                 tempPlayerName = null;
             });
             
-            // Helper function to apply visual styles based on player statuses
+            // V6.5: Helper function to apply visual styles based on player statuses
+            // Supports both single status (backward compatible) and multiple statuses (gradient)
             function applyPlayerStatusStyle(playerItem, statuses) {
-                // Ensure statuses is always an array
+                // Ensure statuses is always an array for consistent processing
                 const statusArray = Array.isArray(statuses) ? statuses : [statuses];
                 
                 // Remove all existing status classes
@@ -6764,7 +6770,7 @@
                 playerItem.style.background = ''; // Clear any gradient
                 
                 if (statusArray.length === 1) {
-                    // Single status - apply single color class
+                    // Single status - apply single color class (backward compatible)
                     const status = statusArray[0];
                     if (status === 'Infortunato' || status === 'Squalificato') {
                         playerItem.classList.add('selected-marco-black');
@@ -6778,7 +6784,7 @@
                         playerItem.classList.add('selected-marco');
                     }
                 } else {
-                    // Multiple statuses - create gradient background
+                    // Multiple statuses - create gradient background (NEW in V6.5)
                     playerItem.classList.add('multi-status');
                     const colors = statusArray.map(status => {
                         if (status === 'Infortunato' || status === 'Squalificato') {

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V6.5 - Multi-Select Unavailability</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .player-item {
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease-in-out, background-color 0.2s;
+        }
+        .player-item.selected-marco {
+            background-color: #fecaca;
+            color: #b91c1c;
+            font-weight: bold;
+            border-color: #ef4444;
+        }
+        .player-item.selected-marco-orange {
+            background-color: #fed7aa;
+            color: #ea580c;
+            font-weight: bold;
+            border-color: #f97316;
+        }
+        .player-item.selected-marco-black {
+            background-color: #1f2937;
+            color: #ffffff;
+            font-weight: bold;
+            border-color: #374151;
+        }
+        .player-item.selected-marco-purple {
+            background-color: #8b5cf6;
+            color: #ffffff;
+            font-weight: bold;
+            border-color: #7c3aed;
+        }
+        .player-item.multi-status {
+            font-weight: bold;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Test V6.5 - Multi-Select Unavailability</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Scenarios</h2>
+            <ul class="space-y-2">
+                <li>✅ Click on a player to open the multi-select modal</li>
+                <li>✅ Select multiple unavailability reasons</li>
+                <li>✅ Verify the player shows a gradient background</li>
+                <li>✅ Verify the unavailable players list shows all reasons</li>
+                <li>✅ Test "Rendi Disponibile" button</li>
+            </ul>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Lista Giocatori</h2>
+            <ul id="players-list" class="space-y-2">
+                <li class="player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200" data-player="10 ROSSI MARIO">10 ROSSI MARIO</li>
+                <li class="player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200" data-player="7 BIANCHI LUCA">7 BIANCHI LUCA</li>
+                <li class="player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200" data-player="5 VERDI GIUSEPPE">5 VERDI GIUSEPPE</li>
+            </ul>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Giocatori Non Disponibili</h2>
+            <ul id="unavailable-players-list" class="space-y-2">
+                <li class="text-sm italic text-red-500">Nessuna disponibilità registrata.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Status Modal -->
+    <div id="status-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 bg-black bg-opacity-50">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
+            <h2 class="text-xl font-bold mb-4">Seleziona indisponibilità (multi-selezione)</h2>
+            <div class="space-y-2 max-h-96 overflow-y-auto">
+                <label class="flex items-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors duration-200">
+                    <input type="checkbox" data-status="Infortunato" class="status-checkbox w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Infortunato 🚑️</span>
+                </label>
+                <label class="flex items-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors duration-200">
+                    <input type="checkbox" data-status="Squalificato" class="status-checkbox w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Squalificato 🟥</span>
+                </label>
+                <label class="flex items-center p-3 bg-purple-100 rounded-lg hover:bg-purple-200 cursor-pointer transition-colors duration-200">
+                    <input type="checkbox" data-status="Non disponibile Sabato" class="status-checkbox w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Non disponibile Sabato</span>
+                </label>
+                <label class="flex items-center p-3 bg-purple-100 rounded-lg hover:bg-purple-200 cursor-pointer transition-colors duration-200">
+                    <input type="checkbox" data-status="Non disponibile Domenica" class="status-checkbox w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Non disponibile Domenica</span>
+                </label>
+                <label class="flex items-center p-3 bg-red-100 rounded-lg hover:bg-red-200 cursor-pointer transition-colors duration-200">
+                    <input type="checkbox" data-status="Non disponibile Weekend" class="status-checkbox w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Non disponibile WE</span>
+                </label>
+                <label class="flex items-center p-3 bg-orange-100 rounded-lg hover:bg-orange-200 cursor-pointer transition-colors duration-200">
+                    <input type="checkbox" data-status="Solo 2 allenamenti" class="status-checkbox w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+                </label>
+                <label class="flex items-center p-3 bg-orange-100 rounded-lg hover:bg-orange-200 cursor-pointer transition-colors duration-200">
+                    <input type="checkbox" data-status="Solo 1 allenamento" class="status-checkbox w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Solo 1 allenamento</span>
+                </label>
+                <label class="flex items-center p-3 bg-red-100 rounded-lg hover:bg-red-200 cursor-pointer transition-colors duration-200">
+                    <input type="checkbox" data-status="Zero allenamenti" class="status-checkbox w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+                </label>
+            </div>
+            <div class="mt-4 space-y-2">
+                <button id="confirm-status-button" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                    Conferma Selezione
+                </button>
+                <button id="clear-status-button" class="w-full py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors duration-200">
+                    Rendi Disponibile
+                </button>
+                <button id="close-modal" class="w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                    Annulla
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let unavailablePlayers = new Map();
+        let tempPlayerName = null;
+
+        // Elements
+        const statusModal = document.getElementById('status-modal');
+        const statusCheckboxes = statusModal.querySelectorAll('.status-checkbox');
+        const confirmStatusButton = document.getElementById('confirm-status-button');
+        const clearStatusButton = document.getElementById('clear-status-button');
+        const closeModalButton = document.getElementById('close-modal');
+        const unavailablePlayersList = document.getElementById('unavailable-players-list');
+
+        // Player click handler
+        document.querySelectorAll('.player-item').forEach(item => {
+            item.addEventListener('click', () => {
+                tempPlayerName = item.dataset.player;
+                showModal();
+            });
+        });
+
+        // Confirm button handler
+        confirmStatusButton.addEventListener('click', () => {
+            console.log('✅ Confermando selezione per:', tempPlayerName);
+            const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
+            
+            // Get all checked statuses
+            const selectedStatuses = Array.from(statusCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.dataset.status);
+            
+            console.log('📋 Statuses selezionati:', selectedStatuses);
+            
+            if (selectedStatuses.length === 0) {
+                unavailablePlayers.delete(tempPlayerName);
+                currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'multi-status');
+                currentPlayerItem.style.background = '';
+            } else if (selectedStatuses.length === 1) {
+                unavailablePlayers.set(tempPlayerName, selectedStatuses[0]);
+                applyPlayerStatusStyle(currentPlayerItem, selectedStatuses);
+            } else {
+                unavailablePlayers.set(tempPlayerName, selectedStatuses);
+                applyPlayerStatusStyle(currentPlayerItem, selectedStatuses);
+            }
+            
+            updateUnavailablePlayersView();
+            hideModal();
+            tempPlayerName = null;
+        });
+
+        // Clear status button
+        clearStatusButton.addEventListener('click', () => {
+            console.log('✅ Rendendo disponibile:', tempPlayerName);
+            const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
+            
+            unavailablePlayers.delete(tempPlayerName);
+            currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'multi-status');
+            currentPlayerItem.style.background = '';
+            
+            updateUnavailablePlayersView();
+            hideModal();
+            tempPlayerName = null;
+        });
+
+        // Close modal button
+        closeModalButton.addEventListener('click', () => {
+            hideModal();
+            tempPlayerName = null;
+        });
+
+        function showModal() {
+            const existingStatuses = unavailablePlayers.get(tempPlayerName);
+            const statusArray = existingStatuses 
+                ? (Array.isArray(existingStatuses) ? existingStatuses : [existingStatuses])
+                : [];
+            
+            console.log('🔍 Opening modal for:', tempPlayerName, 'with statuses:', statusArray);
+            
+            statusCheckboxes.forEach(checkbox => {
+                checkbox.checked = statusArray.includes(checkbox.dataset.status);
+            });
+            
+            statusModal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            statusModal.classList.add('hidden');
+            statusCheckboxes.forEach(checkbox => checkbox.checked = false);
+        }
+
+        function applyPlayerStatusStyle(playerItem, statuses) {
+            const statusArray = Array.isArray(statuses) ? statuses : [statuses];
+            
+            playerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'multi-status');
+            playerItem.style.background = '';
+            
+            if (statusArray.length === 1) {
+                const status = statusArray[0];
+                if (status === 'Infortunato' || status === 'Squalificato') {
+                    playerItem.classList.add('selected-marco-black');
+                } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
+                    playerItem.classList.add('selected-marco-purple');
+                } else if (status === 'Solo 2 allenamenti' || status === 'Solo 1 allenamento') {
+                    playerItem.classList.add('selected-marco-orange');
+                } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend') {
+                    playerItem.classList.add('selected-marco');
+                } else {
+                    playerItem.classList.add('selected-marco');
+                }
+            } else {
+                playerItem.classList.add('multi-status');
+                const colors = statusArray.map(status => {
+                    if (status === 'Infortunato' || status === 'Squalificato') {
+                        return '#1f2937';
+                    } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
+                        return '#8b5cf6';
+                    } else if (status === 'Solo 2 allenamenti' || status === 'Solo 1 allenamento') {
+                        return '#fed7aa';
+                    } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend') {
+                        return '#fecaca';
+                    } else {
+                        return '#fecaca';
+                    }
+                });
+                
+                const step = 100 / colors.length;
+                const gradientStops = colors.map((color, index) => {
+                    const start = index * step;
+                    const end = (index + 1) * step;
+                    return `${color} ${start}%, ${color} ${end}%`;
+                }).join(', ');
+                
+                playerItem.style.background = `linear-gradient(90deg, ${gradientStops})`;
+            }
+        }
+
+        function updateUnavailablePlayersView() {
+            unavailablePlayersList.innerHTML = '';
+            if (unavailablePlayers.size === 0) {
+                unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessuna disponibilità registrata.</li>';
+                return;
+            }
+            unavailablePlayers.forEach((status, player) => {
+                const li = document.createElement('li');
+                const statusText = Array.isArray(status) ? status.join(', ') : status;
+                li.textContent = `${player}: ${statusText}`;
+                li.className = 'font-medium';
+                unavailablePlayersList.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
