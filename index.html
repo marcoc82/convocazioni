@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-22 - V6.0: Removed borders, shadows, padding and background from PDF distinta container for clean professional print output -->
+<!-- Version: 2024-01-22 - V6.2: Added Area Polis2013 yellow button with conditional access codes (POLIS2013/PIEVE2010) -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -224,7 +224,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.1</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.2</span>
             </div>
         </div>
 
@@ -272,6 +272,9 @@
                 <div id="admin-buttons" class="grid grid-cols-1 gap-3">
                     <button id="manage-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Gestione Squadra
+                    </button>
+                    <button id="area-polis2013-button" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
+                        Area Polis2013
                     </button>
                 </div>
                 <button id="company-logout-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 mt-3">
@@ -1251,6 +1254,24 @@
                     campionatoButton.classList.add('hidden');
                 }
                 
+                // Show/hide Area Polis2013 button for POLIS, POLIS PIEVE 2010, or PIEVE2010
+                const companyId = currentCompanyData?.data?.id || '';
+                const shouldShowPolis2013Button = 
+                    companyName === 'POLIS' || 
+                    companyName === 'POLIS PIEVE 2010' || 
+                    companyName === 'PIEVE2010' ||
+                    companyId === 'POLIS' || 
+                    companyId === 'POLIS PIEVE 2010' || 
+                    companyId === 'PIEVE2010' ||
+                    isPolisPieveCompany;
+                
+                if (shouldShowPolis2013Button) {
+                    areaPolis2013Button.classList.remove('hidden');
+                    console.log('✓ Area Polis2013 button shown for company:', companyName || companyId);
+                } else {
+                    areaPolis2013Button.classList.add('hidden');
+                }
+                
                 // Show company details with document ID and codici field
                 const companyDetails = document.getElementById('company-details');
                 const companyDocumentIdSpan = document.getElementById('company-document-id');
@@ -1447,6 +1468,7 @@
             const trainingAttendanceButton = document.getElementById('training-attendance-button');
             const campionatoButton = document.getElementById('campionato-button');
             const managePlayersButton = document.getElementById('manage-players-button');
+            const areaPolis2013Button = document.getElementById('area-polis2013-button');
             const companyLogoutButton = document.getElementById('company-logout-button');
             
             const passwordEntryScreen = document.getElementById('password-entry-screen');
@@ -4214,6 +4236,24 @@
                         campionatoButton.classList.add('hidden');
                     }
                     
+                    // Show/hide Area Polis2013 button for POLIS, POLIS PIEVE 2010, or PIEVE2010 (also for guests)
+                    const companyId = currentCompanyData?.data?.id || '';
+                    const shouldShowPolis2013Button = 
+                        companyName === 'POLIS' || 
+                        companyName === 'POLIS PIEVE 2010' || 
+                        companyName === 'PIEVE2010' ||
+                        companyId === 'POLIS' || 
+                        companyId === 'POLIS PIEVE 2010' || 
+                        companyId === 'PIEVE2010' ||
+                        isPolisPieveCompany;
+                    
+                    if (shouldShowPolis2013Button) {
+                        areaPolis2013Button.classList.remove('hidden');
+                        console.log('✓ Area Polis2013 button shown for guest of company:', companyName || companyId);
+                    } else {
+                        areaPolis2013Button.classList.add('hidden');
+                    }
+                    
                     console.log('👤 Guest login detected - restricted UI enabled');
                 } else {
                     // Normal login: hide guest indicator and show all options
@@ -5779,6 +5819,41 @@
 
             managePlayersButton.addEventListener('click', () => {
                 showPlayerManagement();
+            });
+
+            // Area Polis2013 button handler - Opens Polis2013 site with access code
+            areaPolis2013Button.addEventListener('click', () => {
+                console.log('🔗 Opening Area Polis2013...');
+                
+                // Get company name/id to determine access code
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const companyId = currentCompanyData?.data?.id || '';
+                
+                let accessCode = '';
+                
+                // Check if company is POLIS
+                if (companyName === 'POLIS' || companyId === 'POLIS') {
+                    accessCode = 'POLIS2013';
+                    console.log('✓ Company is POLIS, using access code: POLIS2013');
+                }
+                // Check if company is POLIS PIEVE 2010 or PIEVE2010
+                else if (companyName === 'POLIS PIEVE 2010' || companyName === 'PIEVE2010' || 
+                         companyId === 'POLIS PIEVE 2010' || companyId === 'PIEVE2010') {
+                    accessCode = 'PIEVE2010';
+                    console.log('✓ Company is POLIS PIEVE 2010/PIEVE2010, using access code: PIEVE2010');
+                }
+                
+                // Build URL with or without access code
+                let url = 'https://marcoc82.github.io/polis2013/';
+                if (accessCode) {
+                    url += `?code=${accessCode}`;
+                    console.log('🔗 Opening with access code:', url);
+                } else {
+                    console.log('🔗 Opening without access code:', url);
+                }
+                
+                // Open in new tab
+                window.open(url, '_blank');
             });
 
             companyLogoutButton.addEventListener('click', () => {
