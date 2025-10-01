@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V7.3 Mobile Responsive Test - Riepilogo Convocazioni Totale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background-color: #f3f4f6; 
+        }
+        .demo-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .device-frame { 
+            margin: 20px 0; 
+            padding: 20px; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        .mobile-view { 
+            max-width: 375px; 
+            margin: 0 auto; 
+            border: 4px solid #333;
+            border-radius: 20px;
+            padding: 10px;
+            background: #fff;
+        }
+        .tablet-view { 
+            max-width: 768px; 
+            margin: 0 auto; 
+            border: 4px solid #555;
+            border-radius: 20px;
+            padding: 10px;
+            background: #fff;
+        }
+        .desktop-view { 
+            max-width: 100%; 
+            border: 4px solid #888;
+            border-radius: 12px;
+            padding: 10px;
+            background: #fff;
+        }
+        .device-label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .version-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+        .comparison-note {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .success-note {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="text-4xl font-bold text-center mb-6 text-gray-800">
+            📱 V7.3 Mobile Responsive Test
+        </h1>
+        <p class="text-center text-gray-600 mb-8 text-lg">
+            Testing "Riepilogo Convocazioni Totale" table responsiveness on different devices
+        </p>
+
+        <div class="text-center mb-8">
+            <span class="version-badge">V 7.3</span>
+        </div>
+
+        <div class="comparison-note">
+            <h3 class="font-bold text-lg mb-2">🎯 V7.3 Changes:</h3>
+            <ul class="list-disc list-inside space-y-1 text-sm">
+                <li><strong>Responsive Padding:</strong> Changed from <code>px-6</code> to <code>px-2 sm:px-6</code></li>
+                <li><strong>Horizontal Scroll:</strong> Added <code>overflow-x-auto</code> to table container</li>
+                <li><strong>Mobile Optimized:</strong> 2 units (8px) padding on mobile, 6 units (24px) on desktop</li>
+                <li><strong>All Columns Preserved:</strong> Giocatore, Presenze, % Convocazione, % Disponibilità (POLIS only)</li>
+            </ul>
+        </div>
+
+        <!-- Mobile View - iPhone 12 -->
+        <div class="device-frame">
+            <div class="device-label">📱 Mobile View (375px wide - iPhone 12 Pro)</div>
+            <div class="mobile-view">
+                <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h2>
+                <p class="text-center text-gray-600 mb-6">
+                    Partite totali: <span class="font-semibold">20</span>
+                </p>
+                
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Riepilogo Totale</h3>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">% Convocazione</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1 ROSSI MARIO</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">16</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">80.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2 BIANCHI LUIGI</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">14</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">70.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3 VERDI GIUSEPPE</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">10</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">50.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">4 NERI ANTONIO</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">8</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">40.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="success-note mt-4">
+                    <p class="text-sm font-semibold text-green-800">✅ Table fits within mobile screen</p>
+                    <p class="text-xs text-green-700 mt-1">Compact padding (8px) ensures no horizontal overflow</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile View - POLIS with 4 columns -->
+        <div class="device-frame">
+            <div class="device-label">📱 Mobile View - POLIS Company (4 columns)</div>
+            <div class="mobile-view">
+                <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h2>
+                <p class="text-center text-gray-600 mb-6">
+                    Partite totali: <span class="font-semibold">20</span>
+                </p>
+                
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Riepilogo Totale</h3>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-50">% Convocazione</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl bg-blue-50">% Disponibilità</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1 ROSSI MARIO</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">16</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">80.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">95.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2 BIANCHI LUIGI</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">14</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">70.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">88.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3 VERDI GIUSEPPE</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">10</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">50.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">75.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="success-note mt-4">
+                    <p class="text-sm font-semibold text-green-800">✅ 4-column table with overflow-x-auto</p>
+                    <p class="text-xs text-green-700 mt-1">Scrollable horizontally if needed, compact padding prevents layout break</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tablet View -->
+        <div class="device-frame">
+            <div class="device-label">📱 Tablet View (768px wide - iPad)</div>
+            <div class="tablet-view">
+                <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h2>
+                <p class="text-center text-gray-600 mb-6">
+                    Partite totali: <span class="font-semibold">20</span>
+                </p>
+                
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Riepilogo Totale</h3>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-50">% Convocazione</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl bg-blue-50">% Disponibilità</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1 ROSSI MARIO</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">16</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">80.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">95.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2 BIANCHI LUIGI</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">14</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">70.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">88.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3 VERDI GIUSEPPE</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">10</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">50.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">75.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">4 NERI ANTONIO</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">8</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">40.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">65.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="success-note mt-4">
+                    <p class="text-sm font-semibold text-green-800">✅ Full padding restored on tablet (≥640px)</p>
+                    <p class="text-xs text-green-700 mt-1">Tailwind sm: breakpoint activates, padding becomes 24px</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop View -->
+        <div class="device-frame">
+            <div class="device-label">🖥️ Desktop View (Full Width)</div>
+            <div class="desktop-view">
+                <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h2>
+                <p class="text-center text-gray-600 mb-6">
+                    Partite totali: <span class="font-semibold">20</span>
+                </p>
+                
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Riepilogo Totale</h3>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-green-50">% Convocazione</th>
+                                <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl bg-blue-50">% Disponibilità</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1 ROSSI MARIO</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">16</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">80.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">95.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2 BIANCHI LUIGI</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">14</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">70.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">88.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3 VERDI GIUSEPPE</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">10</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">50.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">75.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">4 NERI ANTONIO</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">8</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">40.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">65.0%</td>
+                            </tr>
+                            <tr>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">5 GIALLI FRANCESCO</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">6</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-green-50">30.0%</td>
+                                <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center bg-blue-50">55.0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="success-note mt-4">
+                    <p class="text-sm font-semibold text-green-800">✅ Optimal spacing on desktop</p>
+                    <p class="text-xs text-green-700 mt-1">Full 24px padding provides comfortable reading experience</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="device-frame">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 Technical Implementation Details</h2>
+            
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                <h3 class="font-semibold text-gray-800 mb-2">Changes Made:</h3>
+                <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
+                    <li><strong>Table Container:</strong> Added <code class="bg-gray-200 px-2 py-1 rounded">overflow-x-auto</code> class for horizontal scrolling support</li>
+                    <li><strong>Header Cells:</strong> Changed from <code class="bg-gray-200 px-2 py-1 rounded">px-6</code> to <code class="bg-gray-200 px-2 py-1 rounded">px-2 sm:px-6</code></li>
+                    <li><strong>Data Cells:</strong> Updated JavaScript to use <code class="bg-gray-200 px-2 py-1 rounded">px-2 sm:px-6</code> in dynamically generated rows</li>
+                    <li><strong>Version:</strong> Updated to V7.3 in HTML comment, visible badge, and manifest.json</li>
+                </ul>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                <h3 class="font-semibold text-gray-800 mb-2">Responsive Behavior:</h3>
+                <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
+                    <li><strong>Mobile (&lt; 640px):</strong> 2 units padding (8px) - Compact for small screens</li>
+                    <li><strong>Desktop (≥ 640px):</strong> 6 units padding (24px) - Comfortable spacing</li>
+                    <li><strong>Breakpoint:</strong> Tailwind's <code class="bg-gray-200 px-2 py-1 rounded">sm:</code> breakpoint at 640px</li>
+                    <li><strong>Overflow:</strong> Horizontal scroll enabled if content exceeds container width</li>
+                </ul>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-semibold text-gray-800 mb-2">Files Modified:</h3>
+                <ul class="list-disc list-inside text-gray-700 text-sm space-y-1">
+                    <li><code class="bg-gray-200 px-2 py-1 rounded">index.html</code> - Updated table HTML structure and JavaScript</li>
+                    <li><code class="bg-gray-200 px-2 py-1 rounded">manifest.json</code> - Updated version to V7.3</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="device-frame" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h2 class="text-2xl font-bold text-white mb-4 text-center">✅ V7.3 Implementation Complete</h2>
+            <div class="bg-white bg-opacity-90 p-4 rounded-lg">
+                <ul class="space-y-2 text-sm">
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span>Table is now fully responsive on mobile devices (375px width)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span>Reduced padding on mobile prevents horizontal overflow</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span>Horizontal scroll available for POLIS 4-column tables if needed</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span>Full padding restored on tablets and desktops for optimal viewing</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span>Version updated to V7.3 across all relevant files</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span>All columns preserved: Giocatore, Presenze, % Convocazione, % Disponibilità</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
