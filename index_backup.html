@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Version: V6.5 - Added remove button for forced convocations of unavailable players -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -210,7 +211,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 2.1</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.5</span>
             </div>
         </div>
 
@@ -665,6 +666,10 @@
                 </div>
                 <button id="convoca-comunque-button" class="w-full py-3 mb-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
                     Convoca ugualmente
+                </button>
+                <!-- V6.5: Pulsante per rimuovere convocazione forzata -->
+                <button id="togli-convocazione-button" class="w-full py-3 mb-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200 hidden">
+                    Togli dalla convocazione
                 </button>
                 <button id="close-unavailable-modal" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
                     Ok
@@ -1142,6 +1147,7 @@
             const unavailablePlayerName = document.getElementById('unavailable-player-name');
             const unavailablePlayerReason = document.getElementById('unavailable-player-reason');
             const convocaComunqueButton = document.getElementById('convoca-comunque-button'); // nuovo bottone
+            const togliConvocazioneButton = document.getElementById('togli-convocazione-button'); // V6.5: pulsante per rimuovere convocazione forzata
 
             // Share Modal Elements
             const shareModal = document.getElementById('share-modal');
@@ -3232,7 +3238,25 @@
 
             function showUnavailablePlayerModal(playerName, reason) {
                 unavailablePlayerName.textContent = playerName;
-                unavailablePlayerReason.textContent = reason;
+                // V6.5: Handle array of reasons (from multi-select feature)
+                const reasonText = Array.isArray(reason) ? reason.join(', ') : reason;
+                unavailablePlayerReason.textContent = reasonText;
+                
+                // V6.5: Check if player is already selected (forced convocation)
+                const playerItem = document.querySelector(`.player-item[data-player="${playerName}"]`);
+                const isAlreadySelected = playerItem && playerItem.classList.contains('selected-mister');
+                
+                // Show/hide buttons based on selection status
+                if (isAlreadySelected) {
+                    // Player is already selected - show remove button, hide convoca button
+                    convocaComunqueButton.classList.add('hidden');
+                    togliConvocazioneButton.classList.remove('hidden');
+                } else {
+                    // Player is not selected - show convoca button, hide remove button
+                    convocaComunqueButton.classList.remove('hidden');
+                    togliConvocazioneButton.classList.add('hidden');
+                }
+                
                 unavailablePlayerModal.classList.remove('hidden', 'opacity-0');
                 unavailablePlayerModal.classList.add('flex', 'opacity-100');
                 tempUnavailablePlayerName = playerName; // salva il nome per il "convoca comunque"
@@ -3816,6 +3840,19 @@
                     if (playerItem) {
                         playerItem.classList.add('selected-mister');
                         updateSelectedPlayersLiveList(tempUnavailablePlayerName, true);
+                    }
+                }
+                hideUnavailablePlayerModal();
+            });
+
+            // V6.5: Gestione pulsante "Togli dalla convocazione"
+            togliConvocazioneButton.addEventListener('click', () => {
+                // Rimuove il giocatore dalla convocazione
+                if (typeof tempUnavailablePlayerName === 'string' && tempUnavailablePlayerName.length > 0) {
+                    const playerItem = document.querySelector(`.player-item[data-player="${tempUnavailablePlayerName}"]`);
+                    if (playerItem) {
+                        playerItem.classList.remove('selected-mister');
+                        updateSelectedPlayersLiveList(tempUnavailablePlayerName, false);
                     }
                 }
                 hideUnavailablePlayerModal();
