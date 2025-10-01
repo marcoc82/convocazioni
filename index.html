@@ -1697,7 +1697,7 @@
                                                       localStorage.getItem('companyDocId');
                         
                         // 🔍 IMPORTANT: If companyDocId is present AND we have hash=#history or returnToHistory flag,
-                        // hide login screen and show history view immediately
+                        // hide ALL login/welcome screens and show ONLY history view immediately
                         const hash = window.location.hash;
                         const returnToHistory = sessionStorage.getItem('returnToHistory');
                         
@@ -1706,12 +1706,23 @@
                             console.log('   📍 companyDocId:', companyDocIdFromReturn);
                             console.log('   📍 hash:', hash);
                             console.log('   📍 returnToHistory:', returnToHistory);
-                            console.log('   ✅ Hiding login screen and showing history view immediately');
+                            console.log('   ✅ Hiding ALL login/welcome screens and showing ONLY history view immediately');
                             
-                            // Hide login screen explicitly
+                            // Hide ALL screens explicitly (company-entry, welcome, password, player-management, name-entry, start)
                             companyEntryScreen.classList.add('hidden');
+                            companyWelcomeScreen.classList.add('hidden');
+                            passwordEntryScreen.classList.add('hidden');
+                            playerManagementScreen.classList.add('hidden');
+                            nameEntryScreen.classList.add('hidden');
+                            startScreen.classList.add('hidden');
                             
-                            // Show history view explicitly
+                            // Hide ALL views except history (main, attendance, training-attendance, campionato)
+                            mainView.classList.add('hidden');
+                            attendanceView.classList.add('hidden');
+                            trainingAttendanceView.classList.add('hidden');
+                            campionatoView.classList.add('hidden');
+                            
+                            // Show ONLY history view explicitly
                             historyView.classList.remove('hidden');
                             
                             console.log('   🔄 checkHashNavigation() will restore state and load history data...');
@@ -6916,17 +6927,24 @@
                         sessionStorage.removeItem('editAppId');
                         sessionStorage.removeItem('editOrigin');
                         
-                        // Hide login screen explicitly and hide all other views
-                        console.log('   ✅ Hiding login screen explicitly');
+                        // Hide ALL login/welcome screens and views explicitly
+                        console.log('   ✅ Hiding ALL login/welcome screens explicitly');
                         companyEntryScreen.classList.add('hidden');
+                        companyWelcomeScreen.classList.add('hidden');
+                        passwordEntryScreen.classList.add('hidden');
+                        playerManagementScreen.classList.add('hidden');
+                        nameEntryScreen.classList.add('hidden');
+                        startScreen.classList.add('hidden');
+                        hideAllScreens(); // This ensures all screens ending with "-screen" are hidden
+                        
+                        // Hide ALL views except history
                         mainView.classList.add('hidden');
                         attendanceView.classList.add('hidden');
                         trainingAttendanceView.classList.add('hidden');
                         campionatoView.classList.add('hidden');
-                        hideAllScreens(); // This ensures all screens ending with "-screen" are hidden
                         
-                        // Show history view explicitly
-                        console.log('   ✅ Showing history view explicitly');
+                        // Show ONLY history view explicitly
+                        console.log('   ✅ Showing ONLY history view explicitly');
                         historyView.classList.remove('hidden');
                         
                         console.log('   📊 Loading history data...');
