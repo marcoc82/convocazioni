@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-22 - V6.2: Added Area Polis2013 yellow button with conditional access codes (POLIS2013/PIEVE2010) -->
+<!-- Version: 2024-01-22 - V6.3: Fixed Area Polis2013 button logic to check all company data fields (config.nome, nome, id) for proper code parameter -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -224,7 +224,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.2</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.3</span>
             </div>
         </div>
 
@@ -5825,32 +5825,39 @@
             areaPolis2013Button.addEventListener('click', () => {
                 console.log('🔗 Opening Area Polis2013...');
                 
-                // Get company name/id to determine access code
-                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
-                const companyId = currentCompanyData?.data?.id || '';
+                // Get all possible company name/id fields to determine access code
+                const companyName = currentCompanyData?.name || '';
+                const companyDataNome = currentCompanyData?.data?.nome || '';
+                const companyDataId = currentCompanyData?.data?.id || '';
+                const companyConfigNome = currentCompanyData?.data?.config?.nome || '';
+                
+                console.log('🔍 Company data check:', {
+                    'name': companyName,
+                    'data.nome': companyDataNome,
+                    'data.id': companyDataId,
+                    'data.config.nome': companyConfigNome
+                });
                 
                 let accessCode = '';
                 
-                // Check if company is POLIS
-                if (companyName === 'POLIS' || companyId === 'POLIS') {
+                // Check if company is POLIS (check all possible fields)
+                if (companyName === 'POLIS' || companyDataNome === 'POLIS' || 
+                    companyDataId === 'POLIS' || companyConfigNome === 'POLIS') {
                     accessCode = 'POLIS2013';
                     console.log('✓ Company is POLIS, using access code: POLIS2013');
                 }
-                // Check if company is POLIS PIEVE 2010 or PIEVE2010
-                else if (companyName === 'POLIS PIEVE 2010' || companyName === 'PIEVE2010' || 
-                         companyId === 'POLIS PIEVE 2010' || companyId === 'PIEVE2010') {
+                // Check if company is POLIS PIEVE 2010 or PIEVE2010 (check all possible fields)
+                else if (companyName === 'POLIS PIEVE 2010' || companyName === 'PIEVE2010' ||
+                         companyDataNome === 'POLIS PIEVE 2010' || companyDataNome === 'PIEVE2010' ||
+                         companyDataId === 'POLIS PIEVE 2010' || companyDataId === 'PIEVE2010' ||
+                         companyConfigNome === 'POLIS PIEVE 2010' || companyConfigNome === 'PIEVE2010') {
                     accessCode = 'PIEVE2010';
                     console.log('✓ Company is POLIS PIEVE 2010/PIEVE2010, using access code: PIEVE2010');
                 }
                 
-                // Build URL with or without access code
-                let url = 'https://marcoc82.github.io/polis2013/';
-                if (accessCode) {
-                    url += `?code=${accessCode}`;
-                    console.log('🔗 Opening with access code:', url);
-                } else {
-                    console.log('🔗 Opening without access code:', url);
-                }
+                // Build URL with access code
+                const url = `https://marcoc82.github.io/polis2013/${accessCode ? '?code=' + accessCode : ''}`;
+                console.log('🔗 Opening URL:', url);
                 
                 // Open in new tab
                 window.open(url, '_blank');
