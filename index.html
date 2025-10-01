@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: 2024-01-22 - V6.4: Risultati button always visible to all users, positioned after Campionato button, opens Polis2013 page without pre-filled code -->
+<!-- Version: 2024-01-22 - V6.5: Multi-select unavailability with checkboxes, display all reasons per player, gradient colors for multiple statuses -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -117,13 +117,18 @@
             font-weight: bold;
             border-color: #7c3aed;
         }
+        /* Multi-status gradient styles */
+        .player-item.multi-status {
+            font-weight: bold;
+            color: #ffffff;
+        }
         .player-item.already-called-today {
             background-color: #d1d5db;
             color: #6b7280;
             font-weight: normal;
             border-color: #9ca3af;
         }
-        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange):not(.selected-marco-black):not(.selected-marco-purple):not(.already-called-today) {
+        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange):not(.selected-marco-black):not(.selected-marco-purple):not(.already-called-today):not(.multi-status) {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
@@ -224,7 +229,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.4</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.5</span>
             </div>
         </div>
 
@@ -871,43 +876,55 @@
             <p class="text-sm text-gray-500 text-center mt-6">Rosterkick By Marco</p>
         </div>
 
-        <!-- Modal for Marco's Status -->
+        <!-- Modal for Marco's Status - Multi-select with checkboxes -->
         <div id="status-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
             <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300">
-                <h2 class="text-xl font-bold mb-4">Seleziona lo stato del giocatore</h2>
-                <div class="space-y-4">
-                    <button data-status="Infortunato" class="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
-                        Infortunato 🚑️
+                <h2 class="text-xl font-bold mb-4">Seleziona indisponibilità (multi-selezione)</h2>
+                <div class="space-y-2 max-h-96 overflow-y-auto">
+                    <label class="flex items-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors duration-200">
+                        <input type="checkbox" data-status="Infortunato" class="status-checkbox w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Infortunato 🚑️</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors duration-200">
+                        <input type="checkbox" data-status="Squalificato" class="status-checkbox w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Squalificato 🟥</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-purple-100 rounded-lg hover:bg-purple-200 cursor-pointer transition-colors duration-200">
+                        <input type="checkbox" data-status="Non disponibile Sabato" class="status-checkbox w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Non disponibile Sabato</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-purple-100 rounded-lg hover:bg-purple-200 cursor-pointer transition-colors duration-200">
+                        <input type="checkbox" data-status="Non disponibile Domenica" class="status-checkbox w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Non disponibile Domenica</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-red-100 rounded-lg hover:bg-red-200 cursor-pointer transition-colors duration-200">
+                        <input type="checkbox" data-status="Non disponibile Weekend" class="status-checkbox w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Non disponibile WE</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-orange-100 rounded-lg hover:bg-orange-200 cursor-pointer transition-colors duration-200">
+                        <input type="checkbox" data-status="Solo 2 allenamenti" class="status-checkbox w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-orange-100 rounded-lg hover:bg-orange-200 cursor-pointer transition-colors duration-200">
+                        <input type="checkbox" data-status="Solo 1 allenamento" class="status-checkbox w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Solo 1 allenamento</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-red-100 rounded-lg hover:bg-red-200 cursor-pointer transition-colors duration-200">
+                        <input type="checkbox" data-status="Zero allenamenti" class="status-checkbox w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+                    </label>
+                </div>
+                <div class="mt-4 space-y-2">
+                    <button id="confirm-status-button" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                        Conferma Selezione
                     </button>
-                    <button data-status="Squalificato" class="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
-                        Squalificato 🟥
+                    <button id="clear-status-button" class="w-full py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors duration-200">
+                        Rendi Disponibile
                     </button>
-                    <button data-status="Non disponibile Sabato" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
-                        Non disponibile Sabato
-                    </button>
-                    <button data-status="Non disponibile Domenica" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
-                        Non disponibile Domenica
-                    </button>
-                    <button data-status="Non disponibile Weekend" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
-                        Non disponibile WE 
-                    </button>
-                    <button data-status="Solo 2 allenamenti" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
-                        Solo 2 allenamenti
-                    </button>
-                    <button data-status="Solo 1 allenamento" class="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
-                        Solo 1 allenamento
-                    </button>
-                    <button data-status="Zero allenamenti" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
-                        Zero allenamenti ❌
-                    </button>
-
-                    <button data-status="Disponibile" class="w-full py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
-                        Disponibile 👍🏻
+                    <button id="close-modal" class="w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                        Annulla
                     </button>
                 </div>
-                <button id="close-modal" class="mt-6 w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
-                    Annulla
-                </button>
             </div>
         </div>
 
@@ -1557,7 +1574,9 @@
             // Modal Elements
             const statusModal = document.getElementById('status-modal');
             const closeModalButton = document.getElementById('close-modal');
-            const statusButtons = statusModal.querySelectorAll('[data-status]');
+            const statusCheckboxes = statusModal.querySelectorAll('.status-checkbox');
+            const confirmStatusButton = document.getElementById('confirm-status-button');
+            const clearStatusButton = document.getElementById('clear-status-button');
             
             // Unavailable Player Modal Elements
             const unavailablePlayerModal = document.getElementById('unavailable-player-modal');
@@ -3240,17 +3259,9 @@
                     // Check for unavailable players (only if not already called today)
                     else if (unavailablePlayers.has(playerKey)) {
                         const status = unavailablePlayers.get(playerKey);
-                        if (status === 'Infortunato' || status === 'Squalificato') {
-                            li.classList.add('selected-marco-black');
-                        } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
-                            li.classList.add('selected-marco-purple');
-                        } else if (status === 'Solo 2 allenamenti' || status === 'Solo 1 allenamento') {
-                            li.classList.add('selected-marco-orange');
-                        } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend') {
-                            li.classList.add('selected-marco');
-                        } else {
-                            li.classList.add('selected-marco');
-                        }
+                        // Use applyPlayerStatusStyle to handle both single and multiple statuses
+                        const statusArray = Array.isArray(status) ? status : [status];
+                        applyPlayerStatusStyle(li, statusArray);
                     }
 
                     li.addEventListener('click', () => {
@@ -4008,7 +4019,9 @@
                 }
                 unavailablePlayers.forEach((status, player) => {
                     const li = document.createElement('li');
-                    li.textContent = `${player}: ${status}`;
+                    // Handle both single status (string) and multiple statuses (array)
+                    const statusText = Array.isArray(status) ? status.join(', ') : status;
+                    li.textContent = `${player}: ${statusText}`;
                     li.className = 'font-medium';
                     unavailablePlayersList.appendChild(li);
                 });
@@ -4816,6 +4829,19 @@
 
             // --- Modal Functions ---
             function showModal() {
+                // Pre-check existing statuses for this player
+                const existingStatuses = unavailablePlayers.get(tempPlayerName);
+                const statusArray = existingStatuses 
+                    ? (Array.isArray(existingStatuses) ? existingStatuses : [existingStatuses])
+                    : [];
+                
+                console.log('🔍 Opening modal for:', tempPlayerName, 'with statuses:', statusArray);
+                
+                // Reset all checkboxes first
+                statusCheckboxes.forEach(checkbox => {
+                    checkbox.checked = statusArray.includes(checkbox.dataset.status);
+                });
+                
                 statusModal.classList.remove('hidden', 'opacity-0');
                 statusModal.classList.add('flex', 'opacity-100');
             }
@@ -4823,11 +4849,15 @@
             function hideModal() {
                 statusModal.classList.remove('flex', 'opacity-100');
                 statusModal.classList.add('hidden', 'opacity-0');
+                // Clear checkboxes when closing
+                statusCheckboxes.forEach(checkbox => checkbox.checked = false);
             }
 
             function showUnavailablePlayerModal(playerName, reason) {
                 unavailablePlayerName.textContent = playerName;
-                unavailablePlayerReason.textContent = reason;
+                // Handle both single status (string) and multiple statuses (array)
+                const reasonText = Array.isArray(reason) ? reason.join(', ') : reason;
+                unavailablePlayerReason.textContent = reasonText;
                 unavailablePlayerModal.classList.remove('hidden', 'opacity-0');
                 unavailablePlayerModal.classList.add('flex', 'opacity-100');
                 tempUnavailablePlayerName = playerName; // salva il nome per il "convoca comunque"
@@ -6676,36 +6706,105 @@
             copyLinkButton.addEventListener('click', handleCopyLink);
             downloadImageButton.addEventListener('click', handleDownloadImage);
 
-            // PATCH: gestione status per Dirigente/Marco, incluso "Disponibile"
-            statusButtons.forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const status = event.target.dataset.status;
-                    const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
-                    
-                    if (status === 'Disponibile') {
-                        unavailablePlayers.delete(tempPlayerName);
-                        currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple');
-                    } else {
-                        unavailablePlayers.set(tempPlayerName, status);
-                        currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple');
-                        if (status === 'Infortunato' || status === 'Squalificato') {
-                            currentPlayerItem.classList.add('selected-marco-black');
-                        } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
-                            currentPlayerItem.classList.add('selected-marco-purple');
-                        } else if (status === 'Solo 2 allenamenti' || status === 'Solo 1 allenamento') {
-                            currentPlayerItem.classList.add('selected-marco-orange');
-                        } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend') {
-                            currentPlayerItem.classList.add('selected-marco');
-                        } else {
-                            currentPlayerItem.classList.add('selected-marco');
-                        }
-                    }
-                    
-                    updateUnavailablePlayersView();
-                    hideModal();
-                    tempPlayerName = null;
-                });
+            // NEW: Multi-select status handler for Dirigente/Marco with checkboxes
+            // Confirm button handler - applies selected statuses to player
+            confirmStatusButton.addEventListener('click', () => {
+                console.log('✅ Confermando selezione indisponibilità per:', tempPlayerName);
+                const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
+                
+                // Get all checked statuses
+                const selectedStatuses = Array.from(statusCheckboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.dataset.status);
+                
+                console.log('📋 Statuses selezionati:', selectedStatuses);
+                
+                // Store as array if multiple statuses, or single string for backward compatibility
+                if (selectedStatuses.length === 0) {
+                    // No status selected - remove unavailability
+                    unavailablePlayers.delete(tempPlayerName);
+                    currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'multi-status');
+                    currentPlayerItem.style.background = ''; // Clear any gradient
+                } else if (selectedStatuses.length === 1) {
+                    // Single status - store as string for backward compatibility
+                    unavailablePlayers.set(tempPlayerName, selectedStatuses[0]);
+                    applyPlayerStatusStyle(currentPlayerItem, selectedStatuses);
+                } else {
+                    // Multiple statuses - store as array
+                    unavailablePlayers.set(tempPlayerName, selectedStatuses);
+                    applyPlayerStatusStyle(currentPlayerItem, selectedStatuses);
+                }
+                
+                updateUnavailablePlayersView();
+                hideModal();
+                tempPlayerName = null;
             });
+            
+            // Clear status button - marks player as available
+            clearStatusButton.addEventListener('click', () => {
+                console.log('✅ Rendendo disponibile:', tempPlayerName);
+                const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
+                
+                unavailablePlayers.delete(tempPlayerName);
+                currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'multi-status');
+                currentPlayerItem.style.background = ''; // Clear any gradient
+                
+                updateUnavailablePlayersView();
+                hideModal();
+                tempPlayerName = null;
+            });
+            
+            // Helper function to apply visual styles based on player statuses
+            function applyPlayerStatusStyle(playerItem, statuses) {
+                // Ensure statuses is always an array
+                const statusArray = Array.isArray(statuses) ? statuses : [statuses];
+                
+                // Remove all existing status classes
+                playerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'multi-status');
+                playerItem.style.background = ''; // Clear any gradient
+                
+                if (statusArray.length === 1) {
+                    // Single status - apply single color class
+                    const status = statusArray[0];
+                    if (status === 'Infortunato' || status === 'Squalificato') {
+                        playerItem.classList.add('selected-marco-black');
+                    } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
+                        playerItem.classList.add('selected-marco-purple');
+                    } else if (status === 'Solo 2 allenamenti' || status === 'Solo 1 allenamento') {
+                        playerItem.classList.add('selected-marco-orange');
+                    } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend') {
+                        playerItem.classList.add('selected-marco');
+                    } else {
+                        playerItem.classList.add('selected-marco');
+                    }
+                } else {
+                    // Multiple statuses - create gradient background
+                    playerItem.classList.add('multi-status');
+                    const colors = statusArray.map(status => {
+                        if (status === 'Infortunato' || status === 'Squalificato') {
+                            return '#1f2937'; // black
+                        } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
+                            return '#8b5cf6'; // purple
+                        } else if (status === 'Solo 2 allenamenti' || status === 'Solo 1 allenamento') {
+                            return '#fed7aa'; // orange
+                        } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend') {
+                            return '#fecaca'; // red
+                        } else {
+                            return '#fecaca'; // default red
+                        }
+                    });
+                    
+                    // Create gradient with equal segments for each status
+                    const step = 100 / colors.length;
+                    const gradientStops = colors.map((color, index) => {
+                        const start = index * step;
+                        const end = (index + 1) * step;
+                        return `${color} ${start}%, ${color} ${end}%`;
+                    }).join(', ');
+                    
+                    playerItem.style.background = `linear-gradient(90deg, ${gradientStops})`;
+                }
+            }
 
             // *** MODIFICA: Gestione pulsante "Convoca ugualmente" ***
             convocaComunqueButton.addEventListener('click', () => {
