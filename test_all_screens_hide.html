@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test: Hide ALL Screens When companyDocId is Set</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+        .success { background-color: #d1fae5; border-color: #10b981; }
+        .warning { background-color: #fef3c7; border-color: #f59e0b; }
+        .error { background-color: #fee2e2; border-color: #ef4444; }
+        .info { background-color: #dbeafe; border-color: #3b82f6; }
+        .value { 
+            font-family: monospace; 
+            background: #1f2937; 
+            color: #10b981; 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            font-weight: bold;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            background: #3b82f6;
+            color: white;
+        }
+        button:hover { background: #2563eb; }
+        button.secondary { background: #6b7280; }
+        button.secondary:hover { background: #4b5563; }
+        button.danger { background: #ef4444; }
+        button.danger:hover { background: #dc2626; }
+        .check-item {
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .check-pass { background: #d1fae5; color: #065f46; }
+        .check-fail { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body class="p-8 max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-4">Test: Hide ALL Screens When companyDocId is Set</h1>
+    <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
+        <strong>📋 Obiettivo:</strong> Verificare che quando <code>companyDocId</code> è valorizzato, 
+        TUTTE le schermate di login/welcome siano nascoste e venga mostrato SOLO history-view.
+        <br><br>
+        <strong>🎯 Requisito:</strong> Quando companyDocId è presente, il codice deve:
+        <ul class="list-disc ml-6 mt-2">
+            <li>Nascondere esplicitamente TUTTE le schermate con <code>.classList.add('hidden')</code></li>
+            <li>Nascondere tutti i views tranne history-view</li>
+            <li>Mostrare SOLO history-view con <code>.classList.remove('hidden')</code></li>
+        </ul>
+    </div>
+
+    <div class="test-section info">
+        <h2 class="text-xl font-bold mb-4">🧪 Test 1: Verifica Implementazione in initApp()</h2>
+        <p class="mb-4">Controlla che la funzione <code>initApp()</code> nasconda tutte le schermate quando companyDocId è valorizzato.</p>
+        <button onclick="testInitAppImplementation()">▶️ Esegui Test</button>
+        <div id="test1-results" class="mt-4"></div>
+    </div>
+
+    <div class="test-section info">
+        <h2 class="text-xl font-bold mb-4">🧪 Test 2: Verifica Implementazione in checkHashNavigation()</h2>
+        <p class="mb-4">Controlla che la funzione <code>checkHashNavigation()</code> nasconda tutte le schermate.</p>
+        <button onclick="testCheckHashNavigationImplementation()">▶️ Esegui Test</button>
+        <div id="test2-results" class="mt-4"></div>
+    </div>
+
+    <div class="test-section info">
+        <h2 class="text-xl font-bold mb-4">🧪 Test 3: Verifica Commenti e Log</h2>
+        <p class="mb-4">Controlla che i commenti e i log siano stati aggiornati per chiarezza.</p>
+        <button onclick="testCommentsAndLogs()">▶️ Esegui Test</button>
+        <div id="test3-results" class="mt-4"></div>
+    </div>
+
+    <div class="test-section" id="summary-section" style="display:none;">
+        <h2 class="text-2xl font-bold mb-4">📊 Riepilogo Test</h2>
+        <div id="summary-content"></div>
+    </div>
+
+    <script>
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            total: 0
+        };
+
+        async function loadIndexHtml() {
+            const response = await fetch('index.html');
+            return await response.text();
+        }
+
+        function checkResult(condition, description) {
+            testResults.total++;
+            const icon = condition ? '✅' : '❌';
+            const className = condition ? 'check-pass' : 'check-fail';
+            if (condition) testResults.passed++;
+            else testResults.failed++;
+            return `<div class="check-item ${className}">${icon} ${description}</div>`;
+        }
+
+        async function testInitAppImplementation() {
+            const resultsDiv = document.getElementById('test1-results');
+            resultsDiv.innerHTML = '<p class="text-gray-600">⏳ Esecuzione test in corso...</p>';
+            
+            const html = await loadIndexHtml();
+            let results = '<h3 class="font-bold mb-2">Risultati:</h3>';
+            
+            // Find the initApp function section
+            const initAppMatch = html.match(/async function initApp\(\) \{[\s\S]*?(?=\n\s{12}\/\/\s*Check for saved company data)/);
+            
+            if (!initAppMatch) {
+                results += checkResult(false, 'Impossibile trovare la funzione initApp()');
+                resultsDiv.innerHTML = results;
+                return;
+            }
+            
+            const initAppCode = initAppMatch[0];
+            
+            // Check for ALL screens being hidden
+            const screens = [
+                'companyEntryScreen',
+                'companyWelcomeScreen',
+                'passwordEntryScreen',
+                'playerManagementScreen',
+                'nameEntryScreen',
+                'startScreen'
+            ];
+            
+            results += '<h4 class="font-semibold mt-3 mb-2">Schermate nascoste esplicitamente:</h4>';
+            screens.forEach(screen => {
+                const regex = new RegExp(`${screen}\\.classList\\.add\\(['"]hidden['"]\\)`);
+                const found = regex.test(initAppCode);
+                results += checkResult(found, `${screen}.classList.add('hidden')`);
+            });
+            
+            // Check for ALL views being hidden
+            const views = ['mainView', 'attendanceView', 'trainingAttendanceView', 'campionatoView'];
+            
+            results += '<h4 class="font-semibold mt-3 mb-2">Views nascoste esplicitamente:</h4>';
+            views.forEach(view => {
+                const regex = new RegExp(`${view}\\.classList\\.add\\(['"]hidden['"]\\)`);
+                const found = regex.test(initAppCode);
+                results += checkResult(found, `${view}.classList.add('hidden')`);
+            });
+            
+            // Check that history view is shown
+            results += '<h4 class="font-semibold mt-3 mb-2">History view mostrata:</h4>';
+            results += checkResult(
+                /historyView\.classList\.remove\(['"]hidden['"]\)/.test(initAppCode),
+                "historyView.classList.remove('hidden')"
+            );
+            
+            // Check for updated comment
+            results += '<h4 class="font-semibold mt-3 mb-2">Commenti aggiornati:</h4>';
+            results += checkResult(
+                /hide ALL login\/welcome screens/.test(initAppCode) || /nascondere TUTTE/.test(initAppCode),
+                "Commento aggiornato per indicare 'ALL screens'"
+            );
+            
+            // Check for updated log message
+            results += '<h4 class="font-semibold mt-3 mb-2">Log aggiornati:</h4>';
+            results += checkResult(
+                /Hiding ALL login\/welcome screens/.test(initAppCode),
+                "Log message aggiornato con 'ALL screens'"
+            );
+            
+            resultsDiv.innerHTML = results;
+            updateSummary();
+        }
+
+        async function testCheckHashNavigationImplementation() {
+            const resultsDiv = document.getElementById('test2-results');
+            resultsDiv.innerHTML = '<p class="text-gray-600">⏳ Esecuzione test in corso...</p>';
+            
+            const html = await loadIndexHtml();
+            let results = '<h3 class="font-bold mb-2">Risultati:</h3>';
+            
+            // Find the checkHashNavigation function
+            const checkHashMatch = html.match(/function checkHashNavigation\(\) \{[\s\S]*?(?=\n\s{12}}\n)/);
+            
+            if (!checkHashMatch) {
+                results += checkResult(false, 'Impossibile trovare la funzione checkHashNavigation()');
+                resultsDiv.innerHTML = results;
+                return;
+            }
+            
+            const checkHashCode = checkHashMatch[0];
+            
+            // Check for ALL screens being hidden
+            const screens = [
+                'companyEntryScreen',
+                'companyWelcomeScreen',
+                'passwordEntryScreen',
+                'playerManagementScreen',
+                'nameEntryScreen',
+                'startScreen'
+            ];
+            
+            results += '<h4 class="font-semibold mt-3 mb-2">Schermate nascoste esplicitamente:</h4>';
+            screens.forEach(screen => {
+                const regex = new RegExp(`${screen}\\.classList\\.add\\(['"]hidden['"]\\)`);
+                const found = regex.test(checkHashCode);
+                results += checkResult(found, `${screen}.classList.add('hidden')`);
+            });
+            
+            // Check for ALL views being hidden
+            const views = ['mainView', 'attendanceView', 'trainingAttendanceView', 'campionatoView'];
+            
+            results += '<h4 class="font-semibold mt-3 mb-2">Views nascoste esplicitamente:</h4>';
+            views.forEach(view => {
+                const regex = new RegExp(`${view}\\.classList\\.add\\(['"]hidden['"]\\)`);
+                const found = regex.test(checkHashCode);
+                results += checkResult(found, `${view}.classList.add('hidden')`);
+            });
+            
+            // Check that hideAllScreens is called
+            results += '<h4 class="font-semibold mt-3 mb-2">hideAllScreens() chiamata:</h4>';
+            results += checkResult(
+                /hideAllScreens\(\)/.test(checkHashCode),
+                "hideAllScreens() viene chiamata per sicurezza"
+            );
+            
+            // Check that history view is shown
+            results += '<h4 class="font-semibold mt-3 mb-2">History view mostrata:</h4>';
+            results += checkResult(
+                /historyView\.classList\.remove\(['"]hidden['"]\)/.test(checkHashCode),
+                "historyView.classList.remove('hidden')"
+            );
+            
+            // Check for updated comment
+            results += '<h4 class="font-semibold mt-3 mb-2">Commenti aggiornati:</h4>';
+            results += checkResult(
+                /Hide ALL login\/welcome screens/.test(checkHashCode),
+                "Commento aggiornato per indicare 'ALL screens'"
+            );
+            
+            // Check for updated log messages
+            results += '<h4 class="font-semibold mt-3 mb-2">Log aggiornati:</h4>';
+            results += checkResult(
+                /Hiding ALL login\/welcome screens/.test(checkHashCode),
+                "Log message aggiornato con 'ALL screens' per hiding"
+            );
+            results += checkResult(
+                /Showing ONLY history view/.test(checkHashCode),
+                "Log message aggiornato con 'ONLY history view' per showing"
+            );
+            
+            resultsDiv.innerHTML = results;
+            updateSummary();
+        }
+
+        async function testCommentsAndLogs() {
+            const resultsDiv = document.getElementById('test3-results');
+            resultsDiv.innerHTML = '<p class="text-gray-600">⏳ Esecuzione test in corso...</p>';
+            
+            const html = await loadIndexHtml();
+            let results = '<h3 class="font-bold mb-2">Risultati:</h3>';
+            
+            results += '<h4 class="font-semibold mt-3 mb-2">Verifica commenti:</h4>';
+            
+            // Check that comments mention ALL screens
+            results += checkResult(
+                (html.match(/hide ALL login\/welcome screens/g) || []).length >= 2,
+                "Almeno 2 commenti menzionano 'hide ALL login/welcome screens'"
+            );
+            
+            results += checkResult(
+                (html.match(/show ONLY history view/g) || []).length >= 2,
+                "Almeno 2 commenti menzionano 'show ONLY history view'"
+            );
+            
+            results += '<h4 class="font-semibold mt-3 mb-2">Verifica log messages:</h4>';
+            
+            results += checkResult(
+                (html.match(/Hiding ALL login\/welcome screens/g) || []).length >= 2,
+                "Almeno 2 log messages con 'Hiding ALL login/welcome screens'"
+            );
+            
+            results += checkResult(
+                (html.match(/Showing ONLY history view/g) || []).length >= 1,
+                "Almeno 1 log message con 'Showing ONLY history view'"
+            );
+            
+            results += '<h4 class="font-semibold mt-3 mb-2">Verifica chiarezza implementazione:</h4>';
+            
+            // Check that there are explicit comments listing which screens
+            results += checkResult(
+                /Hide ALL screens explicitly \(company-entry, welcome, password, player-management, name-entry, start\)/.test(html),
+                "Commento esplicito che elenca tutte le schermate da nascondere"
+            );
+            
+            results += checkResult(
+                /Hide ALL views except history/.test(html),
+                "Commento esplicito che specifica 'ALL views except history'"
+            );
+            
+            resultsDiv.innerHTML = results;
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const summarySection = document.getElementById('summary-section');
+            const summaryContent = document.getElementById('summary-content');
+            
+            summarySection.style.display = 'block';
+            
+            const passRate = testResults.total > 0 ? (testResults.passed / testResults.total * 100).toFixed(1) : 0;
+            const summaryClass = testResults.failed === 0 ? 'success' : (passRate >= 80 ? 'warning' : 'error');
+            
+            summarySection.className = `test-section ${summaryClass}`;
+            
+            summaryContent.innerHTML = `
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold">${testResults.total}</div>
+                        <div class="text-sm">Test Totali</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-600">${testResults.passed}</div>
+                        <div class="text-sm">Superati</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-red-600">${testResults.failed}</div>
+                        <div class="text-sm">Falliti</div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold">${passRate}% Success Rate</div>
+                </div>
+                ${testResults.failed === 0 ? 
+                    '<div class="mt-4 p-4 bg-green-100 rounded text-center font-bold">✅ Tutti i test sono stati superati! L\'implementazione è corretta.</div>' :
+                    '<div class="mt-4 p-4 bg-yellow-100 rounded text-center font-bold">⚠️ Alcuni test non sono stati superati. Verifica l\'implementazione.</div>'
+                }
+            `;
+        }
+
+        // Run all tests automatically
+        window.addEventListener('load', async () => {
+            await testInitAppImplementation();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testCheckHashNavigationImplementation();
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testCommentsAndLogs();
+        });
+    </script>
+</body>
+</html>
