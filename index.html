@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V6.9 - Made training attendance table responsive and added medals (🥇🥈🥉) for top 3 attendance rankings -->
+<!-- Version: V7.0 - Added total match count, % Convocazione column, and % Disponibilità column (POLIS only) to Riepilogo Convocazioni -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -229,7 +229,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.9</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.0</span>
             </div>
         </div>
 
@@ -648,7 +648,8 @@
             <button id="top-back-from-attendance-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
             </button>
-            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">Riepilogo Convocazioni</h2>
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h2>
+            <p id="total-matches-display" class="text-center text-gray-600 mb-6">Partite totali: <span id="total-matches-count" class="font-semibold">0</span></p>
             
             <!-- Total Attendance Table -->
             <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Riepilogo Totale</h3>
@@ -657,7 +658,9 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
-                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">Presenze</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
+                            <th scope="col" id="attendance-percentage-header" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">% Convocazione</th>
+                            <th scope="col" id="availability-percentage-header" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl hidden">% Disponibilità</th>
                         </tr>
                     </thead>
                     <tbody id="attendance-list" class="bg-white divide-y divide-gray-200">
@@ -2889,7 +2892,7 @@
             }
 
             // Function to load and display attendance summary from Firestore
-            function loadAttendance(querySnapshot) {
+            async function loadAttendance(querySnapshot) {
                 console.log(`📊 [DIAGNOSTIC] loadAttendance chiamata, caricamento dati presenze...`);
                 attendanceList.innerHTML = '';
                 const attendanceData = {};
@@ -2900,6 +2903,41 @@
                 // Use companyPlayers instead of global players array to show correct company data
                 const playersToShow = companyPlayers.length > 0 ? companyPlayers : players;
                 console.log(`📊 [DIAGNOSTIC] Visualizzazione presenze per ${playersToShow.length} giocatori della società`);
+                
+                // V7.0: Calculate total matches from convocationHistory
+                const totalMatches = convocationHistory.length;
+                const totalMatchesCountElement = document.getElementById('total-matches-count');
+                if (totalMatchesCountElement) {
+                    totalMatchesCountElement.textContent = totalMatches;
+                }
+                console.log(`📊 [V7.0] Partite totali: ${totalMatches}`);
+                
+                // V7.0: Check if company is POLIS to show availability column
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const isPolisCompany = companyName === 'POLIS';
+                const availabilityHeader = document.getElementById('availability-percentage-header');
+                if (availabilityHeader) {
+                    if (isPolisCompany) {
+                        availabilityHeader.classList.remove('hidden');
+                    } else {
+                        availabilityHeader.classList.add('hidden');
+                    }
+                }
+                
+                // V7.0: Fetch availability data from Firebase Realtime Database for POLIS
+                let availabilityData = {};
+                if (isPolisCompany) {
+                    try {
+                        const FIREBASE_CONVOCAZIONI_URL = 'https://polis-2013-default-rtdb.europe-west1.firebasedatabase.app/convocazioni.json';
+                        const response = await fetch(FIREBASE_CONVOCAZIONI_URL);
+                        if (response.ok) {
+                            availabilityData = await response.json() || {};
+                            console.log(`📊 [V7.0] Dati disponibilità caricati da Firebase Realtime Database:`, availabilityData);
+                        }
+                    } catch (error) {
+                        console.error('📊 [V7.0] Errore nel caricamento dei dati disponibilità:', error);
+                    }
+                }
                 
                 const sortedPlayers = playersToShow.map(p => {
                     // Handle both old string format and new object format
@@ -2921,10 +2959,26 @@
                 }).sort((a, b) => b.count - a.count);
 
                 sortedPlayers.forEach(player => {
+                    // V7.0: Calculate percentage of convocation
+                    const percentage = totalMatches > 0 ? ((player.count / totalMatches) * 100).toFixed(1) : '0.0';
+                    
+                    // V7.0: Get availability percentage for POLIS
+                    let availabilityPercentage = 'N/D';
+                    if (isPolisCompany && availabilityData[player.name] !== undefined) {
+                        // Convert the value to percentage (assuming it's a decimal between 0 and 1)
+                        const rawValue = availabilityData[player.name];
+                        if (typeof rawValue === 'number') {
+                            // If value is between 0 and 1, multiply by 100, otherwise use as is
+                            availabilityPercentage = (rawValue <= 1 ? rawValue * 100 : rawValue).toFixed(1);
+                        }
+                    }
+                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${percentage}%</td>
+                        ${isPolisCompany ? `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${availabilityPercentage}${availabilityPercentage !== 'N/D' ? '%' : ''}</td>` : ''}
                     `;
                     attendanceList.appendChild(row);
                 });
@@ -3201,6 +3255,26 @@
                     '7 VIOLA STEFANO': 4
                 };
                 
+                // V7.0: Calculate total matches from convocationHistory
+                const totalMatches = convocationHistory.length;
+                const totalMatchesCountElement = document.getElementById('total-matches-count');
+                if (totalMatchesCountElement) {
+                    totalMatchesCountElement.textContent = totalMatches;
+                }
+                console.log(`📊 [V7.0 Demo] Partite totali: ${totalMatches}`);
+                
+                // V7.0: Check if company is POLIS to show availability column
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const isPolisCompany = companyName === 'POLIS';
+                const availabilityHeader = document.getElementById('availability-percentage-header');
+                if (availabilityHeader) {
+                    if (isPolisCompany) {
+                        availabilityHeader.classList.remove('hidden');
+                    } else {
+                        availabilityHeader.classList.add('hidden');
+                    }
+                }
+                
                 const playersToShow = companyPlayers.length > 0 ? companyPlayers : demoPlayers;
                 const sortedPlayers = playersToShow.map(p => {
                     // Handle both old string format and new object format
@@ -3222,10 +3296,15 @@
                 }).sort((a, b) => b.count - a.count);
 
                 sortedPlayers.forEach(player => {
+                    // V7.0: Calculate percentage of convocation
+                    const percentage = totalMatches > 0 ? ((player.count / totalMatches) * 100).toFixed(1) : '0.0';
+                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count} <span class="text-xs text-blue-600">(Demo)</span></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${percentage}%</td>
+                        ${isPolisCompany ? `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">N/D</td>` : ''}
                     `;
                     attendanceList.appendChild(row);
                 });
