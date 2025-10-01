@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V6.6 - Fix unavailable player modal: show only "Togli dalla convocazione" button for already forced players, prevent duplicate forced convocations -->
+<!-- Version: V6.7 - Bold player names in unavailable players list when viewed by Mister -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -229,7 +229,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.6</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 6.7</span>
             </div>
         </div>
 
@@ -4028,7 +4028,13 @@
                     // V6.5: Handle both single status (string) and multiple statuses (array)
                     // Multiple statuses are displayed comma-separated (e.g., "Squalificato, Non disponibile Domenica")
                     const statusText = Array.isArray(status) ? status.join(', ') : status;
-                    li.textContent = `${player}: ${statusText}`;
+                    
+                    // V6.7: When Mister views the list, make player names bold
+                    if (userRole === 'mister') {
+                        li.innerHTML = `<strong class="font-bold">${player}</strong>: ${statusText}`;
+                    } else {
+                        li.textContent = `${player}: ${statusText}`;
+                    }
                     li.className = 'font-medium';
                     unavailablePlayersList.appendChild(li);
                 });
