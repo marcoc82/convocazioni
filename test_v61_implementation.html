@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V6.1 - CompanyDocId State Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .version {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .intro {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        .test-section {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-section h2 {
+            color: #1f2937;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .test-section h2::before {
+            content: '🧪';
+            margin-right: 10px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+        .value {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test V6.1 Implementation</h1>
+        <div class="version">Version 6.1 - CompanyDocId State Management</div>
+        
+        <div class="intro">
+            <strong>📋 Test Obiettivo:</strong><br>
+            Verificare che il salvataggio del <code>companyDocId</code> in sessionStorage funzioni correttamente
+            e che la navigazione da edit_convocation.html a index.html mostri direttamente lo storico senza login.
+        </div>
+
+        <!-- Test 1: Simulate goBack() -->
+        <div class="test-section">
+            <h2>Test 1: Simulazione goBack() da edit_convocation.html</h2>
+            <p>Simula il click su "Annulla" o "Salva" che chiama la funzione goBack()</p>
+            <button onclick="testGoBack()">Simula goBack()</button>
+            <button onclick="clearStorage()">Pulisci Storage</button>
+            <div id="goback-result"></div>
+        </div>
+
+        <!-- Test 2: Check SessionStorage -->
+        <div class="test-section">
+            <h2>Test 2: Verifica SessionStorage</h2>
+            <p>Controlla i valori salvati in sessionStorage</p>
+            <button onclick="checkSessionStorage()">Controlla SessionStorage</button>
+            <div id="storage-result"></div>
+        </div>
+
+        <!-- Test 3: Simulate checkHashNavigation -->
+        <div class="test-section">
+            <h2>Test 3: Simulazione checkHashNavigation()</h2>
+            <p>Simula il controllo dell'hash durante il caricamento di index.html</p>
+            <button onclick="testHashDetection()">Test Hash Detection</button>
+            <button onclick="simulateHashChange()">Simula Hash Change</button>
+            <div id="hash-result"></div>
+        </div>
+
+        <!-- Test 4: Version Check -->
+        <div class="test-section">
+            <h2>Test 4: Verifica Versione</h2>
+            <p>Controlla che la versione sia stata aggiornata a V 6.1</p>
+            <button onclick="checkVersion()">Verifica Versione</button>
+            <div id="version-result"></div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, html, className) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = html;
+            element.className = `result ${className}`;
+        }
+
+        function testGoBack() {
+            // Simulate what goBack() does in edit_convocation.html
+            const companyDocId = 'test-company-123';
+            
+            sessionStorage.setItem('returnToHistory', 'true');
+            sessionStorage.setItem('companyDocId', companyDocId);
+            
+            let html = '<strong>✅ goBack() simulato con successo!</strong><br><br>';
+            html += 'SessionStorage impostato:<br>';
+            html += '• returnToHistory: <span class="value">' + sessionStorage.getItem('returnToHistory') + '</span><br>';
+            html += '• companyDocId: <span class="value">' + sessionStorage.getItem('companyDocId') + '</span><br><br>';
+            html += '<strong>⚠️ Nota:</strong> In edit_convocation.html, l\'URL sarebbe: <span class="value">index.html#history</span>';
+            
+            showResult('goback-result', html, 'success');
+        }
+
+        function clearStorage() {
+            sessionStorage.removeItem('returnToHistory');
+            sessionStorage.removeItem('companyDocId');
+            sessionStorage.removeItem('editCompanyDocId');
+            sessionStorage.removeItem('editUserRole');
+            sessionStorage.removeItem('editAppId');
+            sessionStorage.removeItem('editOrigin');
+            
+            showResult('goback-result', '🧹 SessionStorage pulito!', 'warning');
+        }
+
+        function checkSessionStorage() {
+            const returnToHistory = sessionStorage.getItem('returnToHistory');
+            const companyDocId = sessionStorage.getItem('companyDocId');
+            const editCompanyDocId = sessionStorage.getItem('editCompanyDocId');
+            const editUserRole = sessionStorage.getItem('editUserRole');
+            const editAppId = sessionStorage.getItem('editAppId');
+            
+            let html = '<strong>📊 Stato SessionStorage:</strong><br><br>';
+            html += '• returnToHistory: <span class="value">' + (returnToHistory || 'non impostato') + '</span><br>';
+            html += '• companyDocId: <span class="value">' + (companyDocId || 'non impostato') + '</span><br>';
+            html += '• editCompanyDocId: <span class="value">' + (editCompanyDocId || 'non impostato') + '</span><br>';
+            html += '• editUserRole: <span class="value">' + (editUserRole || 'non impostato') + '</span><br>';
+            html += '• editAppId: <span class="value">' + (editAppId || 'non impostato') + '</span><br>';
+            
+            showResult('storage-result', html, 'info');
+        }
+
+        function testHashDetection() {
+            const currentHash = window.location.hash;
+            const returnFlag = sessionStorage.getItem('returnToHistory');
+            const companyDocId = sessionStorage.getItem('companyDocId');
+            
+            let html = '<strong>📍 Stato Corrente:</strong><br><br>';
+            html += 'URL Hash: <span class="value">' + (currentHash || '(nessun hash)') + '</span><br>';
+            html += 'returnToHistory: <span class="value">' + (returnFlag || 'non impostato') + '</span><br>';
+            html += 'companyDocId: <span class="value">' + (companyDocId || 'non impostato') + '</span><br><br>';
+            
+            html += '<strong>🔍 Logica checkHashNavigation():</strong><br><br>';
+            
+            if (currentHash === '#history' && returnFlag === 'true') {
+                html += '✅ Hash = #history<br>';
+                html += '✅ returnToHistory = true<br>';
+                if (companyDocId) {
+                    html += '✅ companyDocId trovato: <span class="value">' + companyDocId + '</span><br>';
+                    html += '✅ <strong>Condizioni soddisfatte!</strong><br>';
+                    html += '→ History view verrebbe mostrata<br>';
+                    html += '→ Stato verrebbe ripristinato<br>';
+                    html += '→ SessionStorage verrebbe pulito<br>';
+                } else {
+                    html += '⚠️ companyDocId non trovato (si usa fallback a editCompanyDocId)<br>';
+                }
+            } else {
+                html += 'ℹ️ Condizioni NON soddisfatte (normale per questa pagina)<br>';
+                html += 'ℹ️ checkHashNavigation() non agirebbe<br>';
+                html += 'ℹ️ Pagina si comporterebbe normalmente<br>';
+            }
+            
+            showResult('hash-result', html, 'info');
+        }
+
+        function simulateHashChange() {
+            // Set up the state first
+            sessionStorage.setItem('returnToHistory', 'true');
+            sessionStorage.setItem('companyDocId', 'test-company-123');
+            sessionStorage.setItem('editUserRole', 'mister');
+            sessionStorage.setItem('editAppId', 'app456');
+            
+            // Change hash
+            window.location.hash = '#history';
+            
+            setTimeout(() => {
+                let html = '<strong>✅ Hash cambiato a #history</strong><br><br>';
+                html += 'In index.html, questo triggerrebbe:<br>';
+                html += '1. hashchange event listener<br>';
+                html += '2. checkHashNavigation() function<br>';
+                html += '3. Ripristino dello stato usando <strong>companyDocId</strong><br>';
+                html += '4. Visualizzazione history view<br>';
+                html += '5. Pulizia sessionStorage (incluso companyDocId)<br><br>';
+                html += '<strong>Attuale hash:</strong> <span class="value">' + window.location.hash + '</span><br>';
+                html += '<strong>companyDocId:</strong> <span class="value">' + sessionStorage.getItem('companyDocId') + '</span>';
+                
+                showResult('hash-result', html, 'success');
+            }, 100);
+        }
+
+        function checkVersion() {
+            // Try to check version from index.html
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    const versionMatch = html.match(/V\s+(\d+\.\d+)/);
+                    if (versionMatch) {
+                        const version = versionMatch[1];
+                        let resultHtml = '<strong>📌 Versione trovata: <span class="value">V ' + version + '</span></strong><br><br>';
+                        
+                        if (version === '6.1') {
+                            resultHtml += '✅ Versione corretta! La versione è stata aggiornata a V 6.1';
+                            showResult('version-result', resultHtml, 'success');
+                        } else {
+                            resultHtml += '⚠️ Versione attuale: V ' + version + '<br>';
+                            resultHtml += 'ℹ️ Dovrebbe essere V 6.1';
+                            showResult('version-result', resultHtml, 'warning');
+                        }
+                    } else {
+                        showResult('version-result', '❌ Impossibile trovare la versione in index.html', 'warning');
+                    }
+                })
+                .catch(error => {
+                    showResult('version-result', '❌ Errore nel caricamento di index.html: ' + error.message, 'warning');
+                });
+        }
+
+        // Auto-run initial test on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('✅ Test page V6.1 loaded');
+        });
+    </script>
+</body>
+</html>
