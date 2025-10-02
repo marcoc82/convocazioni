@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V7.4 - Rounded up all percentages to integers (no decimals) in "Presenze Allenamenti" and "Riepilogo Convocazioni" -->
+<!-- Version: V7.5 - Bold player names in Dirigente unavailable list, blue border for unavailable players called by Mister -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -91,6 +91,11 @@
             background-color: #d1e5f4;
             color: #1e40af;
             font-weight: bold;
+            border-color: #3b82f6;
+        }
+        /* V7.5: Unavailable player called up by Mister - distinctive blue border */
+        .player-item.selected-mister.unavailable-forced {
+            border: 3px solid #3b82f6;
             border-color: #3b82f6;
         }
         .player-item.selected-marco {
@@ -3464,9 +3469,10 @@
             function resetMisterSelectionsWithoutConfirm() {
                 if (userRole === 'mister') {
                     // Clear only Mister's selected players from UI
+                    // V7.5: Also remove unavailable-forced class
                     const selectedPlayers = document.querySelectorAll('.player-item.selected-mister');
                     selectedPlayers.forEach(player => {
-                        player.classList.remove('selected-mister');
+                        player.classList.remove('selected-mister', 'unavailable-forced');
                     });
 
                     // Clear the live selected players list
@@ -4149,7 +4155,8 @@
                     const statusText = Array.isArray(status) ? status.join(', ') : status;
                     
                     // V6.7: When Mister views the list, make player names bold
-                    if (userRole === 'mister') {
+                    // V7.5: Also make player names bold for Dirigente view
+                    if (userRole === 'mister' || isDirigente()) {
                         li.innerHTML = `<strong class="font-bold">${player}</strong>: ${statusText}`;
                     } else {
                         li.textContent = `${player}: ${statusText}`;
@@ -6996,10 +7003,11 @@
             // *** MODIFICA: Gestione pulsante "Convoca ugualmente" ***
             convocaComunqueButton.addEventListener('click', () => {
                 // V6.6: Seleziona il giocatore come convocato anche se non disponibile
+                // V7.5: Add distinctive blue border for unavailable players called up
                 if (typeof tempUnavailablePlayerName === 'string' && tempUnavailablePlayerName.length > 0) {
                     const playerItem = document.querySelector(`.player-item[data-player="${tempUnavailablePlayerName}"]`);
                     if (playerItem) {
-                        playerItem.classList.add('selected-mister');
+                        playerItem.classList.add('selected-mister', 'unavailable-forced');
                         updateSelectedPlayersLiveList(tempUnavailablePlayerName, true);
                     }
                 }
@@ -7007,12 +7015,13 @@
             });
 
             // V6.6: Gestione pulsante "Togli dalla convocazione"
+            // V7.5: Remove blue border class when removing unavailable player
             togliConvocazioneButton.addEventListener('click', () => {
                 // Rimuove il giocatore dalla convocazione
                 if (typeof tempUnavailablePlayerName === 'string' && tempUnavailablePlayerName.length > 0) {
                     const playerItem = document.querySelector(`.player-item[data-player="${tempUnavailablePlayerName}"]`);
                     if (playerItem) {
-                        playerItem.classList.remove('selected-mister');
+                        playerItem.classList.remove('selected-mister', 'unavailable-forced');
                         updateSelectedPlayersLiveList(tempUnavailablePlayerName, false);
                     }
                 }
