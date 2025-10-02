@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.1 - Add statistics chart button for Tornei section, includes V8.0 features (player count and stats chart for Riepilogo Totale) -->
+<!-- Version: V8.2 - Add Allenamenti management page with training sessions cards, attendance tracking, and monthly/annual reports -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -236,7 +236,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 8.1</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 8.2</span>
             </div>
         </div>
 
@@ -272,6 +272,9 @@
                     </button>
                     <button id="training-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
                         Presenze Allenamenti
+                    </button>
+                    <button id="allenamenti-button" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                        🏃 Allenamenti
                     </button>
                 </div>
                 <!-- Campionato button (shown for POLIS PIEVE 2010 regardless of login type) -->
@@ -796,6 +799,108 @@
             <button id="back-from-training-attendance-button" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
             </button>
+        </div>
+
+        <!-- Allenamenti Management View (V8.2) -->
+        <div id="allenamenti-view" class="hidden">
+            <button id="top-back-from-allenamenti-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Indietro
+            </button>
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">🏃 Gestione Allenamenti</h2>
+            
+            <!-- Report Section (Monthly/Annual) -->
+            <div id="allenamenti-report-section" class="mb-6">
+                <div class="bg-blue-50 rounded-xl p-4 shadow-sm border border-blue-200 mb-4">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Report Presenze</h3>
+                    
+                    <!-- Period Selection -->
+                    <div class="flex gap-2 mb-4">
+                        <select id="report-period-select" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                            <option value="all">Tutti i periodi</option>
+                            <option value="month">Mese corrente</option>
+                            <option value="year">Anno corrente</option>
+                        </select>
+                        <button id="refresh-report-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+                            Aggiorna
+                        </button>
+                    </div>
+                    
+                    <!-- Report Table -->
+                    <div class="bg-white rounded-lg overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">N° All.</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Presenze</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">% Pres.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allenamenti-report-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Report data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Training Sessions List -->
+            <div id="allenamenti-sessions-section">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-700">📅 Sessioni Allenamento</h3>
+                    <button id="add-training-session-button" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
+                        + Nuovo
+                    </button>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="allenamenti-loading" class="text-center py-8 hidden">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+                    <p class="mt-2 text-gray-600">Caricamento allenamenti...</p>
+                </div>
+                
+                <!-- Error State -->
+                <div id="allenamenti-error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 hidden">
+                    <p class="text-red-800 text-center">Errore nel caricamento dei dati. Riprova più tardi.</p>
+                </div>
+                
+                <!-- Training Sessions Cards Container -->
+                <div id="training-sessions-container" class="space-y-4">
+                    <!-- Training session cards will be populated here -->
+                </div>
+            </div>
+            
+            <button id="back-from-allenamenti-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Indietro
+            </button>
+        </div>
+
+        <!-- Add Training Session Modal (V8.2) -->
+        <div id="add-training-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+            <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Nuovo Allenamento</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="training-date" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                        <input type="date" id="training-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                    </div>
+                    
+                    <div>
+                        <label for="training-time" class="block text-sm font-medium text-gray-700 mb-1">Orario</label>
+                        <input type="time" id="training-time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button id="save-training-session-button" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg">
+                            Salva
+                        </button>
+                        <button id="cancel-training-session-button" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">
+                            Annulla
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Campionato View -->
@@ -1580,6 +1685,7 @@
             const viewHistoryButton = document.getElementById('view-history-button');
             const welcomeAttendanceButton = document.getElementById('welcome-attendance-button');
             const trainingAttendanceButton = document.getElementById('training-attendance-button');
+            const allenamentiButton = document.getElementById('allenamenti-button');
             const campionatoButton = document.getElementById('campionato-button');
             const managePlayersButton = document.getElementById('manage-players-button');
             const areaPolis2013Button = document.getElementById('area-polis2013-button');
@@ -1633,6 +1739,7 @@
             const historyView = document.getElementById('history-view');
             const attendanceView = document.getElementById('attendance-view');
             const trainingAttendanceView = document.getElementById('training-attendance-view');
+            const allenamentiView = document.getElementById('allenamenti-view');
             const campionatoView = document.getElementById('campionato-view');
             const playersList = document.getElementById('players-list');
             const playersListMessage = document.getElementById('players-list-message');
@@ -4895,6 +5002,408 @@
                 console.log(`📊 Demo training attendance loaded: ${demoTrainingData.length} players, ${demoTotalTrainings} total trainings`);
             }
 
+            // ============================================
+            // V8.2: Allenamenti Management Functions
+            // ============================================
+            
+            // Global variable to store training sessions
+            let trainingSessions = [];
+            
+            // Load allenamenti data (sessions and report)
+            async function loadAllenamentiData() {
+                console.log('🏃 Loading Allenamenti data... (V8.2)');
+                await Promise.all([
+                    loadTrainingSessions(),
+                    loadAllenamentiReport()
+                ]);
+            }
+            
+            // Load training sessions from Firebase
+            async function loadTrainingSessions() {
+                const loadingElement = document.getElementById('allenamenti-loading');
+                const errorElement = document.getElementById('allenamenti-error');
+                const containerElement = document.getElementById('training-sessions-container');
+                
+                loadingElement.classList.remove('hidden');
+                errorElement.classList.add('hidden');
+                
+                try {
+                    // Check if Firebase is available
+                    if (!window.db || !currentCompanyDocumentId) {
+                        console.log('📊 Firebase not available or no company, loading demo training sessions');
+                        loadTrainingSessionsDemo();
+                        return;
+                    }
+                    
+                    // Fetch training sessions from Firestore
+                    const trainingsRef = window.collection(window.db, `companies/${currentCompanyDocumentId}/trainingSessions`);
+                    const querySnapshot = await window.getDocs(trainingsRef);
+                    
+                    trainingSessions = [];
+                    querySnapshot.forEach((doc) => {
+                        trainingSessions.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    // Sort by date/time (most recent first)
+                    trainingSessions.sort((a, b) => {
+                        const dateA = new Date(a.date + ' ' + a.time);
+                        const dateB = new Date(b.date + ' ' + b.time);
+                        return dateB - dateA;
+                    });
+                    
+                    console.log(`✅ Loaded ${trainingSessions.length} training sessions`);
+                    renderTrainingSessions();
+                    
+                    loadingElement.classList.add('hidden');
+                    
+                } catch (error) {
+                    console.error('❌ Error loading training sessions:', error);
+                    loadingElement.classList.add('hidden');
+                    errorElement.classList.remove('hidden');
+                    loadTrainingSessionsDemo();
+                }
+            }
+            
+            // Demo version - load sample training sessions
+            function loadTrainingSessionsDemo() {
+                console.log('📊 Loading demo training sessions...');
+                
+                const today = new Date();
+                const demoSessions = [];
+                
+                // Create 5 demo training sessions
+                for (let i = 0; i < 5; i++) {
+                    const sessionDate = new Date(today);
+                    sessionDate.setDate(today.getDate() - (i * 3)); // Sessions every 3 days
+                    
+                    const attendance = {};
+                    // Add demo attendance for demo players
+                    ['10 ROSSI MARIO', '7 BIANCHI LUIGI', '23 VERDI GIUSEPPE', '4 NERI ANTONIO', '18 AZZURRI MARCO'].forEach(player => {
+                        attendance[player] = Math.random() > 0.3; // 70% attendance rate
+                    });
+                    
+                    demoSessions.push({
+                        id: `demo-${i}`,
+                        date: sessionDate.toISOString().split('T')[0],
+                        time: '18:30',
+                        attendance: attendance,
+                        isDemo: true
+                    });
+                }
+                
+                trainingSessions = demoSessions;
+                renderTrainingSessions();
+                
+                document.getElementById('allenamenti-loading').classList.add('hidden');
+                console.log(`📊 Demo training sessions loaded: ${demoSessions.length} sessions`);
+            }
+            
+            // Render training sessions as cards
+            function renderTrainingSessions() {
+                const container = document.getElementById('training-sessions-container');
+                container.innerHTML = '';
+                
+                if (trainingSessions.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <p class="text-lg">Nessun allenamento programmato</p>
+                            <p class="text-sm mt-2">Usa il pulsante "+ Nuovo" per aggiungere un allenamento</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                trainingSessions.forEach((session, index) => {
+                    const card = createTrainingSessionCard(session, index);
+                    container.appendChild(card);
+                });
+            }
+            
+            // Create a training session card
+            function createTrainingSessionCard(session, index) {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl p-4 shadow-sm border border-gray-200';
+                
+                // Format date
+                const dateObj = new Date(session.date + ' ' + session.time);
+                const formattedDate = dateObj.toLocaleDateString('it-IT', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                // Get players list (from company or demo)
+                const players = companyPlayers.length > 0 
+                    ? companyPlayers.map(p => typeof p === 'string' ? p : `${p.numero} ${p.nome}`)
+                    : ['10 ROSSI MARIO', '7 BIANCHI LUIGI', '23 VERDI GIUSEPPE', '4 NERI ANTONIO', '18 AZZURRI MARCO'];
+                
+                // Calculate present/absent
+                const attendance = session.attendance || {};
+                let presentCount = 0;
+                let absentCount = 0;
+                
+                players.forEach(player => {
+                    if (attendance[player] === true) presentCount++;
+                    else if (attendance[player] === false) absentCount++;
+                });
+                
+                // Build card HTML
+                let cardHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-800">📅 ${formattedDate}</h4>
+                            <p class="text-sm text-gray-600">🕐 Orario: ${session.time}</p>
+                        </div>
+                        ${session.isDemo ? '<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Demo</span>' : ''}
+                    </div>
+                    
+                    <div class="mb-3 space-y-2">
+                `;
+                
+                // Add player checkboxes
+                players.forEach(player => {
+                    const isChecked = attendance[player] === true;
+                    cardHTML += `
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">${player}</span>
+                            <input type="checkbox" 
+                                   class="training-attendance-checkbox w-5 h-5 text-teal-600 rounded focus:ring-teal-500" 
+                                   data-session-id="${session.id}" 
+                                   data-player="${player}"
+                                   ${isChecked ? 'checked' : ''}>
+                        </label>
+                    `;
+                });
+                
+                cardHTML += `
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-3 p-3 bg-gray-50 rounded">
+                        <div class="text-sm">
+                            <span class="text-green-600 font-semibold">✓ Presenti: ${presentCount}</span>
+                            <span class="ml-3 text-red-600 font-semibold">✗ Assenti: ${absentCount}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button class="mark-all-present-btn flex-1 bg-green-500 hover:bg-green-600 text-white text-sm py-2 rounded font-medium" data-session-id="${session.id}">
+                            Tutti Presenti
+                        </button>
+                        <button class="mark-all-absent-btn flex-1 bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded font-medium" data-session-id="${session.id}">
+                            Tutti Assenti
+                        </button>
+                        <button class="save-attendance-btn flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded font-medium" data-session-id="${session.id}">
+                            💾 Salva
+                        </button>
+                    </div>
+                `;
+                
+                card.innerHTML = cardHTML;
+                
+                // Add event listeners to buttons
+                const markAllPresentBtn = card.querySelector('.mark-all-present-btn');
+                const markAllAbsentBtn = card.querySelector('.mark-all-absent-btn');
+                const saveAttendanceBtn = card.querySelector('.save-attendance-btn');
+                
+                markAllPresentBtn.addEventListener('click', () => markAllAttendance(session.id, true));
+                markAllAbsentBtn.addEventListener('click', () => markAllAttendance(session.id, false));
+                saveAttendanceBtn.addEventListener('click', () => saveSessionAttendance(session.id));
+                
+                return card;
+            }
+            
+            // Mark all players as present or absent
+            function markAllAttendance(sessionId, isPresent) {
+                const checkboxes = document.querySelectorAll(`input[data-session-id="${sessionId}"]`);
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = isPresent;
+                });
+                console.log(`🏃 Marked all players as ${isPresent ? 'present' : 'absent'} for session ${sessionId}`);
+            }
+            
+            // Save attendance for a session
+            async function saveSessionAttendance(sessionId) {
+                console.log(`💾 Saving attendance for session ${sessionId}...`);
+                
+                // Get all checkboxes for this session
+                const checkboxes = document.querySelectorAll(`input[data-session-id="${sessionId}"]`);
+                const attendance = {};
+                
+                checkboxes.forEach(checkbox => {
+                    const player = checkbox.dataset.player;
+                    attendance[player] = checkbox.checked;
+                });
+                
+                // Find the session
+                const session = trainingSessions.find(s => s.id === sessionId);
+                if (!session) {
+                    console.error('Session not found:', sessionId);
+                    return;
+                }
+                
+                // Update local data
+                session.attendance = attendance;
+                
+                try {
+                    // Save to Firebase if available
+                    if (window.db && currentCompanyDocumentId && !session.isDemo) {
+                        const sessionRef = window.doc(window.db, `companies/${currentCompanyDocumentId}/trainingSessions/${sessionId}`);
+                        await window.setDoc(sessionRef, {
+                            date: session.date,
+                            time: session.time,
+                            attendance: attendance
+                        }, { merge: true });
+                        console.log('✅ Attendance saved to Firebase');
+                    } else {
+                        console.log('📊 Demo mode - attendance saved locally only');
+                    }
+                    
+                    // Re-render to update counts
+                    renderTrainingSessions();
+                    
+                    // Reload report to reflect changes
+                    loadAllenamentiReport();
+                    
+                    // Show success message
+                    alert('✅ Presenze salvate con successo!');
+                    
+                } catch (error) {
+                    console.error('❌ Error saving attendance:', error);
+                    alert('❌ Errore nel salvataggio delle presenze');
+                }
+            }
+            
+            // Save new training session
+            async function saveNewTrainingSession() {
+                const date = document.getElementById('training-date').value;
+                const time = document.getElementById('training-time').value;
+                
+                if (!date || !time) {
+                    alert('⚠️ Inserisci data e orario');
+                    return;
+                }
+                
+                console.log(`🏃 Creating new training session: ${date} ${time}`);
+                
+                const newSession = {
+                    date: date,
+                    time: time,
+                    attendance: {}
+                };
+                
+                try {
+                    // Save to Firebase if available
+                    if (window.db && currentCompanyDocumentId) {
+                        const trainingsRef = window.collection(window.db, `companies/${currentCompanyDocumentId}/trainingSessions`);
+                        const docRef = await window.addDoc(trainingsRef, newSession);
+                        newSession.id = docRef.id;
+                        console.log('✅ Training session saved to Firebase:', docRef.id);
+                    } else {
+                        // Demo mode
+                        newSession.id = `demo-${Date.now()}`;
+                        newSession.isDemo = true;
+                        console.log('📊 Demo mode - session saved locally only');
+                    }
+                    
+                    // Add to local array
+                    trainingSessions.unshift(newSession);
+                    
+                    // Re-render
+                    renderTrainingSessions();
+                    
+                    // Close modal
+                    document.getElementById('add-training-modal').classList.add('hidden');
+                    
+                    // Show success message
+                    alert('✅ Allenamento creato con successo!');
+                    
+                } catch (error) {
+                    console.error('❌ Error creating training session:', error);
+                    alert('❌ Errore nella creazione dell\'allenamento');
+                }
+            }
+            
+            // Load allenamenti report
+            async function loadAllenamentiReport() {
+                console.log('📊 Loading Allenamenti report...');
+                
+                const reportBody = document.getElementById('allenamenti-report-body');
+                const periodSelect = document.getElementById('report-period-select');
+                const selectedPeriod = periodSelect.value;
+                
+                // Calculate report data from training sessions
+                const playerStats = {};
+                
+                // Filter sessions based on selected period
+                const now = new Date();
+                const filteredSessions = trainingSessions.filter(session => {
+                    if (selectedPeriod === 'all') return true;
+                    
+                    const sessionDate = new Date(session.date);
+                    if (selectedPeriod === 'month') {
+                        return sessionDate.getMonth() === now.getMonth() && 
+                               sessionDate.getFullYear() === now.getFullYear();
+                    } else if (selectedPeriod === 'year') {
+                        return sessionDate.getFullYear() === now.getFullYear();
+                    }
+                    return true;
+                });
+                
+                const totalSessions = filteredSessions.length;
+                
+                // Calculate stats for each player
+                filteredSessions.forEach(session => {
+                    const attendance = session.attendance || {};
+                    Object.entries(attendance).forEach(([player, isPresent]) => {
+                        if (!playerStats[player]) {
+                            playerStats[player] = { presences: 0, total: 0 };
+                        }
+                        playerStats[player].total++;
+                        if (isPresent) playerStats[player].presences++;
+                    });
+                });
+                
+                // Render report table
+                reportBody.innerHTML = '';
+                
+                if (Object.keys(playerStats).length === 0) {
+                    reportBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="px-3 py-4 text-center text-gray-500 italic">
+                                Nessun dato disponibile per il periodo selezionato
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Convert to array and sort by presences
+                const statsArray = Object.entries(playerStats).map(([player, stats]) => ({
+                    player,
+                    ...stats,
+                    percentage: stats.total > 0 ? Math.round((stats.presences / stats.total) * 100) : 0
+                })).sort((a, b) => b.presences - a.presences);
+                
+                // Render rows
+                statsArray.forEach((stat, index) => {
+                    const row = document.createElement('tr');
+                    row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-3 py-2 text-sm text-gray-900">${stat.player}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-center">${totalSessions}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${stat.presences}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${stat.percentage}%</td>
+                    `;
+                    reportBody.appendChild(row);
+                });
+                
+                console.log(`✅ Report loaded: ${statsArray.length} players, ${totalSessions} sessions`);
+            }
+
             function startApp(appId) {
                 currentAppId = appId;
                 
@@ -6596,6 +7105,13 @@
                 loadTrainingAttendance(); // Load data when opening the view
             });
 
+            allenamentiButton.addEventListener('click', () => {
+                console.log('🏃 Opening Allenamenti Management View... (V8.2)');
+                hideAllScreens();
+                allenamentiView.classList.remove('hidden');
+                loadAllenamentiData(); // Load training sessions and report data
+            });
+
             campionatoButton.addEventListener('click', () => {
                 console.log('⚽ Opening Campionato View...');
                 hideAllScreens();
@@ -7801,6 +8317,54 @@
 
             refreshTrainingButton.addEventListener('click', () => {
                 loadTrainingAttendance();
+            });
+            
+            // Allenamenti management event listeners (V8.2)
+            const backFromAllenamentiButton = document.getElementById('back-from-allenamenti-button');
+            const topBackFromAllenamentiButton = document.getElementById('top-back-from-allenamenti-button');
+            const addTrainingSessionButton = document.getElementById('add-training-session-button');
+            const addTrainingModal = document.getElementById('add-training-modal');
+            const saveTrainingSessionButton = document.getElementById('save-training-session-button');
+            const cancelTrainingSessionButton = document.getElementById('cancel-training-session-button');
+            const refreshReportButton = document.getElementById('refresh-report-button');
+            
+            backFromAllenamentiButton.addEventListener('click', () => {
+                allenamentiView.classList.add('hidden');
+                if (currentCompanyCode) {
+                    showCompanyWelcome();
+                } else {
+                    mainView.classList.remove('hidden');
+                }
+            });
+            
+            topBackFromAllenamentiButton.addEventListener('click', () => {
+                allenamentiView.classList.add('hidden');
+                if (currentCompanyCode) {
+                    showCompanyWelcome();
+                } else {
+                    mainView.classList.remove('hidden');
+                }
+            });
+            
+            addTrainingSessionButton.addEventListener('click', () => {
+                console.log('🏃 Opening add training session modal...');
+                // Set default date and time to now
+                const now = new Date();
+                document.getElementById('training-date').valueAsDate = now;
+                document.getElementById('training-time').value = now.toTimeString().slice(0, 5);
+                addTrainingModal.classList.remove('hidden');
+            });
+            
+            cancelTrainingSessionButton.addEventListener('click', () => {
+                addTrainingModal.classList.add('hidden');
+            });
+            
+            saveTrainingSessionButton.addEventListener('click', async () => {
+                await saveNewTrainingSession();
+            });
+            
+            refreshReportButton.addEventListener('click', () => {
+                loadAllenamentiReport();
             });
             
             // Campionato event listeners
