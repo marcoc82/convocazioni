@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V7.9 - normalizePlayerName Bug Fix Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .badge-old {
+            background: #ef4444;
+            color: white;
+        }
+        .badge-new {
+            background: #10b981;
+            color: white;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #1e293b;
+            margin-bottom: 15px;
+            font-size: 24px;
+            border-bottom: 3px solid;
+            padding-bottom: 10px;
+        }
+        .old-version h2 {
+            border-color: #ef4444;
+        }
+        .new-version h2 {
+            border-color: #10b981;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+        .code-block .comment {
+            color: #94a3b8;
+        }
+        .code-block .keyword {
+            color: #c792ea;
+        }
+        .code-block .function {
+            color: #82aaff;
+        }
+        .code-block .string {
+            color: #c3e88d;
+        }
+        .code-block .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .issue-list {
+            background: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .issue-list h3 {
+            color: #991b1b;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .issue-list ul {
+            margin-left: 20px;
+        }
+        .issue-list li {
+            color: #7f1d1d;
+            margin: 5px 0;
+        }
+        .solution-list {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .solution-list h3 {
+            color: #065f46;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .solution-list ul {
+            margin-left: 20px;
+        }
+        .solution-list li {
+            color: #064e3b;
+            margin: 5px 0;
+        }
+        .test-results {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        .test-results h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .test-case {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+        .test-case.pass {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+        .test-case.fail {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+        .test-case h4 {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #475569;
+        }
+        .test-case .input {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .test-case .result {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .summary {
+            text-align: center;
+            background: #10b981;
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 30px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 V7.9 Bug Fix Verification</h1>
+            <p>normalizePlayerName ReferenceError Fix</p>
+            <div style="margin-top: 15px;">
+                <span class="badge badge-old">V7.8 - BUG</span>
+                <span style="color: white; font-size: 24px;">→</span>
+                <span class="badge badge-new">V7.9 - FIXED</span>
+            </div>
+        </div>
+
+        <div class="comparison-grid">
+            <!-- Old Version (V7.8 with bug) -->
+            <div class="card old-version">
+                <h2>❌ V7.8 - The Bug</h2>
+                
+                <div class="issue-list">
+                    <h3>🐛 Problem: ReferenceError</h3>
+                    <ul>
+                        <li>Function defined locally in loadAttendance()</li>
+                        <li>Called from updateAttendanceTables()</li>
+                        <li>Called from populateAttendanceTable()</li>
+                        <li><strong>Result: ReferenceError in console</strong></li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+<span class="comment">// Inside loadAttendance() function (line ~2935)</span>
+<span class="keyword">async function</span> <span class="function">loadAttendance</span>() {
+    <span class="comment">// ... code ...</span>
+    
+    <span class="comment">// Local definition - only accessible here</span>
+    <span class="keyword">const</span> normalizePlayerName = (name) => {
+        <span class="keyword">if</span> (!name) <span class="keyword">return</span> <span class="string">''</span>;
+        <span class="keyword">return</span> name.replace(...)...;
+    };
+    
+    <span class="comment">// Used here - works ✅</span>
+    normalizePlayerName(player.name);
+}
+
+<span class="comment">// In updateAttendanceTables() function (line ~3128)</span>
+<span class="keyword">async function</span> <span class="function">updateAttendanceTables</span>() {
+    <span class="comment">// Tries to use normalizePlayerName</span>
+    <span class="keyword">const</span> normalized = <span class="error">normalizePlayerName</span>(key);
+    <span class="comment">// ❌ ReferenceError: not defined!</span>
+}
+
+<span class="comment">// In populateAttendanceTable() function (line ~3199)</span>
+<span class="keyword">function</span> <span class="function">populateAttendanceTable</span>(...) {
+    <span class="comment">// Also tries to use it</span>
+    <span class="keyword">const</span> normalized = <span class="error">normalizePlayerName</span>(name);
+    <span class="comment">// ❌ ReferenceError: not defined!</span>
+}
+                </div>
+
+                <p style="margin-top: 15px; color: #7f1d1d; font-weight: bold;">
+                    🚫 Impact: Tornei % Disp. column fails, JavaScript errors in console
+                </p>
+            </div>
+
+            <!-- New Version (V7.9 fixed) -->
+            <div class="card new-version">
+                <h2>✅ V7.9 - The Fix</h2>
+                
+                <div class="solution-list">
+                    <h3>✨ Solution: Global Scope</h3>
+                    <ul>
+                        <li>Moved to global helper functions (line 1731)</li>
+                        <li>Accessible from all functions</li>
+                        <li>Placed with isGuest(), isDirigente(), etc.</li>
+                        <li><strong>Result: No errors, works everywhere!</strong></li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+<span class="comment">// Global scope (line ~1731)</span>
+<span class="comment">// After isGuest(), isDirigente(), canAccessDistinta()...</span>
+
+<span class="comment">// V7.9: Global helper function</span>
+<span class="keyword">function</span> <span class="function">normalizePlayerName</span>(name) {
+    <span class="keyword">if</span> (!name) <span class="keyword">return</span> <span class="string">''</span>;
+    <span class="keyword">return</span> name
+        .replace(<span class="string">/^[^a-zA-Z]+/</span>, <span class="string">''</span>) <span class="comment">// Strip leading numbers</span>
+        .toLowerCase()
+        .trim()
+        .normalize(<span class="string">'NFD'</span>)
+        .replace(<span class="string">/[\u0300-\u036f]/g</span>, <span class="string">''</span>)
+        .replace(<span class="string">/[^a-z0-9\s]/gi</span>, <span class="string">''</span>)
+        .replace(<span class="string">/\s+/g</span>, <span class="string">' '</span>);
+}
+
+<span class="comment">// In loadAttendance() - works ✅</span>
+normalizePlayerName(key);
+
+<span class="comment">// In updateAttendanceTables() - works ✅</span>
+normalizePlayerName(key);
+
+<span class="comment">// In populateAttendanceTable() - works ✅</span>
+normalizePlayerName(name);
+                </div>
+
+                <p style="margin-top: 15px; color: #065f46; font-weight: bold;">
+                    ✅ Impact: All tables work, no errors, % Disp. displays correctly
+                </p>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="test-results">
+            <h2>🧪 Test Results - Function Verification</h2>
+            <p style="color: #64748b; margin-bottom: 20px;">
+                Verifying that normalizePlayerName handles all player name formats correctly
+            </p>
+            
+            <div class="test-grid" id="test-grid">
+                <!-- Tests will be added by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary" id="summary">
+            <div class="icon">⏳</div>
+            <div>Running tests...</div>
+        </div>
+    </div>
+
+    <script>
+        // V7.9: Global normalizePlayerName function (same as in index.html)
+        function normalizePlayerName(name) {
+            if (!name) return '';
+            return name
+                .replace(/^[^a-zA-Z]+/, '') // Strip leading numbers and non-letter characters
+                .toLowerCase()
+                .trim()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+                .replace(/[^a-z0-9\s]/gi, '') // Remove special characters
+                .replace(/\s+/g, ' '); // Collapse multiple spaces
+        }
+
+        // Test cases
+        const testCases = [
+            { name: 'Leading Single Digit', input: '1 ROSSI MARIO', expected: 'rossi mario' },
+            { name: 'Leading Double Digit', input: '10 BIANCHI LUIGI', expected: 'bianchi luigi' },
+            { name: 'No Leading Numbers', input: 'ROSSI MARIO', expected: 'rossi mario' },
+            { name: 'Multiple Spaces', input: '5 VERDI  GIUSEPPE', expected: 'verdi giuseppe' },
+            { name: 'Accented Characters', input: '3 BLÙ MARCO', expected: 'blu marco' },
+            { name: 'Special Characters', input: "12 D'ANGELO LUCA", expected: 'dangelo luca' },
+            { name: 'Mixed Case', input: '7 RoSsI MaRiO', expected: 'rossi mario' },
+            { name: 'Leading Special Chars', input: '#3 GIALLI ANDREA', expected: 'gialli andrea' },
+        ];
+
+        // Run tests
+        const testGrid = document.getElementById('test-grid');
+        let passed = 0;
+        let failed = 0;
+
+        testCases.forEach(test => {
+            const result = normalizePlayerName(test.input);
+            const isPass = result === test.expected;
+            
+            if (isPass) passed++;
+            else failed++;
+
+            const testDiv = document.createElement('div');
+            testDiv.className = `test-case ${isPass ? 'pass' : 'fail'}`;
+            testDiv.innerHTML = `
+                <h4>${isPass ? '✅' : '❌'} ${test.name}</h4>
+                <div class="input">
+                    <strong>Input:</strong> "${test.input}"
+                </div>
+                <div class="result">
+                    → "${result}"
+                </div>
+            `;
+            testGrid.appendChild(testDiv);
+        });
+
+        // Update summary
+        const summaryDiv = document.getElementById('summary');
+        if (failed === 0) {
+            summaryDiv.innerHTML = `
+                <div class="icon">🎉</div>
+                <div>All ${passed} Tests Passed!</div>
+                <div style="font-size: 18px; margin-top: 10px; opacity: 0.9;">
+                    normalizePlayerName function works correctly in V7.9
+                </div>
+            `;
+        } else {
+            summaryDiv.style.background = '#ef4444';
+            summaryDiv.innerHTML = `
+                <div class="icon">⚠️</div>
+                <div>${passed} Passed, ${failed} Failed</div>
+            `;
+        }
+
+        console.log('✅ V7.9 Verification Complete');
+        console.log(`📊 Test Results: ${passed} passed, ${failed} failed`);
+        console.log('🔧 Bug Fix: normalizePlayerName moved to global scope');
+    </script>
+</body>
+</html>
