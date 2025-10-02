@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.3 - Improve Allenamenti: collapsible cards, weekly filter, societa/ path -->
+<!-- Version: V8.4 - Allenamenti improvements: filter sessions by period, accordion behavior, expand new sessions -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -801,7 +801,7 @@
             </button>
         </div>
 
-        <!-- Allenamenti Management View (V8.3) -->
+        <!-- Allenamenti Management View (V8.4) -->
         <div id="allenamenti-view" class="hidden">
             <button id="top-back-from-allenamenti-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
@@ -876,7 +876,7 @@
             </button>
         </div>
 
-        <!-- Add Training Session Modal (V8.3) -->
+        <!-- Add Training Session Modal (V8.4) -->
         <div id="add-training-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
             <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Nuovo Allenamento</h3>
@@ -5010,9 +5010,9 @@
             // Global variable to store training sessions
             let trainingSessions = [];
             
-            // Load allenamenti data (sessions and report) - V8.3
+            // Load allenamenti data (sessions and report) - V8.4
             async function loadAllenamentiData() {
-                console.log('🏃 Loading Allenamenti data... (V8.3)');
+                console.log('🏃 Loading Allenamenti data... (V8.4)');
                 await Promise.all([
                     loadTrainingSessions(),
                     loadAllenamentiReport()
@@ -5103,7 +5103,7 @@
             }
             
             // Render training sessions as cards
-            function renderTrainingSessions() {
+            function renderTrainingSessions(expandSessionId = null) {
                 const container = document.getElementById('training-sessions-container');
                 container.innerHTML = '';
                 
@@ -5117,16 +5117,61 @@
                     return;
                 }
                 
-                trainingSessions.forEach((session, index) => {
-                    const card = createTrainingSessionCard(session, index);
+                // V8.4: Filter sessions based on report period
+                const periodSelect = document.getElementById('report-period-select');
+                const selectedPeriod = periodSelect ? periodSelect.value : 'all';
+                const now = new Date();
+                
+                const filteredSessions = trainingSessions.filter(session => {
+                    if (selectedPeriod === 'all') return true;
+                    
+                    const sessionDate = new Date(session.date);
+                    if (selectedPeriod === 'week') {
+                        // Get start of current week (Monday)
+                        const startOfWeek = new Date(now);
+                        const day = startOfWeek.getDay();
+                        const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+                        startOfWeek.setDate(diff);
+                        startOfWeek.setHours(0, 0, 0, 0);
+                        
+                        // Get end of current week (Sunday)
+                        const endOfWeek = new Date(startOfWeek);
+                        endOfWeek.setDate(startOfWeek.getDate() + 6);
+                        endOfWeek.setHours(23, 59, 59, 999);
+                        
+                        return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
+                    } else if (selectedPeriod === 'month') {
+                        return sessionDate.getMonth() === now.getMonth() && 
+                               sessionDate.getFullYear() === now.getFullYear();
+                    } else if (selectedPeriod === 'year') {
+                        return sessionDate.getFullYear() === now.getFullYear();
+                    }
+                    return true;
+                });
+                
+                if (filteredSessions.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <p class="text-lg">Nessun allenamento nel periodo selezionato</p>
+                            <p class="text-sm mt-2">Cambia il filtro periodo o aggiungi nuovi allenamenti</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // V8.4: Render sessions, expanding the specified one if provided
+                filteredSessions.forEach((session, index) => {
+                    const shouldExpand = expandSessionId && session.id === expandSessionId;
+                    const card = createTrainingSessionCard(session, index, shouldExpand);
                     container.appendChild(card);
                 });
             }
             
-            // Create a training session card (V8.3: collapsible)
-            function createTrainingSessionCard(session, index) {
+            // Create a training session card (V8.4: collapsible with accordion behavior)
+            function createTrainingSessionCard(session, index, expandByDefault = false) {
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-xl shadow-sm border border-gray-200';
+                card.dataset.sessionId = session.id; // V8.4: Add data attribute for easier access
                 
                 // Format date
                 const dateObj = new Date(session.date + ' ' + session.time);
@@ -5152,7 +5197,7 @@
                     else if (attendance[player] === false) absentCount++;
                 });
                 
-                // V8.3: Build collapsible card HTML
+                // V8.4: Build collapsible card HTML (support for expandByDefault)
                 let cardHTML = `
                     <!-- Card Header (always visible, clickable) -->
                     <div class="card-header p-4 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors" data-session-id="${session.id}">
@@ -5162,7 +5207,7 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 ${session.isDemo ? '<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Demo</span>' : ''}
-                                <svg class="expand-icon w-6 h-6 text-gray-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="expand-icon w-6 h-6 text-gray-600 transform transition-transform ${expandByDefault ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
                             </div>
@@ -5170,7 +5215,7 @@
                     </div>
                     
                     <!-- Card Content (collapsible) -->
-                    <div class="card-content hidden p-4 pt-0">
+                    <div class="card-content ${expandByDefault ? '' : 'hidden'} p-4 pt-0">
                         <p class="text-sm text-gray-600 mb-3">🕐 Orario: ${session.time}</p>
                         
                         <div class="mb-3 space-y-2">
@@ -5217,7 +5262,7 @@
                 
                 card.innerHTML = cardHTML;
                 
-                // V8.3: Add click handler for collapsible functionality
+                // V8.4: Add click handler for collapsible functionality with accordion behavior
                 const cardHeader = card.querySelector('.card-header');
                 const cardContent = card.querySelector('.card-content');
                 const expandIcon = card.querySelector('.expand-icon');
@@ -5225,9 +5270,24 @@
                 cardHeader.addEventListener('click', () => {
                     const isExpanded = !cardContent.classList.contains('hidden');
                     if (isExpanded) {
+                        // Collapse this card
                         cardContent.classList.add('hidden');
                         expandIcon.classList.remove('rotate-180');
                     } else {
+                        // V8.4: Collapse all other cards first (accordion behavior)
+                        const allCards = document.querySelectorAll('#training-sessions-container > div');
+                        allCards.forEach(otherCard => {
+                            if (otherCard !== card) {
+                                const otherContent = otherCard.querySelector('.card-content');
+                                const otherIcon = otherCard.querySelector('.expand-icon');
+                                if (otherContent && !otherContent.classList.contains('hidden')) {
+                                    otherContent.classList.add('hidden');
+                                    otherIcon.classList.remove('rotate-180');
+                                }
+                            }
+                        });
+                        
+                        // Expand this card
                         cardContent.classList.remove('hidden');
                         expandIcon.classList.add('rotate-180');
                     }
@@ -5316,7 +5376,7 @@
                     return;
                 }
                 
-                console.log(`🏃 Creating new training session: ${date} ${time}`);
+                console.log(`🏃 Creating new training session: ${date} ${time} (V8.4)`);
                 
                 const newSession = {
                     date: date,
@@ -5341,8 +5401,8 @@
                     // Add to local array
                     trainingSessions.unshift(newSession);
                     
-                    // Re-render
-                    renderTrainingSessions();
+                    // V8.4: Re-render with new session expanded
+                    renderTrainingSessions(newSession.id);
                     
                     // Close modal
                     document.getElementById('add-training-modal').classList.add('hidden');
@@ -5356,9 +5416,9 @@
                 }
             }
             
-            // Load allenamenti report (V8.3: added weekly filter)
+            // Load allenamenti report (V8.4: filter sessions by period)
             async function loadAllenamentiReport() {
-                console.log('📊 Loading Allenamenti report... (V8.3)');
+                console.log('📊 Loading Allenamenti report... (V8.4)');
                 
                 const reportBody = document.getElementById('allenamenti-report-body');
                 const periodSelect = document.getElementById('report-period-select');
@@ -5367,7 +5427,7 @@
                 // Calculate report data from training sessions
                 const playerStats = {};
                 
-                // Filter sessions based on selected period (V8.3: added week filter)
+                // Filter sessions based on selected period (V8.4: filter report data)
                 const now = new Date();
                 const filteredSessions = trainingSessions.filter(session => {
                     if (selectedPeriod === 'all') return true;
@@ -7149,7 +7209,7 @@
             });
 
             allenamentiButton.addEventListener('click', () => {
-                console.log('🏃 Opening Allenamenti Management View... (V8.3)');
+                console.log('🏃 Opening Allenamenti Management View... (V8.4)');
                 hideAllScreens();
                 allenamentiView.classList.remove('hidden');
                 loadAllenamentiData(); // Load training sessions and report data
