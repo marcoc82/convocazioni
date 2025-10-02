@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V7.8 - Fix querySelector :has() selector issue, already includes V7.7 features (match counts and % Disp. column) -->
+<!-- Version: V7.9 - Fix normalizePlayerName ReferenceError by moving to global scope, applies to all summary tables (amichevoli, tornei, campionato) and % Disp. matching -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -234,7 +234,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.8</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.9</span>
             </div>
         </div>
 
@@ -1725,6 +1725,20 @@
                 return false;
             }
 
+            // V7.9: Helper function to normalize player names for matching
+            // Strips leading numbers/characters, then normalizes (lowercase, trim, remove accents/special chars)
+            // Used in all attendance summary tables (Amichevoli, Tornei, Campionato) and Firebase % Disp. matching
+            function normalizePlayerName(name) {
+                if (!name) return '';
+                return name
+                    .replace(/^[^a-zA-Z]+/, '') // V7.2: Strip leading numbers and non-letter characters
+                    .toLowerCase()
+                    .trim()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+                    .replace(/[^a-z0-9\s]/gi, '') // Remove special characters except spaces and alphanumeric
+                    .replace(/\s+/g, ' '); // Collapse multiple spaces to single space
+            }
+
             // Initial Firebase setup
              async function initApp() {
                 if (window.auth) {
@@ -2930,20 +2944,7 @@
                     }
                 }
                 
-                // V7.2: Helper function to normalize player names for matching
-                // Strips leading numbers/characters, then normalizes (lowercase, trim, remove accents/special chars)
-                const normalizePlayerName = (name) => {
-                    if (!name) return '';
-                    return name
-                        .replace(/^[^a-zA-Z]+/, '') // V7.2: Strip leading numbers and non-letter characters
-                        .toLowerCase()
-                        .trim()
-                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
-                        .replace(/[^a-z0-9\s]/gi, '') // Remove special characters except spaces and alphanumeric
-                        .replace(/\s+/g, ' '); // Collapse multiple spaces to single space
-                };
-                
-                // V7.2: Fetch availability data from Firebase Realtime Database for POLIS
+                // V7.9: Fetch availability data from Firebase Realtime Database for POLIS (using global normalizePlayerName)
                 let availabilityData = {};
                 let availabilityDataNormalized = {}; // Normalized keys for matching
                 if (isPolisCompany) {
@@ -2952,15 +2953,15 @@
                         const response = await fetch(FIREBASE_CONVOCAZIONI_URL);
                         if (response.ok) {
                             availabilityData = await response.json() || {};
-                            // V7.2: Create normalized version for case-insensitive matching (strips leading numbers)
+                            // V7.9: Create normalized version for case-insensitive matching (using global normalizePlayerName)
                             Object.keys(availabilityData).forEach(key => {
                                 const normalizedKey = normalizePlayerName(key);
                                 availabilityDataNormalized[normalizedKey] = availabilityData[key];
                             });
-                            console.log(`📊 [V7.2] Dati disponibilità caricati da Firebase Realtime Database (${Object.keys(availabilityData).length} giocatori):`, availabilityData);
+                            console.log(`📊 [V7.9] Dati disponibilità caricati da Firebase Realtime Database (${Object.keys(availabilityData).length} giocatori):`, availabilityData);
                         }
                     } catch (error) {
-                        console.error('📊 [V7.2] Errore nel caricamento dei dati disponibilità:', error);
+                        console.error('📊 [V7.9] Errore nel caricamento dei dati disponibilità:', error);
                     }
                 }
                 
@@ -2987,7 +2988,7 @@
                     // V7.4: Calculate percentage of convocation (rounded up to integer)
                     const percentage = totalMatches > 0 ? Math.ceil((player.count / totalMatches) * 100) : 0;
                     
-                    // V7.2: Get availability percentage for POLIS with improved matching
+                    // V7.9: Get availability percentage for POLIS with improved matching (using global normalizePlayerName)
                     // Strip leading numbers from player name before matching
                     let availabilityPercentage = 'N/D';
                     if (isPolisCompany) {
@@ -3123,15 +3124,15 @@
                         const response = await fetch(FIREBASE_DISPTORNEI_URL);
                         if (response.ok) {
                             dispTorneiData = await response.json() || {};
-                            // Create normalized version for case-insensitive matching (strips leading numbers)
+                            // V7.9: Create normalized version for case-insensitive matching (using global normalizePlayerName)
                             Object.keys(dispTorneiData).forEach(key => {
                                 const normalizedKey = normalizePlayerName(key);
                                 dispTorneiDataNormalized[normalizedKey] = dispTorneiData[key];
                             });
-                            console.log(`📊 [V7.7] Dati disptornei caricati da Firebase Realtime Database (${Object.keys(dispTorneiData).length} giocatori):`, dispTorneiData);
+                            console.log(`📊 [V7.9] Dati disptornei caricati da Firebase Realtime Database (${Object.keys(dispTorneiData).length} giocatori):`, dispTorneiData);
                         }
                     } catch (error) {
-                        console.error('📊 [V7.7] Errore nel caricamento dei dati disptornei:', error);
+                        console.error('📊 [V7.9] Errore nel caricamento dei dati disptornei:', error);
                     }
                 }
                 
@@ -3148,7 +3149,7 @@
             }
 
             // Helper function to populate a specific attendance table
-            // V7.7: Added availabilityData and availabilityDataNormalized parameters for Tornei table
+            // V7.9: Added availabilityData and availabilityDataNormalized parameters for Tornei table (uses global normalizePlayerName)
             function populateAttendanceTable(tableElement, players, attendanceData, tableType, availabilityData, availabilityDataNormalized) {
                 const sortedPlayers = players.map(p => {
                     // Handle both old string format and new object format
@@ -3186,7 +3187,7 @@
                     sortedPlayers.forEach(player => {
                         let availabilityCell = '';
                         
-                        // V7.7: Add availability percentage for Tornei table if data is available
+                        // V7.9: Add availability percentage for Tornei table if data is available (uses global normalizePlayerName)
                         if (hasAvailabilityData) {
                             let availabilityPercentage = 'N/D';
                             
