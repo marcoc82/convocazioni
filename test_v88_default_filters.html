@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V8.8 - Default Filters</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">🧪 Test V8.8 - Default Filters</h1>
+            <p class="text-gray-600 mb-4">Verifica che i filtri siano impostati sui valori predefiniti corretti</p>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <h2 class="text-lg font-semibold mb-2">📋 Requisiti V8.8</h2>
+                <ul class="list-disc list-inside text-sm space-y-1">
+                    <li><strong>Report Presenze:</strong> Default su "Anno corrente"</li>
+                    <li><strong>Sessioni Allenamento:</strong> Default su "Settimana corrente"</li>
+                    <li><strong>Auto-caricamento:</strong> Report si carica automaticamente all'apertura</li>
+                    <li>Tutte le funzionalità V8.7 mantenute</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Report Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="bg-blue-50 rounded-xl p-4 shadow-sm border border-blue-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Report Presenze</h3>
+                
+                <!-- Period Selection for Report -->
+                <div class="flex gap-2 mb-4">
+                    <select id="report-period-select" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg">
+                        <option value="all">Tutti i periodi</option>
+                        <option value="week">Settimana corrente</option>
+                        <option value="month">Mese corrente</option>
+                        <option value="year" selected>Anno corrente</option>
+                    </select>
+                    <button id="refresh-report" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+                        Aggiorna
+                    </button>
+                </div>
+                
+                <div id="report-status" class="bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">
+                    <strong>✅ Filtro Report:</strong> <span id="report-filter-display" class="font-semibold"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">📅 Sessioni Allenamento</h3>
+                
+                <!-- Period Selection for Sessions -->
+                <div class="flex gap-2 mb-4">
+                    <select id="sessions-period-select" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg">
+                        <option value="all">Tutti i periodi</option>
+                        <option value="week" selected>Settimana corrente</option>
+                        <option value="month">Mese corrente</option>
+                        <option value="year">Anno corrente</option>
+                    </select>
+                    <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                        + Nuovo
+                    </button>
+                </div>
+                
+                <div id="sessions-status" class="bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">
+                    <strong>✅ Filtro Sessioni:</strong> <span id="sessions-filter-display" class="font-semibold"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-3">✅ Test Checklist V8.8</h2>
+            <div class="space-y-2 text-sm">
+                <div id="test1" class="p-2 rounded"></div>
+                <div id="test2" class="p-2 rounded"></div>
+                <div id="test3" class="p-2 rounded"></div>
+                <div id="test4" class="p-2 rounded"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Run tests on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const reportSelect = document.getElementById('report-period-select');
+            const sessionsSelect = document.getElementById('sessions-period-select');
+            const reportDisplay = document.getElementById('report-filter-display');
+            const sessionsDisplay = document.getElementById('sessions-filter-display');
+
+            // Display current filter values
+            function updateDisplay() {
+                const reportValue = reportSelect.value;
+                const sessionsValue = sessionsSelect.value;
+                
+                const labels = {
+                    'all': 'Tutti i periodi',
+                    'week': 'Settimana corrente',
+                    'month': 'Mese corrente',
+                    'year': 'Anno corrente'
+                };
+                
+                reportDisplay.textContent = labels[reportValue];
+                sessionsDisplay.textContent = labels[sessionsValue];
+            }
+
+            // Run tests
+            function runTests() {
+                const tests = [
+                    {
+                        id: 'test1',
+                        name: 'Report Presenze default = "Anno corrente"',
+                        passed: reportSelect.value === 'year'
+                    },
+                    {
+                        id: 'test2',
+                        name: 'Sessioni Allenamento default = "Settimana corrente"',
+                        passed: sessionsSelect.value === 'week'
+                    },
+                    {
+                        id: 'test3',
+                        name: 'Report filter option has "selected" attribute',
+                        passed: reportSelect.querySelector('option[value="year"]').hasAttribute('selected')
+                    },
+                    {
+                        id: 'test4',
+                        name: 'Sessions filter option has "selected" attribute',
+                        passed: sessionsSelect.querySelector('option[value="week"]').hasAttribute('selected')
+                    }
+                ];
+
+                tests.forEach(test => {
+                    const element = document.getElementById(test.id);
+                    if (test.passed) {
+                        element.className = 'p-2 rounded bg-green-50 border border-green-200 text-green-800';
+                        element.innerHTML = `✅ <strong>${test.name}</strong>`;
+                    } else {
+                        element.className = 'p-2 rounded bg-red-50 border border-red-200 text-red-800';
+                        element.innerHTML = `❌ <strong>${test.name}</strong>`;
+                    }
+                });
+
+                // Overall status
+                const allPassed = tests.every(t => t.passed);
+                if (allPassed) {
+                    console.log('✅ All V8.8 tests passed!');
+                    document.getElementById('report-status').className = 'bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800';
+                    document.getElementById('sessions-status').className = 'bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800';
+                } else {
+                    console.log('❌ Some V8.8 tests failed');
+                    document.getElementById('report-status').className = 'bg-red-50 border border-red-200 rounded p-3 text-sm text-red-800';
+                    document.getElementById('sessions-status').className = 'bg-red-50 border border-red-200 rounded p-3 text-sm text-red-800';
+                }
+            }
+
+            // Initialize
+            updateDisplay();
+            runTests();
+
+            // Update display on change
+            reportSelect.addEventListener('change', updateDisplay);
+            sessionsSelect.addEventListener('change', updateDisplay);
+        });
+    </script>
+</body>
+</html>

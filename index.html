@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.7 - Separate filters for report presenze and sessioni allenamento, auto-load report on page open -->
+<!-- Version: V8.8 - Default filters: Report Presenze on "Anno corrente", Sessioni Allenamento on "Settimana corrente" -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -802,7 +802,7 @@
             </button>
         </div>
 
-        <!-- Allenamenti Management View (V8.7) -->
+        <!-- Allenamenti Management View (V8.8) -->
         <div id="allenamenti-view" class="hidden">
             <button id="top-back-from-allenamenti-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
@@ -820,7 +820,7 @@
                             <option value="all">Tutti i periodi</option>
                             <option value="week">Settimana corrente</option>
                             <option value="month">Mese corrente</option>
-                            <option value="year">Anno corrente</option>
+                            <option value="year" selected>Anno corrente</option>
                         </select>
                         <button id="refresh-report-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
                             Aggiorna
@@ -855,7 +855,7 @@
                     <div class="flex gap-2 mb-4">
                         <select id="sessions-period-select" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                             <option value="all">Tutti i periodi</option>
-                            <option value="week">Settimana corrente</option>
+                            <option value="week" selected>Settimana corrente</option>
                             <option value="month">Mese corrente</option>
                             <option value="year">Anno corrente</option>
                         </select>
@@ -887,7 +887,7 @@
             </button>
         </div>
 
-        <!-- Add Training Session Modal (V8.7) -->
+        <!-- Add Training Session Modal (V8.8) -->
         <div id="add-training-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
             <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Nuovo Allenamento</h3>
@@ -5025,9 +5025,9 @@
             // Global variable to store training sessions
             let trainingSessions = [];
             
-            // Load allenamenti data (sessions and report) - V8.7
+            // Load allenamenti data (sessions and report) - V8.8
             async function loadAllenamentiData() {
-                console.log('🏃 Loading Allenamenti data... (V8.7)');
+                console.log('🏃 Loading Allenamenti data... (V8.8)');
                 await Promise.all([
                     loadTrainingSessions(),
                     loadAllenamentiReport()
@@ -5132,7 +5132,7 @@
                     return;
                 }
                 
-                // V8.7: Filter sessions based on SESSIONS period (independent from report filter)
+                // V8.8: Filter sessions based on SESSIONS period (independent from report filter)
                 const periodSelect = document.getElementById('sessions-period-select');
                 const selectedPeriod = periodSelect ? periodSelect.value : 'all';
                 const now = new Date();
@@ -5182,7 +5182,7 @@
                 });
             }
             
-            // Create a training session card (V8.7: collapsible with accordion behavior)
+            // Create a training session card (V8.8: collapsible with accordion behavior)
             function createTrainingSessionCard(session, index, expandByDefault = false) {
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-xl shadow-sm border border-gray-200';
@@ -5391,7 +5391,7 @@
                     return;
                 }
                 
-                console.log(`🏃 Creating new training session: ${date} ${time} (V8.7)`);
+                console.log(`🏃 Creating new training session: ${date} ${time} (V8.8)`);
                 
                 // V8.6: Initialize attendance with all players present by default
                 const players = companyPlayers.length > 0 
@@ -5441,9 +5441,9 @@
                 }
             }
             
-            // Load allenamenti report (V8.7: independent filter for report, separate from sessions filter)
+            // Load allenamenti report (V8.8: independent filter for report, separate from sessions filter)
             async function loadAllenamentiReport() {
-                console.log('📊 Loading Allenamenti report... (V8.7)');
+                console.log('📊 Loading Allenamenti report... (V8.8)');
                 
                 const reportBody = document.getElementById('allenamenti-report-body');
                 const periodSelect = document.getElementById('report-period-select');
@@ -5452,7 +5452,7 @@
                 // Calculate report data from training sessions
                 const playerStats = {};
                 
-                // Filter sessions based on selected period (V8.7: independent report filter)
+                // Filter sessions based on selected period (V8.8: independent report filter)
                 const now = new Date();
                 const filteredSessions = trainingSessions.filter(session => {
                     if (selectedPeriod === 'all') return true;
@@ -7253,7 +7253,7 @@
             });
 
             allenamentiButton.addEventListener('click', () => {
-                console.log('🏃 Opening Allenamenti Management View... (V8.7)');
+                console.log('🏃 Opening Allenamenti Management View... (V8.8)');
                 hideAllScreens();
                 allenamentiView.classList.remove('hidden');
                 loadAllenamentiData(); // Load training sessions and report data
@@ -8511,15 +8511,15 @@
             });
             
             refreshReportButton.addEventListener('click', () => {
-                // V8.7: Update only report when report filter changes
+                // V8.8: Update only report when report filter changes
                 loadAllenamentiReport();
             });
             
-            // V8.7: Add event listener for sessions filter
+            // V8.8: Add event listener for sessions filter
             const sessionsPeriodSelect = document.getElementById('sessions-period-select');
             if (sessionsPeriodSelect) {
                 sessionsPeriodSelect.addEventListener('change', () => {
-                    console.log('🔄 Sessions filter changed (V8.7)');
+                    console.log('🔄 Sessions filter changed (V8.8)');
                     renderTrainingSessions();
                 });
             }
