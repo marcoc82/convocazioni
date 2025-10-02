@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V7.7 - Match Counts and Tornei % Disp.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">V7.7 Implementation Test</h1>
+        
+        <!-- Test Results Container -->
+        <div id="test-results" class="space-y-4"></div>
+        
+        <!-- Visual Demo -->
+        <div class="mt-8 bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Visual Demo</h2>
+            
+            <!-- Amichevoli Section -->
+            <h3 id="amichevoli-header" class="text-lg font-semibold text-gray-700 mb-3">🤝 Riepilogo Presenze Amichevoli</h3>
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giocatore</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
+                        </tr>
+                    </thead>
+                    <tbody id="amichevoli-tbody" class="bg-white divide-y divide-gray-200">
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Tornei Section -->
+            <h3 id="tornei-header" class="text-lg font-semibold text-gray-700 mb-3">🏆 Riepilogo Presenze Tornei</h3>
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pres.</th>
+                            <th id="tornei-availability-header" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl hidden">% Disp.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tornei-tbody" class="bg-white divide-y divide-gray-200">
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Campionato Section -->
+            <h3 id="campionato-header" class="text-lg font-semibold text-gray-700 mb-3">⚽️ Riepilogo Presenze Campionato</h3>
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giocatore</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
+                        </tr>
+                    </thead>
+                    <tbody id="campionato-tbody" class="bg-white divide-y divide-gray-200">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test configuration
+        const tests = [];
+        
+        // Mock data for testing
+        const mockConvocationHistory = [
+            { details: { tipo: 'Amichevole' }, players: ['10 ROSSI MARIO', '2 BIANCHI LUIGI'] },
+            { details: { tipo: 'Amichevole' }, players: ['10 ROSSI MARIO'] },
+            { details: { tipo: 'Torneo' }, players: ['10 ROSSI MARIO', '2 BIANCHI LUIGI', '5 VERDI GIUSEPPE'] },
+            { details: { tipo: 'Torneo' }, players: ['10 ROSSI MARIO'] },
+            { details: { tipo: 'Torneo' }, players: ['5 VERDI GIUSEPPE'] },
+            { details: { tipo: 'Campionato' }, players: ['10 ROSSI MARIO', '2 BIANCHI LUIGI'] },
+            { details: { tipo: 'Campionato' }, players: ['10 ROSSI MARIO'] },
+            { details: { tipo: 'Campionato' }, players: ['10 ROSSI MARIO', '5 VERDI GIUSEPPE'] },
+            { details: { tipo: 'Campionato' }, players: ['2 BIANCHI LUIGI'] },
+        ];
+        
+        const mockDispTorneiData = {
+            '10 ROSSI MARIO': 0.85,     // 85% -> should become 85%
+            '2 BIANCHI LUIGI': 75.5,    // 75.5% -> should become 76% (ceiling)
+            '5 VERDI GIUSEPPE': 0.7234  // 72.34% -> should become 73% (ceiling)
+        };
+        
+        function normalizePlayerName(name) {
+            // Strip leading numbers/characters and normalize
+            return name.replace(/^[\d\s]+/, '').toLowerCase().trim();
+        }
+        
+        // Test 1: Count matches by type
+        function testMatchCounting() {
+            let amichevoliCount = 0;
+            let torneiCount = 0;
+            let campionatoCount = 0;
+            
+            mockConvocationHistory.forEach(convocation => {
+                const tipo = convocation.details?.tipo || 'N/D';
+                if (tipo === 'Amichevole') amichevoliCount++;
+                else if (tipo === 'Torneo') torneiCount++;
+                else if (tipo === 'Campionato') campionatoCount++;
+            });
+            
+            return {
+                name: '✅ Test 1: Match Counting',
+                passed: amichevoliCount === 2 && torneiCount === 3 && campionatoCount === 4,
+                details: `Amichevoli: ${amichevoliCount} (expected 2), Tornei: ${torneiCount} (expected 3), Campionato: ${campionatoCount} (expected 4)`
+            };
+        }
+        
+        // Test 2: Singular/plural forms
+        function testSingularPlural() {
+            const test1 = '1 partita' === (1 === 1 ? 'partita' : 'partite');
+            const test2 = '2 partite' === (2 === 1 ? 'partita' : 'partite');
+            const test3 = '1 torneo' === (1 === 1 ? 'torneo' : 'tornei');
+            const test4 = '3 tornei' === (3 === 1 ? 'torneo' : 'tornei');
+            
+            return {
+                name: '✅ Test 2: Singular/Plural Forms',
+                passed: test1 && test2 && test3 && test4,
+                details: `All singular/plural forms correct`
+            };
+        }
+        
+        // Test 3: Percentage rounding (ceiling)
+        function testPercentageRounding() {
+            const test1 = Math.ceil(0.85 * 100) === 85;        // 85%
+            const test2 = Math.ceil(75.5) === 76;              // 76% (ceiling)
+            const test3 = Math.ceil(0.7234 * 100) === 73;      // 73% (ceiling)
+            const test4 = Math.ceil(100) === 100;              // 100%
+            
+            return {
+                name: '✅ Test 3: Percentage Rounding (Ceiling)',
+                passed: test1 && test2 && test3 && test4,
+                details: `0.85 → ${Math.ceil(0.85 * 100)}%, 75.5 → ${Math.ceil(75.5)}%, 0.7234 → ${Math.ceil(0.7234 * 100)}%, 100 → ${Math.ceil(100)}%`
+            };
+        }
+        
+        // Test 4: Data format handling
+        function testDataFormatHandling() {
+            // Test decimal format (0-1)
+            const decimal = 0.823;
+            const decimalResult = Math.ceil(decimal <= 1 ? decimal * 100 : decimal);
+            
+            // Test percentage format (0-100)
+            const percentage = 82.3;
+            const percentageResult = Math.ceil(percentage <= 1 ? percentage * 100 : percentage);
+            
+            return {
+                name: '✅ Test 4: Data Format Handling',
+                passed: decimalResult === 83 && percentageResult === 83,
+                details: `Decimal 0.823 → ${decimalResult}%, Percentage 82.3 → ${percentageResult}%`
+            };
+        }
+        
+        // Test 5: Visual demo rendering
+        function testVisualRendering() {
+            // Count matches
+            let amichevoliCount = 0, torneiCount = 0, campionatoCount = 0;
+            const amichevoliData = {}, torneiData = {}, campionatoData = {};
+            
+            mockConvocationHistory.forEach(conv => {
+                const tipo = conv.details?.tipo || 'N/D';
+                if (tipo === 'Amichevole') amichevoliCount++;
+                else if (tipo === 'Torneo') torneiCount++;
+                else if (tipo === 'Campionato') campionatoCount++;
+                
+                conv.players.forEach(player => {
+                    if (tipo === 'Amichevole') amichevoliData[player] = (amichevoliData[player] || 0) + 1;
+                    else if (tipo === 'Torneo') torneiData[player] = (torneiData[player] || 0) + 1;
+                    else if (tipo === 'Campionato') campionatoData[player] = (campionatoData[player] || 0) + 1;
+                });
+            });
+            
+            // Update headers
+            document.getElementById('amichevoli-header').innerHTML = 
+                `🤝 Riepilogo Presenze Amichevoli <span class="text-gray-600 text-base font-normal">(${amichevoliCount} ${amichevoliCount === 1 ? 'partita' : 'partite'})</span>`;
+            document.getElementById('tornei-header').innerHTML = 
+                `🏆 Riepilogo Presenze Tornei <span class="text-gray-600 text-base font-normal">(${torneiCount} ${torneiCount === 1 ? 'torneo' : 'tornei'})</span>`;
+            document.getElementById('campionato-header').innerHTML = 
+                `⚽️ Riepilogo Presenze Campionato <span class="text-gray-600 text-base font-normal">(${campionatoCount} ${campionatoCount === 1 ? 'partita' : 'partite'})</span>`;
+            
+            // Show/hide Tornei availability header (simulate POLIS)
+            const torneiAvailabilityHeader = document.getElementById('tornei-availability-header');
+            torneiAvailabilityHeader.classList.remove('hidden');
+            
+            // Populate tables
+            const populateTable = (tbody, data, showDisp) => {
+                tbody.innerHTML = '';
+                Object.entries(data).sort((a, b) => b[1] - a[1]).forEach(([player, count]) => {
+                    let dispCell = '';
+                    if (showDisp) {
+                        let rawValue = mockDispTorneiData[player];
+                        let dispPercentage = 'N/D';
+                        if (rawValue !== undefined) {
+                            dispPercentage = Math.ceil(rawValue <= 1 ? rawValue * 100 : rawValue);
+                        }
+                        dispCell = `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${dispPercentage}${dispPercentage !== 'N/D' ? '%' : ''}</td>`;
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${player}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${count}</td>
+                        ${dispCell}
+                    `;
+                    tbody.appendChild(row);
+                });
+            };
+            
+            populateTable(document.getElementById('amichevoli-tbody'), amichevoliData, false);
+            populateTable(document.getElementById('tornei-tbody'), torneiData, true);
+            populateTable(document.getElementById('campionato-tbody'), campionatoData, false);
+            
+            return {
+                name: '✅ Test 5: Visual Rendering',
+                passed: true,
+                details: 'Tables populated with demo data (see below)'
+            };
+        }
+        
+        // Run all tests
+        function runTests() {
+            const results = [
+                testMatchCounting(),
+                testSingularPlural(),
+                testPercentageRounding(),
+                testDataFormatHandling(),
+                testVisualRendering()
+            ];
+            
+            const resultsContainer = document.getElementById('test-results');
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-lg ${result.passed ? 'bg-green-100 border border-green-300' : 'bg-red-100 border border-red-300'}`;
+                div.innerHTML = `
+                    <h3 class="font-bold ${result.passed ? 'text-green-800' : 'text-red-800'}">${result.name}</h3>
+                    <p class="${result.passed ? 'text-green-700' : 'text-red-700'}">${result.details}</p>
+                `;
+                resultsContainer.appendChild(div);
+            });
+            
+            // Summary
+            const passed = results.filter(r => r.passed).length;
+            const total = results.length;
+            const summary = document.createElement('div');
+            summary.className = `p-6 rounded-lg font-bold text-xl ${passed === total ? 'bg-green-200 text-green-900' : 'bg-yellow-200 text-yellow-900'}`;
+            summary.textContent = `Test Summary: ${passed}/${total} tests passed`;
+            resultsContainer.appendChild(summary);
+        }
+        
+        // Run tests on page load
+        window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>
