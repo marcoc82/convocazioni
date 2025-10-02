@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<!-- V8.0 Visual Test - Player count display and stats chart modal -->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V8.0 Test - Player Count & Stats Chart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .view-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .badge-new {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+        }
+        .badge-old {
+            background: #9ca3af;
+            color: white;
+        }
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-6 text-gray-800">🧪 V8.0 Feature Test</h1>
+        
+        <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
+            <h2 class="text-xl font-bold text-blue-800 mb-2">✨ New Features in V8.0</h2>
+            <ul class="list-disc list-inside text-blue-800 space-y-1">
+                <li><strong>Player Count Display</strong>: Shows "(X)" next to "Giocatori:" label</li>
+                <li><strong>Stats Chart Modal</strong>: Clickable chart icon next to "Riepilogo Totale" (POLIS only)</li>
+                <li><strong>Interactive Bar Chart</strong>: Visualizes % Convocazione and % Disponibilità</li>
+                <li><strong>Responsive Design</strong>: Optimized for desktop and mobile viewing</li>
+            </ul>
+        </div>
+
+        <!-- Test 1: Player Count Display -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                📋 Test 1: Player Count Display
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Before -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-old">V7.9 - Before</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="font-bold text-lg mb-2 text-gray-800">vs Inter Milan</div>
+                        <div class="text-sm text-gray-600 mb-2">
+                            <p>🏟️ Campo: Stadio San Siro</p>
+                            <p>📅 Data Partita: Sabato 15 Febbraio 2025</p>
+                        </div>
+                        <div class="text-sm text-gray-700">
+                            <p class="font-semibold mb-1">Giocatori:</p>
+                            <ul class="list-disc list-inside space-y-0.5">
+                                <li>10 ROSSI MARIO</li>
+                                <li>2 BIANCHI LUIGI</li>
+                                <li>5 VERDI PAOLO</li>
+                                <li>7 NERI ANDREA</li>
+                                <li>9 GIALLI MARCO</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-600 italic">
+                        ❌ No player count visible
+                    </div>
+                </div>
+
+                <!-- After -->
+                <div class="border-2 border-green-500 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-new">V8.0 - After</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="font-bold text-lg mb-2 text-gray-800">vs Inter Milan</div>
+                        <div class="text-sm text-gray-600 mb-2">
+                            <p>🏟️ Campo: Stadio San Siro</p>
+                            <p>📅 Data Partita: Sabato 15 Febbraio 2025</p>
+                        </div>
+                        <div class="text-sm text-gray-700">
+                            <p class="font-semibold mb-1">Giocatori: <span class="text-blue-600">(5)</span></p>
+                            <ul class="list-disc list-inside space-y-0.5">
+                                <li>10 ROSSI MARIO</li>
+                                <li>2 BIANCHI LUIGI</li>
+                                <li>5 VERDI PAOLO</li>
+                                <li>7 NERI ANDREA</li>
+                                <li>9 GIALLI MARCO</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-sm text-green-600 font-semibold italic">
+                        ✅ Player count (5) now visible!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 2: Stats Chart Button -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                📊 Test 2: Stats Chart Button (POLIS Only)
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Normal Company -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-old">Other Companies</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Riepilogo Totale</h3>
+                        <p class="text-sm text-gray-600">Standard view without chart button</p>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-600 italic">
+                        ℹ️ No chart button for non-POLIS companies
+                    </div>
+                </div>
+
+                <!-- POLIS Company -->
+                <div class="border-2 border-green-500 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-new">POLIS Company</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="flex items-center gap-2 mb-3">
+                            <h3 class="text-lg font-semibold text-gray-700">📊 Riepilogo Totale</h3>
+                            <button id="test-stats-button" class="text-blue-600 hover:text-blue-800 transition-colors cursor-pointer" title="Visualizza grafico statistiche">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-600">Click the chart icon to open stats modal</p>
+                    </div>
+                    <div class="mt-2 text-sm text-green-600 font-semibold italic">
+                        ✅ Chart button visible for POLIS!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 3: Stats Chart Modal Preview -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                📈 Test 3: Stats Chart Modal (Click Icon Above to Open)
+            </h2>
+            
+            <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-4">
+                <h3 class="text-lg font-bold text-blue-800 mb-2">Modal Features:</h3>
+                <ul class="list-disc list-inside text-blue-800 space-y-1 text-sm">
+                    <li>Interactive bar chart with Chart.js</li>
+                    <li>Blue bars: % Convocazione</li>
+                    <li>Green bars: % Disponibilità</li>
+                    <li>Shows top 15 players by convocations</li>
+                    <li>Detailed statistics table below chart</li>
+                    <li>Responsive: desktop (2:1 ratio) vs mobile (1:1 ratio)</li>
+                    <li>Close: X button or click outside</li>
+                </ul>
+            </div>
+
+            <div class="text-center">
+                <button id="preview-modal-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-colors">
+                    🎯 Open Stats Modal Preview
+                </button>
+            </div>
+        </div>
+
+        <!-- Test 4: Responsive Preview -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                📱 Test 4: Responsive Behavior
+            </h2>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Device</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Aspect Ratio</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Title Font</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Legend Font</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Label Rotation</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Desktop (≥640px)</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 text-center">2:1</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 text-center">18px</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 text-center">12px</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 text-center">45° or horizontal</td>
+                        </tr>
+                        <tr class="bg-blue-50">
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">Mobile (<640px)</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 text-center">1:1</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 text-center">14px</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 text-center">10px</td>
+                            <td class="px-6 py-4 text-sm text-gray-500 text-center">90° (vertical)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 text-sm text-gray-600">
+                <p><strong>Current viewport:</strong> <span id="viewport-width"></span>px</p>
+                <p><strong>Device type:</strong> <span id="device-type"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Chart Modal -->
+    <div id="stats-chart-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">📊 Statistiche Giocatori</h2>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Chart Container -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <canvas id="stats-chart-canvas" class="w-full"></canvas>
+            </div>
+            
+            <!-- Legend/Table -->
+            <div class="mt-6 overflow-x-auto">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Dettaglio Statistiche</h3>
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Partite Totali</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Convocazioni</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Conv.</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Disp.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for testing
+        const samplePlayerData = [
+            { name: '10 ROSSI MARIO', totalMatches: 20, presences: 18, convPct: 90, dispPct: 95 },
+            { name: '2 BIANCHI LUIGI', totalMatches: 20, presences: 16, convPct: 80, dispPct: 85 },
+            { name: '5 VERDI PAOLO', totalMatches: 20, presences: 15, convPct: 75, dispPct: 80 },
+            { name: '7 NERI ANDREA', totalMatches: 20, presences: 14, convPct: 70, dispPct: 88 },
+            { name: '9 GIALLI MARCO', totalMatches: 20, presences: 13, convPct: 65, dispPct: 70 },
+            { name: '4 AZZURRI LUCA', totalMatches: 20, presences: 12, convPct: 60, dispPct: 75 },
+            { name: '8 VIOLA GIOVANNI', totalMatches: 20, presences: 11, convPct: 55, dispPct: 65 },
+            { name: '11 ARANCIO PAOLO', totalMatches: 20, presences: 10, convPct: 50, dispPct: 60 },
+            { name: '3 ROSA FRANCESCO', totalMatches: 20, presences: 9, convPct: 45, dispPct: 55 },
+            { name: '6 GRIGIO ANTONIO', totalMatches: 20, presences: 8, convPct: 40, dispPct: 50 },
+            { name: '12 MARRONE STEFANO', totalMatches: 20, presences: 7, convPct: 35, dispPct: 45 },
+            { name: '15 CELESTE DAVIDE', totalMatches: 20, presences: 6, convPct: 30, dispPct: 40 },
+            { name: '18 TURCHESE MICHELE', totalMatches: 20, presences: 5, convPct: 25, dispPct: 35 },
+            { name: '20 MAGENTA ROBERTO', totalMatches: 20, presences: 4, convPct: 20, dispPct: 30 },
+            { name: '22 CORALLO GIUSEPPE', totalMatches: 20, presences: 3, convPct: 15, dispPct: 25 }
+        ];
+
+        let statsChart = null;
+
+        function showStatsModal() {
+            const modal = document.getElementById('stats-chart-modal');
+            modal.classList.remove('hidden');
+            generateChart();
+        }
+
+        function hideStatsModal() {
+            const modal = document.getElementById('stats-chart-modal');
+            modal.classList.add('hidden');
+            if (statsChart) {
+                statsChart.destroy();
+                statsChart = null;
+            }
+        }
+
+        function generateChart() {
+            // Populate table
+            const tableBody = document.getElementById('stats-table-body');
+            tableBody.innerHTML = samplePlayerData.map(player => `
+                <tr>
+                    <td class="px-4 py-3 text-sm font-medium text-gray-900">${player.name}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.totalMatches}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.presences}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.convPct}%</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.dispPct}%</td>
+                </tr>
+            `).join('');
+
+            // Create chart
+            const ctx = document.getElementById('stats-chart-canvas').getContext('2d');
+            
+            if (statsChart) {
+                statsChart.destroy();
+            }
+
+            const isMobile = window.innerWidth < 640;
+            const labels = samplePlayerData.map(p => p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name);
+            const convData = samplePlayerData.map(p => p.convPct);
+            const dispData = samplePlayerData.map(p => p.dispPct);
+
+            statsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '% Convocazione',
+                            data: convData,
+                            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: '% Disponibilità',
+                            data: dispData,
+                            backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                            borderColor: 'rgba(34, 197, 94, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: isMobile ? 1 : 2,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: { size: isMobile ? 10 : 12 }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Statistiche Giocatori - Top 15',
+                            font: { size: isMobile ? 14 : 18 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const player = samplePlayerData[context.dataIndex];
+                                    if (context.datasetIndex === 0) {
+                                        return `Convocazioni: ${player.presences}/${player.totalMatches} (${context.parsed.y}%)`;
+                                    } else {
+                                        return `Disponibilità: ${context.parsed.y}%`;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                },
+                                font: { size: isMobile ? 9 : 11 }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: isMobile ? 8 : 10 },
+                                maxRotation: isMobile ? 90 : 45,
+                                minRotation: isMobile ? 45 : 0
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('test-stats-button').addEventListener('click', showStatsModal);
+        document.getElementById('preview-modal-btn').addEventListener('click', showStatsModal);
+        document.getElementById('close-modal').addEventListener('click', hideStatsModal);
+        
+        document.getElementById('stats-chart-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'stats-chart-modal') {
+                hideStatsModal();
+            }
+        });
+
+        // Update viewport info
+        function updateViewportInfo() {
+            const width = window.innerWidth;
+            document.getElementById('viewport-width').textContent = width;
+            document.getElementById('device-type').textContent = width < 640 ? 'Mobile' : 'Desktop';
+        }
+
+        updateViewportInfo();
+        window.addEventListener('resize', updateViewportInfo);
+    </script>
+</body>
+</html>
