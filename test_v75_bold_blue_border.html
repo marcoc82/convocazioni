@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<!-- Test V7.5 - Bold names in Dirigente view and blue border for unavailable players called by Mister -->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V7.5 - Bold Names & Blue Border</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .player-item {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid;
+        }
+        .player-item.selected-mister {
+            background-color: #d1e5f4;
+            color: #1e40af;
+            font-weight: bold;
+            border-color: #3b82f6;
+        }
+        /* V7.5: Unavailable player called up by Mister - distinctive blue border */
+        .player-item.selected-mister.unavailable-forced {
+            border: 3px solid #3b82f6;
+            border-color: #3b82f6;
+        }
+        .player-item.selected-marco {
+            background-color: #fecaca;
+            color: #b91c1c;
+            font-weight: bold;
+            border-color: #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center">Test V7.5 Implementation</h1>
+        
+        <!-- Test Results Section -->
+        <div class="bg-white rounded-lg p-6 shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Test Results</h2>
+            <div id="test-results" class="space-y-2"></div>
+        </div>
+
+        <!-- Role Selector -->
+        <div class="bg-white rounded-lg p-6 shadow-md mb-6">
+            <h2 class="text-xl font-semibold mb-4">Select Role</h2>
+            <div class="flex gap-4">
+                <button id="btn-mister" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg">
+                    Mister View
+                </button>
+                <button id="btn-dirigente" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg">
+                    Dirigente View
+                </button>
+            </div>
+        </div>
+
+        <!-- Mister View -->
+        <div id="mister-view" class="hidden">
+            <h3 class="font-semibold text-lg mb-2 text-blue-700">Mister View:</h3>
+            
+            <!-- Unavailable Players List -->
+            <div class="bg-red-100 p-4 rounded-xl shadow-sm border border-red-200 mb-4">
+                <h4 class="text-lg font-semibold text-red-700 mb-2">Giocatori Non Disponibili (Segnalati dal Dirigente)</h4>
+                <ul id="unavailable-players-mister" class="space-y-1 text-red-600">
+                    <!-- Will be populated by JavaScript -->
+                </ul>
+            </div>
+
+            <!-- Players List -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                <h4 class="text-lg font-semibold text-gray-700 mb-2">Giocatori Convocati</h4>
+                <p class="text-sm text-gray-500 mb-4">Clicca sui giocatori per selezionarli</p>
+                <ul id="players-list-mister" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <!-- Will be populated by JavaScript -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Dirigente View -->
+        <div id="dirigente-view" class="hidden">
+            <h3 class="font-semibold text-lg mb-2 text-orange-700">Dirigente View:</h3>
+            <div class="bg-red-100 p-4 rounded-xl shadow-sm border border-red-200">
+                <h4 class="text-lg font-semibold text-red-700 mb-2">Giocatori che hai segnato come non disponibili</h4>
+                <ul id="unavailable-players-dirigente" class="space-y-1 text-red-600">
+                    <!-- Will be populated by JavaScript -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Modal for Unavailable Player -->
+        <div id="unavailable-modal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm">
+                <h2 class="text-xl font-bold mb-4 text-center text-red-600">⚠️ Giocatore Non Disponibile ⚠️</h2>
+                <div class="text-center mb-6">
+                    <p class="text-lg font-semibold text-gray-800 mb-2" id="modal-player-name">Nome Giocatore</p>
+                    <p class="text-gray-600">Motivo:</p>
+                    <p class="text-lg font-medium text-red-600" id="modal-player-reason">Motivo indisponibilità</p>
+                </div>
+                <div class="flex gap-3">
+                    <button id="btn-convoca" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg">
+                        Convoca ugualmente
+                    </button>
+                    <button id="btn-cancel" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">
+                        Annulla
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userRole = null;
+        const unavailablePlayers = new Map([
+            ["10 ROSSI MARIO", "Infortunato"],
+            ["5 VERDI GIUSEPPE", "Non disponibile Domenica"],
+            ["22 BIANCHI LUCA", ["Squalificato", "Non disponibile Domenica"]],
+            ["7 NERI FRANCESCO", "Motivi personali"]
+        ]);
+
+        const allPlayers = [
+            "1 BELLI ANDREA",
+            "10 ROSSI MARIO",
+            "5 VERDI GIUSEPPE", 
+            "22 BIANCHI LUCA",
+            "7 NERI FRANCESCO",
+            "12 ESPOSITO LUCA",
+            "15 CONTI FABIO",
+            "20 GALLI SIMONE"
+        ];
+
+        let tempUnavailablePlayerName = null;
+
+        function isDirigente() {
+            return userRole === 'dirigente';
+        }
+
+        function logTest(message, status = 'info') {
+            const testResults = document.getElementById('test-results');
+            const div = document.createElement('div');
+            div.className = `p-3 rounded ${
+                status === 'pass' ? 'bg-green-100 text-green-800' :
+                status === 'fail' ? 'bg-red-100 text-red-800' :
+                'bg-blue-100 text-blue-800'
+            }`;
+            div.textContent = message;
+            testResults.appendChild(div);
+        }
+
+        function updateUnavailablePlayersView(listId, role) {
+            const unavailablePlayersList = document.getElementById(listId);
+            unavailablePlayersList.innerHTML = '';
+            
+            if (unavailablePlayers.size === 0) {
+                unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessuna disponibilità registrata.</li>';
+                return;
+            }
+            
+            unavailablePlayers.forEach((status, player) => {
+                const li = document.createElement('li');
+                const statusText = Array.isArray(status) ? status.join(', ') : status;
+                
+                // V6.7: When Mister views the list, make player names bold
+                // V7.5: Also make player names bold for Dirigente view
+                if (role === 'mister' || role === 'dirigente') {
+                    li.innerHTML = `<strong class="font-bold">${player}</strong>: ${statusText}`;
+                } else {
+                    li.textContent = `${player}: ${statusText}`;
+                }
+                li.className = 'font-medium';
+                unavailablePlayersList.appendChild(li);
+            });
+        }
+
+        function renderPlayersForMister() {
+            const playersList = document.getElementById('players-list-mister');
+            playersList.innerHTML = '';
+
+            allPlayers.forEach(player => {
+                const li = document.createElement('li');
+                li.textContent = player;
+                li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
+                li.dataset.player = player;
+
+                // Check for unavailable players
+                if (unavailablePlayers.has(player)) {
+                    li.classList.add('selected-marco');
+                }
+
+                li.addEventListener('click', () => {
+                    if (unavailablePlayers.has(player)) {
+                        const status = unavailablePlayers.get(player);
+                        showUnavailablePlayerModal(player, status);
+                        return;
+                    }
+                    li.classList.toggle('selected-mister');
+                });
+
+                playersList.appendChild(li);
+            });
+        }
+
+        function showUnavailablePlayerModal(playerName, reason) {
+            tempUnavailablePlayerName = playerName;
+            document.getElementById('modal-player-name').textContent = playerName;
+            const reasonText = Array.isArray(reason) ? reason.join(', ') : reason;
+            document.getElementById('modal-player-reason').textContent = reasonText;
+            document.getElementById('unavailable-modal').classList.remove('hidden');
+        }
+
+        function hideUnavailablePlayerModal() {
+            document.getElementById('unavailable-modal').classList.add('hidden');
+            tempUnavailablePlayerName = null;
+        }
+
+        function runTests() {
+            logTest('🧪 Starting V7.5 Tests...', 'info');
+            
+            // Test 1: Dirigente view should have bold player names
+            logTest('Test 1: Checking Dirigente view for bold player names...', 'info');
+            userRole = 'dirigente';
+            document.getElementById('dirigente-view').classList.remove('hidden');
+            updateUnavailablePlayersView('unavailable-players-dirigente', 'dirigente');
+            
+            setTimeout(() => {
+                const dirigenteItems = document.querySelectorAll('#unavailable-players-dirigente li');
+                let allBold = true;
+                dirigenteItems.forEach(item => {
+                    const strong = item.querySelector('strong.font-bold');
+                    if (!strong) {
+                        allBold = false;
+                    }
+                });
+                
+                if (allBold && dirigenteItems.length > 0) {
+                    logTest('✅ Test 1 PASSED: Dirigente view shows player names in bold', 'pass');
+                } else {
+                    logTest('❌ Test 1 FAILED: Dirigente view should have bold player names', 'fail');
+                }
+
+                // Test 2: Mister view still has bold names
+                logTest('Test 2: Checking Mister view for bold player names...', 'info');
+                userRole = 'mister';
+                document.getElementById('dirigente-view').classList.add('hidden');
+                document.getElementById('mister-view').classList.remove('hidden');
+                updateUnavailablePlayersView('unavailable-players-mister', 'mister');
+                renderPlayersForMister();
+
+                setTimeout(() => {
+                    const misterItems = document.querySelectorAll('#unavailable-players-mister li');
+                    let allBold = true;
+                    misterItems.forEach(item => {
+                        const strong = item.querySelector('strong.font-bold');
+                        if (!strong) {
+                            allBold = false;
+                        }
+                    });
+                    
+                    if (allBold && misterItems.length > 0) {
+                        logTest('✅ Test 2 PASSED: Mister view shows player names in bold', 'pass');
+                    } else {
+                        logTest('❌ Test 2 FAILED: Mister view should have bold player names', 'fail');
+                    }
+
+                    // Test 3: Check that CSS class for blue border exists
+                    logTest('Test 3: Checking CSS for unavailable-forced class...', 'info');
+                    const styles = document.styleSheets;
+                    let hasUnavailableForcedStyle = false;
+                    for (let i = 0; i < styles.length; i++) {
+                        try {
+                            const rules = styles[i].cssRules || styles[i].rules;
+                            for (let j = 0; j < rules.length; j++) {
+                                if (rules[j].selectorText && rules[j].selectorText.includes('unavailable-forced')) {
+                                    hasUnavailableForcedStyle = true;
+                                    break;
+                                }
+                            }
+                        } catch (e) {
+                            // Skip cross-origin stylesheets
+                        }
+                    }
+                    
+                    if (hasUnavailableForcedStyle) {
+                        logTest('✅ Test 3 PASSED: CSS class .unavailable-forced exists', 'pass');
+                    } else {
+                        logTest('❌ Test 3 FAILED: CSS class .unavailable-forced not found', 'fail');
+                    }
+
+                    logTest('📝 Manual Test Required: Test 4 - Blue Border Application', 'info');
+                    logTest('Click on an unavailable player (red background) and select "Convoca ugualmente"', 'info');
+                    logTest('Verify that the player button has a 3px blue border (thicker than normal)', 'info');
+
+                }, 100);
+            }, 100);
+        }
+
+        // Event Listeners
+        document.getElementById('btn-mister').addEventListener('click', () => {
+            userRole = 'mister';
+            document.getElementById('mister-view').classList.remove('hidden');
+            document.getElementById('dirigente-view').classList.add('hidden');
+            updateUnavailablePlayersView('unavailable-players-mister', 'mister');
+            renderPlayersForMister();
+            logTest('Switched to Mister view', 'info');
+        });
+
+        document.getElementById('btn-dirigente').addEventListener('click', () => {
+            userRole = 'dirigente';
+            document.getElementById('dirigente-view').classList.remove('hidden');
+            document.getElementById('mister-view').classList.add('hidden');
+            updateUnavailablePlayersView('unavailable-players-dirigente', 'dirigente');
+            logTest('Switched to Dirigente view', 'info');
+        });
+
+        document.getElementById('btn-convoca').addEventListener('click', () => {
+            // V7.5: Add unavailable-forced class for blue border
+            if (tempUnavailablePlayerName) {
+                const playerItem = document.querySelector(`.player-item[data-player="${tempUnavailablePlayerName}"]`);
+                if (playerItem) {
+                    playerItem.classList.remove('selected-marco');
+                    playerItem.classList.add('selected-mister', 'unavailable-forced');
+                    logTest(`✅ Player "${tempUnavailablePlayerName}" called up with blue border`, 'pass');
+                }
+            }
+            hideUnavailablePlayerModal();
+        });
+
+        document.getElementById('btn-cancel').addEventListener('click', () => {
+            hideUnavailablePlayerModal();
+            logTest('Modal cancelled', 'info');
+        });
+
+        // Run tests on page load
+        window.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>
