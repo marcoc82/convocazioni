@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V8.5 - Filter Fix Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">V8.5 - Allenamenti Filter Fix Test</h1>
+        
+        <!-- Version Info -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+            <h2 class="text-lg font-semibold text-blue-800 mb-2">🎯 V8.5 Fix</h2>
+            <div class="text-sm text-blue-900 space-y-2">
+                <p><strong>Problem:</strong> When selecting a period filter (Tutti, Settimana corrente, Mese corrente, Anno corrente), only the report/statistics table was filtered. The training session cards below were NOT filtered.</p>
+                <p><strong>Solution:</strong> Modified the refresh button event listener to call BOTH <code class="bg-blue-100 px-1 rounded">loadAllenamentiReport()</code> AND <code class="bg-blue-100 px-1 rounded">renderTrainingSessions()</code> when the filter changes.</p>
+                <p><strong>Result:</strong> Now BOTH the report table AND the session cards are filtered by the selected period.</p>
+            </div>
+        </div>
+
+        <!-- Test Instructions -->
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+            <h2 class="text-lg font-semibold text-green-800 mb-2">✅ How to Test</h2>
+            <ol class="list-decimal list-inside space-y-2 text-sm text-green-900">
+                <li>Look at the period filter below and the training sessions displayed</li>
+                <li>Change the period filter (e.g., from "Tutti i periodi" to "Settimana corrente")</li>
+                <li>Click the "Aggiorna" button</li>
+                <li><strong>Expected:</strong> Both the report stats AND the session cards should update to show only sessions in the selected period</li>
+                <li>Try different filters to verify all periods work correctly</li>
+            </ol>
+        </div>
+
+        <!-- Period Filter Demo -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">📊 Period Filter</h3>
+            <div class="flex gap-2 mb-4">
+                <select id="test-period-select" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg">
+                    <option value="all">Tutti i periodi</option>
+                    <option value="week">Settimana corrente</option>
+                    <option value="month">Mese corrente</option>
+                    <option value="year">Anno corrente</option>
+                </select>
+                <button id="refresh-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+                    Aggiorna
+                </button>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
+                <strong>ℹ️ Current Filter:</strong> <span id="current-filter-display" class="font-semibold">Tutti i periodi</span>
+            </div>
+        </div>
+
+        <!-- Report Table -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">📊 Report Presenze</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Allenamenti</th>
+                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Presenze</th>
+                            <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">%</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-body">
+                        <!-- Will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sessions Container -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">🏃 Training Sessions (<span id="sessions-count">0</span> shown)</h3>
+            <div id="sessions-container" class="space-y-4">
+                <!-- Sessions will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="bg-gray-50 rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">🔧 Technical Changes (V8.5)</h3>
+            <div class="space-y-3">
+                <div>
+                    <strong>File Modified:</strong> <code class="bg-gray-100 px-2 py-1 rounded text-sm">index.html</code>
+                </div>
+                <div>
+                    <strong>Change Location:</strong> Line ~8469-8473
+                </div>
+                <div>
+                    <strong>Before (V8.4):</strong>
+                    <pre class="bg-gray-100 p-3 rounded mt-2 overflow-x-auto text-xs"><code>refreshReportButton.addEventListener('click', () => {
+    loadAllenamentiReport();
+});</code></pre>
+                </div>
+                <div>
+                    <strong>After (V8.5):</strong>
+                    <pre class="bg-gray-100 p-3 rounded mt-2 overflow-x-auto text-xs"><code>refreshReportButton.addEventListener('click', () => {
+    // V8.5: Update both report and session cards when filter changes
+    loadAllenamentiReport();
+    renderTrainingSessions();
+});</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Demo data
+        const today = new Date();
+        const sessions = [
+            { id: '1', date: getTodayDate(), time: '18:00', players: { 'ROSSI Mario': true, 'BIANCHI Luigi': true, 'VERDI Giuseppe': false } },
+            { id: '2', date: getDateDaysAgo(2), time: '19:00', players: { 'ROSSI Mario': true, 'BIANCHI Luigi': false, 'VERDI Giuseppe': true } },
+            { id: '3', date: getDateDaysAgo(5), time: '18:30', players: { 'ROSSI Mario': false, 'BIANCHI Luigi': true, 'VERDI Giuseppe': true } },
+            { id: '4', date: getDateDaysAgo(10), time: '18:00', players: { 'ROSSI Mario': true, 'BIANCHI Luigi': true, 'VERDI Giuseppe': true } },
+            { id: '5', date: getDateDaysAgo(35), time: '19:00', players: { 'ROSSI Mario': true, 'BIANCHI Luigi': false, 'VERDI Giuseppe': false } },
+            { id: '6', date: getDateDaysAgo(100), time: '18:00', players: { 'ROSSI Mario': false, 'BIANCHI Luigi': true, 'VERDI Giuseppe': true } }
+        ];
+
+        function getTodayDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function getDateDaysAgo(days) {
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            return date.toISOString().split('T')[0];
+        }
+
+        function filterSessions() {
+            const periodSelect = document.getElementById('test-period-select');
+            const selectedPeriod = periodSelect.value;
+            const now = new Date();
+
+            const filteredSessions = sessions.filter(session => {
+                if (selectedPeriod === 'all') return true;
+                
+                const sessionDate = new Date(session.date);
+                if (selectedPeriod === 'week') {
+                    const startOfWeek = new Date(now);
+                    const day = startOfWeek.getDay();
+                    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+                    startOfWeek.setDate(diff);
+                    startOfWeek.setHours(0, 0, 0, 0);
+                    
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    endOfWeek.setHours(23, 59, 59, 999);
+                    
+                    return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
+                } else if (selectedPeriod === 'month') {
+                    return sessionDate.getMonth() === now.getMonth() && 
+                           sessionDate.getFullYear() === now.getFullYear();
+                } else if (selectedPeriod === 'year') {
+                    return sessionDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+
+            return filteredSessions;
+        }
+
+        function renderSessions(filtered) {
+            const container = document.getElementById('sessions-container');
+            const countDisplay = document.getElementById('sessions-count');
+            
+            container.innerHTML = '';
+            countDisplay.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <p class="text-lg">Nessun allenamento nel periodo selezionato</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(session => {
+                const dateObj = new Date(session.date + ' ' + session.time);
+                const formattedDate = dateObj.toLocaleDateString('it-IT', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+
+                const card = document.createElement('div');
+                card.className = 'bg-gray-50 rounded-lg p-4 border border-gray-200';
+                
+                const presentCount = Object.values(session.players).filter(p => p).length;
+                const totalCount = Object.keys(session.players).length;
+                
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="font-semibold text-gray-700">📅 ${formattedDate}</div>
+                        <div class="text-sm text-gray-500">🕐 ${session.time}</div>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        Presenti: <span class="font-semibold text-green-600">${presentCount}</span> / ${totalCount}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderReport(filtered) {
+            const reportBody = document.getElementById('report-body');
+            const playerStats = {};
+
+            // Calculate stats
+            filtered.forEach(session => {
+                Object.entries(session.players).forEach(([player, isPresent]) => {
+                    if (!playerStats[player]) {
+                        playerStats[player] = { presences: 0, total: 0 };
+                    }
+                    playerStats[player].total++;
+                    if (isPresent) playerStats[player].presences++;
+                });
+            });
+
+            reportBody.innerHTML = '';
+
+            if (Object.keys(playerStats).length === 0) {
+                reportBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-3 py-4 text-center text-gray-500 italic">
+                            Nessun dato disponibile per il periodo selezionato
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const statsArray = Object.entries(playerStats).map(([player, stats]) => ({
+                player,
+                ...stats,
+                percentage: stats.total > 0 ? Math.round((stats.presences / stats.total) * 100) : 0
+            })).sort((a, b) => b.presences - a.presences);
+
+            statsArray.forEach((stat, index) => {
+                const row = document.createElement('tr');
+                row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                row.innerHTML = `
+                    <td class="px-3 py-2 text-sm text-gray-900">${stat.player}</td>
+                    <td class="px-3 py-2 text-sm text-gray-900 text-center">${filtered.length}</td>
+                    <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${stat.presences}</td>
+                    <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${stat.percentage}%</td>
+                `;
+                reportBody.appendChild(row);
+            });
+        }
+
+        function updateDisplay() {
+            const periodSelect = document.getElementById('test-period-select');
+            const filterDisplay = document.getElementById('current-filter-display');
+            
+            // Update filter display
+            const selectedOption = periodSelect.options[periodSelect.selectedIndex];
+            filterDisplay.textContent = selectedOption.text;
+            
+            // V8.5: Update BOTH report AND session cards
+            const filtered = filterSessions();
+            renderReport(filtered);
+            renderSessions(filtered);
+            
+            console.log(`✅ V8.5: Updated both report and sessions - showing ${filtered.length} sessions`);
+        }
+
+        // Event listeners
+        document.getElementById('refresh-button').addEventListener('click', updateDisplay);
+        document.getElementById('test-period-select').addEventListener('change', () => {
+            // Auto-update on select change
+            updateDisplay();
+        });
+
+        // Initial render
+        updateDisplay();
+    </script>
+</body>
+</html>
