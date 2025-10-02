@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V7.7 - Show match counts next to section headers and add % Disp. column for Tornei -->
+<!-- Version: V7.8 - Fix querySelector :has() selector issue, already includes V7.7 features (match counts and % Disp. column) -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -234,7 +234,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.7</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.8</span>
             </div>
         </div>
 
@@ -675,7 +675,7 @@
             </div>
 
             <!-- Amichevoli Attendance Table -->
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">🤝 Riepilogo Presenze Amichevoli</h3>
+            <h3 id="amichevoli-header" class="text-lg font-semibold text-gray-700 mb-3">🤝 Riepilogo Presenze Amichevoli</h3>
             <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -691,7 +691,7 @@
             </div>
 
             <!-- Tornei Attendance Table -->
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">🏆 Riepilogo Presenze Tornei</h3>
+            <h3 id="tornei-header" class="text-lg font-semibold text-gray-700 mb-3">🏆 Riepilogo Presenze Tornei</h3>
             <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -708,7 +708,7 @@
             </div>
 
             <!-- Campionato Attendance Table -->
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">⚽️ Riepilogo Presenze Campionato</h3>
+            <h3 id="campionato-header" class="text-lg font-semibold text-gray-700 mb-3">⚽️ Riepilogo Presenze Campionato</h3>
             <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -3083,10 +3083,10 @@
                     });
                 });
                 
-                // V7.7: Update section headers with match counts
-                const amichevoliHeader = document.querySelector('h3:has(+ .bg-white:has(#attendance-list-amichevoli))');
-                const torneiHeader = document.querySelector('h3:has(+ .bg-white:has(#attendance-list-tornei))');
-                const campionatoHeader = document.querySelector('h3:has(+ .bg-white:has(#attendance-list-campionato))');
+                // V7.8: Update section headers with match counts - Fixed querySelector to use IDs instead of :has()
+                const amichevoliHeader = document.getElementById('amichevoli-header');
+                const torneiHeader = document.getElementById('tornei-header');
+                const campionatoHeader = document.getElementById('campionato-header');
                 
                 if (amichevoliHeader) {
                     amichevoliHeader.innerHTML = `🤝 Riepilogo Presenze Amichevoli <span class="text-gray-600 text-base font-normal">(${amichevoliCount} ${amichevoliCount === 1 ? 'partita' : 'partite'})</span>`;
