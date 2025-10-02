@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.2 - Add Allenamenti management page with training sessions cards, attendance tracking, and monthly/annual reports -->
+<!-- Version: V8.3 - Improve Allenamenti: collapsible cards, weekly filter, societa/ path -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -801,7 +801,7 @@
             </button>
         </div>
 
-        <!-- Allenamenti Management View (V8.2) -->
+        <!-- Allenamenti Management View (V8.3) -->
         <div id="allenamenti-view" class="hidden">
             <button id="top-back-from-allenamenti-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
@@ -817,6 +817,7 @@
                     <div class="flex gap-2 mb-4">
                         <select id="report-period-select" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                             <option value="all">Tutti i periodi</option>
+                            <option value="week">Settimana corrente</option>
                             <option value="month">Mese corrente</option>
                             <option value="year">Anno corrente</option>
                         </select>
@@ -875,7 +876,7 @@
             </button>
         </div>
 
-        <!-- Add Training Session Modal (V8.2) -->
+        <!-- Add Training Session Modal (V8.3) -->
         <div id="add-training-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
             <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Nuovo Allenamento</h3>
@@ -5009,9 +5010,9 @@
             // Global variable to store training sessions
             let trainingSessions = [];
             
-            // Load allenamenti data (sessions and report)
+            // Load allenamenti data (sessions and report) - V8.3
             async function loadAllenamentiData() {
-                console.log('🏃 Loading Allenamenti data... (V8.2)');
+                console.log('🏃 Loading Allenamenti data... (V8.3)');
                 await Promise.all([
                     loadTrainingSessions(),
                     loadAllenamentiReport()
@@ -5035,8 +5036,8 @@
                         return;
                     }
                     
-                    // Fetch training sessions from Firestore
-                    const trainingsRef = window.collection(window.db, `companies/${currentCompanyDocumentId}/trainingSessions`);
+                    // Fetch training sessions from Firestore (V8.3: using societa/ path)
+                    const trainingsRef = window.collection(window.db, `societa/${currentCompanyDocumentId}/trainingSessions`);
                     const querySnapshot = await window.getDocs(trainingsRef);
                     
                     trainingSessions = [];
@@ -5122,10 +5123,10 @@
                 });
             }
             
-            // Create a training session card
+            // Create a training session card (V8.3: collapsible)
             function createTrainingSessionCard(session, index) {
                 const card = document.createElement('div');
-                card.className = 'bg-white rounded-xl p-4 shadow-sm border border-gray-200';
+                card.className = 'bg-white rounded-xl shadow-sm border border-gray-200';
                 
                 // Format date
                 const dateObj = new Date(session.date + ' ' + session.time);
@@ -5151,17 +5152,28 @@
                     else if (attendance[player] === false) absentCount++;
                 });
                 
-                // Build card HTML
+                // V8.3: Build collapsible card HTML
                 let cardHTML = `
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h4 class="text-lg font-semibold text-gray-800">📅 ${formattedDate}</h4>
-                            <p class="text-sm text-gray-600">🕐 Orario: ${session.time}</p>
+                    <!-- Card Header (always visible, clickable) -->
+                    <div class="card-header p-4 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors" data-session-id="${session.id}">
+                        <div class="flex justify-between items-center">
+                            <div class="flex-1">
+                                <h4 class="text-lg font-semibold text-gray-800">📅 ${formattedDate}</h4>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                ${session.isDemo ? '<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Demo</span>' : ''}
+                                <svg class="expand-icon w-6 h-6 text-gray-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
                         </div>
-                        ${session.isDemo ? '<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Demo</span>' : ''}
                     </div>
                     
-                    <div class="mb-3 space-y-2">
+                    <!-- Card Content (collapsible) -->
+                    <div class="card-content hidden p-4 pt-0">
+                        <p class="text-sm text-gray-600 mb-3">🕐 Orario: ${session.time}</p>
+                        
+                        <div class="mb-3 space-y-2">
                 `;
                 
                 // Add player checkboxes
@@ -5180,29 +5192,46 @@
                 });
                 
                 cardHTML += `
-                    </div>
-                    
-                    <div class="flex justify-between items-center mb-3 p-3 bg-gray-50 rounded">
-                        <div class="text-sm">
-                            <span class="text-green-600 font-semibold">✓ Presenti: ${presentCount}</span>
-                            <span class="ml-3 text-red-600 font-semibold">✗ Assenti: ${absentCount}</span>
                         </div>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <button class="mark-all-present-btn flex-1 bg-green-500 hover:bg-green-600 text-white text-sm py-2 rounded font-medium" data-session-id="${session.id}">
-                            Tutti Presenti
-                        </button>
-                        <button class="mark-all-absent-btn flex-1 bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded font-medium" data-session-id="${session.id}">
-                            Tutti Assenti
-                        </button>
-                        <button class="save-attendance-btn flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded font-medium" data-session-id="${session.id}">
-                            💾 Salva
-                        </button>
+                        
+                        <div class="flex justify-between items-center mb-3 p-3 bg-gray-50 rounded">
+                            <div class="text-sm">
+                                <span class="text-green-600 font-semibold">✓ Presenti: ${presentCount}</span>
+                                <span class="ml-3 text-red-600 font-semibold">✗ Assenti: ${absentCount}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button class="mark-all-present-btn flex-1 bg-green-500 hover:bg-green-600 text-white text-sm py-2 rounded font-medium" data-session-id="${session.id}">
+                                Tutti Presenti
+                            </button>
+                            <button class="mark-all-absent-btn flex-1 bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded font-medium" data-session-id="${session.id}">
+                                Tutti Assenti
+                            </button>
+                            <button class="save-attendance-btn flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded font-medium" data-session-id="${session.id}">
+                                💾 Salva
+                            </button>
+                        </div>
                     </div>
                 `;
                 
                 card.innerHTML = cardHTML;
+                
+                // V8.3: Add click handler for collapsible functionality
+                const cardHeader = card.querySelector('.card-header');
+                const cardContent = card.querySelector('.card-content');
+                const expandIcon = card.querySelector('.expand-icon');
+                
+                cardHeader.addEventListener('click', () => {
+                    const isExpanded = !cardContent.classList.contains('hidden');
+                    if (isExpanded) {
+                        cardContent.classList.add('hidden');
+                        expandIcon.classList.remove('rotate-180');
+                    } else {
+                        cardContent.classList.remove('hidden');
+                        expandIcon.classList.add('rotate-180');
+                    }
+                });
                 
                 // Add event listeners to buttons
                 const markAllPresentBtn = card.querySelector('.mark-all-present-btn');
@@ -5249,9 +5278,9 @@
                 session.attendance = attendance;
                 
                 try {
-                    // Save to Firebase if available
+                    // Save to Firebase if available (V8.3: using societa/ path)
                     if (window.db && currentCompanyDocumentId && !session.isDemo) {
-                        const sessionRef = window.doc(window.db, `companies/${currentCompanyDocumentId}/trainingSessions/${sessionId}`);
+                        const sessionRef = window.doc(window.db, `societa/${currentCompanyDocumentId}/trainingSessions/${sessionId}`);
                         await window.setDoc(sessionRef, {
                             date: session.date,
                             time: session.time,
@@ -5296,9 +5325,9 @@
                 };
                 
                 try {
-                    // Save to Firebase if available
+                    // Save to Firebase if available (V8.3: using societa/ path)
                     if (window.db && currentCompanyDocumentId) {
-                        const trainingsRef = window.collection(window.db, `companies/${currentCompanyDocumentId}/trainingSessions`);
+                        const trainingsRef = window.collection(window.db, `societa/${currentCompanyDocumentId}/trainingSessions`);
                         const docRef = await window.addDoc(trainingsRef, newSession);
                         newSession.id = docRef.id;
                         console.log('✅ Training session saved to Firebase:', docRef.id);
@@ -5327,9 +5356,9 @@
                 }
             }
             
-            // Load allenamenti report
+            // Load allenamenti report (V8.3: added weekly filter)
             async function loadAllenamentiReport() {
-                console.log('📊 Loading Allenamenti report...');
+                console.log('📊 Loading Allenamenti report... (V8.3)');
                 
                 const reportBody = document.getElementById('allenamenti-report-body');
                 const periodSelect = document.getElementById('report-period-select');
@@ -5338,13 +5367,27 @@
                 // Calculate report data from training sessions
                 const playerStats = {};
                 
-                // Filter sessions based on selected period
+                // Filter sessions based on selected period (V8.3: added week filter)
                 const now = new Date();
                 const filteredSessions = trainingSessions.filter(session => {
                     if (selectedPeriod === 'all') return true;
                     
                     const sessionDate = new Date(session.date);
-                    if (selectedPeriod === 'month') {
+                    if (selectedPeriod === 'week') {
+                        // Get start of current week (Monday)
+                        const startOfWeek = new Date(now);
+                        const day = startOfWeek.getDay();
+                        const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+                        startOfWeek.setDate(diff);
+                        startOfWeek.setHours(0, 0, 0, 0);
+                        
+                        // Get end of current week (Sunday)
+                        const endOfWeek = new Date(startOfWeek);
+                        endOfWeek.setDate(startOfWeek.getDate() + 6);
+                        endOfWeek.setHours(23, 59, 59, 999);
+                        
+                        return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
+                    } else if (selectedPeriod === 'month') {
                         return sessionDate.getMonth() === now.getMonth() && 
                                sessionDate.getFullYear() === now.getFullYear();
                     } else if (selectedPeriod === 'year') {
@@ -7106,7 +7149,7 @@
             });
 
             allenamentiButton.addEventListener('click', () => {
-                console.log('🏃 Opening Allenamenti Management View... (V8.2)');
+                console.log('🏃 Opening Allenamenti Management View... (V8.3)');
                 hideAllScreens();
                 allenamentiView.classList.remove('hidden');
                 loadAllenamentiData(); // Load training sessions and report data
