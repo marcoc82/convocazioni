@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V7.6 - Enhanced player management UI: show player count, bold names, unified list styles, icon next to ID/Codice -->
+<!-- Version: V7.7 - Show match counts next to section headers and add % Disp. column for Tornei -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -234,7 +234,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.6</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.7</span>
             </div>
         </div>
 
@@ -697,7 +697,8 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
-                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">Pres.</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pres.</th>
+                            <th scope="col" id="tornei-availability-header" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl hidden">% Disp.</th>
                         </tr>
                     </thead>
                     <tbody id="attendance-list-tornei" class="bg-white divide-y divide-gray-200">
@@ -3031,7 +3032,7 @@
             }
 
             // Function to update filtered attendance tables based on convocation history
-            function updateAttendanceTables() {
+            async function updateAttendanceTables() {
                 console.log(`📊 [DIAGNOSTIC] updateAttendanceTables chiamata con ${convocationHistory.length} convocazioni storiche`);
                 
                 // Clear all tables
@@ -3039,15 +3040,27 @@
                 attendanceListTornei.innerHTML = '';
                 attendanceListCampionato.innerHTML = '';
                 
-                // Calculate filtered attendance data
+                // Calculate filtered attendance data and match counts
                 const amichevoliData = {};
                 const torneiData = {};
                 const campionatoData = {};
+                let amichevoliCount = 0;
+                let torneiCount = 0;
+                let campionatoCount = 0;
                 
                 // Process each convocation and count players by type
                 convocationHistory.forEach(convocation => {
                     const tipo = convocation.details?.tipo || 'N/D';
                     const players = convocation.players || [];
+                    
+                    // Count matches by type
+                    if (tipo === 'Amichevole') {
+                        amichevoliCount++;
+                    } else if (tipo === 'Torneo') {
+                        torneiCount++;
+                    } else if (tipo === 'Campionato') {
+                        campionatoCount++;
+                    }
                     
                     players.forEach(player => {
                         // Handle both old string format and new object format
@@ -3070,23 +3083,73 @@
                     });
                 });
                 
+                // V7.7: Update section headers with match counts
+                const amichevoliHeader = document.querySelector('h3:has(+ .bg-white:has(#attendance-list-amichevoli))');
+                const torneiHeader = document.querySelector('h3:has(+ .bg-white:has(#attendance-list-tornei))');
+                const campionatoHeader = document.querySelector('h3:has(+ .bg-white:has(#attendance-list-campionato))');
+                
+                if (amichevoliHeader) {
+                    amichevoliHeader.innerHTML = `🤝 Riepilogo Presenze Amichevoli <span class="text-gray-600 text-base font-normal">(${amichevoliCount} ${amichevoliCount === 1 ? 'partita' : 'partite'})</span>`;
+                }
+                if (torneiHeader) {
+                    torneiHeader.innerHTML = `🏆 Riepilogo Presenze Tornei <span class="text-gray-600 text-base font-normal">(${torneiCount} ${torneiCount === 1 ? 'torneo' : 'tornei'})</span>`;
+                }
+                if (campionatoHeader) {
+                    campionatoHeader.innerHTML = `⚽️ Riepilogo Presenze Campionato <span class="text-gray-600 text-base font-normal">(${campionatoCount} ${campionatoCount === 1 ? 'partita' : 'partite'})</span>`;
+                }
+                
                 // Use companyPlayers instead of global players array to show correct company data
                 const playersToShow = companyPlayers.length > 0 ? companyPlayers : players;
                 
-                // Populate Amichevoli table
-                populateAttendanceTable(attendanceListAmichevoli, playersToShow, amichevoliData, 'Amichevoli');
+                // V7.7: Fetch disptornei data from Firebase Realtime Database for POLIS
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const isPolisCompany = companyName === 'POLIS';
+                let dispTorneiData = {};
+                let dispTorneiDataNormalized = {};
                 
-                // Populate Tornei table
-                populateAttendanceTable(attendanceListTornei, playersToShow, torneiData, 'Tornei');
+                // V7.7: Show/hide Tornei availability header based on company
+                const torneiAvailabilityHeader = document.getElementById('tornei-availability-header');
+                if (torneiAvailabilityHeader) {
+                    if (isPolisCompany) {
+                        torneiAvailabilityHeader.classList.remove('hidden');
+                    } else {
+                        torneiAvailabilityHeader.classList.add('hidden');
+                    }
+                }
+                
+                if (isPolisCompany) {
+                    try {
+                        const FIREBASE_DISPTORNEI_URL = 'https://polis-2013-default-rtdb.europe-west1.firebasedatabase.app/disptornei.json';
+                        const response = await fetch(FIREBASE_DISPTORNEI_URL);
+                        if (response.ok) {
+                            dispTorneiData = await response.json() || {};
+                            // Create normalized version for case-insensitive matching (strips leading numbers)
+                            Object.keys(dispTorneiData).forEach(key => {
+                                const normalizedKey = normalizePlayerName(key);
+                                dispTorneiDataNormalized[normalizedKey] = dispTorneiData[key];
+                            });
+                            console.log(`📊 [V7.7] Dati disptornei caricati da Firebase Realtime Database (${Object.keys(dispTorneiData).length} giocatori):`, dispTorneiData);
+                        }
+                    } catch (error) {
+                        console.error('📊 [V7.7] Errore nel caricamento dei dati disptornei:', error);
+                    }
+                }
+                
+                // Populate Amichevoli table
+                populateAttendanceTable(attendanceListAmichevoli, playersToShow, amichevoliData, 'Amichevoli', null, null);
+                
+                // Populate Tornei table with availability data for POLIS
+                populateAttendanceTable(attendanceListTornei, playersToShow, torneiData, 'Tornei', isPolisCompany ? dispTorneiData : null, isPolisCompany ? dispTorneiDataNormalized : null);
                 
                 // Populate Campionato table
-                populateAttendanceTable(attendanceListCampionato, playersToShow, campionatoData, 'Campionato');
+                populateAttendanceTable(attendanceListCampionato, playersToShow, campionatoData, 'Campionato', null, null);
                 
                 console.log(`📊 [DIAGNOSTIC] Tabelle presenze filtrate aggiornate`);
             }
 
             // Helper function to populate a specific attendance table
-            function populateAttendanceTable(tableElement, players, attendanceData, tableType) {
+            // V7.7: Added availabilityData and availabilityDataNormalized parameters for Tornei table
+            function populateAttendanceTable(tableElement, players, attendanceData, tableType, availabilityData, availabilityDataNormalized) {
                 const sortedPlayers = players.map(p => {
                     // Handle both old string format and new object format
                     let playerName, playerKey;
@@ -3106,11 +3169,14 @@
                     };
                 }).sort((a, b) => b.count - a.count);
 
+                const hasAvailabilityData = availabilityData !== null && availabilityData !== undefined;
+                const colSpan = hasAvailabilityData ? 3 : 2;
+
                 if (sortedPlayers.length === 0) {
                     // Show empty state message only if no players at all
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td colspan="2" class="px-6 py-4 text-center text-gray-500 italic">
+                        <td colspan="${colSpan}" class="px-6 py-4 text-center text-gray-500 italic">
                             Nessun giocatore disponibile per ${tableType}
                         </td>
                     `;
@@ -3118,10 +3184,43 @@
                 } else {
                     // Show ALL players including those with 0 attendance
                     sortedPlayers.forEach(player => {
+                        let availabilityCell = '';
+                        
+                        // V7.7: Add availability percentage for Tornei table if data is available
+                        if (hasAvailabilityData) {
+                            let availabilityPercentage = 'N/D';
+                            
+                            // Try exact match first
+                            let rawValue = availabilityData[player.name];
+                            
+                            // If no exact match, try normalized match (strips leading numbers)
+                            if (rawValue === undefined && availabilityDataNormalized) {
+                                const normalizedPlayerName = normalizePlayerName(player.name);
+                                rawValue = availabilityDataNormalized[normalizedPlayerName];
+                            }
+                            
+                            // Process the value if found - rounded up to integer (no decimals)
+                            if (rawValue !== undefined && rawValue !== null) {
+                                if (typeof rawValue === 'number') {
+                                    // If value is between 0 and 1, multiply by 100, otherwise use as is, then round up
+                                    availabilityPercentage = Math.ceil(rawValue <= 1 ? rawValue * 100 : rawValue);
+                                } else if (typeof rawValue === 'string') {
+                                    // Handle string numbers
+                                    const numValue = parseFloat(rawValue);
+                                    if (!isNaN(numValue)) {
+                                        availabilityPercentage = Math.ceil(numValue <= 1 ? numValue * 100 : numValue);
+                                    }
+                                }
+                            }
+                            
+                            availabilityCell = `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${availabilityPercentage}${availabilityPercentage !== 'N/D' ? '%' : ''}</td>`;
+                        }
+                        
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}</td>
+                            ${availabilityCell}
                         `;
                         tableElement.appendChild(row);
                     });
