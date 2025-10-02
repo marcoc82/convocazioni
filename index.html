@@ -658,9 +658,9 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
-                            <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
-                            <th scope="col" id="attendance-percentage-header" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">% Convocazione</th>
-                            <th scope="col" id="availability-percentage-header" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl hidden">% Disponibilità</th>
+                            <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pres.</th>
+                            <th scope="col" id="attendance-percentage-header" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">% Conv.</th>
+                            <th scope="col" id="availability-percentage-header" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl hidden">% Disp.</th>
                         </tr>
                     </thead>
                     <tbody id="attendance-list" class="bg-white divide-y divide-gray-200">
@@ -692,7 +692,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
-                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">Presenze</th>
+                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">Pres.</th>
                         </tr>
                     </thead>
                     <tbody id="attendance-list-tornei" class="bg-white divide-y divide-gray-200">
@@ -754,7 +754,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
-                            <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze Allenamenti</th>
+                            <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
                             <th scope="col" class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl">% Presenze</th>
                         </tr>
                     </thead>
@@ -886,7 +886,7 @@
         <!-- Modal for Marco's Status - Multi-select with checkboxes -->
         <div id="status-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
             <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300">
-                <h2 class="text-xl font-bold mb-4">Seleziona indisponibilità (multi-selezione)</h2>
+                <h2 class="text-xl font-bold mb-4">Seleziona indisponibilità</h2>
                 <div class="space-y-2 max-h-96 overflow-y-auto">
                     <label class="flex items-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Infortunato" class="status-checkbox w-5 h-5 mr-3 rounded">
@@ -7297,6 +7297,7 @@
     </script>
 </body>
 </html>
+
 
 
 
