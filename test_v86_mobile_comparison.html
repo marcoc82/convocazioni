@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V8.6 Mobile-Friendly Tornei Table Comparison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">📱 V8.6 Mobile-Friendly Tornei Table</h1>
+        
+        <!-- Before/After Comparison -->
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- BEFORE V8.6 -->
+            <div class="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+                <h2 class="text-xl font-bold text-red-800 mb-4">❌ Before V8.6</h2>
+                <p class="text-sm text-red-700 mb-4">Fixed padding (px-6) - overflows on mobile</p>
+                
+                <div style="max-width: 375px; margin: 0 auto;">
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Pres.</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Disp.</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">10 ROSSI MARIO</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">8</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">90%</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">7 BIANCHI LUIGI</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">7</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">85%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-red-600 mt-2 font-semibold">⚠️ Table wider than container</p>
+                </div>
+            </div>
+            
+            <!-- AFTER V8.6 -->
+            <div class="bg-green-50 border-2 border-green-300 rounded-lg p-4">
+                <h2 class="text-xl font-bold text-green-800 mb-4">✅ After V8.6</h2>
+                <p class="text-sm text-green-700 mb-4">Responsive padding (px-2 sm:px-6) + horizontal scroll</p>
+                
+                <div style="max-width: 375px; margin: 0 auto;">
+                    <!-- V8.6: Mobile-friendly table -->
+                    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                                    <th class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Pres.</th>
+                                    <th class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Disp.</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">10 ROSSI MARIO</td>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">8</td>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">90%</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">7 BIANCHI LUIGI</td>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">7</td>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">85%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-green-600 mt-2 font-semibold">✓ Fits perfectly, scrollable if needed</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features List -->
+        <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-6">
+            <h2 class="text-xl font-bold text-blue-800 mb-4">🎯 V8.6 Mobile Features</h2>
+            <ul class="space-y-2 text-blue-900">
+                <li>✓ <strong>Responsive Padding:</strong> px-2 on mobile (<640px), px-6 on desktop (≥640px)</li>
+                <li>✓ <strong>Horizontal Scroll:</strong> overflow-x-auto prevents content from being cut off</li>
+                <li>✓ <strong>Compact Layout:</strong> More efficient use of screen space on mobile devices</li>
+                <li>✓ <strong>Backward Compatible:</strong> Desktop experience unchanged with full padding</li>
+            </ul>
+        </div>
+        
+        <!-- Code Changes Summary -->
+        <div class="bg-white border border-gray-300 rounded-lg p-6 mt-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">💻 Code Changes</h2>
+            
+            <div class="mb-4">
+                <h3 class="font-semibold text-gray-700 mb-2">HTML (line 715):</h3>
+                <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>&lt;!-- V8.6: Mobile-friendly table --&gt;
+&lt;div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6 overflow-x-auto"&gt;</code></pre>
+            </div>
+            
+            <div class="mb-4">
+                <h3 class="font-semibold text-gray-700 mb-2">Table Headers (lines 719-721):</h3>
+                <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>&lt;th class="px-2 sm:px-6 py-3 ..."&gt;Giocatore&lt;/th&gt;
+&lt;th class="px-2 sm:px-6 py-3 ..."&gt;Pres.&lt;/th&gt;
+&lt;th class="px-2 sm:px-6 py-3 ..."&gt;% Disp.&lt;/th&gt;</code></pre>
+            </div>
+            
+            <div>
+                <h3 class="font-semibold text-gray-700 mb-2">JavaScript (populateAttendanceTable):</h3>
+                <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>// V8.6: Use responsive padding for tornei table
+const isTorneiTable = tableType === 'Tornei';
+const cellPadding = isTorneiTable ? 'px-2 sm:px-6 py-4' : 'px-6 py-4';</code></pre>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
