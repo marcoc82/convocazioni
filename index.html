@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.5 - Allenamenti filter fix: period filter now updates both report AND session cards list -->
+<!-- Version: V8.6 - Default players present in new training sessions, fixed tornei totali column in chart, mobile-friendly tornei table -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -236,7 +236,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 8.2</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 8.6</span>
             </div>
         </div>
 
@@ -711,13 +711,14 @@
                     </svg>
                 </button>
             </div>
-            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
+            <!-- V8.6: Mobile-friendly table with responsive padding and horizontal scroll -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6 overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
-                            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pres.</th>
-                            <th scope="col" id="tornei-availability-header" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl hidden">% Disp.</th>
+                            <th scope="col" class="px-2 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-xl">Giocatore</th>
+                            <th scope="col" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pres.</th>
+                            <th scope="col" id="tornei-availability-header" class="px-2 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-xl hidden">% Disp.</th>
                         </tr>
                     </thead>
                     <tbody id="attendance-list-tornei" class="bg-white divide-y divide-gray-200">
@@ -3401,12 +3402,16 @@
 
                 const hasAvailabilityData = availabilityData !== null && availabilityData !== undefined;
                 const colSpan = hasAvailabilityData ? 3 : 2;
+                
+                // V8.6: Use responsive padding for tornei table
+                const isTorneiTable = tableType === 'Tornei';
+                const cellPadding = isTorneiTable ? 'px-2 sm:px-6 py-4' : 'px-6 py-4';
 
                 if (sortedPlayers.length === 0) {
                     // Show empty state message only if no players at all
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td colspan="${colSpan}" class="px-6 py-4 text-center text-gray-500 italic">
+                        <td colspan="${colSpan}" class="${cellPadding} text-center text-gray-500 italic">
                             Nessun giocatore disponibile per ${tableType}
                         </td>
                     `;
@@ -3443,13 +3448,13 @@
                                 }
                             }
                             
-                            availabilityCell = `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${availabilityPercentage}${availabilityPercentage !== 'N/D' ? '%' : ''}</td>`;
+                            availabilityCell = `<td class="${cellPadding} whitespace-nowrap text-sm text-gray-500 text-center">${availabilityPercentage}${availabilityPercentage !== 'N/D' ? '%' : ''}</td>`;
                         }
                         
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}</td>
+                            <td class="${cellPadding} whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
+                            <td class="${cellPadding} whitespace-nowrap text-sm text-gray-500 text-center">${player.count}</td>
                             ${availabilityCell}
                         `;
                         tableElement.appendChild(row);
@@ -5376,12 +5381,22 @@
                     return;
                 }
                 
-                console.log(`🏃 Creating new training session: ${date} ${time} (V8.5)`);
+                console.log(`🏃 Creating new training session: ${date} ${time} (V8.6)`);
+                
+                // V8.6: Initialize attendance with all players present by default
+                const players = companyPlayers.length > 0 
+                    ? companyPlayers.map(p => typeof p === 'string' ? p : `${p.numero} ${p.nome}`)
+                    : ['10 ROSSI MARIO', '7 BIANCHI LUIGI', '23 VERDI GIUSEPPE', '4 NERI ANTONIO', '18 AZZURRI MARCO'];
+                
+                const attendance = {};
+                players.forEach(player => {
+                    attendance[player] = true; // Default all players as present
+                });
                 
                 const newSession = {
                     date: date,
                     time: time,
-                    attendance: {}
+                    attendance: attendance
                 };
                 
                 try {
@@ -6222,6 +6237,7 @@
             }
 
             // V8.1: Generate Tornei statistics chart for POLIS company
+            // V8.6: Fixed to show per-player tournament count instead of total for all
             function generateTorneiStatsChart() {
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                 const isPolisCompany = companyName === 'POLIS';
@@ -6231,8 +6247,23 @@
                     return;
                 }
                 
-                // Count total tornei from convocationHistory
-                const totalTornei = convocationHistory.filter(conv => conv.tipo === 'Torneo').length;
+                // V8.6: Calculate per-player tournament count from convocationHistory
+                const playerTorneiCount = {};
+                convocationHistory.forEach(convocation => {
+                    if (convocation.details?.tipo === 'Torneo') {
+                        const players = convocation.players || [];
+                        players.forEach(player => {
+                            // Handle both old string format and new object format
+                            let playerKey;
+                            if (typeof player === 'string') {
+                                playerKey = player;
+                            } else {
+                                playerKey = `${player.numero} ${player.nome}`;
+                            }
+                            playerTorneiCount[playerKey] = (playerTorneiCount[playerKey] || 0) + 1;
+                        });
+                    }
+                });
                 
                 // Get data from tornei attendance table
                 const attendanceRows = document.querySelectorAll('#attendance-list-tornei tr');
@@ -6245,6 +6276,9 @@
                         const presences = parseInt(cells[1].textContent.trim()) || 0;
                         // For tornei, we only have presences and availability percentage (not convocation percentage)
                         const availabilityPercentage = cells[2] ? cells[2].textContent.replace('%', '').trim() : 'N/D';
+                        
+                        // V8.6: Use per-player tournament count
+                        const totalTornei = playerTorneiCount[playerName] || 0;
                         
                         playerData.push({
                             name: playerName,
