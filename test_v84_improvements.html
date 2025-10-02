@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V8.4 - Allenamenti Improvements Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">V8.4 - Allenamenti Improvements Test</h1>
+        
+        <!-- Version Info -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+            <h2 class="text-lg font-semibold text-blue-800 mb-2">🎯 V8.4 New Features</h2>
+            <ol class="list-decimal list-inside space-y-1 text-sm text-blue-900">
+                <li><strong>Filter Sessions by Period:</strong> When you select a period filter (Settimana corrente, Mese corrente, etc.), the session cards below are also filtered to show only sessions in that period.</li>
+                <li><strong>Accordion Behavior:</strong> When you expand a session card, all other cards automatically collapse. Maximum one card expanded at a time.</li>
+                <li><strong>New Session Expanded:</strong> After creating a new training session, it appears expanded in the list automatically.</li>
+            </ol>
+        </div>
+
+        <!-- Period Filter Demo -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">📊 Period Filter</h3>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Seleziona Periodo:</label>
+                <select id="test-period-select" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg" onchange="filterSessions()">
+                    <option value="all">Tutti i periodi</option>
+                    <option value="week">Settimana corrente</option>
+                    <option value="month">Mese corrente</option>
+                    <option value="year">Anno corrente</option>
+                </select>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">
+                <strong>✅ Test:</strong> Change the period filter and notice how the sessions below are filtered accordingly.
+            </div>
+        </div>
+
+        <!-- Sessions Container -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">🏃 Training Sessions</h3>
+            <div class="bg-yellow-50 border border-yellow-200 rounded p-3 text-sm text-yellow-800 mb-4">
+                <strong>💡 Accordion Test:</strong> Click on any session header to expand it. Notice how all other cards automatically collapse when you expand one!
+            </div>
+            <div id="sessions-container" class="space-y-4">
+                <!-- Sessions will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Add New Session Demo -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">➕ Create New Session</h3>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Data:</label>
+                    <input type="date" id="new-session-date" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Orario:</label>
+                    <input type="time" id="new-session-time" class="w-full px-3 py-2 border border-gray-300 rounded-lg" value="18:00">
+                </div>
+            </div>
+            <button onclick="createNewSession()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg">
+                ✅ Crea Nuovo Allenamento
+            </button>
+            <div class="bg-purple-50 border border-purple-200 rounded p-3 text-sm text-purple-800 mt-3">
+                <strong>🔍 Test:</strong> Create a new session and notice how it appears at the top of the list, <strong>already expanded</strong>!
+            </div>
+        </div>
+
+        <!-- Code Changes -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">💻 Key Code Changes</h3>
+            <div class="space-y-4">
+                <div>
+                    <strong>1. renderTrainingSessions() - Filter Sessions:</strong>
+                    <pre class="bg-gray-100 p-3 rounded mt-2 overflow-x-auto text-xs"><code>// V8.4: Filter sessions based on report period
+const periodSelect = document.getElementById('report-period-select');
+const selectedPeriod = periodSelect ? periodSelect.value : 'all';
+
+const filteredSessions = trainingSessions.filter(session => {
+    // Same filter logic as report
+    // Returns only sessions matching the period
+});</code></pre>
+                </div>
+                
+                <div>
+                    <strong>2. createTrainingSessionCard() - Accordion Behavior:</strong>
+                    <pre class="bg-gray-100 p-3 rounded mt-2 overflow-x-auto text-xs"><code>cardHeader.addEventListener('click', () => {
+    // V8.4: Collapse all other cards first (accordion behavior)
+    const allCards = document.querySelectorAll('#training-sessions-container > div');
+    allCards.forEach(otherCard => {
+        if (otherCard !== card) {
+            // Collapse other cards
+            const otherContent = otherCard.querySelector('.card-content');
+            const otherIcon = otherCard.querySelector('.expand-icon');
+            if (otherContent && !otherContent.classList.contains('hidden')) {
+                otherContent.classList.add('hidden');
+                otherIcon.classList.remove('rotate-180');
+            }
+        }
+    });
+    // Then expand this card
+});</code></pre>
+                </div>
+                
+                <div>
+                    <strong>3. saveNewTrainingSession() - Expand New Session:</strong>
+                    <pre class="bg-gray-100 p-3 rounded mt-2 overflow-x-auto text-xs"><code>// V8.4: Re-render with new session expanded
+renderTrainingSessions(newSession.id);
+
+// In createTrainingSessionCard():
+function createTrainingSessionCard(session, index, expandByDefault = false) {
+    // Set initial state based on expandByDefault parameter
+    const shouldExpand = expandSessionId && session.id === expandSessionId;
+    // ...
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data for testing
+        let sessions = [
+            { id: '1', date: getTodayDate(), time: '18:00', isDemo: false },
+            { id: '2', date: getDateDaysAgo(3), time: '19:00', isDemo: false },
+            { id: '3', date: getDateDaysAgo(7), time: '18:30', isDemo: false },
+            { id: '4', date: getDateDaysAgo(35), time: '18:00', isDemo: false },
+            { id: '5', date: getDateDaysAgo(100), time: '19:00', isDemo: false }
+        ];
+
+        let expandedSessionId = null;
+
+        function getTodayDate() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function getDateDaysAgo(days) {
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            return date.toISOString().split('T')[0];
+        }
+
+        function filterSessions() {
+            renderSessions();
+        }
+
+        function renderSessions(expandId = null) {
+            const container = document.getElementById('sessions-container');
+            const periodSelect = document.getElementById('test-period-select');
+            const selectedPeriod = periodSelect.value;
+            const now = new Date();
+
+            // Filter sessions
+            const filteredSessions = sessions.filter(session => {
+                if (selectedPeriod === 'all') return true;
+                
+                const sessionDate = new Date(session.date);
+                if (selectedPeriod === 'week') {
+                    const startOfWeek = new Date(now);
+                    const day = startOfWeek.getDay();
+                    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+                    startOfWeek.setDate(diff);
+                    startOfWeek.setHours(0, 0, 0, 0);
+                    
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    endOfWeek.setHours(23, 59, 59, 999);
+                    
+                    return sessionDate >= startOfWeek && sessionDate <= endOfWeek;
+                } else if (selectedPeriod === 'month') {
+                    return sessionDate.getMonth() === now.getMonth() && 
+                           sessionDate.getFullYear() === now.getFullYear();
+                } else if (selectedPeriod === 'year') {
+                    return sessionDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+
+            container.innerHTML = '';
+
+            if (filteredSessions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <p class="text-lg">Nessun allenamento nel periodo selezionato</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredSessions.forEach(session => {
+                const shouldExpand = expandId === session.id;
+                const card = createSessionCard(session, shouldExpand);
+                container.appendChild(card);
+            });
+        }
+
+        function createSessionCard(session, expandByDefault = false) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl shadow-sm border border-gray-200';
+            card.dataset.sessionId = session.id;
+
+            const dateObj = new Date(session.date + ' ' + session.time);
+            const formattedDate = dateObj.toLocaleDateString('it-IT', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            card.innerHTML = `
+                <div class="card-header p-4 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors">
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-gray-800">📅 ${formattedDate}</h4>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${session.isDemo ? '<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Demo</span>' : ''}
+                            <svg class="expand-icon w-6 h-6 text-gray-600 transform transition-transform ${expandByDefault ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-content ${expandByDefault ? '' : 'hidden'} p-4 pt-0">
+                    <p class="text-sm text-gray-600 mb-3">🕐 Orario: ${session.time}</p>
+                    
+                    <div class="mb-3 space-y-2">
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">10 ROSSI MARIO</span>
+                            <input type="checkbox" class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                        </label>
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">7 BIANCHI LUIGI</span>
+                            <input type="checkbox" class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                        </label>
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">23 VERDI GIUSEPPE</span>
+                            <input type="checkbox" class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500" checked>
+                        </label>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-3 p-3 bg-gray-50 rounded">
+                        <div class="text-sm">
+                            <span class="text-green-600 font-semibold">✓ Presenti: 1</span>
+                            <span class="ml-3 text-red-600 font-semibold">✗ Assenti: 2</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-green-500 hover:bg-green-600 text-white text-sm py-2 rounded font-medium">
+                            Tutti Presenti
+                        </button>
+                        <button class="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded font-medium">
+                            Tutti Assenti
+                        </button>
+                        <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded font-medium">
+                            💾 Salva
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            const cardHeader = card.querySelector('.card-header');
+            const cardContent = card.querySelector('.card-content');
+            const expandIcon = card.querySelector('.expand-icon');
+
+            cardHeader.addEventListener('click', () => {
+                const isExpanded = !cardContent.classList.contains('hidden');
+                if (isExpanded) {
+                    cardContent.classList.add('hidden');
+                    expandIcon.classList.remove('rotate-180');
+                } else {
+                    // Accordion behavior: collapse all other cards
+                    const allCards = document.querySelectorAll('#sessions-container > div');
+                    allCards.forEach(otherCard => {
+                        if (otherCard !== card) {
+                            const otherContent = otherCard.querySelector('.card-content');
+                            const otherIcon = otherCard.querySelector('.expand-icon');
+                            if (otherContent && !otherContent.classList.contains('hidden')) {
+                                otherContent.classList.add('hidden');
+                                otherIcon.classList.remove('rotate-180');
+                            }
+                        }
+                    });
+                    
+                    cardContent.classList.remove('hidden');
+                    expandIcon.classList.add('rotate-180');
+                }
+            });
+
+            return card;
+        }
+
+        function createNewSession() {
+            const dateInput = document.getElementById('new-session-date');
+            const timeInput = document.getElementById('new-session-time');
+            
+            if (!dateInput.value || !timeInput.value) {
+                alert('⚠️ Inserisci data e orario');
+                return;
+            }
+
+            const newSession = {
+                id: 'new-' + Date.now(),
+                date: dateInput.value,
+                time: timeInput.value,
+                isDemo: false
+            };
+
+            // Add to array at the beginning
+            sessions.unshift(newSession);
+            
+            // Re-render with new session expanded
+            renderSessions(newSession.id);
+            
+            // Clear inputs
+            dateInput.value = '';
+            timeInput.value = '18:00';
+            
+            alert('✅ Allenamento creato con successo!');
+        }
+
+        // Set default date to today
+        document.getElementById('new-session-date').valueAsDate = new Date();
+
+        // Initial render
+        renderSessions();
+    </script>
+</body>
+</html>
