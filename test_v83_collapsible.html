@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<!-- Test file for V8.3 Collapsible Cards and Weekly Filter -->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V8.3 - Collapsible Cards & Weekly Filter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">🧪 Test V8.3 Features</h1>
+        
+        <!-- Feature Summary -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold text-green-800 mb-3">✅ V8.3 Changes Implemented</h2>
+            <ul class="space-y-2 text-green-700">
+                <li>✓ <strong>1. Firebase Path Changed:</strong> <code class="bg-green-100 px-2 py-1 rounded">companies/</code> → <code class="bg-green-100 px-2 py-1 rounded">societa/</code></li>
+                <li>✓ <strong>2. Collapsible Cards:</strong> Training cards show only date when closed, expand on click</li>
+                <li>✓ <strong>3. Weekly Filter:</strong> Added "Settimana corrente" option to period selector</li>
+                <li>✓ <strong>4. Version Updated:</strong> V8.2 → V8.3</li>
+            </ul>
+        </div>
+        
+        <!-- Period Filter Test -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Period Filter (with Weekly option)</h3>
+            <select id="test-period-select" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg">
+                <option value="all">Tutti i periodi</option>
+                <option value="week">Settimana corrente ⭐ NEW</option>
+                <option value="month">Mese corrente</option>
+                <option value="year">Anno corrente</option>
+            </select>
+        </div>
+        
+        <!-- Collapsible Card Example -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">📅 Collapsible Card Example</h3>
+            
+            <!-- Sample Collapsible Card 1 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
+                <!-- Card Header (always visible) -->
+                <div class="card-header p-4 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors" onclick="toggleCard(this)">
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-gray-800">📅 giovedì 19 dicembre 2024</h4>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Demo</span>
+                            <svg class="expand-icon w-6 h-6 text-gray-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Content (collapsible) -->
+                <div class="card-content hidden p-4 pt-0">
+                    <p class="text-sm text-gray-600 mb-3">🕐 Orario: 18:30</p>
+                    
+                    <div class="mb-3 space-y-2">
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">10 ROSSI MARIO</span>
+                            <input type="checkbox" checked class="w-5 h-5 text-teal-600 rounded">
+                        </label>
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">7 BIANCHI LUIGI</span>
+                            <input type="checkbox" class="w-5 h-5 text-teal-600 rounded">
+                        </label>
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">23 VERDI GIUSEPPE</span>
+                            <input type="checkbox" checked class="w-5 h-5 text-teal-600 rounded">
+                        </label>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-3 p-3 bg-gray-50 rounded">
+                        <div class="text-sm">
+                            <span class="text-green-600 font-semibold">✓ Presenti: 2</span>
+                            <span class="ml-3 text-red-600 font-semibold">✗ Assenti: 1</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-green-500 hover:bg-green-600 text-white text-sm py-2 rounded font-medium">
+                            Tutti Presenti
+                        </button>
+                        <button class="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded font-medium">
+                            Tutti Assenti
+                        </button>
+                        <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded font-medium">
+                            💾 Salva
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sample Collapsible Card 2 -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-4">
+                <!-- Card Header (always visible) -->
+                <div class="card-header p-4 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors" onclick="toggleCard(this)">
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-gray-800">📅 martedì 17 dicembre 2024</h4>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="expand-icon w-6 h-6 text-gray-600 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card Content (collapsible) -->
+                <div class="card-content hidden p-4 pt-0">
+                    <p class="text-sm text-gray-600 mb-3">🕐 Orario: 19:00</p>
+                    
+                    <div class="mb-3 space-y-2">
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">10 ROSSI MARIO</span>
+                            <input type="checkbox" checked class="w-5 h-5 text-teal-600 rounded">
+                        </label>
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">7 BIANCHI LUIGI</span>
+                            <input type="checkbox" checked class="w-5 h-5 text-teal-600 rounded">
+                        </label>
+                    </div>
+                    
+                    <div class="flex justify-between items-center mb-3 p-3 bg-gray-50 rounded">
+                        <div class="text-sm">
+                            <span class="text-green-600 font-semibold">✓ Presenti: 2</span>
+                            <span class="ml-3 text-red-600 font-semibold">✗ Assenti: 0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-green-500 hover:bg-green-600 text-white text-sm py-2 rounded font-medium">
+                            Tutti Presenti
+                        </button>
+                        <button class="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded font-medium">
+                            Tutti Assenti
+                        </button>
+                        <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2 rounded font-medium">
+                            💾 Salva
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="text-sm text-gray-600 mt-4">
+                💡 <strong>Instructions:</strong> Click on the date header to expand/collapse each card. 
+                When collapsed, only the date is shown. When expanded, you can see all details and mark attendance.
+            </p>
+        </div>
+        
+        <!-- Code Changes Summary -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-blue-800 mb-3">📝 Code Changes</h3>
+            <div class="space-y-3 text-sm text-blue-900">
+                <div>
+                    <strong>1. Firebase Path:</strong>
+                    <pre class="bg-blue-100 p-2 rounded mt-1 overflow-x-auto"><code>// Old V8.2:
+const trainingsRef = window.collection(window.db, `companies/${companyId}/trainingSessions`);
+
+// New V8.3:
+const trainingsRef = window.collection(window.db, `societa/${companyId}/trainingSessions`);</code></pre>
+                </div>
+                
+                <div>
+                    <strong>2. Collapsible Cards:</strong>
+                    <ul class="list-disc list-inside mt-1 space-y-1">
+                        <li>Card header is always visible with date and expand/collapse icon</li>
+                        <li>Card content (players, buttons) is hidden by default</li>
+                        <li>Click on header toggles visibility with smooth animation</li>
+                        <li>Icon rotates 180° when expanded</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <strong>3. Weekly Filter:</strong>
+                    <pre class="bg-blue-100 p-2 rounded mt-1 overflow-x-auto"><code>// Added to period select:
+<option value="week">Settimana corrente</option>
+
+// Filter logic calculates start of week (Monday) and end of week (Sunday)</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleCard(headerElement) {
+            const card = headerElement.closest('.bg-white');
+            const content = card.querySelector('.card-content');
+            const icon = card.querySelector('.expand-icon');
+            
+            const isExpanded = !content.classList.contains('hidden');
+            if (isExpanded) {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            } else {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            }
+        }
+    </script>
+</body>
+</html>
