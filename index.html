@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.4 - Allenamenti improvements: filter sessions by period, accordion behavior, expand new sessions -->
+<!-- Version: V8.5 - Allenamenti filter fix: period filter now updates both report AND session cards list -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -5010,9 +5010,9 @@
             // Global variable to store training sessions
             let trainingSessions = [];
             
-            // Load allenamenti data (sessions and report) - V8.4
+            // Load allenamenti data (sessions and report) - V8.5
             async function loadAllenamentiData() {
-                console.log('🏃 Loading Allenamenti data... (V8.4)');
+                console.log('🏃 Loading Allenamenti data... (V8.5)');
                 await Promise.all([
                     loadTrainingSessions(),
                     loadAllenamentiReport()
@@ -5117,7 +5117,7 @@
                     return;
                 }
                 
-                // V8.4: Filter sessions based on report period
+                // V8.5: Filter sessions based on report period (fixes issue where cards weren't filtered)
                 const periodSelect = document.getElementById('report-period-select');
                 const selectedPeriod = periodSelect ? periodSelect.value : 'all';
                 const now = new Date();
@@ -5376,7 +5376,7 @@
                     return;
                 }
                 
-                console.log(`🏃 Creating new training session: ${date} ${time} (V8.4)`);
+                console.log(`🏃 Creating new training session: ${date} ${time} (V8.5)`);
                 
                 const newSession = {
                     date: date,
@@ -5416,9 +5416,9 @@
                 }
             }
             
-            // Load allenamenti report (V8.4: filter sessions by period)
+            // Load allenamenti report (V8.5: filter sessions by period for both report and cards)
             async function loadAllenamentiReport() {
-                console.log('📊 Loading Allenamenti report... (V8.4)');
+                console.log('📊 Loading Allenamenti report... (V8.5)');
                 
                 const reportBody = document.getElementById('allenamenti-report-body');
                 const periodSelect = document.getElementById('report-period-select');
@@ -7209,7 +7209,7 @@
             });
 
             allenamentiButton.addEventListener('click', () => {
-                console.log('🏃 Opening Allenamenti Management View... (V8.4)');
+                console.log('🏃 Opening Allenamenti Management View... (V8.5)');
                 hideAllScreens();
                 allenamentiView.classList.remove('hidden');
                 loadAllenamentiData(); // Load training sessions and report data
@@ -8467,7 +8467,9 @@
             });
             
             refreshReportButton.addEventListener('click', () => {
+                // V8.5: Update both report and session cards when filter changes
                 loadAllenamentiReport();
+                renderTrainingSessions();
             });
             
             // Campionato event listeners
