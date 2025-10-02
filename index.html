@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V7.9 - Fix normalizePlayerName ReferenceError by moving to global scope, applies to all summary tables (amichevoli, tornei, campionato) and % Disp. matching -->
+<!-- Version: V8.0 - Show player count next to "Giocatori:" and add statistics chart modal for POLIS company -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -20,6 +20,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Chart.js for statistics charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <!-- CONFIGURAZIONE FIREBASE -->
     <script type="module">
   import { cercaSocietaDaCodice } from './cercaSocietaDaCodice.js';
@@ -657,7 +659,14 @@
             <p id="total-matches-display" class="text-center text-gray-600 mb-6">Partite totali: <span id="total-matches-count" class="font-semibold">0</span></p>
             
             <!-- Total Attendance Table -->
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Riepilogo Totale</h3>
+            <div class="flex items-center gap-2 mb-3">
+                <h3 class="text-lg font-semibold text-gray-700">📊 Riepilogo Totale</h3>
+                <button id="stats-chart-button" class="hidden text-blue-600 hover:text-blue-800 transition-colors" title="Visualizza grafico statistiche">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </button>
+            </div>
             <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6 overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -1089,6 +1098,44 @@
                 <button id="share-distinta-button" class="flex-1 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors duration-200">
                     📤 Condividi
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Statistics Chart (POLIS only) -->
+    <div id="stats-chart-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0 z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">📊 Statistiche Giocatori</h2>
+                <button id="close-stats-chart-modal" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Chart Container -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <canvas id="stats-chart-canvas" class="w-full"></canvas>
+            </div>
+            
+            <!-- Legend/Table -->
+            <div class="mt-6 overflow-x-auto">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Dettaglio Statistiche</h3>
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Partite Totali</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Convocazioni</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Conv.</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Disp.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Stats data will be populated here -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -1636,6 +1683,11 @@
             const copyDistintaButton = document.getElementById('copy-distinta-button');
             const printDistintaButton = document.getElementById('print-distinta-button');
             const shareDistintaButton = document.getElementById('share-distinta-button');
+
+            // V8.0: Stats Chart Modal Elements
+            const statsChartModal = document.getElementById('stats-chart-modal');
+            const statsChartButton = document.getElementById('stats-chart-button');
+            const closeStatsChartModalButton = document.getElementById('close-stats-chart-modal');
 
             // --- App State ---
             let userRole = null;
@@ -2788,7 +2840,7 @@
                             <p>👤 Mister: ${data.details.misterTipo || 'N/D'}</p>
                         </div>
                         <div class="text-sm text-gray-700">
-                            <p class="font-semibold mb-1">Giocatori:</p>
+                            <p class="font-semibold mb-1">Giocatori: (${data.players.length})</p>
                             <ul class="list-disc list-inside space-y-0.5">
                                 ${data.players.map(p => {
                                     if (typeof p === 'string') {
@@ -2941,6 +2993,16 @@
                         availabilityHeader.classList.remove('hidden');
                     } else {
                         availabilityHeader.classList.add('hidden');
+                    }
+                }
+                
+                // V8.0: Show stats chart button only for POLIS company
+                const statsButton = document.getElementById('stats-chart-button');
+                if (statsButton) {
+                    if (isPolisCompany) {
+                        statsButton.classList.remove('hidden');
+                    } else {
+                        statsButton.classList.add('hidden');
                     }
                 }
                 
@@ -3329,7 +3391,7 @@
                             <p>👤 Mister Tipo: ${data.details.misterTipo || 'N/D'}</p>
                         </div>
                         <div class="text-sm text-gray-700">
-                            <p class="font-semibold mb-1">Giocatori:</p>
+                            <p class="font-semibold mb-1">Giocatori: (${data.players.length})</p>
                             <ul class="list-disc list-inside space-y-0.5">
                                 ${data.players.map(p => {
                                     if (typeof p === 'string') {
@@ -5304,6 +5366,173 @@
                 distintaDisplayModal.classList.add('hidden', 'opacity-0');
             }
 
+            // V8.0: Stats Chart Modal Functions
+            function showStatsChartModal() {
+                statsChartModal.classList.remove('hidden', 'opacity-0');
+                statsChartModal.classList.add('flex', 'opacity-100');
+                generateStatsChart();
+            }
+
+            function hideStatsChartModal() {
+                statsChartModal.classList.remove('flex', 'opacity-100');
+                statsChartModal.classList.add('hidden', 'opacity-0');
+                // Destroy chart instance if it exists
+                if (window.statsChart) {
+                    window.statsChart.destroy();
+                    window.statsChart = null;
+                }
+            }
+
+            // V8.0: Generate statistics chart for POLIS company
+            function generateStatsChart() {
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const isPolisCompany = companyName === 'POLIS';
+                
+                if (!isPolisCompany) {
+                    console.log('📊 Stats chart only available for POLIS company');
+                    return;
+                }
+                
+                // Get data from attendance list
+                const totalMatches = convocationHistory.length;
+                const attendanceRows = document.querySelectorAll('#attendance-list tr');
+                
+                const playerData = [];
+                attendanceRows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 3) {
+                        const playerName = cells[0].textContent.trim();
+                        const presences = parseInt(cells[1].textContent.trim()) || 0;
+                        const convocationPercentage = parseInt(cells[2].textContent.replace('%', '').trim()) || 0;
+                        const availabilityPercentage = cells[3] ? cells[3].textContent.replace('%', '').trim() : 'N/D';
+                        
+                        playerData.push({
+                            name: playerName,
+                            totalMatches: totalMatches,
+                            presences: presences,
+                            convocationPercentage: convocationPercentage,
+                            availabilityPercentage: availabilityPercentage
+                        });
+                    }
+                });
+                
+                // Sort by presences descending
+                playerData.sort((a, b) => b.presences - a.presences);
+                
+                // Limit to top 15 players for better readability
+                const displayData = playerData.slice(0, 15);
+                
+                // Populate table
+                const statsTableBody = document.getElementById('stats-table-body');
+                statsTableBody.innerHTML = displayData.map(player => `
+                    <tr>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${player.name}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.totalMatches}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.presences}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.convocationPercentage}%</td>
+                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>
+                    </tr>
+                `).join('');
+                
+                // Create chart
+                const ctx = document.getElementById('stats-chart-canvas').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.statsChart) {
+                    window.statsChart.destroy();
+                }
+                
+                // Prepare chart data
+                const labels = displayData.map(p => p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name);
+                const convocationData = displayData.map(p => p.convocationPercentage);
+                const availabilityData = displayData.map(p => {
+                    return p.availabilityPercentage === 'N/D' ? null : parseInt(p.availabilityPercentage);
+                });
+                
+                window.statsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: '% Convocazione',
+                                data: convocationData,
+                                backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                                borderColor: 'rgba(59, 130, 246, 1)',
+                                borderWidth: 2
+                            },
+                            {
+                                label: '% Disponibilità',
+                                data: availabilityData,
+                                backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                                borderColor: 'rgba(34, 197, 94, 1)',
+                                borderWidth: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: window.innerWidth < 640 ? 1 : 2,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    font: {
+                                        size: window.innerWidth < 640 ? 10 : 12
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Statistiche Giocatori - Top 15',
+                                font: {
+                                    size: window.innerWidth < 640 ? 14 : 18
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const player = displayData[context.dataIndex];
+                                        if (context.datasetIndex === 0) {
+                                            return `Convocazioni: ${player.presences}/${player.totalMatches} (${context.parsed.y}%)`;
+                                        } else {
+                                            return context.parsed.y !== null ? `Disponibilità: ${context.parsed.y}%` : 'Disponibilità: N/D';
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    },
+                                    font: {
+                                        size: window.innerWidth < 640 ? 9 : 11
+                                    }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: window.innerWidth < 640 ? 8 : 10
+                                    },
+                                    maxRotation: window.innerWidth < 640 ? 90 : 45,
+                                    minRotation: window.innerWidth < 640 ? 45 : 0
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                console.log('📊 Stats chart generated with', displayData.length, 'players');
+            }
+
             // Distinta Generation Functions
             async function selectDistintaLocation(location) {
                 console.log('📍 DISTINTA FLOW: selectDistintaLocation() called with location:', location);
@@ -6967,6 +7196,10 @@
             printDistintaButton.addEventListener('click', printDistinta);
             shareDistintaButton.addEventListener('click', shareDistinta);
 
+            // V8.0: Stats Chart Modal Event Listeners
+            statsChartButton.addEventListener('click', showStatsChartModal);
+            closeStatsChartModalButton.addEventListener('click', hideStatsChartModal);
+
             // Close modals when clicking outside of them
             statusModal.addEventListener('click', (e) => {
                 if (e.target === statusModal) {
@@ -7001,6 +7234,13 @@
             distintaDisplayModal.addEventListener('click', (e) => {
                 if (e.target === distintaDisplayModal) {
                     hideDistintaDisplayModal();
+                }
+            });
+
+            // V8.0: Close stats modal when clicking outside
+            statsChartModal.addEventListener('click', (e) => {
+                if (e.target === statsChartModal) {
+                    hideStatsChartModal();
                 }
             });
 
