@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.0 - Show player count next to "Giocatori:" and add statistics chart modal for POLIS company -->
+<!-- Version: V8.1 - Add statistics chart button for Tornei section, includes V8.0 features (player count and stats chart for Riepilogo Totale) -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -236,7 +236,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.9</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 8.1</span>
             </div>
         </div>
 
@@ -700,7 +700,14 @@
             </div>
 
             <!-- Tornei Attendance Table -->
-            <h3 id="tornei-header" class="text-lg font-semibold text-gray-700 mb-3">🏆 Riepilogo Presenze Tornei</h3>
+            <div class="flex items-center gap-2 mb-3">
+                <h3 id="tornei-header" class="text-lg font-semibold text-gray-700">🏆 Riepilogo Presenze Tornei</h3>
+                <button id="tornei-stats-chart-button" class="hidden text-blue-600 hover:text-blue-800 transition-colors" title="Visualizza grafico statistiche tornei">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                </button>
+            </div>
             <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -1134,6 +1141,43 @@
                     </thead>
                     <tbody id="stats-table-body" class="bg-white divide-y divide-gray-200">
                         <!-- Stats data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- V8.1: Tornei Stats Chart Modal -->
+    <div id="tornei-stats-chart-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0 z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-5xl max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">🏆 Statistiche Tornei</h2>
+                <button id="close-tornei-stats-chart-modal" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Chart Container -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <canvas id="tornei-stats-chart-canvas" class="w-full"></canvas>
+            </div>
+            
+            <!-- Legend/Table -->
+            <div class="mt-6 overflow-x-auto">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Dettaglio Statistiche Tornei</h3>
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Tornei Totali</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Presenze</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Disp.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tornei-stats-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Tornei stats data will be populated here -->
                     </tbody>
                 </table>
             </div>
@@ -1688,6 +1732,11 @@
             const statsChartModal = document.getElementById('stats-chart-modal');
             const statsChartButton = document.getElementById('stats-chart-button');
             const closeStatsChartModalButton = document.getElementById('close-stats-chart-modal');
+
+            // V8.1: Tornei Stats Chart Modal Elements
+            const torneiStatsChartModal = document.getElementById('tornei-stats-chart-modal');
+            const torneiStatsChartButton = document.getElementById('tornei-stats-chart-button');
+            const closeTorneiStatsChartModalButton = document.getElementById('close-tornei-stats-chart-modal');
 
             // --- App State ---
             let userRole = null;
@@ -3003,6 +3052,16 @@
                         statsButton.classList.remove('hidden');
                     } else {
                         statsButton.classList.add('hidden');
+                    }
+                }
+                
+                // V8.1: Show Tornei stats chart button only for POLIS company
+                const torneiStatsButton = document.getElementById('tornei-stats-chart-button');
+                if (torneiStatsButton) {
+                    if (isPolisCompany) {
+                        torneiStatsButton.classList.remove('hidden');
+                    } else {
+                        torneiStatsButton.classList.add('hidden');
                     }
                 }
                 
@@ -5533,6 +5592,204 @@
                 console.log('📊 Stats chart generated with', displayData.length, 'players');
             }
 
+            // V8.1: Tornei Stats Chart Modal Functions
+            function showTorneiStatsChartModal() {
+                torneiStatsChartModal.classList.remove('hidden', 'opacity-0');
+                torneiStatsChartModal.classList.add('flex', 'opacity-100');
+                generateTorneiStatsChart();
+            }
+
+            function hideTorneiStatsChartModal() {
+                torneiStatsChartModal.classList.remove('flex', 'opacity-100');
+                torneiStatsChartModal.classList.add('hidden', 'opacity-0');
+                // Destroy chart instance if it exists
+                if (window.torneiStatsChart) {
+                    window.torneiStatsChart.destroy();
+                    window.torneiStatsChart = null;
+                }
+            }
+
+            // V8.1: Generate Tornei statistics chart for POLIS company
+            function generateTorneiStatsChart() {
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const isPolisCompany = companyName === 'POLIS';
+                
+                if (!isPolisCompany) {
+                    console.log('📊 Tornei stats chart only available for POLIS company');
+                    return;
+                }
+                
+                // Count total tornei from convocationHistory
+                const totalTornei = convocationHistory.filter(conv => conv.tipo === 'Torneo').length;
+                
+                // Get data from tornei attendance table
+                const attendanceRows = document.querySelectorAll('#attendance-list-tornei tr');
+                
+                const playerData = [];
+                attendanceRows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 2) {
+                        const playerName = cells[0].textContent.trim();
+                        const presences = parseInt(cells[1].textContent.trim()) || 0;
+                        // For tornei, we only have presences and availability percentage (not convocation percentage)
+                        const availabilityPercentage = cells[2] ? cells[2].textContent.replace('%', '').trim() : 'N/D';
+                        
+                        playerData.push({
+                            name: playerName,
+                            totalTornei: totalTornei,
+                            presences: presences,
+                            availabilityPercentage: availabilityPercentage
+                        });
+                    }
+                });
+                
+                // Sort by presences descending
+                playerData.sort((a, b) => b.presences - a.presences);
+                
+                // Limit to top 15 players for better readability
+                const displayData = playerData.slice(0, 15);
+                
+                // Populate table
+                const torneiStatsTableBody = document.getElementById('tornei-stats-table-body');
+                torneiStatsTableBody.innerHTML = displayData.map(player => `
+                    <tr>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">${player.name}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.totalTornei}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.presences}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>
+                    </tr>
+                `).join('');
+                
+                // Create chart
+                const ctx = document.getElementById('tornei-stats-chart-canvas').getContext('2d');
+                
+                // Destroy existing chart if it exists
+                if (window.torneiStatsChart) {
+                    window.torneiStatsChart.destroy();
+                }
+                
+                // Prepare chart data
+                const labels = displayData.map(p => p.name.length > 20 ? p.name.substring(0, 20) + '...' : p.name);
+                const presencesData = displayData.map(p => p.presences);
+                const availabilityData = displayData.map(p => {
+                    return p.availabilityPercentage === 'N/D' ? null : parseInt(p.availabilityPercentage);
+                });
+                
+                window.torneiStatsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Presenze ai Tornei',
+                                data: presencesData,
+                                backgroundColor: 'rgba(234, 179, 8, 0.6)',
+                                borderColor: 'rgba(234, 179, 8, 1)',
+                                borderWidth: 2,
+                                yAxisID: 'y-presences'
+                            },
+                            {
+                                label: '% Disponibilità',
+                                data: availabilityData,
+                                backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                                borderColor: 'rgba(34, 197, 94, 1)',
+                                borderWidth: 2,
+                                yAxisID: 'y-percentage'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        aspectRatio: window.innerWidth < 640 ? 1 : 2,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    font: {
+                                        size: window.innerWidth < 640 ? 10 : 12
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Statistiche Tornei - Top 15',
+                                font: {
+                                    size: window.innerWidth < 640 ? 14 : 18
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const player = displayData[context.dataIndex];
+                                        if (context.datasetIndex === 0) {
+                                            return `Presenze: ${player.presences}/${player.totalTornei}`;
+                                        } else {
+                                            return context.parsed.y !== null ? `Disponibilità: ${context.parsed.y}%` : 'Disponibilità: N/D';
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            'y-presences': {
+                                type: 'linear',
+                                position: 'left',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Presenze',
+                                    font: {
+                                        size: window.innerWidth < 640 ? 10 : 12
+                                    }
+                                },
+                                ticks: {
+                                    font: {
+                                        size: window.innerWidth < 640 ? 9 : 11
+                                    }
+                                }
+                            },
+                            'y-percentage': {
+                                type: 'linear',
+                                position: 'right',
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: '% Disponibilità',
+                                    font: {
+                                        size: window.innerWidth < 640 ? 10 : 12
+                                    }
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    },
+                                    font: {
+                                        size: window.innerWidth < 640 ? 9 : 11
+                                    }
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: window.innerWidth < 640 ? 8 : 10
+                                    },
+                                    maxRotation: window.innerWidth < 640 ? 90 : 45,
+                                    minRotation: window.innerWidth < 640 ? 45 : 0
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                console.log('📊 Tornei stats chart generated with', displayData.length, 'players');
+            }
+
             // Distinta Generation Functions
             async function selectDistintaLocation(location) {
                 console.log('📍 DISTINTA FLOW: selectDistintaLocation() called with location:', location);
@@ -7199,6 +7456,10 @@
             // V8.0: Stats Chart Modal Event Listeners
             statsChartButton.addEventListener('click', showStatsChartModal);
             closeStatsChartModalButton.addEventListener('click', hideStatsChartModal);
+
+            // V8.1: Tornei Stats Chart Modal Event Listeners
+            torneiStatsChartButton.addEventListener('click', showTorneiStatsChartModal);
+            closeTorneiStatsChartModalButton.addEventListener('click', hideTorneiStatsChartModal);
 
             // Close modals when clicking outside of them
             statusModal.addEventListener('click', (e) => {
