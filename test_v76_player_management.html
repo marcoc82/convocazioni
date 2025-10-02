@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<!-- Test V7.6 - Visual verification of player management changes -->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V7.6 - Player Management UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-center mb-6 text-gray-800">Test V7.6 - Player Management UI Changes</h1>
+        
+        <!-- Version Display -->
+        <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h2 class="font-semibold text-lg mb-2">Version Display Test</h2>
+            <div class="text-center">
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.6</span>
+            </div>
+        </div>
+
+        <!-- Player Management Section -->
+        <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Giocatori (<span id="players-count">3</span>)</h3>
+            
+            <div class="space-y-2">
+                <!-- Player 1 - New format -->
+                <div class="flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg">
+                    <div class="text-gray-700">
+                        <div class="font-bold">10 ROSSI MARIO</div>
+                        <div class="text-sm text-gray-500">
+                            📅 15/03/2010 | 🆔 ABC123456
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            ✏️
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            Rimuovi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Player 2 -->
+                <div class="flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg">
+                    <div class="text-gray-700">
+                        <div class="font-bold">7 BIANCHI LUCA</div>
+                        <div class="text-sm text-gray-500">
+                            📅 22/07/2011 | 🆔 DEF789012
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            ✏️
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            Rimuovi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Player 3 - Legacy format -->
+                <div class="flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg">
+                    <div class="text-gray-700">
+                        <div><span class="font-bold">22 VERDI GIUSEPPE</span></div>
+                        <div class="text-sm text-gray-500">Formato legacy</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            ✏️
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            Rimuovi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coach Management Section -->
+        <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Mister</h3>
+            <div class="space-y-2">
+                <!-- Coach 1 -->
+                <div class="flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg">
+                    <div class="text-gray-700">
+                        <div class="font-bold">FERRARI PAOLO</div>
+                        <div class="text-sm text-gray-500">🆔 MISTER001</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            ✏️
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            Rimuovi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Coach 2 - No matricola -->
+                <div class="flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg">
+                    <div class="text-gray-700"><span class="font-bold">ROMANO MARCO</span></div>
+                    <div class="flex gap-2">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            ✏️
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            Rimuovi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Directors Management Section -->
+        <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Dirigenti</h3>
+            <div class="space-y-2">
+                <!-- Director 1 -->
+                <div class="flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg">
+                    <div class="text-gray-700">
+                        <div class="font-bold">COLOMBO ANDREA</div>
+                        <div class="text-sm text-gray-500">🆔 DIR001</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            ✏️
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            Rimuovi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Director 2 -->
+                <div class="flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg">
+                    <div class="text-gray-700">
+                        <div class="font-bold">RICCI FRANCESCA</div>
+                        <div class="text-sm text-gray-500">🆔 DIR002</div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            ✏️
+                        </button>
+                        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                            Rimuovi
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Changes Summary -->
+        <div class="p-6 bg-green-50 border border-green-200 rounded-lg">
+            <h2 class="font-semibold text-lg mb-4 text-green-800">✅ V7.6 Changes Implemented</h2>
+            <ul class="space-y-2 text-sm text-green-700">
+                <li>✅ 1. Player count shown in title: "Gestione Giocatori (3)"</li>
+                <li>✅ 2. Player names in bold (font-bold)</li>
+                <li>✅ 3. Icon 🆔 next to matricola/codice (no label)</li>
+                <li>✅ 4. Mister names in bold with icon 🆔</li>
+                <li>✅ 5. Dirigenti names in bold with icon 🆔</li>
+                <li>✅ 6. Edit buttons show only pencil icon ✏️ (no "Modifica" text)</li>
+                <li>✅ 7. Uniform padding (p-3) for all lists</li>
+                <li>✅ 8. Uniform button padding (px-3 py-1) for all lists</li>
+                <li>✅ 9. Version updated to V 7.6</li>
+            </ul>
+        </div>
+
+        <!-- Comparison -->
+        <div class="mt-6 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h2 class="font-semibold text-lg mb-4 text-yellow-800">📊 Before vs After</h2>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <h3 class="font-semibold mb-2 text-yellow-700">Before (V7.5)</h3>
+                    <ul class="space-y-1 text-yellow-600">
+                        <li>• No player count</li>
+                        <li>• Names: font-semibold (players)</li>
+                        <li>• Names: font-medium (mister/dir)</li>
+                        <li>• "Matricola:" label shown</li>
+                        <li>• Edit: "✏️ Modifica"</li>
+                        <li>• Padding: p-2 (mister/dir)</li>
+                        <li>• Button: px-2 py-1</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2 text-green-700">After (V7.6)</h3>
+                    <ul class="space-y-1 text-green-600">
+                        <li>• Player count in title</li>
+                        <li>• Names: font-bold (all)</li>
+                        <li>• Names: font-bold (mister/dir)</li>
+                        <li>• Icon 🆔 without label</li>
+                        <li>• Edit: "✏️" (icon only)</li>
+                        <li>• Padding: p-3 (uniform)</li>
+                        <li>• Button: px-3 py-1 (uniform)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

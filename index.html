@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V7.5 - Bold player names in Dirigente unavailable list, blue border for unavailable players called by Mister -->
+<!-- Version: V7.6 - Enhanced player management UI: show player count, bold names, unified list styles, icon next to ID/Codice -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -234,7 +234,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.4.1</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.6</span>
             </div>
         </div>
 
@@ -369,7 +369,7 @@
 
             <!-- Player Management Section -->
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Giocatori</h3>
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Giocatori (<span id="players-count">0</span>)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="player-numero" class="block text-sm font-medium text-gray-700">🔢 Numero</label>
@@ -4691,6 +4691,12 @@
             function renderCompanyPlayers() {
                 companyPlayersList.innerHTML = '';
                 
+                // V7.6: Update players count in title
+                const playersCountElement = document.getElementById('players-count');
+                if (playersCountElement) {
+                    playersCountElement.textContent = companyPlayers.length;
+                }
+                
                 companyPlayers.forEach((player, index) => {
                     const playerDiv = document.createElement('div');
                     playerDiv.className = 'flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg';
@@ -4700,8 +4706,8 @@
                         // Old format: "10 ROSSI MARIO"
                         playerDisplay = `
                             <div class="text-gray-700">
-                                <span class="font-semibold">${player}</span>
-                                <span class="text-sm text-gray-500 block">Formato legacy</span>
+                                <div><span class="font-bold">${player}</span></div>
+                                <div class="text-sm text-gray-500">Formato legacy</div>
                             </div>
                         `;
                     } else {
@@ -4709,9 +4715,10 @@
                         const birthDate = new Date(player.dataNascita);
                         const formattedDate = birthDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                         
+                        // V7.6: Player name in bold, icon next to matricola
                         playerDisplay = `
                             <div class="text-gray-700">
-                                <div class="font-semibold">${player.numero} ${player.nome}</div>
+                                <div class="font-bold">${player.numero} ${player.nome}</div>
                                 <div class="text-sm text-gray-500">
                                     📅 ${formattedDate} | 🆔 ${player.matricola}
                                 </div>
@@ -4719,11 +4726,12 @@
                         `;
                     }
                     
+                    // V7.6: Show only pencil icon for edit
                     playerDiv.innerHTML = `
                         ${playerDisplay}
                         <div class="flex gap-2">
                             <button onclick="editPlayer(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                ✏️ Modifica
+                                ✏️
                             </button>
                             <button onclick="removePlayer(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
                                 Rimuovi
@@ -4808,26 +4816,29 @@
                 
                 companyCoaches.forEach((coach, index) => {
                     const coachDiv = document.createElement('div');
-                    coachDiv.className = 'flex items-center justify-between p-2 bg-white border border-gray-300 rounded-lg';
+                    // V7.6: Uniform styling
+                    coachDiv.className = 'flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg';
                     
                     // Handle both old string format and new object format for backward compatibility
                     const coachName = typeof coach === 'string' ? coach : coach.name;
                     const coachMatricola = typeof coach === 'object' && coach.matricola ? coach.matricola : '';
                     
+                    // V7.6: Bold name, use "Codice" instead of "Matricola", add icon
                     const coachInfoHtml = coachMatricola 
                         ? `<div class="text-gray-700">
-                             <div class="font-medium">${coachName}</div>
-                             <div class="text-sm text-gray-500">Matricola: ${coachMatricola}</div>
+                             <div class="font-bold">${coachName}</div>
+                             <div class="text-sm text-gray-500">🆔 ${coachMatricola}</div>
                            </div>`
-                        : `<span class="text-gray-700">${coachName}</span>`;
+                        : `<div class="text-gray-700"><span class="font-bold">${coachName}</span></div>`;
                     
+                    // V7.6: Show only pencil icon for edit
                     coachDiv.innerHTML = `
                         ${coachInfoHtml}
                         <div class="flex gap-2">
-                            <button onclick="editCoach(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm transition-colors">
+                            <button onclick="editCoach(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
                                 ✏️
                             </button>
-                            <button onclick="removeCoach(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
+                            <button onclick="removeCoach(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
                                 Rimuovi
                             </button>
                         </div>
@@ -4895,23 +4906,26 @@
                 
                 companyDirectors.forEach((director, index) => {
                     const directorDiv = document.createElement('div');
-                    directorDiv.className = 'flex items-center justify-between p-2 bg-white border border-gray-300 rounded-lg';
+                    // V7.6: Uniform styling
+                    directorDiv.className = 'flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg';
                     
                     const fullName = `${director.name || ''} ${director.surname || ''}`.trim();
                     const directorMatricola = director.matricola || '';
                     
+                    // V7.6: Bold name, use icon with ID/Codice
                     const directorInfoHtml = `<div class="text-gray-700">
-                                               <div class="font-medium">${fullName}</div>
-                                               <div class="text-sm text-gray-500">Matricola: ${directorMatricola}</div>
+                                               <div class="font-bold">${fullName}</div>
+                                               <div class="text-sm text-gray-500">🆔 ${directorMatricola}</div>
                                              </div>`;
                     
+                    // V7.6: Show only pencil icon for edit
                     directorDiv.innerHTML = `
                         ${directorInfoHtml}
                         <div class="flex gap-2">
-                            <button onclick="editDirector(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-sm transition-colors">
+                            <button onclick="editDirector(${index})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
                                 ✏️
                             </button>
-                            <button onclick="removeDirector(${index})" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">
+                            <button onclick="removeDirector(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
                                 Rimuovi
                             </button>
                         </div>
