@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.6 - Default players present in new training sessions, fixed tornei totali column in chart, mobile-friendly tornei table -->
+<!-- Version: V8.7 - Separate filters for report presenze and sessioni allenamento, auto-load report on page open -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -802,7 +802,7 @@
             </button>
         </div>
 
-        <!-- Allenamenti Management View (V8.4) -->
+        <!-- Allenamenti Management View (V8.7) -->
         <div id="allenamenti-view" class="hidden">
             <button id="top-back-from-allenamenti-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
@@ -848,11 +848,21 @@
             
             <!-- Training Sessions List -->
             <div id="allenamenti-sessions-section">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700">📅 Sessioni Allenamento</h3>
-                    <button id="add-training-session-button" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
-                        + Nuovo
-                    </button>
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">📅 Sessioni Allenamento</h3>
+                    
+                    <!-- Sessions Period Selection -->
+                    <div class="flex gap-2 mb-4">
+                        <select id="sessions-period-select" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                            <option value="all">Tutti i periodi</option>
+                            <option value="week">Settimana corrente</option>
+                            <option value="month">Mese corrente</option>
+                            <option value="year">Anno corrente</option>
+                        </select>
+                        <button id="add-training-session-button" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                            + Nuovo
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- Loading State -->
@@ -877,7 +887,7 @@
             </button>
         </div>
 
-        <!-- Add Training Session Modal (V8.4) -->
+        <!-- Add Training Session Modal (V8.7) -->
         <div id="add-training-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
             <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Nuovo Allenamento</h3>
@@ -5015,9 +5025,9 @@
             // Global variable to store training sessions
             let trainingSessions = [];
             
-            // Load allenamenti data (sessions and report) - V8.5
+            // Load allenamenti data (sessions and report) - V8.7
             async function loadAllenamentiData() {
-                console.log('🏃 Loading Allenamenti data... (V8.5)');
+                console.log('🏃 Loading Allenamenti data... (V8.7)');
                 await Promise.all([
                     loadTrainingSessions(),
                     loadAllenamentiReport()
@@ -5122,8 +5132,8 @@
                     return;
                 }
                 
-                // V8.5: Filter sessions based on report period (fixes issue where cards weren't filtered)
-                const periodSelect = document.getElementById('report-period-select');
+                // V8.7: Filter sessions based on SESSIONS period (independent from report filter)
+                const periodSelect = document.getElementById('sessions-period-select');
                 const selectedPeriod = periodSelect ? periodSelect.value : 'all';
                 const now = new Date();
                 
@@ -5172,7 +5182,7 @@
                 });
             }
             
-            // Create a training session card (V8.4: collapsible with accordion behavior)
+            // Create a training session card (V8.7: collapsible with accordion behavior)
             function createTrainingSessionCard(session, index, expandByDefault = false) {
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-xl shadow-sm border border-gray-200';
@@ -5381,7 +5391,7 @@
                     return;
                 }
                 
-                console.log(`🏃 Creating new training session: ${date} ${time} (V8.6)`);
+                console.log(`🏃 Creating new training session: ${date} ${time} (V8.7)`);
                 
                 // V8.6: Initialize attendance with all players present by default
                 const players = companyPlayers.length > 0 
@@ -5431,9 +5441,9 @@
                 }
             }
             
-            // Load allenamenti report (V8.5: filter sessions by period for both report and cards)
+            // Load allenamenti report (V8.7: independent filter for report, separate from sessions filter)
             async function loadAllenamentiReport() {
-                console.log('📊 Loading Allenamenti report... (V8.5)');
+                console.log('📊 Loading Allenamenti report... (V8.7)');
                 
                 const reportBody = document.getElementById('allenamenti-report-body');
                 const periodSelect = document.getElementById('report-period-select');
@@ -5442,7 +5452,7 @@
                 // Calculate report data from training sessions
                 const playerStats = {};
                 
-                // Filter sessions based on selected period (V8.4: filter report data)
+                // Filter sessions based on selected period (V8.7: independent report filter)
                 const now = new Date();
                 const filteredSessions = trainingSessions.filter(session => {
                     if (selectedPeriod === 'all') return true;
@@ -7243,7 +7253,7 @@
             });
 
             allenamentiButton.addEventListener('click', () => {
-                console.log('🏃 Opening Allenamenti Management View... (V8.5)');
+                console.log('🏃 Opening Allenamenti Management View... (V8.7)');
                 hideAllScreens();
                 allenamentiView.classList.remove('hidden');
                 loadAllenamentiData(); // Load training sessions and report data
@@ -8501,10 +8511,18 @@
             });
             
             refreshReportButton.addEventListener('click', () => {
-                // V8.5: Update both report and session cards when filter changes
+                // V8.7: Update only report when report filter changes
                 loadAllenamentiReport();
-                renderTrainingSessions();
             });
+            
+            // V8.7: Add event listener for sessions filter
+            const sessionsPeriodSelect = document.getElementById('sessions-period-select');
+            if (sessionsPeriodSelect) {
+                sessionsPeriodSelect.addEventListener('change', () => {
+                    console.log('🔄 Sessions filter changed (V8.7)');
+                    renderTrainingSessions();
+                });
+            }
             
             // Campionato event listeners
             const backFromCampionatoButton = document.getElementById('back-from-campionato-button');
