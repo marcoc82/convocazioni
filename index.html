@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V7.3 - Made Riepilogo Convocazioni Totale table responsive for mobile devices -->
+<!-- Version: V7.4 - Rounded up all percentages to integers (no decimals) in "Presenze Allenamenti" and "Riepilogo Convocazioni" -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -229,7 +229,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.3</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 7.4</span>
             </div>
         </div>
 
@@ -2978,8 +2978,8 @@
                 }).sort((a, b) => b.count - a.count);
 
                 sortedPlayers.forEach(player => {
-                    // V7.2: Calculate percentage of convocation
-                    const percentage = totalMatches > 0 ? ((player.count / totalMatches) * 100).toFixed(1) : '0.0';
+                    // V7.4: Calculate percentage of convocation (rounded up to integer)
+                    const percentage = totalMatches > 0 ? Math.ceil((player.count / totalMatches) * 100) : 0;
                     
                     // V7.2: Get availability percentage for POLIS with improved matching
                     // Strip leading numbers from player name before matching
@@ -2994,16 +2994,16 @@
                             rawValue = availabilityDataNormalized[normalizedPlayerName];
                         }
                         
-                        // V7.2: Process the value if found (shows "0%" for zero, "N/D" only if missing)
+                        // V7.4: Process the value if found (shows "0%" for zero, "N/D" only if missing) - rounded up to integer
                         if (rawValue !== undefined && rawValue !== null) {
                             if (typeof rawValue === 'number') {
-                                // If value is between 0 and 1, multiply by 100, otherwise use as is
-                                availabilityPercentage = (rawValue <= 1 ? rawValue * 100 : rawValue).toFixed(1);
+                                // If value is between 0 and 1, multiply by 100, otherwise use as is, then round up
+                                availabilityPercentage = Math.ceil(rawValue <= 1 ? rawValue * 100 : rawValue);
                             } else if (typeof rawValue === 'string') {
                                 // Handle string numbers
                                 const numValue = parseFloat(rawValue);
                                 if (!isNaN(numValue)) {
-                                    availabilityPercentage = (numValue <= 1 ? numValue * 100 : numValue).toFixed(1);
+                                    availabilityPercentage = Math.ceil(numValue <= 1 ? numValue * 100 : numValue);
                                 }
                             }
                         }
@@ -3332,8 +3332,8 @@
                 }).sort((a, b) => b.count - a.count);
 
                 sortedPlayers.forEach(player => {
-                    // V7.2: Calculate percentage of convocation
-                    const percentage = totalMatches > 0 ? ((player.count / totalMatches) * 100).toFixed(1) : '0.0';
+                    // V7.4: Calculate percentage of convocation (rounded up to integer)
+                    const percentage = totalMatches > 0 ? Math.ceil((player.count / totalMatches) * 100) : 0;
                     
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -4562,12 +4562,12 @@
                     const row = document.createElement('tr');
                     row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
                     
-                    // Calculate percentage for this player
+                    // V7.4: Calculate percentage for this player (rounded up to integer)
                     const percentage = totalTrainings > 0 
-                        ? ((player.attendance / totalTrainings) * 100).toFixed(1)
-                        : '0.0';
+                        ? Math.ceil((player.attendance / totalTrainings) * 100)
+                        : 0;
                     
-                    totalPercentage += parseFloat(percentage);
+                    totalPercentage += percentage;
                     
                     // V6.9: Determine medal for this player
                     let medal = '';
@@ -4588,10 +4588,10 @@
                     trainingAttendanceList.appendChild(row);
                 });
                 
-                // Calculate and display average percentage
+                // V7.4: Calculate and display average percentage (rounded up to integer)
                 const averagePercentage = data.length > 0 
-                    ? (totalPercentage / data.length).toFixed(1)
-                    : '0.0';
+                    ? Math.ceil(totalPercentage / data.length)
+                    : 0;
                 mediaPresenzeValue.textContent = `${averagePercentage}%`;
                 
                 // Update last update time
