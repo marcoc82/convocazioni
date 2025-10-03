@@ -8774,8 +8774,17 @@
                     const xStep = 80 / (lineCount + 1);
                     for (let i = 0; i < lineCount; i++) {
                         const xPosition = 10 + xStep * (i + 1);
-                        const positionLabel = lineIndex === 0 ? 'D' : lineIndex === 1 ? 'C' : 'A';
-                        const positionName = lineIndex === 0 ? 'Difensore' : lineIndex === 1 ? 'Centrocampista' : 'Attaccante';
+                        // V8.12: Determine position label and name based on formation structure
+                        let positionLabel, positionName;
+                        if (formation.length === 2) {
+                            // 2-line formation: defenders and forwards
+                            positionLabel = lineIndex === 0 ? 'D' : 'A';
+                            positionName = lineIndex === 0 ? 'Difensore' : 'Attaccante';
+                        } else {
+                            // 3-line formation: defenders, midfielders, forwards
+                            positionLabel = lineIndex === 0 ? 'D' : lineIndex === 1 ? 'C' : 'A';
+                            positionName = lineIndex === 0 ? 'Difensore' : lineIndex === 1 ? 'Centrocampista' : 'Attaccante';
+                        }
                         createPlayerIcon(`${positionLabel}${i + 1}`, xPosition, yPosition, positionName);
                     }
                     yPosition -= yStep;

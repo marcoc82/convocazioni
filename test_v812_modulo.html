@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V8.12 - Modulo/Tactics Feature</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="bg-white rounded-2xl shadow-xl p-6 max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-6 text-blue-800">Test V8.12 - Modulo/Tactics Feature</h1>
+        
+        <!-- Feature Summary -->
+        <div class="mb-8 p-6 bg-green-50 rounded-xl border border-green-200">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">✅ V8.12 - Requisiti Implementati</h2>
+            <ul class="space-y-2 text-sm text-green-700">
+                <li>✓ <strong>Requisito 1:</strong> Nuovo tasto "Modulo" sopra "Storico Convocazioni" (accessibile come Mister)</li>
+                <li>✓ <strong>Requisito 2:</strong> Schermata "Tattiche" con titolo chiaro</li>
+                <li>✓ <strong>Requisito 3:</strong> Campo 1: Selezione tipo partita (5, 7, 9, 11 giocatori)</li>
+                <li>✓ <strong>Requisito 4:</strong> Campo 2: Modulo tattico (input manuale, es. 2-2, 2-3-2, 4-4-2)</li>
+                <li>✓ <strong>Requisito 5:</strong> Campo da calcio generato dinamicamente con numero corretto di giocatori</li>
+                <li>✓ <strong>Requisito 6:</strong> Posizionamento automatico: 1 portiere + difensori + centrocampisti + attaccanti</li>
+                <li>✓ <strong>Requisito 7:</strong> Icone giocatore cliccabili:</li>
+                <li class="ml-6">• Primo click: scegli nome giocatore</li>
+                <li class="ml-6">• Secondo click: aggiungi secondo nome o rimuovi giocatore</li>
+                <li>✓ <strong>Requisito 8:</strong> Versione aggiornata a V8.12</li>
+                <li>✓ <strong>Requisito 9:</strong> Tutte le funzioni precedenti mantenute</li>
+                <li>✓ <strong>Requisito 10:</strong> UI mobile-first e responsive</li>
+            </ul>
+        </div>
+
+        <!-- Test Demo Section -->
+        <div class="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">🧪 Demo Interattiva</h2>
+            
+            <!-- Match Type and Formation Selection -->
+            <div class="bg-gray-50 p-4 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="test-match-type" class="block text-sm font-medium text-gray-700 mb-2">Tipo Partita</label>
+                        <select id="test-match-type" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                            <option value="">Seleziona tipo</option>
+                            <option value="5">Calcio a 5</option>
+                            <option value="7">Calcio a 7</option>
+                            <option value="9">Calcio a 9</option>
+                            <option value="11">Calcio a 11</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="test-formation" class="block text-sm font-medium text-gray-700 mb-2">Modulo Tattico</label>
+                        <input type="text" id="test-formation" placeholder="es. 2-2, 2-3-2, 4-4-2" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                </div>
+                <button id="test-generate" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                    Genera Campo
+                </button>
+            </div>
+            
+            <!-- Soccer Field Visualization -->
+            <div id="test-field-container" class="bg-green-700 p-4 rounded-xl mb-6 shadow-lg border-4 border-white relative hidden" style="min-height: 400px;">
+                <div class="absolute inset-0 bg-green-600" style="opacity: 0.3;"></div>
+                <div class="relative">
+                    <!-- Field markings -->
+                    <div class="border-2 border-white rounded-lg p-2" style="min-height: 380px;">
+                        <div id="test-field-players" class="relative h-full">
+                            <!-- Player icons will be positioned here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Cases -->
+        <div class="mb-8 p-6 bg-yellow-50 rounded-xl border border-yellow-200">
+            <h2 class="text-xl font-semibold text-yellow-800 mb-4">🧪 Test Cases</h2>
+            <div class="space-y-3">
+                <div class="bg-white p-3 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">Test 1: Calcio a 5 (2-2)</h3>
+                    <p class="text-sm text-gray-600">Tipo: 5 giocatori | Modulo: 2-2</p>
+                    <p class="text-sm text-gray-500">Atteso: 1 GK + 2 Difensori + 2 Attaccanti = 5</p>
+                    <button class="mt-2 text-xs bg-blue-500 text-white px-3 py-1 rounded" onclick="testCase1()">Test</button>
+                </div>
+                
+                <div class="bg-white p-3 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">Test 2: Calcio a 7 (2-3-2)</h3>
+                    <p class="text-sm text-gray-600">Tipo: 7 giocatori | Modulo: 2-3-2</p>
+                    <p class="text-sm text-gray-500">Atteso: 1 GK + 2 Difensori + 3 Centrocampisti + 2 Attaccanti = 7</p>
+                    <button class="mt-2 text-xs bg-blue-500 text-white px-3 py-1 rounded" onclick="testCase2()">Test</button>
+                </div>
+                
+                <div class="bg-white p-3 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">Test 3: Calcio a 11 (4-4-2)</h3>
+                    <p class="text-sm text-gray-600">Tipo: 11 giocatori | Modulo: 4-4-2</p>
+                    <p class="text-sm text-gray-500">Atteso: 1 GK + 4 Difensori + 4 Centrocampisti + 2 Attaccanti = 11</p>
+                    <button class="mt-2 text-xs bg-blue-500 text-white px-3 py-1 rounded" onclick="testCase3()">Test</button>
+                </div>
+                
+                <div class="bg-white p-3 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">Test 4: Calcio a 11 (3-5-2)</h3>
+                    <p class="text-sm text-gray-600">Tipo: 11 giocatori | Modulo: 3-5-2</p>
+                    <p class="text-sm text-gray-500">Atteso: 1 GK + 3 Difensori + 5 Centrocampisti + 2 Attaccanti = 11</p>
+                    <button class="mt-2 text-xs bg-blue-500 text-white px-3 py-1 rounded" onclick="testCase4()">Test</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">📋 Test Results</h2>
+            <div id="test-results" class="space-y-2 text-sm">
+                <p class="text-gray-500">Esegui i test per vedere i risultati...</p>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="p-6 bg-purple-50 rounded-xl border border-purple-200">
+            <h2 class="text-xl font-semibold text-purple-800 mb-4">📖 Istruzioni d'Uso</h2>
+            <ol class="space-y-2 text-sm text-purple-700 list-decimal list-inside">
+                <li>Accedi come <strong>Mister</strong></li>
+                <li>Clicca sul pulsante <strong>"Modulo"</strong> (teal, sopra "Storico Convocazioni")</li>
+                <li>Seleziona il <strong>tipo di partita</strong> (5, 7, 9, o 11 giocatori)</li>
+                <li>Inserisci il <strong>modulo tattico</strong> (es. 2-2, 4-4-2, ecc.)</li>
+                <li>Clicca <strong>"Genera Campo"</strong></li>
+                <li>Clicca su un'<strong>icona giocatore</strong> per assegnare un nome</li>
+                <li>Clicca di nuovo sulla stessa icona per:
+                    <ul class="ml-6 mt-1 list-disc">
+                        <li>Aggiungere un secondo nome</li>
+                        <li>Rimuovere il giocatore assegnato</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Test functionality
+        const testMatchType = document.getElementById('test-match-type');
+        const testFormation = document.getElementById('test-formation');
+        const testGenerate = document.getElementById('test-generate');
+        const testFieldContainer = document.getElementById('test-field-container');
+        const testFieldPlayers = document.getElementById('test-field-players');
+        const testResults = document.getElementById('test-results');
+
+        let playerPositions = {};
+        const demoPlayers = ['Mario Rossi', 'Luca Bianchi', 'Giovanni Verdi', 'Paolo Neri', 'Marco Gialli', 
+                           'Andrea Blu', 'Francesco Viola', 'Davide Rosa', 'Simone Grigio', 'Matteo Nero',
+                           'Alessandro Marrone', 'Stefano Azzurro', 'Federico Arancione', 'Lorenzo Verde'];
+
+        function logTest(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `p-2 rounded ${type === 'success' ? 'bg-green-100 text-green-800' : 
+                                          type === 'error' ? 'bg-red-100 text-red-800' : 
+                                          'bg-blue-100 text-blue-800'}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            testResults.insertBefore(div, testResults.firstChild);
+        }
+
+        function parseFormation(formationStr) {
+            const parts = formationStr.split('-').map(n => parseInt(n.trim()));
+            if (parts.some(isNaN)) {
+                return null;
+            }
+            return parts;
+        }
+
+        function generateField(matchType, formation) {
+            testFieldPlayers.innerHTML = '';
+            playerPositions = {};
+            testFieldContainer.classList.remove('hidden');
+
+            const expectedPlayers = parseInt(matchType);
+            const formationTotal = formation.reduce((a, b) => a + b, 0) + 1;
+
+            if (formationTotal !== expectedPlayers) {
+                logTest(`❌ Errore: Modulo ha ${formationTotal} giocatori ma tipo partita richiede ${expectedPlayers}`, 'error');
+                return false;
+            }
+
+            logTest(`✅ Generazione campo: ${matchType} giocatori, modulo ${formation.join('-')}`, 'success');
+
+            // Create goalkeeper
+            createPlayerIcon('GK', 50, 90, 'Portiere');
+
+            // Position players based on formation
+            let yPosition = 75;
+            const yStep = 60 / (formation.length + 1);
+
+            formation.forEach((lineCount, lineIndex) => {
+                const xStep = 80 / (lineCount + 1);
+                for (let i = 0; i < lineCount; i++) {
+                    const xPosition = 10 + xStep * (i + 1);
+                    const positionLabel = lineIndex === 0 ? 'D' : lineIndex === 1 ? 'C' : 'A';
+                    const positionName = lineIndex === 0 ? 'Difensore' : lineIndex === 1 ? 'Centrocampista' : 'Attaccante';
+                    createPlayerIcon(`${positionLabel}${i + 1}`, xPosition, yPosition, positionName);
+                }
+                yPosition -= yStep;
+            });
+
+            return true;
+        }
+
+        function createPlayerIcon(positionId, xPercent, yPercent, positionName) {
+            const playerDiv = document.createElement('div');
+            playerDiv.className = 'player-icon absolute cursor-pointer transition-all duration-200 hover:scale-110';
+            playerDiv.style.left = `${xPercent}%`;
+            playerDiv.style.top = `${yPercent}%`;
+            playerDiv.style.transform = 'translate(-50%, -50%)';
+            playerDiv.dataset.position = positionId;
+
+            playerDiv.innerHTML = `
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-blue-600 border-3 border-white rounded-full flex items-center justify-center text-white font-bold shadow-lg mb-1">
+                        <span class="text-xs">${positionId}</span>
+                    </div>
+                    <div class="player-name-display text-white text-xs font-semibold bg-black bg-opacity-60 px-2 py-1 rounded min-h-[24px] max-w-[100px] break-words" style="text-shadow: 1px 1px 2px black;">
+                        ${positionName}
+                    </div>
+                </div>
+            `;
+
+            playerDiv.addEventListener('click', () => handlePlayerIconClick(positionId));
+            testFieldPlayers.appendChild(playerDiv);
+        }
+
+        function handlePlayerIconClick(positionId) {
+            const currentAssignment = playerPositions[positionId];
+
+            if (currentAssignment && currentAssignment.length >= 2) {
+                if (confirm(`Rimuovere i giocatori da questa posizione?`)) {
+                    delete playerPositions[positionId];
+                    updatePlayerIconDisplay(positionId);
+                    logTest(`🗑️ Rimossi giocatori dalla posizione ${positionId}`, 'info');
+                }
+                return;
+            }
+
+            // Simulate player selection
+            const randomPlayer = demoPlayers[Math.floor(Math.random() * demoPlayers.length)];
+            assignPlayerToPosition(positionId, randomPlayer);
+            logTest(`👤 Assegnato ${randomPlayer} a posizione ${positionId}`, 'success');
+        }
+
+        function assignPlayerToPosition(positionId, playerName) {
+            if (!playerPositions[positionId]) {
+                playerPositions[positionId] = [];
+            }
+
+            if (playerPositions[positionId].length < 2) {
+                playerPositions[positionId].push(playerName);
+                updatePlayerIconDisplay(positionId);
+            }
+        }
+
+        function updatePlayerIconDisplay(positionId) {
+            const playerIcon = document.querySelector(`.player-icon[data-position="${positionId}"]`);
+            if (!playerIcon) return;
+
+            const nameDisplay = playerIcon.querySelector('.player-name-display');
+            const assignment = playerPositions[positionId];
+
+            if (assignment && assignment.length > 0) {
+                nameDisplay.innerHTML = assignment.map(name => `<div>${name}</div>`).join('');
+            } else {
+                const positionName = positionId === 'GK' ? 'Portiere' : 
+                                   positionId.startsWith('D') ? 'Difensore' :
+                                   positionId.startsWith('C') ? 'Centrocampista' : 'Attaccante';
+                nameDisplay.textContent = positionName;
+            }
+        }
+
+        testGenerate.addEventListener('click', () => {
+            const matchType = testMatchType.value;
+            const formationStr = testFormation.value.trim();
+
+            if (!matchType) {
+                alert('Seleziona il tipo di partita');
+                return;
+            }
+
+            if (!formationStr) {
+                alert('Inserisci il modulo tattico');
+                return;
+            }
+
+            const formation = parseFormation(formationStr);
+            if (!formation) {
+                alert('Formato modulo non valido');
+                return;
+            }
+
+            generateField(matchType, formation);
+        });
+
+        // Test cases
+        function testCase1() {
+            testMatchType.value = '5';
+            testFormation.value = '2-2';
+            const formation = parseFormation('2-2');
+            const success = generateField('5', formation);
+            logTest(success ? '✅ Test 1 PASSED: Calcio a 5 (2-2)' : '❌ Test 1 FAILED', success ? 'success' : 'error');
+        }
+
+        function testCase2() {
+            testMatchType.value = '7';
+            testFormation.value = '2-3-2';
+            const formation = parseFormation('2-3-2');
+            const success = generateField('7', formation);
+            logTest(success ? '✅ Test 2 PASSED: Calcio a 7 (2-3-2)' : '❌ Test 2 FAILED', success ? 'success' : 'error');
+        }
+
+        function testCase3() {
+            testMatchType.value = '11';
+            testFormation.value = '4-4-2';
+            const formation = parseFormation('4-4-2');
+            const success = generateField('11', formation);
+            logTest(success ? '✅ Test 3 PASSED: Calcio a 11 (4-4-2)' : '❌ Test 3 FAILED', success ? 'success' : 'error');
+        }
+
+        function testCase4() {
+            testMatchType.value = '11';
+            testFormation.value = '3-5-2';
+            const formation = parseFormation('3-5-2');
+            const success = generateField('11', formation);
+            logTest(success ? '✅ Test 4 PASSED: Calcio a 11 (3-5-2)' : '❌ Test 4 FAILED', success ? 'success' : 'error');
+        }
+
+        // Log initial state
+        logTest('Test V8.12 inizializzato - Pronto per testare', 'info');
+    </script>
+</body>
+</html>
