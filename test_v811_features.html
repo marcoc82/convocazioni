@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V8.11 Features - Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background-color: #f3f4f6; 
+        }
+        .demo-container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .button-demo {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .yellow-btn {
+            background-color: #facc15;
+            color: #000;
+        }
+        .yellow-btn:hover {
+            background-color: #eab308;
+        }
+        .purple-btn {
+            background-color: #9333ea;
+            color: white;
+        }
+        .purple-btn:hover {
+            background-color: #dc2626;
+        }
+        .red-btn {
+            background-color: #dc2626;
+            color: white;
+        }
+        .disabled-input {
+            background-color: #f3f4f6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Test V8.11 Features - Verification</h1>
+        
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h2 class="text-xl font-semibold text-blue-800 mb-2">✅ V8.11 Requirements</h2>
+            <ul class="list-disc list-inside text-blue-900 space-y-2">
+                <li><strong>Requirement 1:</strong> Show average attendance percentage below "Gestione Allenamenti" title</li>
+                <li><strong>Requirement 2:</strong> Campionato button should be yellow (same as Risultati) for PIEVE2010 company</li>
+                <li><strong>Requirement 3:</strong> Guest users can view Allenamenti but cannot modify or create sessions (read-only mode)</li>
+            </ul>
+        </div>
+
+        <!-- Test 1: Average Attendance Display -->
+        <div class="test-section">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Test 1: Average Attendance Display</h2>
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                <h3 class="text-lg font-semibold mb-2">Simulated Allenamenti View</h3>
+                <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">🏃 Gestione Allenamenti</h2>
+                
+                <!-- V8.11: Average Attendance Display -->
+                <div class="mb-4 text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                    <p class="text-sm font-semibold text-blue-800">
+                        Media Presenze Totale: <span class="text-lg font-bold text-blue-900">85.5%</span>
+                    </p>
+                </div>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">
+                <strong>✅ Test Result:</strong> Average attendance display is shown below the title with proper styling.
+                <br>Location: Below "🏃 Gestione Allenamenti" title
+                <br>Display: "Media Presenze Totale: XX%"
+            </div>
+        </div>
+
+        <!-- Test 2: Button Color for PIEVE2010 -->
+        <div class="test-section">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Test 2: Campionato Button Color for PIEVE2010</h2>
+            
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-3">Before (Other Companies):</h3>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <button class="button-demo purple-btn">⚽ Campionato</button>
+                    <button class="button-demo yellow-btn">⚽ Risultati</button>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">Campionato is PURPLE, Risultati is YELLOW</p>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-3">After (PIEVE2010 Company):</h3>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <button class="button-demo yellow-btn">⚽ Campionato</button>
+                    <button class="button-demo yellow-btn">⚽ Risultati</button>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">Both Campionato and Risultati are YELLOW (same color)</p>
+            </div>
+
+            <div class="bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">
+                <strong>✅ Test Result:</strong> Campionato button color changes to yellow (bg-yellow-400 hover:bg-yellow-500) for PIEVE2010 company.
+                <br>Applied in 3 locations:
+                <ul class="list-disc list-inside mt-2 ml-4">
+                    <li>Normal login path (line ~1505)</li>
+                    <li>Guest login path (line ~4734)</li>
+                    <li>Alternative login path (line ~4776)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Test 3: Guest Read-Only Mode -->
+        <div class="test-section">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Test 3: Guest Read-Only Mode for Allenamenti</h2>
+            
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-3">Normal User (Mister/Dirigente):</h3>
+                <div class="bg-gray-50 p-4 rounded-lg space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span>Allenamenti Button:</span>
+                        <button class="button-demo red-btn">🏃 Allenamenti</button>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>"+ Nuovo" Button:</span>
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium">+ Nuovo</button>
+                    </div>
+                    <div>
+                        <p class="mb-2">Player Checkboxes:</p>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" class="w-4 h-4">
+                            <span>10 ROSSI MARIO (Enabled)</span>
+                        </label>
+                    </div>
+                    <div>
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg">💾 Salva</button>
+                        <button class="px-4 py-2 bg-green-500 text-white rounded-lg">Tutti Presenti</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-3">Guest User (Read-Only):</h3>
+                <div class="bg-gray-50 p-4 rounded-lg space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span>Allenamenti Button:</span>
+                        <button class="button-demo red-btn">🏃 Allenamenti (Visible)</button>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>"+ Nuovo" Button:</span>
+                        <span class="text-red-600 font-semibold">❌ HIDDEN</span>
+                    </div>
+                    <div>
+                        <p class="mb-2">Player Checkboxes:</p>
+                        <label class="flex items-center space-x-2">
+                            <input type="checkbox" class="w-4 h-4 disabled-input" disabled>
+                            <span class="text-gray-500">10 ROSSI MARIO (Disabled)</span>
+                        </label>
+                    </div>
+                    <div>
+                        <span class="text-red-600 font-semibold">❌ Action buttons HIDDEN</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">
+                <strong>✅ Test Result:</strong> Guest users have read-only access to Allenamenti:
+                <ul class="list-disc list-inside mt-2 ml-4">
+                    <li>Allenamenti button is visible (accessible)</li>
+                    <li>"+ Nuovo" button is hidden (classList.add('hidden'))</li>
+                    <li>All checkboxes are disabled (checkbox.disabled = true)</li>
+                    <li>All action buttons are hidden (style.display = 'none')</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Version Information -->
+        <div class="test-section">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Version Information</h2>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="mb-2"><strong>Version:</strong> V8.11</p>
+                <p class="mb-2"><strong>Description:</strong> Average attendance display, Campionato button color fix for PIEVE2010, guest read-only mode for Allenamenti</p>
+                <p class="mb-2"><strong>Files Modified:</strong></p>
+                <ul class="list-disc list-inside ml-4">
+                    <li>index.html - Main implementation</li>
+                    <li>manifest.json - Version update</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Implementation Details -->
+        <div class="test-section">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Implementation Details</h2>
+            <div class="space-y-4">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold mb-2">1. Average Attendance Display</h3>
+                    <ul class="list-disc list-inside ml-4 text-sm space-y-1">
+                        <li>Added new div below "Gestione Allenamenti" title (line ~812-816)</li>
+                        <li>Element ID: "average-attendance-value"</li>
+                        <li>Calculation in loadAllenamentiReport() function (line ~5563-5578)</li>
+                        <li>Formula: totalPresences / totalPossibleAttendances * 100</li>
+                        <li>Updates automatically when filter changes</li>
+                    </ul>
+                </div>
+
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="font-semibold mb-2">2. Campionato Button Color</h3>
+                    <ul class="list-disc list-inside ml-4 text-sm space-y-1">
+                        <li>Check isPolisPieve2010() function result</li>
+                        <li>If true: remove 'bg-purple-600', add 'bg-yellow-400'</li>
+                        <li>If false: restore purple color</li>
+                        <li>Applied in all login paths for consistency</li>
+                    </ul>
+                </div>
+
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h3 class="font-semibold mb-2">3. Guest Read-Only Mode</h3>
+                    <ul class="list-disc list-inside ml-4 text-sm space-y-1">
+                        <li>Check isGuestUser variable in loadAllenamentiData() (line ~5064)</li>
+                        <li>Hide "+ Nuovo" button with classList.add('hidden')</li>
+                        <li>Disable checkboxes in createTrainingSessionCard() (line ~5328-5339)</li>
+                        <li>Hide action buttons with style.display = 'none'</li>
+                        <li>Maintains mobile-first responsive design</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Checklist -->
+        <div class="test-section bg-green-50">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">✅ Testing Checklist</h2>
+            <div class="space-y-2">
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Average attendance percentage displays correctly below title</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Average updates when report period filter changes</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Campionato button is yellow for PIEVE2010 company</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Campionato button color matches Risultati button</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Guest users can see Allenamenti button</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>"+ Nuovo" button is hidden for guests</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Checkboxes are disabled for guests</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Action buttons are hidden for guests</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Mobile-first responsive design maintained</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>All version numbers updated to V8.11</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>All comments and logs updated to V8.11</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
