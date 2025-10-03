@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.11 - Average attendance display, Campionato button color fix for PIEVE2010, guest read-only mode for Allenamenti -->
+<!-- Version: V8.12 - Modulo/Tactics feature: match type selection, formation input, dynamic soccer field with player positioning -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -612,6 +612,9 @@
                     Condividi le convocazioni
                 </button>
             </div>
+            <button id="modulo-button" class="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                ⚽ Modulo
+            </button>
             <button id="history-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Storico Convocazioni
             </button>
@@ -1027,6 +1030,67 @@
                 </ul>
             </div>
             <p class="text-sm text-gray-500 text-center mt-6">Rosterkick By Marco</p>
+        </div>
+
+        <!-- V8.12: Modulo/Tactics View -->
+        <div id="modulo-view" class="hidden">
+            <button id="top-back-from-modulo-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Indietro
+            </button>
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">⚽ Tattiche</h2>
+            
+            <!-- Match Type and Formation Selection -->
+            <div class="bg-gray-50 p-4 rounded-xl mb-6 shadow-sm border border-gray-200">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="match-type-select" class="block text-sm font-medium text-gray-700 mb-2">Tipo Partita</label>
+                        <select id="match-type-select" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                            <option value="">Seleziona tipo</option>
+                            <option value="5">Calcio a 5</option>
+                            <option value="7">Calcio a 7</option>
+                            <option value="9">Calcio a 9</option>
+                            <option value="11">Calcio a 11</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="formation-input" class="block text-sm font-medium text-gray-700 mb-2">Modulo Tattico</label>
+                        <input type="text" id="formation-input" placeholder="es. 2-2, 2-3-2, 4-4-2" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    </div>
+                </div>
+                <button id="generate-field-button" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                    Genera Campo
+                </button>
+            </div>
+            
+            <!-- Soccer Field Visualization -->
+            <div id="soccer-field-container" class="bg-green-700 p-4 rounded-xl mb-6 shadow-lg border-4 border-white relative hidden" style="min-height: 400px;">
+                <div class="absolute inset-0 bg-green-600" style="opacity: 0.3;"></div>
+                <div class="relative">
+                    <!-- Field markings -->
+                    <div class="border-2 border-white rounded-lg p-2" style="min-height: 380px;">
+                        <div id="field-players-container" class="relative h-full">
+                            <!-- Player icons will be positioned here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="back-from-modulo-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                Indietro
+            </button>
+        </div>
+
+        <!-- V8.12: Player Selection Modal for Modulo -->
+        <div id="modulo-player-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+            <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl max-h-[80vh] overflow-y-auto">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Seleziona Giocatore</h3>
+                <div id="modulo-player-list" class="space-y-2 mb-4">
+                    <!-- Player list will be populated here -->
+                </div>
+                <button id="close-modulo-modal" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                    Annulla
+                </button>
+            </div>
         </div>
 
         <!-- Modal for Marco's Status - Multi-select with checkboxes -->
@@ -1767,6 +1831,7 @@
             const trainingAttendanceView = document.getElementById('training-attendance-view');
             const allenamentiView = document.getElementById('allenamenti-view');
             const campionatoView = document.getElementById('campionato-view');
+            const moduloView = document.getElementById('modulo-view'); // V8.12
             const playersList = document.getElementById('players-list');
             const playersListMessage = document.getElementById('players-list-message');
             const selectedPlayersLiveList = document.getElementById('selected-players-live-list');
@@ -1774,6 +1839,7 @@
 
             const saveButton = document.getElementById('save-button');
             const shareButton = document.getElementById('share-button');
+            const moduloButton = document.getElementById('modulo-button'); // V8.12
             const historyButton = document.getElementById('history-button');
             const attendanceButton = document.getElementById('attendance-button');
             const esciButton = document.getElementById('esci-button');
@@ -4823,6 +4889,7 @@
                 attendanceView.classList.add('hidden');
                 trainingAttendanceView.classList.add('hidden');
                 campionatoView.classList.add('hidden');
+                moduloView.classList.add('hidden'); // V8.12
             }
 
             // Firebase Realtime Database integration for training attendance
@@ -8105,6 +8172,12 @@
                 historyView.classList.remove('hidden');
                 attendanceView.classList.add('hidden');
             });
+            // V8.12: Modulo button event handler
+            moduloButton.addEventListener('click', () => {
+                console.log('⚽ Opening Modulo/Tactics view (V8.12)');
+                mainView.classList.add('hidden');
+                moduloView.classList.remove('hidden');
+            });
             attendanceButton.addEventListener('click', () => {
                 // 🔍 DIAGNOSTIC LOG: Opening Riepilogo Presenze with company info
                 console.log(`📊 [DIAGNOSTIC] Apertura Riepilogo Presenze:`);
@@ -8591,6 +8664,241 @@
                 } else {
                     mainView.classList.remove('hidden');
                 }
+            });
+            
+            // V8.12: Modulo back button event handlers
+            const backFromModuloButton = document.getElementById('back-from-modulo-button');
+            const topBackFromModuloButton = document.getElementById('top-back-from-modulo-button');
+            
+            backFromModuloButton.addEventListener('click', () => {
+                moduloView.classList.add('hidden');
+                mainView.classList.remove('hidden');
+            });
+            
+            topBackFromModuloButton.addEventListener('click', () => {
+                moduloView.classList.add('hidden');
+                mainView.classList.remove('hidden');
+            });
+            
+            // V8.12: Modulo functionality
+            const matchTypeSelect = document.getElementById('match-type-select');
+            const formationInput = document.getElementById('formation-input');
+            const generateFieldButton = document.getElementById('generate-field-button');
+            const soccerFieldContainer = document.getElementById('soccer-field-container');
+            const fieldPlayersContainer = document.getElementById('field-players-container');
+            const moduloPlayerModal = document.getElementById('modulo-player-modal');
+            const moduloPlayerList = document.getElementById('modulo-player-list');
+            const closeModuloModal = document.getElementById('close-modulo-modal');
+            
+            let currentPlayerPosition = null;
+            let playerPositions = {}; // Track player assignments
+            
+            // Get available players from the current company
+            async function getAvailablePlayers() {
+                try {
+                    if (demoMode) {
+                        const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
+                        return savedPlayers ? JSON.parse(savedPlayers) : DEMO_PLAYERS;
+                    } else {
+                        const companyDocRef = doc(db, 'companies', currentCompanyDocumentId);
+                        const playersCollectionRef = collection(companyDocRef, 'players');
+                        const playersSnapshot = await getDocs(playersCollectionRef);
+                        const players = [];
+                        playersSnapshot.forEach((doc) => {
+                            players.push(doc.id);
+                        });
+                        return players.sort();
+                    }
+                } catch (error) {
+                    console.error('Error loading players for modulo:', error);
+                    return [];
+                }
+            }
+            
+            // Parse formation string (e.g., "2-2", "2-3-2", "4-4-2")
+            function parseFormation(formationStr) {
+                const parts = formationStr.split('-').map(n => parseInt(n.trim()));
+                if (parts.some(isNaN)) {
+                    return null;
+                }
+                return parts; // [defenders, midfielders, forwards]
+            }
+            
+            // Generate the soccer field with player positions
+            generateFieldButton.addEventListener('click', () => {
+                const matchType = matchTypeSelect.value;
+                const formationStr = formationInput.value.trim();
+                
+                if (!matchType) {
+                    alert('Seleziona il tipo di partita');
+                    return;
+                }
+                
+                if (!formationStr) {
+                    alert('Inserisci il modulo tattico (es. 2-2, 4-4-2)');
+                    return;
+                }
+                
+                const formation = parseFormation(formationStr);
+                if (!formation) {
+                    alert('Formato modulo non valido. Usa il formato: 2-2, 2-3-2, 4-4-2, ecc.');
+                    return;
+                }
+                
+                const expectedPlayers = parseInt(matchType);
+                const formationTotal = formation.reduce((a, b) => a + b, 0) + 1; // +1 for goalkeeper
+                
+                if (formationTotal !== expectedPlayers) {
+                    alert(`Il modulo ${formationStr} ha ${formationTotal} giocatori ma il tipo di partita richiede ${expectedPlayers} giocatori`);
+                    return;
+                }
+                
+                console.log(`⚽ V8.12: Generating field for ${matchType} players with formation ${formationStr}`);
+                generateField(formation);
+            });
+            
+            // Generate field visualization with player icons
+            function generateField(formation) {
+                fieldPlayersContainer.innerHTML = '';
+                playerPositions = {}; // Reset assignments
+                soccerFieldContainer.classList.remove('hidden');
+                
+                // Create goalkeeper
+                createPlayerIcon('GK', 50, 90, 'Portiere');
+                
+                // Position players based on formation
+                let yPosition = 75;
+                const yStep = 60 / (formation.length + 1);
+                
+                formation.forEach((lineCount, lineIndex) => {
+                    const xStep = 80 / (lineCount + 1);
+                    for (let i = 0; i < lineCount; i++) {
+                        const xPosition = 10 + xStep * (i + 1);
+                        // V8.12: Determine position label and name based on formation structure
+                        let positionLabel, positionName;
+                        if (formation.length === 2) {
+                            // 2-line formation: defenders and forwards
+                            positionLabel = lineIndex === 0 ? 'D' : 'A';
+                            positionName = lineIndex === 0 ? 'Difensore' : 'Attaccante';
+                        } else {
+                            // 3-line formation: defenders, midfielders, forwards
+                            positionLabel = lineIndex === 0 ? 'D' : lineIndex === 1 ? 'C' : 'A';
+                            positionName = lineIndex === 0 ? 'Difensore' : lineIndex === 1 ? 'Centrocampista' : 'Attaccante';
+                        }
+                        createPlayerIcon(`${positionLabel}${i + 1}`, xPosition, yPosition, positionName);
+                    }
+                    yPosition -= yStep;
+                });
+            }
+            
+            // Create a player icon on the field
+            function createPlayerIcon(positionId, xPercent, yPercent, positionName) {
+                const playerDiv = document.createElement('div');
+                playerDiv.className = 'player-icon absolute cursor-pointer transition-all duration-200 hover:scale-110';
+                playerDiv.style.left = `${xPercent}%`;
+                playerDiv.style.top = `${yPercent}%`;
+                playerDiv.style.transform = 'translate(-50%, -50%)';
+                playerDiv.dataset.position = positionId;
+                
+                playerDiv.innerHTML = `
+                    <div class="text-center">
+                        <div class="w-12 h-12 bg-blue-600 border-3 border-white rounded-full flex items-center justify-center text-white font-bold shadow-lg mb-1">
+                            <span class="text-xs">${positionId}</span>
+                        </div>
+                        <div class="player-name-display text-white text-xs font-semibold bg-black bg-opacity-60 px-2 py-1 rounded min-h-[24px] max-w-[100px] break-words" style="text-shadow: 1px 1px 2px black;">
+                            ${positionName}
+                        </div>
+                    </div>
+                `;
+                
+                playerDiv.addEventListener('click', () => handlePlayerIconClick(positionId));
+                fieldPlayersContainer.appendChild(playerDiv);
+            }
+            
+            // Handle click on player icon
+            async function handlePlayerIconClick(positionId) {
+                currentPlayerPosition = positionId;
+                const currentAssignment = playerPositions[positionId];
+                
+                if (currentAssignment && currentAssignment.length >= 2) {
+                    // Already has 2 players, show option to remove
+                    if (confirm(`Rimuovere i giocatori da questa posizione?`)) {
+                        delete playerPositions[positionId];
+                        updatePlayerIconDisplay(positionId);
+                    }
+                    return;
+                }
+                
+                // Show player selection modal
+                const players = await getAvailablePlayers();
+                moduloPlayerList.innerHTML = '';
+                
+                players.forEach(playerName => {
+                    const button = document.createElement('button');
+                    button.className = 'w-full text-left px-4 py-2 bg-gray-100 hover:bg-blue-100 rounded-lg transition-colors duration-200';
+                    button.textContent = playerName;
+                    button.addEventListener('click', () => {
+                        assignPlayerToPosition(positionId, playerName);
+                        moduloPlayerModal.classList.add('hidden');
+                    });
+                    moduloPlayerList.appendChild(button);
+                });
+                
+                // Add remove option if there's already a player assigned
+                if (currentAssignment && currentAssignment.length > 0) {
+                    const removeButton = document.createElement('button');
+                    removeButton.className = 'w-full text-left px-4 py-2 bg-red-100 hover:bg-red-200 rounded-lg transition-colors duration-200 mt-2';
+                    removeButton.textContent = '❌ Rimuovi giocatore';
+                    removeButton.addEventListener('click', () => {
+                        // Remove the last added player
+                        currentAssignment.pop();
+                        if (currentAssignment.length === 0) {
+                            delete playerPositions[positionId];
+                        }
+                        updatePlayerIconDisplay(positionId);
+                        moduloPlayerModal.classList.add('hidden');
+                    });
+                    moduloPlayerList.appendChild(removeButton);
+                }
+                
+                moduloPlayerModal.classList.remove('hidden');
+            }
+            
+            // Assign player to position
+            function assignPlayerToPosition(positionId, playerName) {
+                if (!playerPositions[positionId]) {
+                    playerPositions[positionId] = [];
+                }
+                
+                if (playerPositions[positionId].length < 2) {
+                    playerPositions[positionId].push(playerName);
+                    console.log(`⚽ V8.12: Assigned ${playerName} to position ${positionId}`);
+                    updatePlayerIconDisplay(positionId);
+                }
+            }
+            
+            // Update player icon display with assigned names
+            function updatePlayerIconDisplay(positionId) {
+                const playerIcon = document.querySelector(`.player-icon[data-position="${positionId}"]`);
+                if (!playerIcon) return;
+                
+                const nameDisplay = playerIcon.querySelector('.player-name-display');
+                const assignment = playerPositions[positionId];
+                
+                if (assignment && assignment.length > 0) {
+                    nameDisplay.innerHTML = assignment.map(name => `<div>${name}</div>`).join('');
+                } else {
+                    // Reset to position name
+                    const positionName = positionId === 'GK' ? 'Portiere' : 
+                                       positionId.startsWith('D') ? 'Difensore' :
+                                       positionId.startsWith('C') ? 'Centrocampista' : 'Attaccante';
+                    nameDisplay.textContent = positionName;
+                }
+            }
+            
+            // Close modal
+            closeModuloModal.addEventListener('click', () => {
+                moduloPlayerModal.classList.add('hidden');
             });
             
             addTrainingSessionButton.addEventListener('click', () => {
