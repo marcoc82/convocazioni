@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.13 - Tactical improvements: auto-format formation input, fixed demoMode error, improved field graphics with penalty areas and midfield circle, better player positioning -->
+<!-- Version: V8.14 - Tactical improvements: enhanced player positioning (attackers forward, defenders back, midfielders wider), fixed player list loading from company data -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -1032,7 +1032,7 @@
             <p class="text-sm text-gray-500 text-center mt-6">Rosterkick By Marco</p>
         </div>
 
-        <!-- V8.13: Modulo/Tactics View with improved graphics -->
+        <!-- V8.14: Modulo/Tactics View with enhanced player positioning -->
         <div id="modulo-view" class="hidden">
             <button id="top-back-from-modulo-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
@@ -1068,20 +1068,20 @@
                 <div class="relative">
                     <!-- Field markings -->
                     <div class="border-2 border-white rounded-lg p-2" style="min-height: 480px; position: relative;">
-                        <!-- V8.13: Midfield line -->
+                        <!-- V8.14: Midfield line -->
                         <div style="position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: white; transform: translateY(-50%);"></div>
                         
-                        <!-- V8.13: Center circle -->
+                        <!-- V8.14: Center circle -->
                         <div style="position: absolute; top: 50%; left: 50%; width: 80px; height: 80px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%);"></div>
                         <div style="position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: white; border-radius: 50%; transform: translate(-50%, -50%);"></div>
                         
-                        <!-- V8.13: Penalty area (bottom) -->
+                        <!-- V8.14: Penalty area (bottom) -->
                         <div style="position: absolute; bottom: 0; left: 50%; width: 35%; height: 18%; border: 2px solid white; border-bottom: none; transform: translateX(-50%);"></div>
                         <div style="position: absolute; bottom: 0; left: 50%; width: 20%; height: 10%; border: 2px solid white; border-bottom: none; transform: translateX(-50%);"></div>
                         <!-- Penalty spot (bottom) -->
                         <div style="position: absolute; bottom: 12%; left: 50%; width: 6px; height: 6px; background: white; border-radius: 50%; transform: translateX(-50%);"></div>
                         
-                        <!-- V8.13: Penalty area (top) -->
+                        <!-- V8.14: Penalty area (top) -->
                         <div style="position: absolute; top: 0; left: 50%; width: 35%; height: 18%; border: 2px solid white; border-top: none; transform: translateX(-50%);"></div>
                         <div style="position: absolute; top: 0; left: 50%; width: 20%; height: 10%; border: 2px solid white; border-top: none; transform: translateX(-50%);"></div>
                         <!-- Penalty spot (top) -->
@@ -1099,7 +1099,7 @@
             </button>
         </div>
 
-        <!-- V8.13: Player Selection Modal for Modulo -->
+        <!-- V8.14: Player Selection Modal for Modulo -->
         <div id="modulo-player-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
             <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl max-h-[80vh] overflow-y-auto">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Seleziona Giocatore</h3>
@@ -8731,21 +8731,33 @@
             // Get available players from the current company
             async function getAvailablePlayers() {
                 try {
+                    console.log('🔄 V8.14: getAvailablePlayers() - Loading players for tactics page');
+                    
                     if (demoMode) {
                         const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
                         return savedPlayers ? JSON.parse(savedPlayers) : DEMO_PLAYERS;
                     } else {
-                        const companyDocRef = doc(db, 'companies', currentCompanyDocumentId);
-                        const playersCollectionRef = collection(companyDocRef, 'players');
-                        const playersSnapshot = await getDocs(playersCollectionRef);
+                        // V8.14: Fixed to use correct Firestore path: societa/[id]/giocatori
+                        if (!currentCompanyDocumentId) {
+                            console.error('❌ V8.14: currentCompanyDocumentId is not set');
+                            return [];
+                        }
+                        
+                        console.log(`📍 V8.14: Loading players from societa/${currentCompanyDocumentId}/giocatori`);
+                        const playersCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "giocatori");
+                        const playersSnapshot = await window.getDocs(playersCollectionRef);
                         const players = [];
                         playersSnapshot.forEach((doc) => {
-                            players.push(doc.id);
+                            const playerData = doc.data();
+                            // Use the player name from the document data, or fallback to document ID
+                            const playerName = playerData.name || playerData.nome || doc.id;
+                            players.push(playerName);
                         });
+                        console.log(`✅ V8.14: Loaded ${players.length} players for tactics page`);
                         return players.sort();
                     }
                 } catch (error) {
-                    console.error('Error loading players for modulo:', error);
+                    console.error('❌ V8.14: Error loading players for modulo:', error);
                     return [];
                 }
             }
@@ -8788,7 +8800,7 @@
                     return;
                 }
                 
-                console.log(`⚽ V8.13: Generating field for ${matchType} players with formation ${formationStr}`);
+                console.log(`⚽ V8.14: Generating field for ${matchType} players with formation ${formationStr}`);
                 generateField(formation);
             });
             
@@ -8798,44 +8810,64 @@
                 playerPositions = {}; // Reset assignments
                 soccerFieldContainer.classList.remove('hidden');
                 
-                // V8.13: Create goalkeeper (positioned lower on the field)
+                // V8.14: Create goalkeeper (positioned lower on the field)
                 createPlayerIcon('GK', 50, 92, 'Portiere');
                 
-                // V8.13: Improved positioning - spread players better across the field
+                // V8.14: Enhanced positioning - attackers forward, defenders back, midfielders wider
                 const numLines = formation.length;
-                let yPosition;
-                
-                // Calculate starting position based on number of lines
-                if (numLines === 2) {
-                    yPosition = 70; // For 2-line formations (e.g., 2-2)
-                } else if (numLines === 3) {
-                    yPosition = 65; // For 3-line formations (e.g., 2-3-2, 4-4-2)
-                } else {
-                    yPosition = 60; // For 4+ line formations
-                }
-                
-                // Better vertical spacing
-                const yStep = (yPosition - 15) / numLines;
                 
                 formation.forEach((lineCount, lineIndex) => {
-                    const xStep = 80 / (lineCount + 1);
-                    for (let i = 0; i < lineCount; i++) {
-                        const xPosition = 10 + xStep * (i + 1);
-                        // V8.13: Determine position label and name based on formation structure
-                        let positionLabel, positionName;
-                        if (formation.length === 2) {
-                            // 2-line formation: defenders and forwards
-                            positionLabel = lineIndex === 0 ? 'D' : 'A';
-                            positionName = lineIndex === 0 ? 'Difensore' : 'Attaccante';
+                    // V8.14: Determine position based on role
+                    let yPosition, xSpacing;
+                    let positionLabel, positionName;
+                    
+                    if (formation.length === 2) {
+                        // 2-line formation: defenders and forwards
+                        if (lineIndex === 0) {
+                            // Defenders - further back (higher Y%)
+                            yPosition = 75;
+                            xSpacing = 80;
+                            positionLabel = 'D';
+                            positionName = 'Difensore';
                         } else {
-                            // 3-line formation: defenders, midfielders, forwards
-                            positionLabel = lineIndex === 0 ? 'D' : lineIndex === 1 ? 'C' : 'A';
-                            positionName = lineIndex === 0 ? 'Difensore' : lineIndex === 1 ? 'Centrocampista' : 'Attaccante';
+                            // Attackers - further forward (lower Y%)
+                            yPosition = 25;
+                            xSpacing = 80;
+                            positionLabel = 'A';
+                            positionName = 'Attaccante';
                         }
+                    } else {
+                        // 3-line formation: defenders, midfielders, forwards
+                        if (lineIndex === 0) {
+                            // Defenders - further back (higher Y%)
+                            yPosition = 75;
+                            xSpacing = 80;
+                            positionLabel = 'D';
+                            positionName = 'Difensore';
+                        } else if (lineIndex === 1) {
+                            // Midfielders - middle position, wider spacing
+                            yPosition = 50;
+                            xSpacing = 85; // V8.14: Wider spacing for midfielders
+                            positionLabel = 'C';
+                            positionName = 'Centrocampista';
+                        } else {
+                            // Attackers - further forward (lower Y%)
+                            yPosition = 20;
+                            xSpacing = 80;
+                            positionLabel = 'A';
+                            positionName = 'Attaccante';
+                        }
+                    }
+                    
+                    // Create players for this line
+                    const xStep = xSpacing / (lineCount + 1);
+                    for (let i = 0; i < lineCount; i++) {
+                        const xPosition = (100 - xSpacing) / 2 + xStep * (i + 1);
                         createPlayerIcon(`${positionLabel}${i + 1}`, xPosition, yPosition, positionName);
                     }
-                    yPosition -= yStep;
                 });
+                
+                console.log(`⚽ V8.14: Field generated with enhanced positioning`);
             }
             
             // Create a player icon on the field
