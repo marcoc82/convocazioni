@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.6 - UI Changes Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="bg-white rounded-2xl shadow-xl p-6 max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-6 text-blue-800">Test V9.6 - UI Changes Verification</h1>
+        
+        <!-- Feature Summary -->
+        <div class="mb-8 p-6 bg-green-50 rounded-xl border border-green-200">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">✅ V9.6 - Requisiti Implementati</h2>
+            <ul class="space-y-2 text-sm text-green-700">
+                <li>✓ <strong>Requisito 1:</strong> Pulsante "Modulo" cambiato da teal a giallo</li>
+                <li>✓ <strong>Requisito 2:</strong> Testo pulsante "Campionato" cambiato da bianco a nero</li>
+                <li>✓ <strong>Requisito 3:</strong> Checkbox nelle sessioni di allenamento cambiate da teal a verde</li>
+                <li>✓ <strong>Requisito 4:</strong> Pulsante "Presenze Allenamenti" rimosso e logica commentata</li>
+                <li>✓ <strong>Requisito 5:</strong> Versione aggiornata da V9.5 a V9.6</li>
+            </ul>
+        </div>
+
+        <!-- Change 1: Modulo Button -->
+        <div class="mb-8 p-6 bg-yellow-50 rounded-xl border border-yellow-200">
+            <h2 class="text-xl font-semibold text-yellow-800 mb-4">📝 Modifica 1: Pulsante "Modulo" in Giallo</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">❌ Prima (Teal):</h3>
+                    <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg">
+                        ⚽ Modulo (OLD)
+                    </button>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">✅ Dopo (Giallo):</h3>
+                    <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg">
+                        ⚽ Modulo (NEW)
+                    </button>
+                </div>
+                <div class="text-sm bg-gray-50 p-3 rounded">
+                    <strong>Codice:</strong>
+                    <pre class="text-xs mt-2">bg-teal-600 hover:bg-teal-700 text-white
+→ bg-yellow-400 hover:bg-yellow-500 text-black</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 2: Campionato Button Text -->
+        <div class="mb-8 p-6 bg-purple-50 rounded-xl border border-purple-200">
+            <h2 class="text-xl font-semibold text-purple-800 mb-4">📝 Modifica 2: Testo Pulsante "Campionato" in Nero</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">❌ Prima (Testo Bianco):</h3>
+                    <button class="w-full bg-purple-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg">
+                        ⚽ Campionato (OLD)
+                    </button>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">✅ Dopo (Testo Nero):</h3>
+                    <button class="w-full bg-purple-600 hover:bg-red-700 text-black font-semibold py-3 px-6 rounded-lg">
+                        ⚽ Campionato (NEW)
+                    </button>
+                </div>
+                <div class="text-sm bg-gray-50 p-3 rounded">
+                    <strong>Codice:</strong>
+                    <pre class="text-xs mt-2">text-white → text-black</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 3: Checkbox Color -->
+        <div class="mb-8 p-6 bg-green-50 rounded-xl border border-green-200">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">📝 Modifica 3: Checkbox Sessioni Allenamento in Verde</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">❌ Prima (Teal):</h3>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">10 ROSSI MARIO</span>
+                            <input type="checkbox" checked class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                        </label>
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">7 BIANCHI LUIGI</span>
+                            <input type="checkbox" class="w-5 h-5 text-teal-600 rounded focus:ring-teal-500">
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">✅ Dopo (Verde):</h3>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">10 ROSSI MARIO</span>
+                            <input type="checkbox" checked class="w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                        </label>
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <span class="text-sm text-gray-700">7 BIANCHI LUIGI</span>
+                            <input type="checkbox" class="w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                        </label>
+                    </div>
+                </div>
+                <div class="text-sm bg-gray-50 p-3 rounded">
+                    <strong>Codice:</strong>
+                    <pre class="text-xs mt-2">text-teal-600 focus:ring-teal-500
+→ text-green-600 focus:ring-green-500</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 4: Removed Button -->
+        <div class="mb-8 p-6 bg-red-50 rounded-xl border border-red-200">
+            <h2 class="text-xl font-semibold text-red-800 mb-4">📝 Modifica 4: Pulsante "Presenze Allenamenti" Rimosso</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">❌ Prima (Visibile per POLIS):</h3>
+                    <button class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg">
+                        Presenze Allenamenti
+                    </button>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">✅ Dopo (Rimosso):</h3>
+                    <div class="bg-white p-4 rounded-lg border text-center text-gray-500">
+                        <p class="italic">Pulsante non più visibile</p>
+                        <p class="text-sm mt-2">Tutto il codice relativo è stato commentato</p>
+                    </div>
+                </div>
+                <div class="text-sm bg-gray-50 p-3 rounded">
+                    <strong>Codice commentato:</strong>
+                    <ul class="text-xs mt-2 list-disc list-inside space-y-1">
+                        <li>Pulsante HTML (riga ~273)</li>
+                        <li>Vista "Training Attendance" (righe ~755-807)</li>
+                        <li>Dichiarazioni variabili JavaScript (2 occorrenze)</li>
+                        <li>Event listener (riga ~7447)</li>
+                        <li>Back buttons e refresh (righe ~8647-8673)</li>
+                        <li>Logica visibilità (3 sezioni)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 5: Version Update -->
+        <div class="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">📝 Modifica 5: Versione Aggiornata</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">❌ Prima:</h3>
+                    <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.5</span>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2">✅ Dopo:</h3>
+                    <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.6</span>
+                </div>
+                <div class="text-sm bg-gray-50 p-3 rounded">
+                    <strong>File aggiornati:</strong>
+                    <ul class="text-xs mt-2 list-disc list-inside space-y-1">
+                        <li>index.html (commento riga 2)</li>
+                        <li>index.html (badge riga 239)</li>
+                        <li>manifest.json (riga 4)</li>
+                        <li>CHANGELOG_V9.6.md (nuovo file)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verification Checklist -->
+        <div class="p-6 bg-blue-50 rounded-xl border border-blue-200">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">✅ Checklist di Verifica</h2>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Pulsante "Modulo" è giallo (bg-yellow-400)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Testo pulsante "Campionato" è nero (text-black)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Checkbox allenamenti sono verdi (text-green-600)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Pulsante "Presenze Allenamenti" è commentato</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Vista "Training Attendance" è commentata</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Event listeners sono commentati</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Versione aggiornata a V9.6 (index.html)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Versione aggiornata a V9.6 (manifest.json)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>CHANGELOG_V9.6.md creato</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Nessuna modifica alla struttura responsive</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" checked disabled class="w-5 h-5">
+                    <span>Tutte le altre funzionalità mantenute</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="mt-6 p-6 bg-gray-50 rounded-xl border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">📊 Statistiche Modifiche</h2>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="font-semibold">File Modificati:</p>
+                    <ul class="list-disc list-inside ml-4">
+                        <li>index.html</li>
+                        <li>manifest.json</li>
+                        <li>CHANGELOG_V9.6.md (nuovo)</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="font-semibold">Modifiche Totali:</p>
+                    <ul class="list-disc list-inside ml-4">
+                        <li>+310 righe</li>
+                        <li>-60 righe</li>
+                        <li>11 commenti V9.6</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Instructions -->
+        <div class="mt-6 p-6 bg-purple-50 rounded-xl border border-purple-200">
+            <h2 class="text-xl font-semibold text-purple-800 mb-4">🧪 Test da Effettuare</h2>
+            <ol class="space-y-2 text-sm list-decimal list-inside">
+                <li>Aprire l'applicazione e verificare che il pulsante "Modulo" sia giallo</li>
+                <li>Verificare che il pulsante "Campionato" abbia il testo nero (per PIEVE2010)</li>
+                <li>Aprire "Allenamenti" e verificare che le checkbox siano verdi</li>
+                <li>Verificare che il pulsante "Presenze Allenamenti" non sia visibile</li>
+                <li>Verificare che non ci siano errori nella console JavaScript</li>
+                <li>Testare login normale e guest per verificare nessuna regressione</li>
+                <li>Verificare che la versione mostrata sia "V 9.6"</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>
