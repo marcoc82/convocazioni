@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<!-- Test file for V9.5 improvements - Tactical field with player icons -->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.5 - Test Campo Tattiche</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">🧪 V9.5 - Test Campo Tattiche</h1>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">📋 Requisiti Testati</h2>
+            <ul class="space-y-2 text-sm">
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>Req 1:</strong> Spaziatura aumentata (D/A: 90%, C: 115%)</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>Req 2:</strong> Nomi colonnari (numero/nome/cognome su righe separate)</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>Req 3:</strong> Centratura perfetta riquadro nome (flexbox)</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>Req 4:</strong> Filtro giocatori già assegnati dalla lista</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>Req 5:</strong> Versione aggiornata a V9.5</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Test Selection -->
+        <div class="bg-gray-50 p-4 rounded-xl mb-6 shadow-sm border border-gray-200">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="match-type" class="block text-sm font-medium text-gray-700 mb-2">Tipo Partita</label>
+                    <select id="match-type" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg">
+                        <option value="11">Calcio a 11</option>
+                        <option value="9">Calcio a 9</option>
+                        <option value="7">Calcio a 7</option>
+                        <option value="5">Calcio a 5</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="formation" class="block text-sm font-medium text-gray-700 mb-2">Modulo</label>
+                    <input type="text" id="formation" value="4-4-2" placeholder="es. 4-4-2" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg">
+                </div>
+            </div>
+            <button id="generate-btn" class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                Genera Campo
+            </button>
+        </div>
+
+        <!-- Soccer Field -->
+        <div id="field-container" class="bg-green-700 p-4 rounded-xl shadow-lg border-4 border-white relative" style="min-height: 500px;">
+            <div class="absolute inset-0 bg-green-600" style="opacity: 0.3;"></div>
+            <div class="relative">
+                <div class="border-2 border-white rounded-lg p-2" style="min-height: 480px; position: relative;">
+                    <!-- Midfield line -->
+                    <div style="position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: white; transform: translateY(-50%);"></div>
+                    
+                    <!-- Center circle -->
+                    <div style="position: absolute; top: 50%; left: 50%; width: 80px; height: 80px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%);"></div>
+                    <div style="position: absolute; top: 50%; left: 50%; width: 8px; height: 8px; background: white; border-radius: 50%; transform: translate(-50%, -50%);"></div>
+                    
+                    <!-- Penalty areas -->
+                    <div style="position: absolute; bottom: 0; left: 50%; width: 35%; height: 18%; border: 2px solid white; border-bottom: none; transform: translateX(-50%);"></div>
+                    <div style="position: absolute; bottom: 0; left: 50%; width: 20%; height: 10%; border: 2px solid white; border-bottom: none; transform: translateX(-50%);"></div>
+                    <div style="position: absolute; bottom: 12%; left: 50%; width: 6px; height: 6px; background: white; border-radius: 50%; transform: translateX(-50%);"></div>
+                    
+                    <div style="position: absolute; top: 0; left: 50%; width: 35%; height: 18%; border: 2px solid white; border-top: none; transform: translateX(-50%);"></div>
+                    <div style="position: absolute; top: 0; left: 50%; width: 20%; height: 10%; border: 2px solid white; border-top: none; transform: translateX(-50%);"></div>
+                    <div style="position: absolute; top: 12%; left: 50%; width: 6px; height: 6px; background: white; border-radius: 50%; transform: translateX(-50%);"></div>
+                    
+                    <div id="field-players" class="relative h-full" style="min-height: 480px;">
+                        <!-- Players will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold mb-4">📊 Miglioramenti V9.5</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">Spaziatura</h4>
+                    <ul class="space-y-1 text-gray-600">
+                        <li>• Difensori: 80% → <strong>90%</strong> (+12.5%)</li>
+                        <li>• Centrocampisti: 105% → <strong>115%</strong> (+9.5%)</li>
+                        <li>• Attaccanti: 80% → <strong>90%</strong> (+12.5%)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">Visualizzazione</h4>
+                    <ul class="space-y-1 text-gray-600">
+                        <li>• Layout colonnare (numero/nome/cognome)</li>
+                        <li>• Centratura perfetta (flexbox)</li>
+                        <li>• Larghezza box: 100px → <strong>120px</strong></li>
+                        <li>• Filtro giocatori già assegnati</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Selection Modal -->
+    <div id="player-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl max-h-[80vh] overflow-y-auto">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Seleziona Giocatore</h3>
+            <div id="player-list" class="space-y-2 mb-4">
+                <!-- Player list will be populated here -->
+            </div>
+            <button id="close-modal" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                Annulla
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const fieldPlayers = document.getElementById('field-players');
+        const generateBtn = document.getElementById('generate-btn');
+        const playerModal = document.getElementById('player-modal');
+        const playerList = document.getElementById('player-list');
+        const closeModal = document.getElementById('close-modal');
+        
+        let playerPositions = {};
+        let currentPosition = null;
+        
+        // Demo players
+        const DEMO_PLAYERS = [
+            '1 Mario Rossi',
+            '2 Luigi Bianchi',
+            '3 Giuseppe Verdi',
+            '4 Francesco Ferrari',
+            '5 Antonio Romano',
+            '6 Marco Colombo',
+            '7 Alessandro Ricci',
+            '8 Stefano Marino',
+            '9 Matteo Greco',
+            '10 Andrea Conti',
+            '11 Lorenzo Bruno',
+            '12 Davide Rizzo',
+            '13 Simone Gallo',
+            '14 Federico Costa',
+            '15 Roberto Fontana',
+            '16 Luca Caruso',
+            '17 Paolo Ferrara',
+            '18 Giovanni Russo',
+            '19 Massimo Leone',
+            '20 Claudio Serra'
+        ];
+
+        generateBtn.addEventListener('click', () => {
+            const formationStr = document.getElementById('formation').value.trim();
+            if (!formationStr) return;
+            
+            const formation = formationStr.split('-').map(n => parseInt(n.trim()));
+            if (formation.some(isNaN)) return;
+            
+            generateField(formation);
+        });
+
+        function generateField(formation) {
+            fieldPlayers.innerHTML = '';
+            playerPositions = {};
+            
+            // Create goalkeeper
+            createPlayerIcon('GK', 50, 92, 'Portiere');
+            
+            // V9.5: Enhanced spacing
+            formation.forEach((lineCount, lineIndex) => {
+                let yPosition, xSpacing, positionLabel, positionName;
+                
+                if (formation.length === 2) {
+                    if (lineIndex === 0) {
+                        yPosition = 75;
+                        xSpacing = 90;
+                        positionLabel = 'D';
+                        positionName = 'Difensore';
+                    } else {
+                        yPosition = 15;
+                        xSpacing = 90;
+                        positionLabel = 'A';
+                        positionName = 'Attaccante';
+                    }
+                } else {
+                    if (lineIndex === 0) {
+                        yPosition = 75;
+                        xSpacing = 90;
+                        positionLabel = 'D';
+                        positionName = 'Difensore';
+                    } else if (lineIndex === 1) {
+                        yPosition = 50;
+                        xSpacing = 115;
+                        positionLabel = 'C';
+                        positionName = 'Centrocampista';
+                    } else {
+                        yPosition = 15;
+                        xSpacing = 90;
+                        positionLabel = 'A';
+                        positionName = 'Attaccante';
+                    }
+                }
+                
+                const xStep = xSpacing / (lineCount + 1);
+                for (let i = 0; i < lineCount; i++) {
+                    const xPosition = (100 - xSpacing) / 2 + xStep * (i + 1);
+                    createPlayerIcon(`${positionLabel}${i + 1}`, xPosition, yPosition, positionName);
+                }
+            });
+            
+            console.log('✅ V9.5: Field generated with enhanced spacing');
+        }
+
+        function createPlayerIcon(positionId, xPercent, yPercent, positionName) {
+            const playerDiv = document.createElement('div');
+            playerDiv.className = 'player-icon absolute cursor-pointer transition-all duration-200 hover:scale-110';
+            playerDiv.style.left = `${xPercent}%`;
+            playerDiv.style.top = `${yPercent}%`;
+            playerDiv.style.transform = 'translate(-50%, -50%)';
+            playerDiv.dataset.position = positionId;
+            
+            let bgColor = 'bg-blue-600';
+            if (positionId === 'GK') bgColor = 'bg-yellow-500';
+            else if (positionId.startsWith('D')) bgColor = 'bg-red-600';
+            else if (positionId.startsWith('C')) bgColor = 'bg-gray-600';
+            
+            playerDiv.innerHTML = `
+                <div class="text-center" style="display: flex; flex-direction: column; align-items: center;">
+                    <div class="player-badge w-12 h-12 ${bgColor} border-3 border-white rounded-full flex items-center justify-center text-white font-bold shadow-lg mb-1">
+                        <span class="text-xs">${positionId}</span>
+                    </div>
+                    <div class="player-name-display text-white text-xs font-semibold bg-black bg-opacity-60 px-2 py-1 rounded min-h-[24px] max-w-[120px] leading-tight" style="text-shadow: 1px 1px 2px black; text-align: center;">
+                        ${positionName}
+                    </div>
+                </div>
+            `;
+            
+            playerDiv.addEventListener('click', () => handlePlayerClick(positionId));
+            fieldPlayers.appendChild(playerDiv);
+        }
+
+        function handlePlayerClick(positionId) {
+            currentPosition = positionId;
+            const assignment = playerPositions[positionId];
+            
+            if (assignment && assignment.length >= 2) {
+                if (confirm('Rimuovere i giocatori da questa posizione?')) {
+                    delete playerPositions[positionId];
+                    updatePlayerDisplay(positionId);
+                }
+                return;
+            }
+            
+            // V9.5: Filter out already assigned players
+            const assignedPlayers = new Set();
+            Object.values(playerPositions).forEach(assignment => {
+                if (Array.isArray(assignment)) {
+                    assignment.forEach(name => assignedPlayers.add(name));
+                }
+            });
+            
+            const availablePlayers = DEMO_PLAYERS.filter(name => !assignedPlayers.has(name));
+            
+            playerList.innerHTML = '';
+            
+            if (availablePlayers.length === 0) {
+                playerList.innerHTML = '<div class="text-center text-gray-500 py-4">Tutti i giocatori sono già stati assegnati</div>';
+            } else {
+                availablePlayers.forEach(playerName => {
+                    const button = document.createElement('button');
+                    button.className = 'w-full text-left px-4 py-2 bg-gray-100 hover:bg-blue-100 rounded-lg transition-colors';
+                    button.textContent = playerName;
+                    button.addEventListener('click', () => {
+                        assignPlayer(positionId, playerName);
+                        playerModal.classList.add('hidden');
+                    });
+                    playerList.appendChild(button);
+                });
+            }
+            
+            if (assignment && assignment.length > 0) {
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'w-full text-left px-4 py-2 bg-red-100 hover:bg-red-200 rounded-lg transition-colors mt-2';
+                removeBtn.textContent = '❌ Rimuovi giocatore';
+                removeBtn.addEventListener('click', () => {
+                    assignment.pop();
+                    if (assignment.length === 0) delete playerPositions[positionId];
+                    updatePlayerDisplay(positionId);
+                    playerModal.classList.add('hidden');
+                });
+                playerList.appendChild(removeBtn);
+            }
+            
+            playerModal.classList.remove('hidden');
+        }
+
+        function assignPlayer(positionId, playerName) {
+            if (!playerPositions[positionId]) playerPositions[positionId] = [];
+            if (playerPositions[positionId].length < 2) {
+                playerPositions[positionId].push(playerName);
+                updatePlayerDisplay(positionId);
+            }
+        }
+
+        function updatePlayerDisplay(positionId) {
+            const playerIcon = document.querySelector(`.player-icon[data-position="${positionId}"]`);
+            if (!playerIcon) return;
+            
+            const nameDisplay = playerIcon.querySelector('.player-name-display');
+            const badge = playerIcon.querySelector('.player-badge span');
+            const assignment = playerPositions[positionId];
+            
+            if (assignment && assignment.length > 0) {
+                // V9.5: Columnar display
+                nameDisplay.innerHTML = assignment.map(fullName => {
+                    const parts = fullName.split(' ');
+                    if (parts.length >= 3) {
+                        const numero = parts[0];
+                        const nome = parts[1];
+                        const cognome = parts.slice(2).join(' ');
+                        return `<div style="line-height: 1.2;">${numero}<br>${nome}<br>${cognome}</div>`;
+                    } else if (parts.length === 2) {
+                        return `<div style="line-height: 1.2;">${parts[0]}<br>${parts[1]}</div>`;
+                    } else {
+                        return `<div>${fullName}</div>`;
+                    }
+                }).join('<div style="margin: 4px 0; border-top: 1px solid rgba(255,255,255,0.3);"></div>');
+                
+                badge.textContent = assignment[0].split(' ')[0];
+            } else {
+                const positionName = positionId === 'GK' ? 'Portiere' : 
+                                   positionId.startsWith('D') ? 'Difensore' :
+                                   positionId.startsWith('C') ? 'Centrocampista' : 'Attaccante';
+                nameDisplay.textContent = positionName;
+                badge.textContent = positionId;
+            }
+        }
+
+        closeModal.addEventListener('click', () => {
+            playerModal.classList.add('hidden');
+        });
+
+        // Generate default field
+        generateField([4, 4, 2]);
+    </script>
+</body>
+</html>
