@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.16 - Midfielder spacing increased to 97%, fixed player list loading to properly extract nome and numero from Firestore database structure -->
+<!-- Version: V8.17 - Midfielder spacing 105%, Defenders Y=75%, alphabetic player sorting, icon colors (GK yellow, D red, C gray), jersey number on badge -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -1982,11 +1982,11 @@
             // Distinta-related global variables
             window.currentDistintaData = null;
             
-            // V8.13: Demo mode and demo players for tactical module
+            // V8.17: Demo mode and demo players for tactical module (with jersey numbers)
             let demoMode = !window.db; // Use demo mode if Firebase is not available
-            const DEMO_PLAYERS = ['Mario Rossi', 'Luca Bianchi', 'Paolo Verdi', 'Andrea Neri', 
-                                  'Giuseppe Gialli', 'Marco Blu', 'Stefano Viola', 'Antonio Arancioni',
-                                  'Francesco Rosa', 'Giovanni Grigi', 'Alessandro Marroni'];
+            const DEMO_PLAYERS = ['10 Mario Rossi', '7 Luca Bianchi', '5 Paolo Verdi', '3 Andrea Neri', 
+                                  '9 Giuseppe Gialli', '11 Marco Blu', '8 Stefano Viola', '4 Antonio Arancioni',
+                                  '6 Francesco Rosa', '2 Giovanni Grigi', '1 Alessandro Marroni'];
 
             // Helper function to check if user is a guest
             function isGuest() {
@@ -8731,16 +8731,16 @@
             // Get available players from the current company
             async function getAvailablePlayers() {
                 try {
-                    console.log('🔄 V8.16: getAvailablePlayers() - Loading players for tactics page');
+                    console.log('🔄 V8.17: getAvailablePlayers() - Loading players for tactics page');
                     
                     if (demoMode) {
                         const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
                         if (savedPlayers) {
-                            // V8.16: Parse and ensure we extract names if objects are stored
+                            // V8.17: Parse and ensure we extract names if objects are stored
                             const parsed = JSON.parse(savedPlayers);
                             if (Array.isArray(parsed)) {
                                 // Ensure all items are formatted as "numero nome"
-                                return parsed.map(item => {
+                                const formatted = parsed.map(item => {
                                     if (typeof item === 'string') {
                                         return item;
                                     } else if (typeof item === 'object' && item !== null) {
@@ -8752,23 +8752,33 @@
                                     }
                                     return String(item);
                                 });
+                                // V8.17: Sort alphabetically by name (not by number)
+                                return formatted.sort((a, b) => {
+                                    const nameA = a.split(' ').slice(1).join(' ').toLowerCase();
+                                    const nameB = b.split(' ').slice(1).join(' ').toLowerCase();
+                                    return nameA.localeCompare(nameB);
+                                });
                             }
                         }
-                        return DEMO_PLAYERS;
+                        return DEMO_PLAYERS.slice().sort((a, b) => {
+                            const nameA = a.split(' ').slice(1).join(' ').toLowerCase();
+                            const nameB = b.split(' ').slice(1).join(' ').toLowerCase();
+                            return nameA.localeCompare(nameB);
+                        });
                     } else {
-                        // V8.16: Load from Firestore with correct database structure
+                        // V8.17: Load from Firestore with correct database structure
                         if (!currentCompanyDocumentId) {
-                            console.error('❌ V8.16: currentCompanyDocumentId is not set');
+                            console.error('❌ V8.17: currentCompanyDocumentId is not set');
                             return [];
                         }
                         
-                        console.log(`📍 V8.16: Loading players from societa/${currentCompanyDocumentId}/giocatori`);
+                        console.log(`📍 V8.17: Loading players from societa/${currentCompanyDocumentId}/giocatori`);
                         const playersCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "giocatori");
                         const playersSnapshot = await window.getDocs(playersCollectionRef);
                         const players = [];
                         playersSnapshot.forEach((doc) => {
                             const playerData = doc.data();
-                            // V8.16: Extract from nome object structure (nome.nome, nome.numero)
+                            // V8.17: Extract from nome object structure (nome.nome, nome.numero)
                             // Database structure: giocatori collection has documents with 'nome' field as object
                             if (playerData.nome && typeof playerData.nome === 'object') {
                                 const numero = playerData.nome.numero;
@@ -8779,16 +8789,16 @@
                                 }
                             }
                         });
-                        console.log(`✅ V8.16: Loaded ${players.length} players for tactics page`);
+                        console.log(`✅ V8.17: Loaded ${players.length} players for tactics page`);
+                        // V8.17: Sort alphabetically by name (not by number)
                         return players.sort((a, b) => {
-                            // Sort by numero (numeric part at start)
-                            const numA = parseInt(a) || 0;
-                            const numB = parseInt(b) || 0;
-                            return numA - numB;
+                            const nameA = a.split(' ').slice(1).join(' ').toLowerCase();
+                            const nameB = b.split(' ').slice(1).join(' ').toLowerCase();
+                            return nameA.localeCompare(nameB);
                         });
                     }
                 } catch (error) {
-                    console.error('❌ V8.16: Error loading players for modulo:', error);
+                    console.error('❌ V8.17: Error loading players for modulo:', error);
                     return [];
                 }
             }
@@ -8841,10 +8851,10 @@
                 playerPositions = {}; // Reset assignments
                 soccerFieldContainer.classList.remove('hidden');
                 
-                // V8.16: Create goalkeeper (positioned lower on the field)
+                // V8.17: Create goalkeeper (positioned lower on the field)
                 createPlayerIcon('GK', 50, 92, 'Portiere');
                 
-                // V8.16: Enhanced positioning - attackers Y=15%, defenders Y=78%, midfielders 97% spacing
+                // V8.17: Enhanced positioning - attackers Y=15%, defenders Y=75%, midfielders 105% spacing
                 const numLines = formation.length;
                 
                 formation.forEach((lineCount, lineIndex) => {
@@ -8855,13 +8865,13 @@
                     if (formation.length === 2) {
                         // 2-line formation: defenders and forwards
                         if (lineIndex === 0) {
-                            // V8.16: Defenders - further back (Y=78%)
-                            yPosition = 78;
+                            // V8.17: Defenders - Y=75%
+                            yPosition = 75;
                             xSpacing = 80;
                             positionLabel = 'D';
                             positionName = 'Difensore';
                         } else {
-                            // V8.16: Attackers - further forward (Y=15%)
+                            // V8.17: Attackers - further forward (Y=15%)
                             yPosition = 15;
                             xSpacing = 80;
                             positionLabel = 'A';
@@ -8870,19 +8880,19 @@
                     } else {
                         // 3-line formation: defenders, midfielders, forwards
                         if (lineIndex === 0) {
-                            // V8.16: Defenders - further back (Y=78%)
-                            yPosition = 78;
+                            // V8.17: Defenders - Y=75%
+                            yPosition = 75;
                             xSpacing = 80;
                             positionLabel = 'D';
                             positionName = 'Difensore';
                         } else if (lineIndex === 1) {
-                            // V8.16: Midfielders - middle position, wider spacing (97%)
+                            // V8.17: Midfielders - middle position, wider spacing (105%)
                             yPosition = 50;
-                            xSpacing = 97;
+                            xSpacing = 105;
                             positionLabel = 'C';
                             positionName = 'Centrocampista';
                         } else {
-                            // V8.16: Attackers - further forward (Y=15%)
+                            // V8.17: Attackers - further forward (Y=15%)
                             yPosition = 15;
                             xSpacing = 80;
                             positionLabel = 'A';
@@ -8898,7 +8908,7 @@
                     }
                 });
                 
-                console.log(`⚽ V8.16: Field generated with enhanced positioning (A=15%, D=78%, C=97% spacing)`);
+                console.log(`⚽ V8.17: Field generated with enhanced positioning (A=15%, D=75%, C=105% spacing)`);
             }
             
             // Create a player icon on the field
@@ -8910,9 +8920,19 @@
                 playerDiv.style.transform = 'translate(-50%, -50%)';
                 playerDiv.dataset.position = positionId;
                 
+                // V8.17: Determine color based on position
+                let bgColor = 'bg-blue-600'; // Default for attackers
+                if (positionId === 'GK') {
+                    bgColor = 'bg-yellow-500';
+                } else if (positionId.startsWith('D')) {
+                    bgColor = 'bg-red-600';
+                } else if (positionId.startsWith('C')) {
+                    bgColor = 'bg-gray-600';
+                }
+                
                 playerDiv.innerHTML = `
                     <div class="text-center">
-                        <div class="w-12 h-12 bg-blue-600 border-3 border-white rounded-full flex items-center justify-center text-white font-bold shadow-lg mb-1">
+                        <div class="player-badge w-12 h-12 ${bgColor} border-3 border-white rounded-full flex items-center justify-center text-white font-bold shadow-lg mb-1">
                             <span class="text-xs">${positionId}</span>
                         </div>
                         <div class="player-name-display text-white text-xs font-semibold bg-black bg-opacity-60 px-2 py-1 rounded min-h-[24px] max-w-[100px] break-words" style="text-shadow: 1px 1px 2px black;">
@@ -8982,7 +9002,7 @@
                 
                 if (playerPositions[positionId].length < 2) {
                     playerPositions[positionId].push(playerName);
-                    console.log(`⚽ V8.12: Assigned ${playerName} to position ${positionId}`);
+                    console.log(`⚽ V8.17: Assigned ${playerName} to position ${positionId}`);
                     updatePlayerIconDisplay(positionId);
                 }
             }
@@ -8993,16 +9013,22 @@
                 if (!playerIcon) return;
                 
                 const nameDisplay = playerIcon.querySelector('.player-name-display');
+                const badge = playerIcon.querySelector('.player-badge span');
                 const assignment = playerPositions[positionId];
                 
                 if (assignment && assignment.length > 0) {
                     nameDisplay.innerHTML = assignment.map(name => `<div>${name}</div>`).join('');
+                    // V8.17: Show jersey number on badge from first assigned player
+                    const firstPlayer = assignment[0];
+                    const jerseyNumber = firstPlayer.split(' ')[0]; // Extract number (e.g., "10" from "10 Mario Rossi")
+                    badge.textContent = jerseyNumber;
                 } else {
-                    // Reset to position name
+                    // Reset to position name and position ID
                     const positionName = positionId === 'GK' ? 'Portiere' : 
                                        positionId.startsWith('D') ? 'Difensore' :
                                        positionId.startsWith('C') ? 'Centrocampista' : 'Attaccante';
                     nameDisplay.textContent = positionName;
+                    badge.textContent = positionId;
                 }
             }
             
