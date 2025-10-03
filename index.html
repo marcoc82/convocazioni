@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.17 - Midfielder spacing 105%, Defenders Y=75%, alphabetic player sorting, icon colors (GK yellow, D red, C gray), jersey number on badge -->
+<!-- Version: V9.5 - Improved player icon spacing, columnar name display (numero/nome/cognome), centered name box, filter assigned players from list -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -236,7 +236,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 8.13</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.5</span>
             </div>
         </div>
 
@@ -8731,12 +8731,12 @@
             // Get available players from the current company
             async function getAvailablePlayers() {
                 try {
-                    console.log('🔄 V8.17: getAvailablePlayers() - Loading players for tactics page');
+                    console.log('🔄 V9.5: getAvailablePlayers() - Loading players for tactics page');
                     
                     if (demoMode) {
                         const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
                         if (savedPlayers) {
-                            // V8.17: Parse and ensure we extract names if objects are stored
+                            // V9.5: Parse and ensure we extract names if objects are stored
                             const parsed = JSON.parse(savedPlayers);
                             if (Array.isArray(parsed)) {
                                 // Ensure all items are formatted as "numero nome"
@@ -8752,7 +8752,7 @@
                                     }
                                     return String(item);
                                 });
-                                // V8.17: Sort alphabetically by name (not by number)
+                                // V9.5: Sort alphabetically by name (not by number)
                                 return formatted.sort((a, b) => {
                                     const nameA = a.split(' ').slice(1).join(' ').toLowerCase();
                                     const nameB = b.split(' ').slice(1).join(' ').toLowerCase();
@@ -8766,19 +8766,19 @@
                             return nameA.localeCompare(nameB);
                         });
                     } else {
-                        // V8.17: Load from Firestore with correct database structure
+                        // V9.5: Load from Firestore with correct database structure
                         if (!currentCompanyDocumentId) {
-                            console.error('❌ V8.17: currentCompanyDocumentId is not set');
+                            console.error('❌ V9.5: currentCompanyDocumentId is not set');
                             return [];
                         }
                         
-                        console.log(`📍 V8.17: Loading players from societa/${currentCompanyDocumentId}/giocatori`);
+                        console.log(`📍 V9.5: Loading players from societa/${currentCompanyDocumentId}/giocatori`);
                         const playersCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "giocatori");
                         const playersSnapshot = await window.getDocs(playersCollectionRef);
                         const players = [];
                         playersSnapshot.forEach((doc) => {
                             const playerData = doc.data();
-                            // V8.17: Extract from nome object structure (nome.nome, nome.numero)
+                            // V9.5: Extract from nome object structure (nome.nome, nome.numero)
                             // Database structure: giocatori collection has documents with 'nome' field as object
                             if (playerData.nome && typeof playerData.nome === 'object') {
                                 const numero = playerData.nome.numero;
@@ -8789,8 +8789,8 @@
                                 }
                             }
                         });
-                        console.log(`✅ V8.17: Loaded ${players.length} players for tactics page`);
-                        // V8.17: Sort alphabetically by name (not by number)
+                        console.log(`✅ V9.5: Loaded ${players.length} players for tactics page`);
+                        // V9.5: Sort alphabetically by name (not by number)
                         return players.sort((a, b) => {
                             const nameA = a.split(' ').slice(1).join(' ').toLowerCase();
                             const nameB = b.split(' ').slice(1).join(' ').toLowerCase();
@@ -8851,50 +8851,50 @@
                 playerPositions = {}; // Reset assignments
                 soccerFieldContainer.classList.remove('hidden');
                 
-                // V8.17: Create goalkeeper (positioned lower on the field)
+                // V9.5: Create goalkeeper (positioned lower on the field)
                 createPlayerIcon('GK', 50, 92, 'Portiere');
                 
-                // V8.17: Enhanced positioning - attackers Y=15%, defenders Y=75%, midfielders 105% spacing
+                // V9.5: Enhanced positioning - increased spacing to prevent name overlap
                 const numLines = formation.length;
                 
                 formation.forEach((lineCount, lineIndex) => {
-                    // V8.15: Determine position based on role with improved spacing
+                    // V9.5: Determine position based on role with improved spacing
                     let yPosition, xSpacing;
                     let positionLabel, positionName;
                     
                     if (formation.length === 2) {
                         // 2-line formation: defenders and forwards
                         if (lineIndex === 0) {
-                            // V8.17: Defenders - Y=75%
+                            // V9.5: Defenders - Y=75%, increased spacing
                             yPosition = 75;
-                            xSpacing = 80;
+                            xSpacing = 90;
                             positionLabel = 'D';
                             positionName = 'Difensore';
                         } else {
-                            // V8.17: Attackers - further forward (Y=15%)
+                            // V9.5: Attackers - further forward (Y=15%), increased spacing
                             yPosition = 15;
-                            xSpacing = 80;
+                            xSpacing = 90;
                             positionLabel = 'A';
                             positionName = 'Attaccante';
                         }
                     } else {
                         // 3-line formation: defenders, midfielders, forwards
                         if (lineIndex === 0) {
-                            // V8.17: Defenders - Y=75%
+                            // V9.5: Defenders - Y=75%, increased spacing
                             yPosition = 75;
-                            xSpacing = 80;
+                            xSpacing = 90;
                             positionLabel = 'D';
                             positionName = 'Difensore';
                         } else if (lineIndex === 1) {
-                            // V8.17: Midfielders - middle position, wider spacing (105%)
+                            // V9.5: Midfielders - middle position, wider spacing (115% for better readability)
                             yPosition = 50;
-                            xSpacing = 105;
+                            xSpacing = 115;
                             positionLabel = 'C';
                             positionName = 'Centrocampista';
                         } else {
-                            // V8.17: Attackers - further forward (Y=15%)
+                            // V9.5: Attackers - further forward (Y=15%), increased spacing
                             yPosition = 15;
-                            xSpacing = 80;
+                            xSpacing = 90;
                             positionLabel = 'A';
                             positionName = 'Attaccante';
                         }
@@ -8908,7 +8908,7 @@
                     }
                 });
                 
-                console.log(`⚽ V8.17: Field generated with enhanced positioning (A=15%, D=75%, C=105% spacing)`);
+                console.log(`⚽ V9.5: Field generated with enhanced spacing (A/D=90%, C=115% spacing)`);
             }
             
             // Create a player icon on the field
@@ -8920,7 +8920,7 @@
                 playerDiv.style.transform = 'translate(-50%, -50%)';
                 playerDiv.dataset.position = positionId;
                 
-                // V8.17: Determine color based on position
+                // V9.5: Determine color based on position
                 let bgColor = 'bg-blue-600'; // Default for attackers
                 if (positionId === 'GK') {
                     bgColor = 'bg-yellow-500';
@@ -8931,11 +8931,11 @@
                 }
                 
                 playerDiv.innerHTML = `
-                    <div class="text-center">
+                    <div class="text-center" style="display: flex; flex-direction: column; align-items: center;">
                         <div class="player-badge w-12 h-12 ${bgColor} border-3 border-white rounded-full flex items-center justify-center text-white font-bold shadow-lg mb-1">
                             <span class="text-xs">${positionId}</span>
                         </div>
-                        <div class="player-name-display text-white text-xs font-semibold bg-black bg-opacity-60 px-2 py-1 rounded min-h-[24px] max-w-[100px] break-words" style="text-shadow: 1px 1px 2px black;">
+                        <div class="player-name-display text-white text-xs font-semibold bg-black bg-opacity-60 px-2 py-1 rounded min-h-[24px] max-w-[120px] leading-tight" style="text-shadow: 1px 1px 2px black; text-align: center;">
                             ${positionName}
                         </div>
                     </div>
@@ -8963,16 +8963,30 @@
                 const players = await getAvailablePlayers();
                 moduloPlayerList.innerHTML = '';
                 
-                players.forEach(playerName => {
-                    const button = document.createElement('button');
-                    button.className = 'w-full text-left px-4 py-2 bg-gray-100 hover:bg-blue-100 rounded-lg transition-colors duration-200';
-                    button.textContent = playerName;
-                    button.addEventListener('click', () => {
-                        assignPlayerToPosition(positionId, playerName);
-                        moduloPlayerModal.classList.add('hidden');
-                    });
-                    moduloPlayerList.appendChild(button);
+                // V9.5: Filter out already assigned players
+                const assignedPlayers = new Set();
+                Object.values(playerPositions).forEach(assignment => {
+                    if (Array.isArray(assignment)) {
+                        assignment.forEach(playerName => assignedPlayers.add(playerName));
+                    }
                 });
+                
+                const availablePlayers = players.filter(playerName => !assignedPlayers.has(playerName));
+                
+                if (availablePlayers.length === 0) {
+                    moduloPlayerList.innerHTML = '<div class="text-center text-gray-500 py-4">Tutti i giocatori sono già stati assegnati</div>';
+                } else {
+                    availablePlayers.forEach(playerName => {
+                        const button = document.createElement('button');
+                        button.className = 'w-full text-left px-4 py-2 bg-gray-100 hover:bg-blue-100 rounded-lg transition-colors duration-200';
+                        button.textContent = playerName;
+                        button.addEventListener('click', () => {
+                            assignPlayerToPosition(positionId, playerName);
+                            moduloPlayerModal.classList.add('hidden');
+                        });
+                        moduloPlayerList.appendChild(button);
+                    });
+                }
                 
                 // Add remove option if there's already a player assigned
                 if (currentAssignment && currentAssignment.length > 0) {
@@ -9002,7 +9016,7 @@
                 
                 if (playerPositions[positionId].length < 2) {
                     playerPositions[positionId].push(playerName);
-                    console.log(`⚽ V8.17: Assigned ${playerName} to position ${positionId}`);
+                    console.log(`⚽ V9.5: Assigned ${playerName} to position ${positionId}`);
                     updatePlayerIconDisplay(positionId);
                 }
             }
@@ -9017,8 +9031,25 @@
                 const assignment = playerPositions[positionId];
                 
                 if (assignment && assignment.length > 0) {
-                    nameDisplay.innerHTML = assignment.map(name => `<div>${name}</div>`).join('');
-                    // V8.17: Show jersey number on badge from first assigned player
+                    // V9.5: Format each player name with numero/nome/cognome on separate lines
+                    nameDisplay.innerHTML = assignment.map(fullName => {
+                        const parts = fullName.split(' ');
+                        if (parts.length >= 3) {
+                            // Format: "numero nome cognome" -> display as 3 lines
+                            const numero = parts[0];
+                            const nome = parts[1];
+                            const cognome = parts.slice(2).join(' ');
+                            return `<div style="line-height: 1.2;">${numero}<br>${nome}<br>${cognome}</div>`;
+                        } else if (parts.length === 2) {
+                            // Format: "numero nome" -> display as 2 lines
+                            return `<div style="line-height: 1.2;">${parts[0]}<br>${parts[1]}</div>`;
+                        } else {
+                            // Single part, display as-is
+                            return `<div>${fullName}</div>`;
+                        }
+                    }).join('<div style="margin: 4px 0; border-top: 1px solid rgba(255,255,255,0.3);"></div>');
+                    
+                    // V9.5: Show jersey number on badge from first assigned player
                     const firstPlayer = assignment[0];
                     const jerseyNumber = firstPlayer.split(' ')[0]; // Extract number (e.g., "10" from "10 Mario Rossi")
                     badge.textContent = jerseyNumber;
