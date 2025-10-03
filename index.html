@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.0 - UI improvements: green dirigente button, red allenamenti button, hide riepilogo convocazioni in logged view -->
+<!-- Version: V8.11 - Average attendance display, Campionato button color fix for PIEVE2010, guest read-only mode for Allenamenti -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -802,12 +802,19 @@
             </button>
         </div>
 
-        <!-- Allenamenti Management View (V8.9) -->
+        <!-- Allenamenti Management View (V8.11) -->
         <div id="allenamenti-view" class="hidden">
             <button id="top-back-from-allenamenti-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
             </button>
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">🏃 Gestione Allenamenti</h2>
+            
+            <!-- V8.11: Average Attendance Display -->
+            <div id="average-attendance-display" class="mb-4 text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p class="text-sm font-semibold text-blue-800">
+                    Media Presenze Totale: <span id="average-attendance-value" class="text-lg font-bold text-blue-900">--%</span>
+                </p>
+            </div>
             
             <!-- Report Section (Monthly/Annual) -->
             <div id="allenamenti-report-section" class="mb-6">
@@ -887,7 +894,7 @@
             </button>
         </div>
 
-        <!-- Add Training Session Modal (V8.9) -->
+        <!-- Add Training Session Modal (V8.11) -->
         <div id="add-training-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
             <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Nuovo Allenamento</h3>
@@ -1495,8 +1502,15 @@
                 // Show/hide campionato button for POLIS PIEVE 2010
                 if (isPolisPieveCompany) {
                     campionatoButton.classList.remove('hidden');
+                    // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
+                    campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700');
+                    campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500');
+                    console.log('🎨 Campionato button color changed to yellow for PIEVE2010');
                 } else {
                     campionatoButton.classList.add('hidden');
+                    // Reset to purple if not PIEVE2010
+                    campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500');
+                    campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700');
                 }
                 
                 // Risultati button is always visible to all users (no conditional logic needed)
@@ -4717,8 +4731,15 @@
                     // Show/hide campionato button for POLIS PIEVE 2010 (also for guests)
                     if (isPolisPieveCompany) {
                         campionatoButton.classList.remove('hidden');
+                        // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
+                        campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700');
+                        campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500');
+                        console.log('🎨 Campionato button color changed to yellow for PIEVE2010');
                     } else {
                         campionatoButton.classList.add('hidden');
+                        // Reset to purple if not PIEVE2010
+                        campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500');
+                        campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700');
                     }
                     
                     // Risultati button is always visible to all users including guests (no conditional logic needed)
@@ -4752,8 +4773,15 @@
                     // Show/hide campionato button for POLIS PIEVE 2010
                     if (isPolisPieveCompany) {
                         campionatoButton.classList.remove('hidden');
+                        // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
+                        campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700');
+                        campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500');
+                        console.log('🎨 Campionato button color changed to yellow for PIEVE2010');
                     } else {
                         campionatoButton.classList.add('hidden');
+                        // Reset to purple if not PIEVE2010
+                        campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500');
+                        campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700');
                     }
                     
                     console.log('🏢 Normal company login - full UI enabled');
@@ -5025,13 +5053,28 @@
             // Global variable to store training sessions
             let trainingSessions = [];
             
-            // Load allenamenti data (sessions and report) - V8.9
+            // Load allenamenti data (sessions and report) - V8.11
             async function loadAllenamentiData() {
-                console.log('🏃 Loading Allenamenti data... (V8.9)');
+                console.log('🏃 Loading Allenamenti data... (V8.11)');
                 await Promise.all([
                     loadTrainingSessions(),
                     loadAllenamentiReport()
                 ]);
+                
+                // V8.11: Handle guest read-only mode
+                const addTrainingButton = document.getElementById('add-training-session-button');
+                if (isGuestUser) {
+                    // Hide "Nuovo" button for guests
+                    if (addTrainingButton) {
+                        addTrainingButton.classList.add('hidden');
+                    }
+                    console.log('👤 Guest mode: Allenamenti in read-only mode');
+                } else {
+                    // Show "Nuovo" button for non-guests
+                    if (addTrainingButton) {
+                        addTrainingButton.classList.remove('hidden');
+                    }
+                }
             }
             
             // Load training sessions from Firebase
@@ -5132,7 +5175,7 @@
                     return;
                 }
                 
-                // V8.9: Filter sessions based on SESSIONS period (independent from report filter)
+                // V8.11: Filter sessions based on SESSIONS period (independent from report filter)
                 const periodSelect = document.getElementById('sessions-period-select');
                 const selectedPeriod = periodSelect ? periodSelect.value : 'all';
                 const now = new Date();
@@ -5182,7 +5225,7 @@
                 });
             }
             
-            // Create a training session card (V8.9: collapsible with accordion behavior, show present/absent when collapsed)
+            // Create a training session card (V8.11: collapsible with accordion behavior, show present/absent when collapsed)
             function createTrainingSessionCard(session, index, expandByDefault = false) {
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-xl shadow-sm border border-gray-200';
@@ -5212,14 +5255,14 @@
                     else if (attendance[player] === false) absentCount++;
                 });
                 
-                // V8.9: Build collapsible card HTML (support for expandByDefault, show present/absent when collapsed)
+                // V8.11: Build collapsible card HTML (support for expandByDefault, show present/absent when collapsed)
                 let cardHTML = `
                     <!-- Card Header (always visible, clickable) -->
                     <div class="card-header p-4 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors" data-session-id="${session.id}">
                         <div class="flex justify-between items-center">
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-800">📅 ${formattedDate}</h4>
-                                <!-- V8.9: Show present/absent count when collapsed -->
+                                <!-- V8.11: Show present/absent count when collapsed -->
                                 <div class="attendance-summary text-sm mt-1 ${expandByDefault ? 'hidden' : ''}">
                                     <span class="text-green-600 font-semibold">Presenti: ${presentCount}</span>
                                     <span class="ml-3 text-red-600 font-semibold">Assenti: ${absentCount}</span>
@@ -5266,7 +5309,7 @@
                             </div>
                         </div>
                         
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 session-action-buttons">
                             <button class="mark-all-present-btn flex-1 bg-green-500 hover:bg-green-600 text-white text-sm py-2 rounded font-medium" data-session-id="${session.id}">
                                 Tutti Presenti
                             </button>
@@ -5282,7 +5325,22 @@
                 
                 card.innerHTML = cardHTML;
                 
-                // V8.9: Add click handler for collapsible functionality with accordion behavior
+                // V8.11: Handle guest read-only mode
+                if (isGuestUser) {
+                    // Disable all checkboxes for guests
+                    const checkboxes = card.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.disabled = true;
+                    });
+                    
+                    // Hide action buttons for guests
+                    const actionButtons = card.querySelector('.session-action-buttons');
+                    if (actionButtons) {
+                        actionButtons.style.display = 'none';
+                    }
+                }
+                
+                // V8.11: Add click handler for collapsible functionality with accordion behavior
                 const cardHeader = card.querySelector('.card-header');
                 const cardContent = card.querySelector('.card-content');
                 const expandIcon = card.querySelector('.expand-icon');
@@ -5294,12 +5352,12 @@
                         // Collapse this card
                         cardContent.classList.add('hidden');
                         expandIcon.classList.remove('rotate-180');
-                        // V8.9: Show attendance summary when collapsed
+                        // V8.11: Show attendance summary when collapsed
                         if (attendanceSummary) {
                             attendanceSummary.classList.remove('hidden');
                         }
                     } else {
-                        // V8.9: Collapse all other cards first (accordion behavior)
+                        // V8.11: Collapse all other cards first (accordion behavior)
                         const allCards = document.querySelectorAll('#training-sessions-container > div');
                         allCards.forEach(otherCard => {
                             if (otherCard !== card) {
@@ -5320,7 +5378,7 @@
                         // Expand this card
                         cardContent.classList.remove('hidden');
                         expandIcon.classList.add('rotate-180');
-                        // V8.9: Hide attendance summary when expanded
+                        // V8.11: Hide attendance summary when expanded
                         if (attendanceSummary) {
                             attendanceSummary.classList.add('hidden');
                         }
@@ -5410,7 +5468,7 @@
                     return;
                 }
                 
-                console.log(`🏃 Creating new training session: ${date} ${time} (V8.9)`);
+                console.log(`🏃 Creating new training session: ${date} ${time} (V8.11)`);
                 
                 // V8.6: Initialize attendance with all players present by default
                 const players = companyPlayers.length > 0 
@@ -5445,7 +5503,7 @@
                     // Add to local array
                     trainingSessions.unshift(newSession);
                     
-                    // V8.9: Re-render with new session expanded and auto-refresh report
+                    // V8.11: Re-render with new session expanded and auto-refresh report
                     renderTrainingSessions(newSession.id);
                     loadAllenamentiReport(); // Auto-refresh report after saving new session
                     
@@ -5461,9 +5519,9 @@
                 }
             }
             
-            // Load allenamenti report (V8.9: independent filter for report, auto-refresh on new session save)
+            // Load allenamenti report (V8.11: independent filter for report, auto-refresh on new session save, calculate average)
             async function loadAllenamentiReport() {
-                console.log('📊 Loading Allenamenti report... (V8.9)');
+                console.log('📊 Loading Allenamenti report... (V8.11)');
                 
                 const reportBody = document.getElementById('allenamenti-report-body');
                 const periodSelect = document.getElementById('report-period-select');
@@ -5472,7 +5530,7 @@
                 // Calculate report data from training sessions
                 const playerStats = {};
                 
-                // Filter sessions based on selected period (V8.9: independent report filter)
+                // Filter sessions based on selected period (V8.11: independent report filter)
                 const now = new Date();
                 const filteredSessions = trainingSessions.filter(session => {
                     if (selectedPeriod === 'all') return true;
@@ -5526,6 +5584,11 @@
                             </td>
                         </tr>
                     `;
+                    // V8.11: Set average to 0% when no data
+                    const averageDisplay = document.getElementById('average-attendance-value');
+                    if (averageDisplay) {
+                        averageDisplay.textContent = '0%';
+                    }
                     return;
                 }
                 
@@ -5549,7 +5612,24 @@
                     reportBody.appendChild(row);
                 });
                 
-                console.log(`✅ Report loaded: ${statsArray.length} players, ${totalSessions} sessions`);
+                // V8.11: Calculate and display average attendance percentage
+                let totalPresences = 0;
+                let totalPossibleAttendances = 0;
+                statsArray.forEach(stat => {
+                    totalPresences += stat.presences;
+                    totalPossibleAttendances += stat.total;
+                });
+                
+                const averagePercentage = totalPossibleAttendances > 0 
+                    ? Math.round((totalPresences / totalPossibleAttendances) * 100) 
+                    : 0;
+                
+                const averageDisplay = document.getElementById('average-attendance-value');
+                if (averageDisplay) {
+                    averageDisplay.textContent = `${averagePercentage}%`;
+                }
+                
+                console.log(`✅ Report loaded: ${statsArray.length} players, ${totalSessions} sessions, ${averagePercentage}% average attendance`);
             }
 
             function startApp(appId) {
@@ -7273,7 +7353,7 @@
             });
 
             allenamentiButton.addEventListener('click', () => {
-                console.log('🏃 Opening Allenamenti Management View... (V8.9)');
+                console.log('🏃 Opening Allenamenti Management View... (V8.11)');
                 hideAllScreens();
                 allenamentiView.classList.remove('hidden');
                 loadAllenamentiData(); // Load training sessions and report data
@@ -8531,15 +8611,15 @@
             });
             
             refreshReportButton.addEventListener('click', () => {
-                // V8.9: Update only report when report filter changes
+                // V8.11: Update only report when report filter changes
                 loadAllenamentiReport();
             });
             
-            // V8.9: Add event listener for sessions filter
+            // V8.11: Add event listener for sessions filter
             const sessionsPeriodSelect = document.getElementById('sessions-period-select');
             if (sessionsPeriodSelect) {
                 sessionsPeriodSelect.addEventListener('change', () => {
-                    console.log('🔄 Sessions filter changed (V8.9)');
+                    console.log('🔄 Sessions filter changed (V8.11)');
                     renderTrainingSessions();
                 });
             }
