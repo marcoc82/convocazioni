@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.15 - Further tactical positioning improvements: attackers Y=15%, defenders Y=78%, midfielders 90% spacing, fixed player list [object Object] issue -->
+<!-- Version: V8.16 - Midfielder spacing increased to 97%, fixed player list loading to properly extract nome and numero from Firestore database structure -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -8731,19 +8731,23 @@
             // Get available players from the current company
             async function getAvailablePlayers() {
                 try {
-                    console.log('🔄 V8.15: getAvailablePlayers() - Loading players for tactics page');
+                    console.log('🔄 V8.16: getAvailablePlayers() - Loading players for tactics page');
                     
                     if (demoMode) {
                         const savedPlayers = localStorage.getItem(`players_${currentCompanyCode}`);
                         if (savedPlayers) {
-                            // V8.15: Parse and ensure we extract names if objects are stored
+                            // V8.16: Parse and ensure we extract names if objects are stored
                             const parsed = JSON.parse(savedPlayers);
                             if (Array.isArray(parsed)) {
-                                // Ensure all items are strings, extract name if object
+                                // Ensure all items are formatted as "numero nome"
                                 return parsed.map(item => {
                                     if (typeof item === 'string') {
                                         return item;
                                     } else if (typeof item === 'object' && item !== null) {
+                                        // Format as "numero nome" if both exist
+                                        if (item.numero && item.nome) {
+                                            return `${item.numero} ${item.nome}`;
+                                        }
                                         return item.name || item.nome || String(item);
                                     }
                                     return String(item);
@@ -8752,27 +8756,39 @@
                         }
                         return DEMO_PLAYERS;
                     } else {
-                        // V8.15: Fixed to use correct Firestore path: societa/[id]/giocatori
+                        // V8.16: Load from Firestore with correct database structure
                         if (!currentCompanyDocumentId) {
-                            console.error('❌ V8.15: currentCompanyDocumentId is not set');
+                            console.error('❌ V8.16: currentCompanyDocumentId is not set');
                             return [];
                         }
                         
-                        console.log(`📍 V8.15: Loading players from societa/${currentCompanyDocumentId}/giocatori`);
+                        console.log(`📍 V8.16: Loading players from societa/${currentCompanyDocumentId}/giocatori`);
                         const playersCollectionRef = window.collection(window.db, "societa", currentCompanyDocumentId, "giocatori");
                         const playersSnapshot = await window.getDocs(playersCollectionRef);
                         const players = [];
                         playersSnapshot.forEach((doc) => {
                             const playerData = doc.data();
-                            // Use the player name from the document data, or fallback to document ID
-                            const playerName = playerData.name || playerData.nome || doc.id;
-                            players.push(playerName);
+                            // V8.16: Extract from nome object structure (nome.nome, nome.numero)
+                            // Database structure: giocatori collection has documents with 'nome' field as object
+                            if (playerData.nome && typeof playerData.nome === 'object') {
+                                const numero = playerData.nome.numero;
+                                const nome = playerData.nome.nome;
+                                // Format as "numero nome" like in edit_convocation.html
+                                if (numero && nome) {
+                                    players.push(`${numero} ${nome}`);
+                                }
+                            }
                         });
-                        console.log(`✅ V8.15: Loaded ${players.length} players for tactics page`);
-                        return players.sort();
+                        console.log(`✅ V8.16: Loaded ${players.length} players for tactics page`);
+                        return players.sort((a, b) => {
+                            // Sort by numero (numeric part at start)
+                            const numA = parseInt(a) || 0;
+                            const numB = parseInt(b) || 0;
+                            return numA - numB;
+                        });
                     }
                 } catch (error) {
-                    console.error('❌ V8.15: Error loading players for modulo:', error);
+                    console.error('❌ V8.16: Error loading players for modulo:', error);
                     return [];
                 }
             }
@@ -8825,10 +8841,10 @@
                 playerPositions = {}; // Reset assignments
                 soccerFieldContainer.classList.remove('hidden');
                 
-                // V8.15: Create goalkeeper (positioned lower on the field)
+                // V8.16: Create goalkeeper (positioned lower on the field)
                 createPlayerIcon('GK', 50, 92, 'Portiere');
                 
-                // V8.15: Enhanced positioning - attackers Y=15%, defenders Y=78%, midfielders 90% spacing
+                // V8.16: Enhanced positioning - attackers Y=15%, defenders Y=78%, midfielders 97% spacing
                 const numLines = formation.length;
                 
                 formation.forEach((lineCount, lineIndex) => {
@@ -8839,13 +8855,13 @@
                     if (formation.length === 2) {
                         // 2-line formation: defenders and forwards
                         if (lineIndex === 0) {
-                            // V8.15: Defenders - further back (Y=78%)
+                            // V8.16: Defenders - further back (Y=78%)
                             yPosition = 78;
                             xSpacing = 80;
                             positionLabel = 'D';
                             positionName = 'Difensore';
                         } else {
-                            // V8.15: Attackers - further forward (Y=15%)
+                            // V8.16: Attackers - further forward (Y=15%)
                             yPosition = 15;
                             xSpacing = 80;
                             positionLabel = 'A';
@@ -8854,19 +8870,19 @@
                     } else {
                         // 3-line formation: defenders, midfielders, forwards
                         if (lineIndex === 0) {
-                            // V8.15: Defenders - further back (Y=78%)
+                            // V8.16: Defenders - further back (Y=78%)
                             yPosition = 78;
                             xSpacing = 80;
                             positionLabel = 'D';
                             positionName = 'Difensore';
                         } else if (lineIndex === 1) {
-                            // V8.15: Midfielders - middle position, wider spacing (90%)
+                            // V8.16: Midfielders - middle position, wider spacing (97%)
                             yPosition = 50;
-                            xSpacing = 90;
+                            xSpacing = 97;
                             positionLabel = 'C';
                             positionName = 'Centrocampista';
                         } else {
-                            // V8.15: Attackers - further forward (Y=15%)
+                            // V8.16: Attackers - further forward (Y=15%)
                             yPosition = 15;
                             xSpacing = 80;
                             positionLabel = 'A';
@@ -8882,7 +8898,7 @@
                     }
                 });
                 
-                console.log(`⚽ V8.15: Field generated with enhanced positioning (A=15%, D=78%, C=90% spacing)`);
+                console.log(`⚽ V8.16: Field generated with enhanced positioning (A=15%, D=78%, C=97% spacing)`);
             }
             
             // Create a player icon on the field
