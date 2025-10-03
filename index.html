@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V8.8 - Default filters: Report Presenze on "Anno corrente", Sessioni Allenamento on "Settimana corrente" -->
+<!-- Version: V8.9 - Auto-refresh report on new session save, show present/absent count on collapsed cards -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -802,7 +802,7 @@
             </button>
         </div>
 
-        <!-- Allenamenti Management View (V8.8) -->
+        <!-- Allenamenti Management View (V8.9) -->
         <div id="allenamenti-view" class="hidden">
             <button id="top-back-from-allenamenti-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
@@ -887,7 +887,7 @@
             </button>
         </div>
 
-        <!-- Add Training Session Modal (V8.8) -->
+        <!-- Add Training Session Modal (V8.9) -->
         <div id="add-training-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
             <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Nuovo Allenamento</h3>
@@ -5025,9 +5025,9 @@
             // Global variable to store training sessions
             let trainingSessions = [];
             
-            // Load allenamenti data (sessions and report) - V8.8
+            // Load allenamenti data (sessions and report) - V8.9
             async function loadAllenamentiData() {
-                console.log('🏃 Loading Allenamenti data... (V8.8)');
+                console.log('🏃 Loading Allenamenti data... (V8.9)');
                 await Promise.all([
                     loadTrainingSessions(),
                     loadAllenamentiReport()
@@ -5132,7 +5132,7 @@
                     return;
                 }
                 
-                // V8.8: Filter sessions based on SESSIONS period (independent from report filter)
+                // V8.9: Filter sessions based on SESSIONS period (independent from report filter)
                 const periodSelect = document.getElementById('sessions-period-select');
                 const selectedPeriod = periodSelect ? periodSelect.value : 'all';
                 const now = new Date();
@@ -5182,7 +5182,7 @@
                 });
             }
             
-            // Create a training session card (V8.8: collapsible with accordion behavior)
+            // Create a training session card (V8.9: collapsible with accordion behavior, show present/absent when collapsed)
             function createTrainingSessionCard(session, index, expandByDefault = false) {
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-xl shadow-sm border border-gray-200';
@@ -5212,13 +5212,18 @@
                     else if (attendance[player] === false) absentCount++;
                 });
                 
-                // V8.4: Build collapsible card HTML (support for expandByDefault)
+                // V8.9: Build collapsible card HTML (support for expandByDefault, show present/absent when collapsed)
                 let cardHTML = `
                     <!-- Card Header (always visible, clickable) -->
                     <div class="card-header p-4 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors" data-session-id="${session.id}">
                         <div class="flex justify-between items-center">
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-800">📅 ${formattedDate}</h4>
+                                <!-- V8.9: Show present/absent count when collapsed -->
+                                <div class="attendance-summary text-sm mt-1 ${expandByDefault ? 'hidden' : ''}">
+                                    <span class="text-green-600 font-semibold">Presenti: ${presentCount}</span>
+                                    <span class="ml-3 text-red-600 font-semibold">Assenti: ${absentCount}</span>
+                                </div>
                             </div>
                             <div class="flex items-center gap-2">
                                 ${session.isDemo ? '<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Demo</span>' : ''}
@@ -5277,10 +5282,11 @@
                 
                 card.innerHTML = cardHTML;
                 
-                // V8.4: Add click handler for collapsible functionality with accordion behavior
+                // V8.9: Add click handler for collapsible functionality with accordion behavior
                 const cardHeader = card.querySelector('.card-header');
                 const cardContent = card.querySelector('.card-content');
                 const expandIcon = card.querySelector('.expand-icon');
+                const attendanceSummary = card.querySelector('.attendance-summary');
                 
                 cardHeader.addEventListener('click', () => {
                     const isExpanded = !cardContent.classList.contains('hidden');
@@ -5288,16 +5294,25 @@
                         // Collapse this card
                         cardContent.classList.add('hidden');
                         expandIcon.classList.remove('rotate-180');
+                        // V8.9: Show attendance summary when collapsed
+                        if (attendanceSummary) {
+                            attendanceSummary.classList.remove('hidden');
+                        }
                     } else {
-                        // V8.4: Collapse all other cards first (accordion behavior)
+                        // V8.9: Collapse all other cards first (accordion behavior)
                         const allCards = document.querySelectorAll('#training-sessions-container > div');
                         allCards.forEach(otherCard => {
                             if (otherCard !== card) {
                                 const otherContent = otherCard.querySelector('.card-content');
                                 const otherIcon = otherCard.querySelector('.expand-icon');
+                                const otherSummary = otherCard.querySelector('.attendance-summary');
                                 if (otherContent && !otherContent.classList.contains('hidden')) {
                                     otherContent.classList.add('hidden');
                                     otherIcon.classList.remove('rotate-180');
+                                    // Show attendance summary on other cards when they collapse
+                                    if (otherSummary) {
+                                        otherSummary.classList.remove('hidden');
+                                    }
                                 }
                             }
                         });
@@ -5305,6 +5320,10 @@
                         // Expand this card
                         cardContent.classList.remove('hidden');
                         expandIcon.classList.add('rotate-180');
+                        // V8.9: Hide attendance summary when expanded
+                        if (attendanceSummary) {
+                            attendanceSummary.classList.add('hidden');
+                        }
                     }
                 });
                 
@@ -5391,7 +5410,7 @@
                     return;
                 }
                 
-                console.log(`🏃 Creating new training session: ${date} ${time} (V8.8)`);
+                console.log(`🏃 Creating new training session: ${date} ${time} (V8.9)`);
                 
                 // V8.6: Initialize attendance with all players present by default
                 const players = companyPlayers.length > 0 
@@ -5426,8 +5445,9 @@
                     // Add to local array
                     trainingSessions.unshift(newSession);
                     
-                    // V8.4: Re-render with new session expanded
+                    // V8.9: Re-render with new session expanded and auto-refresh report
                     renderTrainingSessions(newSession.id);
+                    loadAllenamentiReport(); // Auto-refresh report after saving new session
                     
                     // Close modal
                     document.getElementById('add-training-modal').classList.add('hidden');
@@ -5441,9 +5461,9 @@
                 }
             }
             
-            // Load allenamenti report (V8.8: independent filter for report, separate from sessions filter)
+            // Load allenamenti report (V8.9: independent filter for report, auto-refresh on new session save)
             async function loadAllenamentiReport() {
-                console.log('📊 Loading Allenamenti report... (V8.8)');
+                console.log('📊 Loading Allenamenti report... (V8.9)');
                 
                 const reportBody = document.getElementById('allenamenti-report-body');
                 const periodSelect = document.getElementById('report-period-select');
@@ -5452,7 +5472,7 @@
                 // Calculate report data from training sessions
                 const playerStats = {};
                 
-                // Filter sessions based on selected period (V8.8: independent report filter)
+                // Filter sessions based on selected period (V8.9: independent report filter)
                 const now = new Date();
                 const filteredSessions = trainingSessions.filter(session => {
                     if (selectedPeriod === 'all') return true;
@@ -7253,7 +7273,7 @@
             });
 
             allenamentiButton.addEventListener('click', () => {
-                console.log('🏃 Opening Allenamenti Management View... (V8.8)');
+                console.log('🏃 Opening Allenamenti Management View... (V8.9)');
                 hideAllScreens();
                 allenamentiView.classList.remove('hidden');
                 loadAllenamentiData(); // Load training sessions and report data
@@ -8511,15 +8531,15 @@
             });
             
             refreshReportButton.addEventListener('click', () => {
-                // V8.8: Update only report when report filter changes
+                // V8.9: Update only report when report filter changes
                 loadAllenamentiReport();
             });
             
-            // V8.8: Add event listener for sessions filter
+            // V8.9: Add event listener for sessions filter
             const sessionsPeriodSelect = document.getElementById('sessions-period-select');
             if (sessionsPeriodSelect) {
                 sessionsPeriodSelect.addEventListener('change', () => {
-                    console.log('🔄 Sessions filter changed (V8.8)');
+                    console.log('🔄 Sessions filter changed (V8.9)');
                     renderTrainingSessions();
                 });
             }
