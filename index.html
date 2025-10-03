@@ -2514,7 +2514,9 @@
                         hidePlayerLoadingError();
                         return sortPlayersByName(players); // Sort players by name only
                     } else {
-                        console.log(`📝 Subcollection 'giocatori' vuota per società document ID ${currentCompanyDocumentId}, ritorno array vuoto`);
+                        // V9.6: Clear message when no players found - this is not an error, just an empty state
+                        console.log(`ℹ️ Subcollection 'giocatori' vuota per società document ID ${currentCompanyDocumentId}`);
+                        console.log(`   📋 Nessun giocatore trovato - verrà mostrato messaggio "Nessun giocatore trovato" nella UI`);
                         hidePlayerLoadingError();
                         return [];
                     }
@@ -3813,7 +3815,23 @@
 
             function renderPlayers() {
                 playersList.innerHTML = '';
+                
+                // V9.6: Determine which players to render
+                // If we have company players (from subcollection), use them
+                // If we're in a company context but no players loaded, show a message
+                // Otherwise, fall back to demo players list
                 const playersToRender = companyPlayers.length > 0 ? companyPlayers : players;
+                
+                // V9.6: Show "Nessun giocatore trovato" if we're in company mode but no players loaded
+                if (currentCompanyDocumentId && companyPlayers.length === 0 && playersToRender.length === 0) {
+                    const li = document.createElement('li');
+                    li.textContent = 'Nessun giocatore trovato';
+                    li.className = 'p-3 bg-yellow-50 text-gray-700 rounded-lg text-center italic';
+                    playersList.appendChild(li);
+                    console.log('ℹ️ Showing "Nessun giocatore trovato" message - company has no players in subcollection');
+                    return;
+                }
+                
                 playersToRender.forEach(player => {
                     const li = document.createElement('li');
                     
@@ -9133,7 +9151,7 @@
             }
             
             // Check for hash navigation (returning from edit_convocation.html)
-            function checkHashNavigation() {
+            async function checkHashNavigation() {
                 const hash = window.location.hash;
                 const returnToHistory = sessionStorage.getItem('returnToHistory');
                 
@@ -9175,6 +9193,39 @@
                         userRole = editUserRole;
                         currentAppId = editAppId;
                         
+                        // V9.6: Restore currentCompanyCode from localStorage or use documentId as fallback
+                        // This ensures player loading works properly from subcollection
+                        currentCompanyCode = localStorage.getItem('companyCode') || editCompanyDocId;
+                        window.currentCompanyCode = currentCompanyCode;
+                        console.log('   🏷️ currentCompanyCode restored:', currentCompanyCode);
+                        
+                        // V9.6: Restore company data if available (for compatibility)
+                        const savedCompanyData = localStorage.getItem('companyData');
+                        if (savedCompanyData) {
+                            try {
+                                currentCompanyData = JSON.parse(savedCompanyData);
+                                window.currentCompanyData = currentCompanyData;
+                                console.log('   📋 currentCompanyData restored:', currentCompanyData?.name || currentCompanyData?.data?.nome);
+                            } catch (error) {
+                                console.warn('   ⚠️ Error parsing saved company data:', error);
+                            }
+                        }
+                        
+                        // V9.6: Load company players from subcollection - CRITICAL for showing player data
+                        console.log('   👥 Loading company players from subcollection...');
+                        try {
+                            companyPlayers = await loadCompanyPlayers();
+                            console.log('   ✅ Company players loaded:', companyPlayers.length);
+                            
+                            // V9.6: If no players found, show message but continue to history view
+                            if (companyPlayers.length === 0) {
+                                console.log('   ℹ️ No players found in subcollection - will show "Nessun giocatore trovato" message');
+                            }
+                        } catch (error) {
+                            console.error('   ❌ Error loading company players:', error);
+                            companyPlayers = [];
+                        }
+                        
                         // Clear edit state from sessionStorage
                         sessionStorage.removeItem('companyDocId');
                         sessionStorage.removeItem('editCompanyDocId');
@@ -9206,6 +9257,9 @@
                         // Load history data
                         loadHistoryConvocations();
                         
+                        // V9.6: Update UI for role to show correct buttons
+                        updateUIForRole();
+                        
                         // Clear the hash from URL
                         history.replaceState(null, null, ' ');
                     } else {
@@ -9213,6 +9267,10 @@
                         console.log('   🏢 companyDocId:', editCompanyDocId);
                         console.log('   👤 userRole:', editUserRole);
                         console.log('   🆔 appId:', editAppId);
+                        
+                        // V9.6: If data is missing, show login screen instead of blank page
+                        console.log('   🔄 Showing login screen due to missing data');
+                        companyEntryScreen.classList.remove('hidden');
                     }
                 }
             }
