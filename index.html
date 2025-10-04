@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.7 - Black text on Campionato button for PIEVE, updated player color logic (dark blue for Sunday unavailable, red for weekend/1 training/zero trainings, white for 2 trainings) -->
+<!-- Version: V9.8 - Updated unavailability selection button colors to match player badges + automatic weekly reset of unavailability (Monday 00:00) -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -255,7 +255,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.7</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.8</span>
             </div>
         </div>
 
@@ -1148,7 +1148,7 @@
                         <input type="checkbox" data-status="Non disponibile Sabato" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Non disponibile Sabato</span>
                     </label>
-                    <label class="flex items-center p-3 bg-purple-100 rounded-lg hover:bg-purple-200 cursor-pointer transition-colors duration-200">
+                    <label class="flex items-center p-3 bg-blue-900 text-white rounded-lg hover:bg-blue-950 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Non disponibile Domenica" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Non disponibile Domenica</span>
                     </label>
@@ -1156,11 +1156,11 @@
                         <input type="checkbox" data-status="Non disponibile Weekend" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Non disponibile WE</span>
                     </label>
-                    <label class="flex items-center p-3 bg-orange-100 rounded-lg hover:bg-orange-200 cursor-pointer transition-colors duration-200">
+                    <label class="flex items-center p-3 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Solo 2 allenamenti" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Solo 2 allenamenti</span>
                     </label>
-                    <label class="flex items-center p-3 bg-orange-100 rounded-lg hover:bg-orange-200 cursor-pointer transition-colors duration-200">
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Solo 1 allenamento" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Solo 1 allenamento</span>
                     </label>
@@ -2001,6 +2001,68 @@
             
             // Distinta-related global variables
             window.currentDistintaData = null;
+            
+            // Weekly reset functionality - reset unavailable players every Monday
+            function checkAndResetWeeklyUnavailability() {
+                const RESET_KEY = 'lastUnavailabilityReset';
+                const now = new Date();
+                const lastResetStr = localStorage.getItem(RESET_KEY);
+                
+                // Get the last Monday at 00:00 (start of week)
+                const getLastMonday = (date) => {
+                    const d = new Date(date);
+                    const day = d.getDay();
+                    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+                    d.setDate(diff);
+                    d.setHours(0, 0, 0, 0);
+                    return d;
+                };
+                
+                const currentWeekStart = getLastMonday(now);
+                
+                // Check if we need to reset
+                let needsReset = false;
+                if (!lastResetStr) {
+                    // First time running, store current week
+                    needsReset = false; // Don't reset on first load
+                    localStorage.setItem(RESET_KEY, currentWeekStart.toISOString());
+                } else {
+                    const lastReset = new Date(lastResetStr);
+                    const lastResetWeekStart = getLastMonday(lastReset);
+                    
+                    // If current week is different from last reset week, we need to reset
+                    if (currentWeekStart.getTime() !== lastResetWeekStart.getTime()) {
+                        needsReset = true;
+                        localStorage.setItem(RESET_KEY, currentWeekStart.toISOString());
+                    }
+                }
+                
+                return needsReset;
+            }
+            
+            // Reset unavailable players in Firebase
+            async function resetUnavailablePlayersInFirebase() {
+                if (!window.db || !currentCompanyDocumentId) {
+                    console.log('⚠️ Cannot reset: Firebase not available or company not set');
+                    return;
+                }
+                
+                try {
+                    const availabilityBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${appId}/public/data`;
+                    const unavailableDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "marco_unavailable");
+                    
+                    // Clear the unavailable players data
+                    await window.setDoc(unavailableDocRef, { players: {} }, { merge: true });
+                    console.log('✅ Weekly reset: Unavailable players cleared from Firebase');
+                    
+                    // Clear local Map
+                    unavailablePlayers = new Map();
+                    renderPlayers(); // Re-render players
+                    updateUnavailablePlayersView(); // Update view
+                } catch (error) {
+                    console.error('❌ Error resetting unavailable players:', error);
+                }
+            }
             
             // V8.17: Demo mode and demo players for tactical module (with jersey numbers)
             let demoMode = !window.db; // Use demo mode if Firebase is not available
@@ -2972,7 +3034,16 @@
                 // Listener for Marco's unavailable players list - using document ID path
                 const unavailableDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "marco_unavailable");
                 console.log(`📍 Percorso completo subcollection availability: ${availabilityBasePath}/availability/marco_unavailable`);
-                const unavailableUnsub = window.onSnapshot(unavailableDocRef, (docSnap) => {
+                const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) => {
+                    // Check if weekly reset is needed
+                    const needsReset = checkAndResetWeeklyUnavailability();
+                    
+                    if (needsReset) {
+                        console.log('🔄 Weekly reset triggered - clearing unavailable players');
+                        await resetUnavailablePlayersInFirebase();
+                        return; // The reset will trigger this listener again with empty data
+                    }
+                    
                     if (docSnap.exists() && docSnap.data().players) {
                         unavailablePlayers = new Map(Object.entries(docSnap.data().players));
                         console.log(`✅ Caricata availability subcollection da: ${availabilityBasePath}/availability/marco_unavailable (${unavailablePlayers.size} giocatori non disponibili)`);
