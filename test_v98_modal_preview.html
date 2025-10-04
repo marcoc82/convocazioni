@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.8 Modal Preview - Updated Button Colors</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-container {
+            max-width: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="modal-container">
+        <!-- Header -->
+        <div class="bg-white rounded-t-xl p-6 text-center">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">V9.8 Modal Preview</h1>
+            <p class="text-sm text-gray-600">Updated button colors to match player badges</p>
+        </div>
+
+        <!-- Modal Content (simulating the actual modal) -->
+        <div class="bg-white rounded-b-xl shadow-2xl p-6">
+            <h2 class="text-xl font-bold mb-4">Seleziona indisponibilità</h2>
+            <p class="text-sm text-gray-600 mb-4">Puoi selezionare più opzioni (multi-selezione)</p>
+            
+            <div class="space-y-2 max-h-96 overflow-y-auto">
+                <!-- Infortunato - Gray (unchanged) -->
+                <label class="flex items-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors duration-200 border-2 border-gray-100 hover:border-gray-300">
+                    <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Infortunato 🚑️</span>
+                    <span class="text-xs text-gray-500">No change</span>
+                </label>
+
+                <!-- Squalificato - Gray (unchanged) -->
+                <label class="flex items-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors duration-200 border-2 border-gray-100 hover:border-gray-300">
+                    <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Squalificato 🟥</span>
+                    <span class="text-xs text-gray-500">No change</span>
+                </label>
+
+                <!-- Non disponibile Sabato - Purple (unchanged) -->
+                <label class="flex items-center p-3 bg-purple-100 rounded-lg hover:bg-purple-200 cursor-pointer transition-colors duration-200 border-2 border-purple-100 hover:border-purple-300">
+                    <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Non disponibile Sabato</span>
+                    <span class="text-xs text-purple-700">No change</span>
+                </label>
+
+                <!-- Non disponibile Domenica - UPDATED: Dark Blue -->
+                <label class="flex items-center p-3 bg-blue-900 text-white rounded-lg hover:bg-blue-950 cursor-pointer transition-colors duration-200 border-2 border-blue-900 hover:border-blue-950 relative">
+                    <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Non disponibile Domenica</span>
+                    <span class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">NEW</span>
+                </label>
+
+                <!-- Non disponibile Weekend - Red (unchanged) -->
+                <label class="flex items-center p-3 bg-red-100 rounded-lg hover:bg-red-200 cursor-pointer transition-colors duration-200 border-2 border-red-100 hover:border-red-300">
+                    <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Non disponibile WE</span>
+                    <span class="text-xs text-red-700">No change</span>
+                </label>
+
+                <!-- Solo 2 allenamenti - UPDATED: White with border -->
+                <label class="flex items-center p-3 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200 hover:border-gray-400 relative">
+                    <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+                    <span class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">NEW</span>
+                </label>
+
+                <!-- Solo 1 allenamento - UPDATED: Red -->
+                <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200 border-2 border-red-600 hover:border-red-700 relative">
+                    <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Solo 1 allenamento</span>
+                    <span class="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">NEW</span>
+                </label>
+
+                <!-- Zero allenamenti - Red (unchanged) -->
+                <label class="flex items-center p-3 bg-red-100 rounded-lg hover:bg-red-200 cursor-pointer transition-colors duration-200 border-2 border-red-100 hover:border-red-300">
+                    <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                    <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+                    <span class="text-xs text-red-700">No change</span>
+                </label>
+            </div>
+
+            <div class="mt-4 space-y-2">
+                <button class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                    Conferma Selezione
+                </button>
+                <button class="w-full py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors duration-200">
+                    Rendi Disponibile
+                </button>
+                <button class="w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                    Annulla
+                </button>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="mt-6 bg-white rounded-xl p-4 shadow-lg">
+            <h3 class="font-bold text-gray-800 mb-3">🎨 Color Changes (V9.7 → V9.8):</h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex items-center">
+                    <span class="inline-block w-4 h-4 bg-blue-900 rounded mr-2"></span>
+                    <span><strong>Non disponibile Domenica:</strong> Purple → Dark Blue</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="inline-block w-4 h-4 bg-white border-2 border-gray-300 rounded mr-2"></span>
+                    <span><strong>Solo 2 allenamenti:</strong> Orange → White</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="inline-block w-4 h-4 bg-red-600 rounded mr-2"></span>
+                    <span><strong>Solo 1 allenamento:</strong> Orange → Red</span>
+                </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-600">
+                <p><strong>✅ Why?</strong> Button colors now match player badge colors for visual consistency</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.querySelectorAll('label').forEach(label => {
+            label.addEventListener('click', function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const checkbox = this.querySelector('input[type="checkbox"]');
+                    checkbox.checked = !checkbox.checked;
+                }
+                
+                // Visual feedback
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>
