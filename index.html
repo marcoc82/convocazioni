@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.8 - Updated unavailability selection button colors to match player badges + automatic weekly reset of unavailability (Monday 00:00) -->
+<!-- Version: V9.9 - Updated modal button colors to match player status, added injured player tracking to Firebase, and ambulance icon in training attendance report -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -1136,15 +1136,15 @@
             <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform scale-95 transition-transform duration-300">
                 <h2 class="text-xl font-bold mb-4">Seleziona indisponibilità</h2>
                 <div class="space-y-2 max-h-96 overflow-y-auto">
-                    <label class="flex items-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors duration-200">
+                    <label class="flex items-center p-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Infortunato" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Infortunato 🚑️</span>
                     </label>
-                    <label class="flex items-center p-3 bg-gray-100 rounded-lg hover:bg-gray-200 cursor-pointer transition-colors duration-200">
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Squalificato" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Squalificato 🟥</span>
                     </label>
-                    <label class="flex items-center p-3 bg-purple-100 rounded-lg hover:bg-purple-200 cursor-pointer transition-colors duration-200">
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Non disponibile Sabato" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Non disponibile Sabato</span>
                     </label>
@@ -1152,7 +1152,7 @@
                         <input type="checkbox" data-status="Non disponibile Domenica" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Non disponibile Domenica</span>
                     </label>
-                    <label class="flex items-center p-3 bg-red-100 rounded-lg hover:bg-red-200 cursor-pointer transition-colors duration-200">
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Non disponibile Weekend" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Non disponibile WE</span>
                     </label>
@@ -1164,7 +1164,7 @@
                         <input type="checkbox" data-status="Solo 1 allenamento" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Solo 1 allenamento</span>
                     </label>
-                    <label class="flex items-center p-3 bg-red-100 rounded-lg hover:bg-red-200 cursor-pointer transition-colors duration-200">
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Zero allenamenti" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Zero allenamenti ❌</span>
                     </label>
@@ -3139,13 +3139,27 @@
                     const unavailablePlayersObject = Object.fromEntries(unavailablePlayers);
                     const unavailableDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "marco_unavailable");
                     
+                    // V9.9: Track injured players separately
+                    const injuredPlayers = [];
+                    unavailablePlayers.forEach((status, player) => {
+                        const statuses = Array.isArray(status) ? status : [status];
+                        if (statuses.includes('Infortunato')) {
+                            injuredPlayers.push(player);
+                        }
+                    });
+                    const injuredDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "injured_players");
+                    
                     console.log(`💾 Salvando lista giocatori non disponibili per società document ID: ${currentCompanyDocumentId}`);
                     console.log(`📂 Percorso salvataggio availability: ${availabilityBasePath}/availability/marco_unavailable`);
+                    console.log(`🚑 Giocatori infortunati: ${injuredPlayers.length > 0 ? injuredPlayers.join(', ') : 'Nessuno'}`);
                     
                     try {
                         await window.setDoc(unavailableDocRef, { players: unavailablePlayersObject });
+                        // V9.9: Save injured players separately
+                        await window.setDoc(injuredDocRef, { players: injuredPlayers });
                         showSuccessPopup("Lista di giocatori non disponibili salvata!");
                         console.log(`✅ Lista giocatori non disponibili salvata con successo (${Object.keys(unavailablePlayersObject).length} giocatori)`);
+                        console.log(`✅ Lista giocatori infortunati salvata con successo (${injuredPlayers.length} giocatori)`);
                     } catch (e) {
                         console.error("Errore salvataggio su Firestore: ", e);
                         showMessage("Errore durante il salvataggio. Controlla la console.", "text-red-600");
@@ -5010,6 +5024,35 @@
                 moduloView.classList.add('hidden'); // V8.12
             }
 
+            // V9.9: Fetch injured players from Firestore
+            async function fetchInjuredPlayersFromFirestore() {
+                try {
+                    if (!window.db) {
+                        console.warn('⚠️ Firebase non ancora inizializzato');
+                        return [];
+                    }
+                    
+                    const availabilityBasePath = currentCompanyDocumentId 
+                        ? `societa/${currentCompanyDocumentId}` 
+                        : `artifacts/${currentAppId}/public/data`;
+                    
+                    const injuredDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "injured_players");
+                    const injuredDoc = await window.getDoc(injuredDocRef);
+                    
+                    if (injuredDoc.exists()) {
+                        const data = injuredDoc.data();
+                        console.log(`🚑 Caricati giocatori infortunati: ${data.players?.length || 0}`);
+                        return data.players || [];
+                    } else {
+                        console.log('🚑 Nessun giocatore infortunato trovato');
+                        return [];
+                    }
+                } catch (error) {
+                    console.error('❌ Errore nel caricamento giocatori infortunati:', error);
+                    return [];
+                }
+            }
+
             // Firebase Realtime Database integration for training attendance
             async function fetchTrainingAttendanceFromFirebase() {
                 // URL del Firebase Realtime Database per i dati delle presenze allenamenti
@@ -5085,7 +5128,7 @@
                 }
             }
 
-            function renderTrainingAttendanceData(data, totalTrainings) {
+            function renderTrainingAttendanceData(data, totalTrainings, injuredPlayers = []) {
                 const trainingAttendanceList = document.getElementById('training-attendance-list');
                 const allenamentiTotaliValue = document.getElementById('allenamenti-totali-value');
                 const mediaPresenzeValue = document.getElementById('media-presenze-value');
@@ -5143,8 +5186,12 @@
                         medal = '🥉 ';
                     }
                     
+                    // V9.9: Add ambulance icon if player is injured
+                    const isInjured = injuredPlayers.includes(player.name);
+                    const ambulanceIcon = isInjured ? '🚑 ' : '';
+                    
                     row.innerHTML = `
-                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">${medal}${player.name}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">${ambulanceIcon}${medal}${player.name}</td>
                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${player.attendance}</td>
                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${percentage}%</td>
                     `;
@@ -5181,8 +5228,13 @@
                         return;
                     }
                     
-                    const result = await fetchTrainingAttendanceFromFirebase();
-                    renderTrainingAttendanceData(result.players, result.totalTrainings);
+                    // V9.9: Load training attendance and injured players in parallel
+                    const [result, injuredPlayers] = await Promise.all([
+                        fetchTrainingAttendanceFromFirebase(),
+                        fetchInjuredPlayersFromFirestore()
+                    ]);
+                    
+                    renderTrainingAttendanceData(result.players, result.totalTrainings, injuredPlayers);
                     
                     // Hide loading, show content
                     loadingElement.classList.add('hidden');
@@ -5197,7 +5249,7 @@
                     contentElement.style.opacity = '1';
                     
                     // Show empty state in table
-                    renderTrainingAttendanceData([], 0);
+                    renderTrainingAttendanceData([], 0, []);
                 }
             }
 
@@ -5220,9 +5272,10 @@
                 ];
                 
                 const demoTotalTrainings = 13;
+                const demoInjuredPlayers = []; // No injured players in demo mode
                 
                 // Render the demo data
-                renderTrainingAttendanceData(demoTrainingData, demoTotalTrainings);
+                renderTrainingAttendanceData(demoTrainingData, demoTotalTrainings, demoInjuredPlayers);
                 
                 // Hide loading, show content
                 loadingElement.classList.add('hidden');
@@ -8532,13 +8585,15 @@
                 if (statusArray.length === 1) {
                     // Single status - apply single color class (backward compatible)
                     const status = statusArray[0];
-                    // V9.7: Updated color logic
-                    if (status === 'Infortunato' || status === 'Squalificato') {
-                        playerItem.classList.add('selected-marco-black'); // Keep black for injured/suspended
+                    // V9.9: Updated color logic
+                    if (status === 'Infortunato') {
+                        playerItem.classList.add('selected-marco-black'); // Black for injured
+                    } else if (status === 'Squalificato') {
+                        playerItem.classList.add('selected-marco-red'); // Red for suspended
                     } else if (status === 'Non disponibile Domenica') {
                         playerItem.classList.add('selected-marco-blue-dark'); // Dark blue for unavailable Sunday
                     } else if (status === 'Non disponibile Sabato') {
-                        playerItem.classList.add('selected-marco-purple'); // Keep purple for unavailable Saturday
+                        playerItem.classList.add('selected-marco-red'); // Red for unavailable Saturday
                     } else if (status === 'Non disponibile Weekend') {
                         playerItem.classList.add('selected-marco-red'); // Red for unavailable weekend
                     } else if (status === 'Solo 1 allenamento') {
@@ -8552,15 +8607,17 @@
                     }
                 } else {
                     // Multiple statuses - create gradient background (NEW in V6.5)
-                    // V9.7: Updated color mapping for gradients
+                    // V9.9: Updated color mapping for gradients
                     playerItem.classList.add('multi-status');
                     const colors = statusArray.map(status => {
-                        if (status === 'Infortunato' || status === 'Squalificato') {
+                        if (status === 'Infortunato') {
                             return '#1f2937'; // black
+                        } else if (status === 'Squalificato') {
+                            return '#dc2626'; // red
                         } else if (status === 'Non disponibile Domenica') {
                             return '#1e3a8a'; // dark blue
                         } else if (status === 'Non disponibile Sabato') {
-                            return '#8b5cf6'; // purple
+                            return '#dc2626'; // red
                         } else if (status === 'Non disponibile Weekend') {
                             return '#dc2626'; // red
                         } else if (status === 'Solo 1 allenamento') {

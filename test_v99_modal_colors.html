@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.9 Modal Colors Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8">V9.9 - Test Colori Modal</h1>
+        
+        <div class="comparison-grid mb-8">
+            <!-- V9.8 (Before) -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4 text-center">V9.8 (Prima)</h2>
+                <div class="space-y-2">
+                    <label class="flex items-center p-3 bg-gray-100 rounded-lg cursor-pointer">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                        <span class="flex-1 font-medium">Infortunato 🚑️</span>
+                        <span class="text-xs text-gray-500">bg-gray-100</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-gray-100 rounded-lg cursor-pointer">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                        <span class="flex-1 font-medium">Squalificato 🟥</span>
+                        <span class="text-xs text-gray-500">bg-gray-100</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-purple-100 rounded-lg cursor-pointer">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                        <span class="flex-1 font-medium">Non disponibile Sabato</span>
+                        <span class="text-xs text-purple-700">bg-purple-100</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-blue-900 text-white rounded-lg cursor-pointer">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                        <span class="flex-1 font-medium">Non disponibile Domenica</span>
+                        <span class="text-xs">✓ Corretto</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-red-100 rounded-lg cursor-pointer">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                        <span class="flex-1 font-medium">Non disponibile WE</span>
+                        <span class="text-xs text-red-700">bg-red-100</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-white border-2 border-gray-300 rounded-lg cursor-pointer">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                        <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+                        <span class="text-xs text-gray-500">✓ Corretto</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg cursor-pointer">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                        <span class="flex-1 font-medium">Solo 1 allenamento</span>
+                        <span class="text-xs">✓ Corretto</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-red-100 rounded-lg cursor-pointer">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                        <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+                        <span class="text-xs text-red-700">bg-red-100</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- V9.9 (After) -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4 text-center">V9.9 (Dopo)</h2>
+                <div class="space-y-2">
+                    <label class="flex items-center p-3 bg-gray-900 text-white rounded-lg cursor-pointer hover:bg-gray-800">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Infortunato 🚑️</span>
+                        <span class="text-xs bg-green-500 px-2 py-0.5 rounded">NERO</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg cursor-pointer hover:bg-red-700">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Squalificato 🟥</span>
+                        <span class="text-xs bg-green-500 px-2 py-0.5 rounded">ROSSO</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg cursor-pointer hover:bg-red-700">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Non disponibile Sabato</span>
+                        <span class="text-xs bg-green-500 px-2 py-0.5 rounded">ROSSO</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-blue-900 text-white rounded-lg cursor-pointer hover:bg-blue-950">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Non disponibile Domenica</span>
+                        <span class="text-xs">✓ Corretto</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg cursor-pointer hover:bg-red-700">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Non disponibile WE</span>
+                        <span class="text-xs bg-green-500 px-2 py-0.5 rounded">ROSSO</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-white border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+                        <span class="text-xs text-gray-500">✓ Corretto</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg cursor-pointer hover:bg-red-700">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Solo 1 allenamento</span>
+                        <span class="text-xs">✓ Corretto</span>
+                    </label>
+                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg cursor-pointer hover:bg-red-700">
+                        <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                        <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+                        <span class="text-xs bg-green-500 px-2 py-0.5 rounded">ROSSO</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Training Attendance Example -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4 text-center">Esempio Report Presenze Allenamenti con Icona Ambulanza</h2>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Presenze</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">%</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr class="bg-white">
+                        <td class="px-6 py-4 text-sm text-gray-900">🥇 10 ROSSI MARIO</td>
+                        <td class="px-6 py-4 text-sm font-semibold">13</td>
+                        <td class="px-6 py-4 text-sm font-semibold">100%</td>
+                    </tr>
+                    <tr class="bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">🚑 🥈 7 BIANCHI LUIGI</td>
+                        <td class="px-6 py-4 text-sm font-semibold">11</td>
+                        <td class="px-6 py-4 text-sm font-semibold">85%</td>
+                    </tr>
+                    <tr class="bg-white">
+                        <td class="px-6 py-4 text-sm text-gray-900">🥉 23 VERDI GIUSEPPE</td>
+                        <td class="px-6 py-4 text-sm font-semibold">10</td>
+                        <td class="px-6 py-4 text-sm font-semibold">77%</td>
+                    </tr>
+                    <tr class="bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-900">4 NERI ANTONIO</td>
+                        <td class="px-6 py-4 text-sm font-semibold">8</td>
+                        <td class="px-6 py-4 text-sm font-semibold">62%</td>
+                    </tr>
+                    <tr class="bg-white">
+                        <td class="px-6 py-4 text-sm text-gray-900">🚑 2 GIALLI FRANCESCO</td>
+                        <td class="px-6 py-4 text-sm font-semibold">6</td>
+                        <td class="px-6 py-4 text-sm font-semibold">46%</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="mt-4 text-sm text-gray-600 text-center">
+                ℹ️ L'icona 🚑 appare a sinistra del nome per i giocatori infortunati
+            </p>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h2 class="text-lg font-bold mb-4">📋 Riepilogo Modifiche V9.9</h2>
+            <ul class="space-y-2 text-sm">
+                <li><strong>✓ Infortunato:</strong> Cambiato da grigio chiaro a <span class="bg-gray-900 text-white px-2 py-0.5 rounded">NERO</span></li>
+                <li><strong>✓ Squalificato:</strong> Cambiato da grigio chiaro a <span class="bg-red-600 text-white px-2 py-0.5 rounded">ROSSO</span></li>
+                <li><strong>✓ Non disponibile Sabato:</strong> Cambiato da viola chiaro a <span class="bg-red-600 text-white px-2 py-0.5 rounded">ROSSO</span></li>
+                <li><strong>✓ Non disponibile Weekend:</strong> Cambiato da rosso chiaro a <span class="bg-red-600 text-white px-2 py-0.5 rounded">ROSSO</span></li>
+                <li><strong>✓ Zero allenamenti:</strong> Cambiato da rosso chiaro a <span class="bg-red-600 text-white px-2 py-0.5 rounded">ROSSO</span></li>
+                <li><strong>✓ Logica player status:</strong> Aggiornata per riflettere i nuovi colori</li>
+                <li><strong>✓ Firebase:</strong> I giocatori infortunati vengono salvati in una collezione separata</li>
+                <li><strong>✓ Icona ambulanza:</strong> Appare nel report presenze allenamenti per i giocatori infortunati</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
