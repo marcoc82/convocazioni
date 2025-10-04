@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Interattivo V9.11 - Back Button</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-4">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Demo Interattivo - Tasto Indietro Fisico</h1>
+        
+        <!-- Instructions -->
+        <div class="bg-blue-50 rounded-xl p-6 mb-6 border border-blue-200">
+            <h2 class="text-xl font-semibold mb-3 text-blue-800">📱 Istruzioni</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>Naviga attraverso le schermate usando i pulsanti</li>
+                <li>Premi il tasto indietro del browser (o il tasto fisico su mobile)</li>
+                <li>Osserva come l'app torna alla schermata precedente</li>
+                <li>I log mostrano cosa succede durante la navigazione</li>
+            </ol>
+        </div>
+
+        <!-- Current Screen Display -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+            <!-- Screen 1: Entry -->
+            <div id="screen-entry" class="screen-content">
+                <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">🏢 Inserimento Codice Società</h2>
+                <p class="text-center text-gray-600 mb-6">Schermata iniziale - Livello root</p>
+                <div class="space-y-4">
+                    <input type="text" placeholder="Inserisci codice società" class="w-full p-3 border border-gray-300 rounded-lg" value="DEMO">
+                    <button onclick="goToScreen('welcome')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                        Verifica Società
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 mt-4 text-center">⬅️ Premere indietro qui chiuderà l'app</p>
+            </div>
+
+            <!-- Screen 2: Welcome -->
+            <div id="screen-welcome" class="screen-content hidden">
+                <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">👋 Benvenuto - Società DEMO</h2>
+                <p class="text-center text-gray-600 mb-6">Scegli un'azione</p>
+                <div class="space-y-3">
+                    <button onclick="goToScreen('password')" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                        Entra come Mister
+                    </button>
+                    <button onclick="goToScreen('history')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                        Storico Convocazioni
+                    </button>
+                    <button onclick="goToScreen('attendance')" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                        Riepilogo Presenze
+                    </button>
+                    <button onclick="goToScreen('allenamenti')" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                        🏃 Allenamenti
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 mt-4 text-center">⬅️ Premere indietro qui torna all'inserimento codice</p>
+            </div>
+
+            <!-- Screen 3: Password -->
+            <div id="screen-password" class="screen-content hidden">
+                <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">🔑 Inserimento Password</h2>
+                <p class="text-center text-gray-600 mb-6">Password per Mister</p>
+                <div class="space-y-4">
+                    <input type="password" placeholder="Inserisci password" class="w-full p-3 border border-gray-300 rounded-lg" value="mister123">
+                    <button onclick="goToScreen('main')" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                        Conferma
+                    </button>
+                    <button onclick="goBack()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                        Annulla
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 mt-4 text-center">⬅️ Premere indietro qui torna al benvenuto</p>
+            </div>
+
+            <!-- Screen 4: Main -->
+            <div id="screen-main" class="screen-content hidden">
+                <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">📋 Vista Principale - Crea Convocazione</h2>
+                <p class="text-center text-gray-600 mb-6">Area di lavoro Mister</p>
+                <div class="space-y-3 mb-4">
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <p class="font-semibold">Partita: Polis vs Esempio</p>
+                        <p class="text-sm text-gray-600">Data: 01/01/2024 - Ora: 15:00</p>
+                    </div>
+                    <div class="bg-gray-100 p-4 rounded-lg">
+                        <p class="font-semibold">Giocatori convocati: 14</p>
+                        <p class="text-sm text-gray-600">Disponibili: 18, Non disponibili: 4</p>
+                    </div>
+                </div>
+                <button onclick="goBack()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                    Torna Indietro
+                </button>
+                <p class="text-sm text-gray-500 mt-4 text-center">⬅️ Premere indietro qui torna al benvenuto</p>
+            </div>
+
+            <!-- Screen 5: History -->
+            <div id="screen-history" class="screen-content hidden">
+                <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">📚 Storico Convocazioni</h2>
+                <p class="text-center text-gray-600 mb-6">Convocazioni passate</p>
+                <div class="space-y-3 mb-4">
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <p class="font-semibold">Polis vs Esempio FC</p>
+                        <p class="text-sm text-gray-600">28/12/2024 - 14 giocatori</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <p class="font-semibold">Esempio FC vs Polis</p>
+                        <p class="text-sm text-gray-600">21/12/2024 - 15 giocatori</p>
+                    </div>
+                </div>
+                <button onclick="goBack()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                    Torna Indietro
+                </button>
+                <p class="text-sm text-gray-500 mt-4 text-center">⬅️ Premere indietro qui torna al benvenuto</p>
+            </div>
+
+            <!-- Screen 6: Attendance -->
+            <div id="screen-attendance" class="screen-content hidden">
+                <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">📊 Riepilogo Presenze</h2>
+                <p class="text-center text-gray-600 mb-6">Statistiche presenza giocatori</p>
+                <div class="space-y-3 mb-4">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <p class="font-semibold">10 ROSSI MARIO</p>
+                        <p class="text-sm text-gray-600">Presenze: 12/15 (80%)</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <p class="font-semibold">7 BIANCHI LUIGI</p>
+                        <p class="text-sm text-gray-600">Presenze: 14/15 (93%)</p>
+                    </div>
+                </div>
+                <button onclick="goBack()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                    Torna Indietro
+                </button>
+                <p class="text-sm text-gray-500 mt-4 text-center">⬅️ Premere indietro qui torna al benvenuto</p>
+            </div>
+
+            <!-- Screen 7: Allenamenti -->
+            <div id="screen-allenamenti" class="screen-content hidden">
+                <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">🏃 Gestione Allenamenti</h2>
+                <p class="text-center text-gray-600 mb-6">Presenze agli allenamenti</p>
+                <div class="space-y-3 mb-4">
+                    <div class="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                        <p class="font-semibold">Allenamento 28/12/2024</p>
+                        <p class="text-sm text-gray-600">Presenti: 16, Assenti: 2</p>
+                    </div>
+                    <div class="bg-teal-50 p-4 rounded-lg border border-teal-200">
+                        <p class="font-semibold">Allenamento 21/12/2024</p>
+                        <p class="text-sm text-gray-600">Presenti: 18, Assenti: 0</p>
+                    </div>
+                </div>
+                <button onclick="goBack()" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                    Torna Indietro
+                </button>
+                <p class="text-sm text-gray-500 mt-4 text-center">⬅️ Premere indietro qui torna al benvenuto</p>
+            </div>
+        </div>
+
+        <!-- Navigation Info -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h3 class="text-lg font-semibold mb-3 text-gray-800">🗺️ Percorso di navigazione:</h3>
+            <div id="nav-path" class="bg-gray-100 p-3 rounded-lg font-mono text-sm text-gray-700">
+                entry
+            </div>
+        </div>
+
+        <!-- Console Log -->
+        <div class="bg-black rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold mb-3 text-green-400">📱 Console Log:</h3>
+            <div id="console-log" class="space-y-1 text-sm font-mono text-green-400 max-h-64 overflow-y-auto">
+                <div>✓ App initialized</div>
+                <div>📱 [BACK BUTTON] Initial state: entry</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentScreen = 'entry';
+        let navigationStack = ['entry'];
+        let isNavigatingBack = false;
+
+        function addLog(message, isError = false) {
+            const consoleLog = document.getElementById('console-log');
+            const logEntry = document.createElement('div');
+            logEntry.textContent = message;
+            if (isError) {
+                logEntry.className = 'text-red-400';
+            }
+            consoleLog.appendChild(logEntry);
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        }
+
+        function updateNavPath() {
+            document.getElementById('nav-path').textContent = navigationStack.join(' → ');
+        }
+
+        function showScreen(screenName) {
+            // Hide all screens
+            document.querySelectorAll('.screen-content').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            
+            // Show target screen
+            const targetScreen = document.getElementById(`screen-${screenName}`);
+            if (targetScreen) {
+                targetScreen.classList.remove('hidden');
+                currentScreen = screenName;
+            }
+        }
+
+        function goToScreen(screenName) {
+            if (!isNavigatingBack) {
+                showScreen(screenName);
+                navigationStack.push(screenName);
+                history.pushState({ screen: screenName }, '', '');
+                addLog(`📱 [BACK BUTTON] Pushed state: ${screenName}, Stack: [${navigationStack.join(', ')}]`);
+                updateNavPath();
+            }
+        }
+
+        function goBack() {
+            if (navigationStack.length > 1) {
+                navigationStack.pop(); // Remove current
+                const previousScreen = navigationStack[navigationStack.length - 1];
+                showScreen(previousScreen);
+                addLog(`⬅️ Manual back to: ${previousScreen}`);
+                updateNavPath();
+            }
+        }
+
+        function handleBackButton() {
+            const backMap = {
+                'history': 'welcome',
+                'attendance': 'welcome',
+                'allenamenti': 'welcome',
+                'main': 'welcome',
+                'password': 'welcome',
+                'welcome': 'entry'
+            };
+
+            if (navigationStack.length > 0) {
+                const current = navigationStack[navigationStack.length - 1];
+                addLog(`📱 [BACK BUTTON] Back pressed, current view: ${current}`);
+                
+                if (current === 'entry') {
+                    addLog('📱 [BACK BUTTON] At entry point, allowing default behavior (close app)', false);
+                    return false; // Allow default - would close app
+                }
+
+                // Pop current from stack
+                navigationStack.pop();
+                
+                // Go to mapped previous screen
+                const targetScreen = backMap[current] || 'entry';
+                
+                // Make sure target is in stack
+                if (navigationStack.length === 0 || navigationStack[navigationStack.length - 1] !== targetScreen) {
+                    navigationStack.push(targetScreen);
+                }
+                
+                showScreen(targetScreen);
+                addLog(`⬅️ Navigated back to: ${targetScreen}`);
+                updateNavPath();
+                return true;
+            }
+            return false;
+        }
+
+        // Handle browser back button
+        window.addEventListener('popstate', (event) => {
+            addLog('📱 [BACK BUTTON] Popstate event triggered');
+            isNavigatingBack = true;
+            
+            const handled = handleBackButton();
+            
+            if (handled) {
+                // Push state again to maintain navigation
+                const newScreen = navigationStack[navigationStack.length - 1];
+                history.pushState({ screen: newScreen }, '', '');
+            }
+            
+            isNavigatingBack = false;
+        });
+
+        // Initialize
+        history.replaceState({ screen: 'entry' }, '', '');
+        addLog('✓ Interactive demo ready - Try navigating and pressing browser back button!');
+    </script>
+</body>
+</html>
