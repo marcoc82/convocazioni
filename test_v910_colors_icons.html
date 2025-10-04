@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.10 - Player Status Colors & Icons</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f9fafb;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+        .player-item {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 2px solid;
+            font-weight: bold;
+        }
+        .player-item.selected-marco-black {
+            background-color: #1f2937;
+            color: #ffffff;
+            border-color: #374151;
+        }
+        .player-item.selected-marco-yellow {
+            background-color: #fbbf24;
+            color: #1f2937;
+            border-color: #f59e0b;
+        }
+        .player-item.selected-marco-purple {
+            background-color: #8b5cf6;
+            color: #ffffff;
+            border-color: #7c3aed;
+        }
+        .player-item.selected-marco-blue-dark {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            border-color: #1e40af;
+        }
+        .player-item.selected-marco-red {
+            background-color: #dc2626;
+            color: #ffffff;
+            border-color: #b91c1c;
+        }
+        .player-item.selected-marco-white {
+            background-color: #ffffff;
+            color: #1f2937;
+            border-color: #d1d5db;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: #1f2937; font-size: 28px; margin-bottom: 20px; font-weight: bold;">
+        🎨 V9.10 - Test Colori e Icone Giocatori
+    </h1>
+
+    <!-- Summary Section -->
+    <div class="test-section" style="background: #dbeafe;">
+        <h2 style="color: #1e40af; font-size: 20px; margin-bottom: 15px;">📋 Riepilogo Modifiche V9.10</h2>
+        <ul style="list-style-type: disc; margin-left: 20px; line-height: 2;">
+            <li><strong>INFORTUNATO:</strong> Casella nera + icona ambulanza 🚑</li>
+            <li><strong>SQUALIFICATO:</strong> Casella gialla + icona cartellino rosso 🟥</li>
+            <li><strong>NON DISPONIBILE SABATO:</strong> Casella viola</li>
+            <li><strong>NON DISPONIBILE DOMENICA:</strong> Casella blu scuro</li>
+            <li><strong>NON DISPONIBILE WE:</strong> Casella rossa</li>
+            <li><strong>SOLO 2 ALLENAMENTI:</strong> Casella bianca</li>
+            <li><strong>SOLO 1 ALLENAMENTO:</strong> Casella rossa</li>
+            <li><strong>ZERO ALLENAMENTI:</strong> Casella rossa</li>
+        </ul>
+    </div>
+
+    <!-- Test 1: Modal Buttons -->
+    <div class="test-section">
+        <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+            ✅ Test 1: Colori Pulsanti Modal (Popup Dirigente)
+        </h2>
+        
+        <div style="max-width: 400px; margin: auto;">
+            <label class="flex items-center p-3 bg-gray-900 text-white rounded-lg mb-2">
+                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                <span class="flex-1 font-medium">Infortunato 🚑</span>
+            </label>
+            
+            <label class="flex items-center p-3 bg-yellow-400 text-gray-900 rounded-lg mb-2">
+                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                <span class="flex-1 font-medium">Squalificato 🟥</span>
+            </label>
+            
+            <label class="flex items-center p-3 bg-purple-600 text-white rounded-lg mb-2">
+                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                <span class="flex-1 font-medium">Non disponibile Sabato</span>
+            </label>
+            
+            <label class="flex items-center p-3 bg-blue-900 text-white rounded-lg mb-2">
+                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                <span class="flex-1 font-medium">Non disponibile Domenica</span>
+            </label>
+            
+            <label class="flex items-center p-3 bg-red-600 text-white rounded-lg mb-2">
+                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                <span class="flex-1 font-medium">Non disponibile WE</span>
+            </label>
+            
+            <label class="flex items-center p-3 bg-white border-2 border-gray-300 rounded-lg mb-2">
+                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+            </label>
+            
+            <label class="flex items-center p-3 bg-red-600 text-white rounded-lg mb-2">
+                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                <span class="flex-1 font-medium">Solo 1 allenamento</span>
+            </label>
+            
+            <label class="flex items-center p-3 bg-red-600 text-white rounded-lg mb-2">
+                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Test 2: Player Badges -->
+    <div class="test-section">
+        <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+            ✅ Test 2: Colori Badge Giocatori (Vista Mister/Dirigente)
+        </h2>
+        
+        <div style="max-width: 600px; margin: auto;">
+            <p style="margin-bottom: 10px; font-weight: bold;">Infortunato - Nero + 🚑</p>
+            <div class="player-item selected-marco-black">
+                🚑 10 ROSSI MARIO
+            </div>
+            
+            <p style="margin-bottom: 10px; font-weight: bold; margin-top: 15px;">Squalificato - Giallo + 🟥</p>
+            <div class="player-item selected-marco-yellow">
+                🟥 7 BIANCHI LUIGI
+            </div>
+            
+            <p style="margin-bottom: 10px; font-weight: bold; margin-top: 15px;">Non disponibile Sabato - Viola</p>
+            <div class="player-item selected-marco-purple">
+                23 VERDI GIUSEPPE
+            </div>
+            
+            <p style="margin-bottom: 10px; font-weight: bold; margin-top: 15px;">Non disponibile Domenica - Blu Scuro</p>
+            <div class="player-item selected-marco-blue-dark">
+                4 NERI ANTONIO
+            </div>
+            
+            <p style="margin-bottom: 10px; font-weight: bold; margin-top: 15px;">Non disponibile WE - Rosso</p>
+            <div class="player-item selected-marco-red">
+                2 GIALLI FRANCESCO
+            </div>
+            
+            <p style="margin-bottom: 10px; font-weight: bold; margin-top: 15px;">Solo 2 allenamenti - Bianco</p>
+            <div class="player-item selected-marco-white">
+                15 AZZURRI PAOLO
+            </div>
+            
+            <p style="margin-bottom: 10px; font-weight: bold; margin-top: 15px;">Solo 1 allenamento - Rosso</p>
+            <div class="player-item selected-marco-red">
+                11 MARRONI LUCA
+            </div>
+            
+            <p style="margin-bottom: 10px; font-weight: bold; margin-top: 15px;">Zero allenamenti - Rosso</p>
+            <div class="player-item selected-marco-red">
+                8 ARANCIONI DAVIDE
+            </div>
+        </div>
+    </div>
+
+    <!-- Test 3: Comparison V9.9 vs V9.10 -->
+    <div class="test-section">
+        <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+            📊 Test 3: Confronto V9.9 vs V9.10
+        </h2>
+        
+        <!-- Squalificato -->
+        <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px; font-weight: bold;">Status: Squalificato</p>
+            <div class="comparison-grid">
+                <div>
+                    <p style="color: #dc2626; margin-bottom: 5px;">❌ V9.9: Rosso (senza icona)</p>
+                    <div class="player-item selected-marco-red">
+                        7 BIANCHI LUIGI
+                    </div>
+                </div>
+                <div>
+                    <p style="color: #16a34a; margin-bottom: 5px;">✅ V9.10: Giallo + 🟥</p>
+                    <div class="player-item selected-marco-yellow">
+                        🟥 7 BIANCHI LUIGI
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Non disponibile Sabato -->
+        <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px; font-weight: bold;">Status: Non disponibile Sabato</p>
+            <div class="comparison-grid">
+                <div>
+                    <p style="color: #dc2626; margin-bottom: 5px;">❌ V9.9: Rosso</p>
+                    <div class="player-item selected-marco-red">
+                        23 VERDI GIUSEPPE
+                    </div>
+                </div>
+                <div>
+                    <p style="color: #16a34a; margin-bottom: 5px;">✅ V9.10: Viola</p>
+                    <div class="player-item selected-marco-purple">
+                        23 VERDI GIUSEPPE
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infortunato -->
+        <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px; font-weight: bold;">Status: Infortunato</p>
+            <div class="comparison-grid">
+                <div>
+                    <p style="color: #dc2626; margin-bottom: 5px;">❌ V9.9: Nero (senza icona nel badge)</p>
+                    <div class="player-item selected-marco-black">
+                        10 ROSSI MARIO
+                    </div>
+                </div>
+                <div>
+                    <p style="color: #16a34a; margin-bottom: 5px;">✅ V9.10: Nero + 🚑</p>
+                    <div class="player-item selected-marco-black">
+                        🚑 10 ROSSI MARIO
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test 4: Icons in Report Presenze -->
+    <div class="test-section">
+        <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+            ✅ Test 4: Icone nel Report Presenze
+        </h2>
+        
+        <div style="background: #f3f4f6; padding: 15px; border-radius: 8px;">
+            <p style="font-weight: bold; margin-bottom: 10px;">Esempio Report Presenze Allenamenti:</p>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #ddd;">
+                        <th style="text-align: left; padding: 8px;">Giocatore</th>
+                        <th style="text-align: left; padding: 8px;">Presenze</th>
+                        <th style="text-align: left; padding: 8px;">%</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 8px;">🥇 10 ROSSI MARIO</td>
+                        <td style="padding: 8px; font-weight: bold;">13</td>
+                        <td style="padding: 8px; font-weight: bold;">100%</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 8px;">🚑 🥈 7 BIANCHI LUIGI</td>
+                        <td style="padding: 8px; font-weight: bold;">11</td>
+                        <td style="padding: 8px; font-weight: bold;">85%</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 8px;">🥉 23 VERDI GIUSEPPE</td>
+                        <td style="padding: 8px; font-weight: bold;">10</td>
+                        <td style="padding: 8px; font-weight: bold;">77%</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #ddd;">
+                        <td style="padding: 8px;">4 NERI ANTONIO</td>
+                        <td style="padding: 8px; font-weight: bold;">8</td>
+                        <td style="padding: 8px; font-weight: bold;">62%</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;">🚑 2 GIALLI FRANCESCO</td>
+                        <td style="padding: 8px; font-weight: bold;">6</td>
+                        <td style="padding: 8px; font-weight: bold;">46%</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="margin-top: 10px; font-size: 14px; color: #6b7280;">
+                ℹ️ L'icona 🚑 appare a sinistra del nome per i giocatori infortunati
+            </p>
+        </div>
+    </div>
+
+    <!-- Technical Details -->
+    <div class="test-section">
+        <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+            🔧 Dettagli Tecnici Implementazione
+        </h2>
+        <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.8;">
+            <li><strong>File Modificato:</strong> index.html</li>
+            <li><strong>Nuova Classe CSS:</strong> .selected-marco-yellow (giallo #fbbf24)</li>
+            <li><strong>Funzioni Aggiornate:</strong> applyPlayerStatusStyle(), renderPlayers(), updateUnavailablePlayersView()</li>
+            <li><strong>Colori Modal Aggiornati:</strong> Squalificato (giallo), Non disponibile Sabato (viola)</li>
+            <li><strong>Icone Aggiunte:</strong> 🚑 per Infortunato, 🟥 per Squalificato</li>
+            <li><strong>Versione:</strong> V9.10</li>
+        </ul>
+    </div>
+
+    <!-- Checklist -->
+    <div class="test-section" style="background: #dcfce7;">
+        <h2 style="color: #16a34a; font-size: 20px; margin-bottom: 15px;">
+            ✅ Checklist Modifiche Completate
+        </h2>
+        <ul style="list-style-type: none; margin-left: 0; line-height: 2;">
+            <li>✅ Aggiunta classe CSS selected-marco-yellow</li>
+            <li>✅ Pulsante modal Squalificato aggiornato a giallo + 🟥</li>
+            <li>✅ Pulsante modal Non disponibile Sabato aggiornato a viola</li>
+            <li>✅ Funzione applyPlayerStatusStyle() aggiornata</li>
+            <li>✅ Logica gradient multi-status aggiornata</li>
+            <li>✅ Icona 🚑 aggiunta ai badge Infortunato</li>
+            <li>✅ Icona 🟥 aggiunta ai badge Squalificato</li>
+            <li>✅ Icone aggiunte in updateUnavailablePlayersView()</li>
+            <li>✅ Icona 🚑 già presente nel report presenze (da V9.9)</li>
+        </ul>
+    </div>
+</body>
+</html>
