@@ -544,6 +544,16 @@
         // Cancel/Back buttons
         backButton.addEventListener('click', goBack);
         cancelButton.addEventListener('click', goBack);
+        
+        // Handle physical back button press (Android/iOS/browser)
+        window.addEventListener('popstate', (event) => {
+            console.log('📱 [BACK BUTTON] Popstate event in edit_convocation.html');
+            // Simulate clicking the back button which calls goBack()
+            goBack();
+        });
+        
+        // Initialize with a history state so back button works
+        history.replaceState({ page: 'edit-convocation' }, '', '');
     </script>
 </body>
 </html>

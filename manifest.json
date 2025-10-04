@@ -1,7 +1,7 @@
 {
   "name": "Rosterkick",
   "short_name": "Rosterkick",
-  "version": "V9.8",
+  "version": "V9.11",
   "description": "creare le convocazioni per il weekend",
   "start_url": "/index.html",
   "display": "standalone",

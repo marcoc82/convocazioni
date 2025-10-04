@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.10 - Updated status colors (Squalificato to yellow, Non disponibile Sabato to purple) and added icons (🚑 for Infortunato, 🟥 for Squalificato) in player badges and status lists -->
+<!-- Version: V9.11 - Added physical back button handling for mobile devices (Android/iOS) and PWA -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -263,7 +263,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.8</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.11</span>
             </div>
         </div>
 
@@ -1523,6 +1523,134 @@
                 });
             }
 
+            // Push navigation state to history
+            function pushNavigationState(viewName) {
+                if (!isNavigatingBack) {
+                    navigationStack.push(viewName);
+                    history.pushState({ view: viewName }, '', '');
+                    console.log(`📱 [BACK BUTTON] Pushed state: ${viewName}, Stack:`, navigationStack);
+                }
+            }
+
+            // Get current visible view
+            function getCurrentView() {
+                const views = [
+                    { id: 'company-entry-screen', name: 'company-entry' },
+                    { id: 'company-welcome-screen', name: 'company-welcome' },
+                    { id: 'password-entry-screen', name: 'password-entry' },
+                    { id: 'player-management-screen', name: 'player-management' },
+                    { id: 'main-view', name: 'main' },
+                    { id: 'history-view', name: 'history' },
+                    { id: 'attendance-view', name: 'attendance' },
+                    { id: 'allenamenti-view', name: 'allenamenti' },
+                    { id: 'campionato-view', name: 'campionato' },
+                    { id: 'modulo-view', name: 'modulo' }
+                ];
+                
+                for (const view of views) {
+                    const element = document.getElementById(view.id);
+                    if (element && !element.classList.contains('hidden')) {
+                        return view.name;
+                    }
+                }
+                return null;
+            }
+
+            // Handle back button press
+            function handleBackButton() {
+                const currentView = getCurrentView();
+                console.log(`📱 [BACK BUTTON] Back pressed, current view: ${currentView}`);
+                
+                // Pop current state from stack if it exists
+                if (navigationStack.length > 0 && navigationStack[navigationStack.length - 1] === currentView) {
+                    navigationStack.pop();
+                }
+                
+                // Determine where to go back
+                switch(currentView) {
+                    case 'history':
+                        // Simulate clicking back button
+                        if (historyPreviousView === 'welcome') {
+                            if (currentCompanyCode) {
+                                showCompanyWelcome();
+                            } else {
+                                mainView.classList.remove('hidden');
+                            }
+                        } else {
+                            mainView.classList.remove('hidden');
+                        }
+                        historyView.classList.add('hidden');
+                        historyPreviousView = null;
+                        break;
+                        
+                    case 'attendance':
+                        // Simulate clicking back button
+                        if (attendancePreviousView === 'welcome') {
+                            if (currentCompanyCode) {
+                                showCompanyWelcome();
+                            } else {
+                                mainView.classList.remove('hidden');
+                            }
+                        } else {
+                            mainView.classList.remove('hidden');
+                        }
+                        attendanceView.classList.add('hidden');
+                        attendancePreviousView = null;
+                        break;
+                        
+                    case 'allenamenti':
+                        // Go back to welcome screen
+                        hideAllScreens();
+                        showCompanyWelcome();
+                        break;
+                        
+                    case 'campionato':
+                        // Go back to welcome screen
+                        hideAllScreens();
+                        showCompanyWelcome();
+                        break;
+                        
+                    case 'modulo':
+                        // Go back to main view
+                        moduloView.classList.add('hidden');
+                        mainView.classList.remove('hidden');
+                        break;
+                        
+                    case 'main':
+                        // Go back to welcome screen
+                        mainView.classList.add('hidden');
+                        showCompanyWelcome();
+                        break;
+                        
+                    case 'player-management':
+                        // Go back to welcome screen
+                        playerManagementScreen.classList.add('hidden');
+                        showCompanyWelcome();
+                        break;
+                        
+                    case 'password-entry':
+                        // Go back to welcome screen
+                        passwordEntryScreen.classList.add('hidden');
+                        showCompanyWelcome();
+                        break;
+                        
+                    case 'company-welcome':
+                        // Go back to company entry
+                        companyWelcomeScreen.classList.add('hidden');
+                        companyEntryScreen.classList.remove('hidden');
+                        break;
+                        
+                    case 'company-entry':
+                    default:
+                        // At the entry point - let the app close naturally
+                        console.log(`📱 [BACK BUTTON] At entry point, allowing default behavior`);
+                        // Don't prevent default - allow the app/page to close
+                        return false;
+                }
+                
+                return true; // We handled the back
+            }
+
             function showMessage(element, message, isError = true) {
                 element.textContent = message;
                 element.classList.remove('hidden');
@@ -2008,6 +2136,10 @@
             let historyPreviousView = null; // track where history was accessed from
             let attendancePreviousView = null; // track where attendance was accessed from
             let convocationHistory = []; // store convocation history data for attendance filtering
+            
+            // Navigation stack for back button handling
+            let navigationStack = [];
+            let isNavigatingBack = false;
             
             // Distinta-related global variables
             window.currentDistintaData = null;
@@ -4862,6 +4994,7 @@
 
                 startScreen.classList.add('hidden');
                 mainView.classList.remove('hidden');
+                pushNavigationState('main');
 
                 setupFirestoreListeners(currentAppId);
                 renderPlayers();
@@ -5031,6 +5164,7 @@
                 }
                 
                 companyWelcomeScreen.classList.remove('hidden');
+                pushNavigationState('company-welcome');
             }
 
             function showPasswordEntry(role) {
@@ -5039,12 +5173,14 @@
                 rolePrompt.textContent = `Inserisci la password per ${role === 'mister' ? 'Mister' : 'Dirigente'}:`;
                 passwordInput.value = '';
                 passwordEntryScreen.classList.remove('hidden');
+                pushNavigationState('password-entry');
                 passwordInput.focus();
             }
 
             function showPlayerManagement() {
                 hideAllScreens();
                 playerManagementScreen.classList.remove('hidden');
+                pushNavigationState('player-management');
                 hidePlayerLoadingError(); // Clear any previous error messages
                 renderCompanyPlayers();
                 renderCompanyCoaches();
@@ -7604,6 +7740,7 @@
                 historyPreviousView = 'welcome'; // track that we came from welcome screen
                 hideAllScreens();
                 historyView.classList.remove('hidden');
+                pushNavigationState('history');
                 setupFirestoreListeners(companyAppId);
             });
 
@@ -7636,6 +7773,7 @@
                 // Hide all screens and show attendance view
                 hideAllScreens();
                 attendanceView.classList.remove('hidden');
+                pushNavigationState('attendance');
             });
 
             // V9.10: Training attendance button event listener - COMMENTED OUT - Feature removed
@@ -7650,6 +7788,7 @@
                 console.log('🏃 Opening Allenamenti Management View... (V8.11)');
                 hideAllScreens();
                 allenamentiView.classList.remove('hidden');
+                pushNavigationState('allenamenti');
                 loadAllenamentiData(); // Load training sessions and report data
             });
 
@@ -7657,6 +7796,7 @@
                 console.log('⚽ Opening Campionato View...');
                 hideAllScreens();
                 campionatoView.classList.remove('hidden');
+                pushNavigationState('campionato');
                 
                 // Center "Risultati" widget only for PIEVE2010 company
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
@@ -9436,6 +9576,37 @@
             
             // Also check hash when it changes
             window.addEventListener('hashchange', checkHashNavigation);
+            
+            // Handle physical back button press (Android/iOS/browser)
+            window.addEventListener('popstate', (event) => {
+                console.log('📱 [BACK BUTTON] Popstate event triggered', event.state);
+                isNavigatingBack = true;
+                
+                // Handle the back navigation
+                const handled = handleBackButton();
+                
+                // If we're at the root and didn't handle it, allow default behavior (close app)
+                if (!handled && navigationStack.length === 0) {
+                    console.log('📱 [BACK BUTTON] At root level, allowing app to close');
+                    // Don't push any state - let it close
+                } else if (handled) {
+                    // We handled the back, push a state to maintain history
+                    const newView = getCurrentView();
+                    if (newView) {
+                        history.pushState({ view: newView }, '', '');
+                    }
+                }
+                
+                isNavigatingBack = false;
+            });
+            
+            // Initialize with first state
+            const initialView = getCurrentView();
+            if (initialView) {
+                history.replaceState({ view: initialView }, '', '');
+                navigationStack.push(initialView);
+                console.log('📱 [BACK BUTTON] Initial state:', initialView);
+            }
         });
     </script>
 </body>
