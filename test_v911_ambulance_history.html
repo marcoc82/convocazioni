@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.11 - Ambulance Icon Position & Historical Tracking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+            <h1 class="text-3xl font-bold text-blue-900 mb-2">📊 Test V9.11 - Ambulance Icon Position & Historical Tracking</h1>
+            <p class="text-blue-700">Verification of ambulance icon position changes and injured players historical tracking</p>
+            
+            <div class="mt-4 p-4 bg-white rounded-lg">
+                <h2 class="font-semibold text-gray-800 mb-2">✅ Requisiti Implementati:</h2>
+                <ul class="space-y-2 text-sm text-gray-700">
+                    <li>✓ <strong>Requisito 1:</strong> Icona ambulanza 🚑 spostata alla SINISTRA del numero di presenze (non più del nome giocatore)</li>
+                    <li>✓ <strong>Requisito 2:</strong> Salvataggio su database mantiene lo storico (usa arrayUnion per cumulative history)</li>
+                    <li>✓ <strong>Requisito 3:</strong> L'icona resta visibile per tutti i giocatori infortunati durante l'anno (anche se ora disponibili)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Change 1: Icon Position in Report "Gestione Allenamenti" -->
+        <div class="mb-8 p-6 bg-green-50 rounded-xl border border-green-200">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">📋 Modifica 1: Posizione Icona nel Report "Gestione Allenamenti"</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">❌ Prima (V9.10 - Posizione sbagliata):</h3>
+                    <div class="bg-white rounded-lg overflow-hidden border border-gray-200">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">N° All.</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Pres.</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">% Pres.</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="bg-white">
+                                    <td class="px-3 py-2 text-sm text-gray-900">🚑 10 ROSSI MARIO</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center">20</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">18</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">90%</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-3 py-2 text-sm text-gray-900">7 BIANCHI LUIGI</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center">20</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">16</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">80%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="mt-2 text-sm text-red-600">❌ Icona 🚑 davanti al NOME del giocatore</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold mb-2">✅ Dopo (V9.11 - Posizione corretta):</h3>
+                    <div class="bg-white rounded-lg overflow-hidden border border-green-200 shadow-sm">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">N° All.</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">Pres.</th>
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase">% Pres.</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="bg-white">
+                                    <td class="px-3 py-2 text-sm text-gray-900">10 ROSSI MARIO</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center">20</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">🚑 18</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">90%</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-3 py-2 text-sm text-gray-900">7 BIANCHI LUIGI</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center">20</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">16</td>
+                                    <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">80%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="mt-2 text-sm text-green-600">✅ Icona 🚑 alla SINISTRA del numero di PRESENZE</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 2: Icon Position in "Presenze Allenamenti" View -->
+        <div class="mb-8 p-6 bg-green-50 rounded-xl border border-green-200">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">📋 Modifica 2: Posizione Icona nella vista "Presenze Allenamenti"</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">❌ Prima (V9.9 - Posizione sbagliata):</h3>
+                    <div class="bg-white rounded-lg overflow-hidden border border-gray-200">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Presenze Allenamenti</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">% Presenze</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 text-sm text-gray-900">🚑 🥇 10 ROSSI MARIO</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">18</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">90%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="mt-2 text-sm text-red-600">❌ Icona 🚑 davanti al NOME del giocatore</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold mb-2">✅ Dopo (V9.11 - Posizione corretta):</h3>
+                    <div class="bg-white rounded-lg overflow-hidden border border-green-200 shadow-sm">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Presenze Allenamenti</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">% Presenze</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 text-sm text-gray-900">🥇 10 ROSSI MARIO</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">🚑 18</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">90%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="mt-2 text-sm text-green-600">✅ Icona 🚑 alla SINISTRA del numero di PRESENZE</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 3: Database Structure & Historical Tracking -->
+        <div class="mb-8 p-6 bg-purple-50 rounded-xl border border-purple-200">
+            <h2 class="text-xl font-semibold text-purple-800 mb-4">🗄️ Modifica 3: Struttura Database e Storico Infortunati</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">❌ Prima (V9.9 - Sovrascrive lista):</h3>
+                    <div class="bg-white p-4 rounded-lg border border-gray-200">
+                        <p class="text-sm font-mono text-gray-700 mb-2">Metodo: <code class="bg-gray-100 px-2 py-1 rounded">setDoc</code> (sovrascrive)</p>
+                        <pre class="bg-gray-50 p-3 rounded text-xs overflow-x-auto"><code>await window.setDoc(injuredDocRef, { 
+    players: injuredPlayers 
+});</code></pre>
+                        <div class="mt-3 space-y-2">
+                            <p class="text-sm text-gray-700"><strong>Settimana 1:</strong> ROSSI infortunato → Database: ["ROSSI"]</p>
+                            <p class="text-sm text-gray-700"><strong>Settimana 2:</strong> BIANCHI infortunato, ROSSI recuperato → Database: ["BIANCHI"] ❌</p>
+                            <p class="text-sm text-red-600 font-semibold">Problema: ROSSI viene rimosso dalla lista!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold mb-2">✅ Dopo (V9.11 - Mantiene storico):</h3>
+                    <div class="bg-white p-4 rounded-lg border border-purple-200 shadow-sm">
+                        <p class="text-sm font-mono text-gray-700 mb-2">Metodo: <code class="bg-purple-100 px-2 py-1 rounded">arrayUnion</code> (aggiunge senza duplicati)</p>
+                        <pre class="bg-gray-50 p-3 rounded text-xs overflow-x-auto"><code>const injuredDocSnapshot = await window.getDoc(injuredDocRef);
+if (injuredDocSnapshot.exists()) {
+    await window.updateDoc(injuredDocRef, { 
+        players: window.arrayUnion(...currentlyInjuredPlayers) 
+    });
+} else {
+    await window.setDoc(injuredDocRef, { 
+        players: currentlyInjuredPlayers 
+    });
+}</code></pre>
+                        <div class="mt-3 space-y-2">
+                            <p class="text-sm text-gray-700"><strong>Settimana 1:</strong> ROSSI infortunato → Database: ["ROSSI"]</p>
+                            <p class="text-sm text-gray-700"><strong>Settimana 2:</strong> BIANCHI infortunato, ROSSI recuperato → Database: ["ROSSI", "BIANCHI"] ✅</p>
+                            <p class="text-sm text-gray-700"><strong>Settimana 3:</strong> VERDI infortunato → Database: ["ROSSI", "BIANCHI", "VERDI"] ✅</p>
+                            <p class="text-sm text-green-600 font-semibold">Soluzione: Tutti gli infortunati rimangono nella lista per l'intera stagione!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="mb-8 p-6 bg-yellow-50 rounded-xl border border-yellow-200">
+            <h2 class="text-xl font-semibold text-yellow-800 mb-4">🔧 Dettagli Tecnici</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">1. Modifiche a index.html - Imports (riga 46)</h3>
+                    <pre class="bg-gray-50 p-3 rounded text-xs overflow-x-auto"><code>// Aggiunto arrayUnion all'import
+import { ..., arrayUnion } from "firebase-firestore.js";
+window.arrayUnion = arrayUnion;</code></pre>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">2. Funzione save() - Salvataggio con storico (righe 3148-3190)</h3>
+                    <pre class="bg-gray-50 p-3 rounded text-xs overflow-x-auto"><code>// V9.11: Track injured players separately with history
+const currentlyInjuredPlayers = [];
+// ... raccolta giocatori infortunati ...
+
+// Use arrayUnion to maintain cumulative history
+if (currentlyInjuredPlayers.length > 0) {
+    const injuredDocSnapshot = await window.getDoc(injuredDocRef);
+    if (injuredDocSnapshot.exists()) {
+        await window.updateDoc(injuredDocRef, { 
+            players: window.arrayUnion(...currentlyInjuredPlayers) 
+        });
+    } else {
+        await window.setDoc(injuredDocRef, { 
+            players: currentlyInjuredPlayers 
+        });
+    }
+}</code></pre>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">3. loadAllenamentiReport() - Posizione icona (riga 5892)</h3>
+                    <pre class="bg-gray-50 p-3 rounded text-xs overflow-x-auto"><code>// V9.11: Add ambulance icon if player was ever injured
+const isInjured = injuredPlayers.includes(stat.player);
+const ambulanceIcon = isInjured ? '🚑 ' : '';
+
+row.innerHTML = `
+    &lt;td&gt;${stat.player}&lt;/td&gt;
+    &lt;td&gt;${totalSessions}&lt;/td&gt;
+    &lt;td&gt;${ambulanceIcon}${stat.presences}&lt;/td&gt;  ← Icona spostata qui!
+    &lt;td&gt;${stat.percentage}%&lt;/td&gt;
+`;</code></pre>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg">
+                    <h3 class="font-semibold text-gray-800 mb-2">4. renderTrainingAttendanceData() - Posizione icona (riga 5233)</h3>
+                    <pre class="bg-gray-50 p-3 rounded text-xs overflow-x-auto"><code>// V9.11: Add ambulance icon if player was ever injured
+const isInjured = injuredPlayers.includes(player.name);
+const ambulanceIcon = isInjured ? '🚑 ' : '';
+
+row.innerHTML = `
+    &lt;td&gt;${medal}${player.name}&lt;/td&gt;
+    &lt;td&gt;${ambulanceIcon}${player.attendance}&lt;/td&gt;  ← Icona spostata qui!
+    &lt;td&gt;${percentage}%&lt;/td&gt;
+`;</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="p-6 bg-gray-100 rounded-xl border border-gray-300">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">📝 Riepilogo Modifiche V9.11</h2>
+            <div class="space-y-2 text-sm">
+                <p>✅ <strong>Requisito 1:</strong> Icona ambulanza spostata alla sinistra del numero di presenze in entrambe le viste</p>
+                <p>✅ <strong>Requisito 2:</strong> Database mantiene storico cumulativo con arrayUnion (non più sovrascritto)</p>
+                <p>✅ <strong>Requisito 3:</strong> Icona visibile per tutti i giocatori che sono stati infortunati durante la stagione</p>
+                <p class="mt-4 pt-4 border-t border-gray-300">
+                    <strong>Versione:</strong> V9.11<br>
+                    <strong>File modificato:</strong> index.html<br>
+                    <strong>Linee modificate:</strong> 46, 76, 3148-3190, 5071, 5088, 5233-5241, 5275, 5812, 5892-5906
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

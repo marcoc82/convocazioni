@@ -43,7 +43,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc, getDocs, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Espone le funzioni Firebase Auth globalmente per evitare ReferenceError
@@ -73,6 +73,7 @@
             window.setDoc = setDoc;
             window.increment = increment;
             window.deleteDoc = deleteDoc;
+            window.arrayUnion = arrayUnion;
             window.getDocs = getDocs;
         } else {
             console.error("Firebase configuration not available. Some features will not work.");
@@ -3148,27 +3149,42 @@
                     const unavailablePlayersObject = Object.fromEntries(unavailablePlayers);
                     const unavailableDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "marco_unavailable");
                     
-                    // V9.9: Track injured players separately
-                    const injuredPlayers = [];
+                    // V9.11: Track injured players separately with history (cumulative for entire season)
+                    const currentlyInjuredPlayers = [];
                     unavailablePlayers.forEach((status, player) => {
                         const statuses = Array.isArray(status) ? status : [status];
                         if (statuses.includes('Infortunato')) {
-                            injuredPlayers.push(player);
+                            currentlyInjuredPlayers.push(player);
                         }
                     });
                     const injuredDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "injured_players");
                     
                     console.log(`💾 Salvando lista giocatori non disponibili per società document ID: ${currentCompanyDocumentId}`);
                     console.log(`📂 Percorso salvataggio availability: ${availabilityBasePath}/availability/marco_unavailable`);
-                    console.log(`🚑 Giocatori infortunati: ${injuredPlayers.length > 0 ? injuredPlayers.join(', ') : 'Nessuno'}`);
+                    console.log(`🚑 Giocatori infortunati: ${currentlyInjuredPlayers.length > 0 ? currentlyInjuredPlayers.join(', ') : 'Nessuno'}`);
                     
                     try {
                         await window.setDoc(unavailableDocRef, { players: unavailablePlayersObject });
-                        // V9.9: Save injured players separately
-                        await window.setDoc(injuredDocRef, { players: injuredPlayers });
+                        
+                        // V9.11: Use arrayUnion to maintain cumulative history of all injured players for the season
+                        // This ensures players remain in the list even after they recover
+                        if (currentlyInjuredPlayers.length > 0) {
+                            // Check if document exists first
+                            const injuredDocSnapshot = await window.getDoc(injuredDocRef);
+                            if (injuredDocSnapshot.exists()) {
+                                // Document exists, use updateDoc with arrayUnion to add new players
+                                await window.updateDoc(injuredDocRef, { 
+                                    players: window.arrayUnion(...currentlyInjuredPlayers) 
+                                });
+                            } else {
+                                // Document doesn't exist, create it with initial players
+                                await window.setDoc(injuredDocRef, { players: currentlyInjuredPlayers });
+                            }
+                        }
+                        
                         showSuccessPopup("Lista di giocatori non disponibili salvata!");
                         console.log(`✅ Lista giocatori non disponibili salvata con successo (${Object.keys(unavailablePlayersObject).length} giocatori)`);
-                        console.log(`✅ Lista giocatori infortunati salvata con successo (${injuredPlayers.length} giocatori)`);
+                        console.log(`✅ Lista giocatori infortunati aggiornata con successo (${currentlyInjuredPlayers.length} nuovi infortunati, storico mantenuto)`);
                     } catch (e) {
                         console.error("Errore salvataggio su Firestore: ", e);
                         showMessage("Errore durante il salvataggio. Controlla la console.", "text-red-600");
@@ -5055,6 +5071,7 @@
             }
 
             // V9.9: Fetch injured players from Firestore
+            // V9.11: Fetch injured players from Firestore (historical - all players injured during the season)
             async function fetchInjuredPlayersFromFirestore() {
                 try {
                     if (!window.db) {
@@ -5071,7 +5088,7 @@
                     
                     if (injuredDoc.exists()) {
                         const data = injuredDoc.data();
-                        console.log(`🚑 Caricati giocatori infortunati: ${data.players?.length || 0}`);
+                        console.log(`🚑 Caricati giocatori infortunati (storico): ${data.players?.length || 0}`);
                         return data.players || [];
                     } else {
                         console.log('🚑 Nessun giocatore infortunato trovato');
@@ -5216,13 +5233,13 @@
                         medal = '🥉 ';
                     }
                     
-                    // V9.9: Add ambulance icon if player is injured
+                    // V9.11: Add ambulance icon if player was ever injured (shows all historical injured players)
                     const isInjured = injuredPlayers.includes(player.name);
                     const ambulanceIcon = isInjured ? '🚑 ' : '';
                     
                     row.innerHTML = `
-                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">${ambulanceIcon}${medal}${player.name}</td>
-                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${player.attendance}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">${medal}${player.name}</td>
+                        <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${ambulanceIcon}${player.attendance}</td>
                         <td class="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">${percentage}%</td>
                     `;
                     
@@ -5258,7 +5275,7 @@
                         return;
                     }
                     
-                    // V9.9: Load training attendance and injured players in parallel
+                    // V9.11: Load training attendance and injured players in parallel (historical data)
                     const [result, injuredPlayers] = await Promise.all([
                         fetchTrainingAttendanceFromFirebase(),
                         fetchInjuredPlayersFromFirestore()
@@ -5795,7 +5812,7 @@
                 const periodSelect = document.getElementById('report-period-select');
                 const selectedPeriod = periodSelect.value;
                 
-                // V9.10: Fetch injured players for ambulance icon display
+                // V9.11: Fetch injured players for ambulance icon display (historical data - all injured players for the season)
                 const injuredPlayers = await fetchInjuredPlayersFromFirestore();
                 
                 // Calculate report data from training sessions
@@ -5875,14 +5892,14 @@
                     const row = document.createElement('tr');
                     row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
                     
-                    // V9.10: Add ambulance icon if player is injured
+                    // V9.11: Add ambulance icon if player was ever injured (shows all historical injured players)
                     const isInjured = injuredPlayers.includes(stat.player);
                     const ambulanceIcon = isInjured ? '🚑 ' : '';
                     
                     row.innerHTML = `
-                        <td class="px-3 py-2 text-sm text-gray-900">${ambulanceIcon}${stat.player}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900">${stat.player}</td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center">${totalSessions}</td>
-                        <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${stat.presences}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${ambulanceIcon}${stat.presences}</td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${stat.percentage}%</td>
                     `;
                     reportBody.appendChild(row);
