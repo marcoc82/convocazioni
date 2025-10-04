@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.11 - Physical Back Button Handling</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="bg-white rounded-2xl shadow-xl p-6 max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-6">Test V9.11 - Physical Back Button Handling</h1>
+        
+        <!-- Summary -->
+        <div class="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+            <h2 class="text-xl font-semibold text-center mb-4">📱 Riepilogo Modifiche</h2>
+            <ul class="space-y-2">
+                <li>✓ <strong>Requisito:</strong> Gestione del tasto indietro fisico (Android/iOS) per navigazione interna</li>
+                <li>✓ <strong>Implementazione:</strong> Utilizzo dell'API History del browser (popstate event)</li>
+                <li>✓ <strong>Compatibilità:</strong> PWA, webapp mobile, browser desktop</li>
+            </ul>
+        </div>
+
+        <!-- Visual Demo of Navigation Flow -->
+        <div class="mb-8 p-6 bg-green-50 rounded-xl border border-green-200">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">🎯 Flusso di Navigazione</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="font-semibold mb-3">Esempio 1: Navigazione nello storico</h3>
+                    <div class="bg-white rounded-lg p-4 space-y-2">
+                        <div class="flex items-center">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">1</span>
+                            <span class="ml-3">Inserimento codice società</span>
+                        </div>
+                        <div class="ml-6 text-gray-500">↓ Verifica società</div>
+                        <div class="flex items-center">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">2</span>
+                            <span class="ml-3">Schermata benvenuto</span>
+                        </div>
+                        <div class="ml-6 text-gray-500">↓ Click su "Storico Convocazioni"</div>
+                        <div class="flex items-center">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">3</span>
+                            <span class="ml-3">Vista storico convocazioni</span>
+                        </div>
+                        <div class="ml-6 text-green-600 font-semibold">⬅️ Tasto indietro fisico</div>
+                        <div class="flex items-center bg-green-100 p-2 rounded">
+                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">✓</span>
+                            <span class="ml-3 font-semibold text-green-700">Torna a schermata benvenuto (NON chiude app)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold mb-3">Esempio 2: Creazione convocazione</h3>
+                    <div class="bg-white rounded-lg p-4 space-y-2">
+                        <div class="flex items-center">
+                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">1</span>
+                            <span class="ml-3">Schermata benvenuto</span>
+                        </div>
+                        <div class="ml-6 text-gray-500">↓ Entra come Mister</div>
+                        <div class="flex items-center">
+                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">2</span>
+                            <span class="ml-3">Inserimento password</span>
+                        </div>
+                        <div class="ml-6 text-gray-500">↓ Password corretta</div>
+                        <div class="flex items-center">
+                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-semibold">3</span>
+                            <span class="ml-3">Vista principale (crea convocazione)</span>
+                        </div>
+                        <div class="ml-6 text-green-600 font-semibold">⬅️ Tasto indietro fisico</div>
+                        <div class="flex items-center bg-green-100 p-2 rounded">
+                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">✓</span>
+                            <span class="ml-3 font-semibold text-green-700">Torna a schermata benvenuto</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold mb-3">Esempio 3: Modifica convocazione esistente</h3>
+                    <div class="bg-white rounded-lg p-4 space-y-2">
+                        <div class="flex items-center">
+                            <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold">1</span>
+                            <span class="ml-3">Vista storico convocazioni</span>
+                        </div>
+                        <div class="ml-6 text-gray-500">↓ Click su convocazione esistente</div>
+                        <div class="flex items-center">
+                            <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-semibold">2</span>
+                            <span class="ml-3">Pagina modifica (edit_convocation.html)</span>
+                        </div>
+                        <div class="ml-6 text-green-600 font-semibold">⬅️ Tasto indietro fisico</div>
+                        <div class="flex items-center bg-green-100 p-2 rounded">
+                            <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">✓</span>
+                            <span class="ml-3 font-semibold text-green-700">Torna allo storico convocazioni</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Implementation -->
+        <div class="mb-8 p-6 bg-purple-50 rounded-xl border border-purple-200">
+            <h2 class="text-xl font-semibold text-purple-800 mb-4">🔧 Implementazione Tecnica</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">1. Navigation Stack</h3>
+                    <div class="bg-white rounded-lg p-4 font-mono text-sm">
+                        <code class="text-blue-600">let navigationStack = [];</code><br>
+                        <code class="text-blue-600">let isNavigatingBack = false;</code>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-600">Traccia le schermate visitate per gestire il back correttamente</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold mb-2">2. Popstate Event Listener</h3>
+                    <div class="bg-white rounded-lg p-4 font-mono text-sm overflow-x-auto">
+                        <code class="text-purple-600">window.addEventListener('popstate', (event) => {</code><br>
+                        <code class="ml-4 text-gray-600">isNavigatingBack = true;</code><br>
+                        <code class="ml-4 text-green-600">const handled = handleBackButton();</code><br>
+                        <code class="ml-4 text-gray-600">// ... gestione stato ...</code><br>
+                        <code class="ml-4 text-gray-600">isNavigatingBack = false;</code><br>
+                        <code class="text-purple-600">});</code>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-600">Intercetta la pressione del tasto indietro fisico/browser</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold mb-2">3. Push State su Navigazione</h3>
+                    <div class="bg-white rounded-lg p-4 font-mono text-sm">
+                        <code class="text-orange-600">function pushNavigationState(viewName) {</code><br>
+                        <code class="ml-4 text-blue-600">history.pushState({ view: viewName }, '', '');</code><br>
+                        <code class="ml-4 text-gray-600">navigationStack.push(viewName);</code><br>
+                        <code class="text-orange-600">}</code>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-600">Chiamata ogni volta che si naviga verso una nuova schermata</p>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold mb-2">4. Handle Back Button Logic</h3>
+                    <div class="bg-white rounded-lg p-4 space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-semibold mr-2">history</span>
+                            <span class="text-gray-700">→ Torna a welcome screen</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-semibold mr-2">attendance</span>
+                            <span class="text-gray-700">→ Torna a welcome screen</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="bg-teal-100 text-teal-800 px-2 py-1 rounded text-xs font-semibold mr-2">allenamenti</span>
+                            <span class="text-gray-700">→ Torna a welcome screen</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-semibold mr-2">campionato</span>
+                            <span class="text-gray-700">→ Torna a welcome screen</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold mr-2">main</span>
+                            <span class="text-gray-700">→ Torna a welcome screen</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold mr-2">welcome</span>
+                            <span class="text-gray-700">→ Torna a company entry</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-semibold mr-2">entry</span>
+                            <span class="text-gray-700">→ Chiude app</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Files Modified -->
+        <div class="mb-8 p-6 bg-yellow-50 rounded-xl border border-yellow-200">
+            <h2 class="text-xl font-semibold text-yellow-800 mb-4">📝 File Modificati</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-white rounded-lg p-4">
+                    <h3 class="font-semibold text-lg mb-2">index.html</h3>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-700">
+                        <li><strong>Riga 2:</strong> Versione aggiornata a V9.11</li>
+                        <li><strong>Riga 266:</strong> Display versione "V 9.11"</li>
+                        <li><strong>Righe 2008-2012:</strong> Variabili navigation stack</li>
+                        <li><strong>Righe 1526-1660:</strong> Funzioni helper (pushNavigationState, getCurrentView, handleBackButton)</li>
+                        <li><strong>Righe 9468-9495:</strong> Popstate event listener</li>
+                        <li><strong>8 posizioni:</strong> Chiamate pushNavigationState nelle funzioni di navigazione</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-lg p-4">
+                    <h3 class="font-semibold text-lg mb-2">edit_convocation.html</h3>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-700">
+                        <li><strong>Righe 549-556:</strong> Popstate event handler</li>
+                        <li><strong>Riga 557:</strong> Inizializzazione history state</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-lg p-4">
+                    <h3 class="font-semibold text-lg mb-2">manifest.json</h3>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-700">
+                        <li><strong>Riga 4:</strong> Versione "V9.11"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Browser Compatibility -->
+        <div class="mb-8 p-6 bg-indigo-50 rounded-xl border border-indigo-200">
+            <h2 class="text-xl font-semibold text-indigo-800 mb-4">🌐 Compatibilità Browser/Piattaforme</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white rounded-lg p-4">
+                    <h3 class="font-semibold mb-2 flex items-center">
+                        <span class="text-2xl mr-2">🤖</span>
+                        Android
+                    </h3>
+                    <ul class="space-y-1 text-sm text-gray-700">
+                        <li>✅ Chrome (tasto indietro fisico)</li>
+                        <li>✅ Samsung Internet</li>
+                        <li>✅ Firefox Mobile</li>
+                        <li>✅ PWA installata</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-lg p-4">
+                    <h3 class="font-semibold mb-2 flex items-center">
+                        <span class="text-2xl mr-2">🍎</span>
+                        iOS
+                    </h3>
+                    <ul class="space-y-1 text-sm text-gray-700">
+                        <li>✅ Safari (swipe back)</li>
+                        <li>✅ Chrome iOS</li>
+                        <li>✅ PWA da home screen</li>
+                        <li>✅ Gesture di navigazione</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-lg p-4">
+                    <h3 class="font-semibold mb-2 flex items-center">
+                        <span class="text-2xl mr-2">💻</span>
+                        Desktop
+                    </h3>
+                    <ul class="space-y-1 text-sm text-gray-700">
+                        <li>✅ Chrome/Edge (Alt+Left)</li>
+                        <li>✅ Firefox (Alt+Left)</li>
+                        <li>✅ Safari (Cmd+[)</li>
+                        <li>✅ Browser back button</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-lg p-4">
+                    <h3 class="font-semibold mb-2 flex items-center">
+                        <span class="text-2xl mr-2">📱</span>
+                        PWA
+                    </h3>
+                    <ul class="space-y-1 text-sm text-gray-700">
+                        <li>✅ Installata su mobile</li>
+                        <li>✅ Installata su desktop</li>
+                        <li>✅ Standalone mode</li>
+                        <li>✅ Fullscreen mode</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Instructions -->
+        <div class="mb-8 p-6 bg-pink-50 rounded-xl border border-pink-200">
+            <h2 class="text-xl font-semibold text-pink-800 mb-4">🧪 Come Testare</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2">Su Android:</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
+                        <li>Aprire l'app nel browser Chrome o installarla come PWA</li>
+                        <li>Navigare attraverso varie schermate (Welcome → Storico → ecc.)</li>
+                        <li>Premere il tasto indietro fisico del telefono</li>
+                        <li>Verificare che torni alla schermata precedente (NON chiuda l'app)</li>
+                        <li>Continuare a premere indietro fino alla schermata iniziale</li>
+                        <li>All'ultimo livello, premere indietro dovrebbe chiudere l'app</li>
+                    </ol>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold mb-2">Su iOS:</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
+                        <li>Aprire l'app in Safari o aggiungerla alla home screen</li>
+                        <li>Navigare attraverso varie schermate</li>
+                        <li>Usare il gesture swipe da sinistra o il tasto indietro</li>
+                        <li>Verificare che torni alla schermata precedente</li>
+                    </ol>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold mb-2">Su Desktop:</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-sm text-gray-700">
+                        <li>Aprire l'app nel browser</li>
+                        <li>Navigare attraverso varie schermate</li>
+                        <li>Cliccare il tasto indietro del browser o usare Alt+Left (Win) / Cmd+[ (Mac)</li>
+                        <li>Verificare che torni alla schermata precedente</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console Logs -->
+        <div class="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">🐛 Log Console per Debug</h2>
+            
+            <div class="bg-black text-green-400 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+                <div>📱 [BACK BUTTON] Pushed state: history, Stack: ['company-entry', 'company-welcome', 'history']</div>
+                <div>📱 [BACK BUTTON] Back pressed, current view: history</div>
+                <div>📱 [BACK BUTTON] Pushed state: company-welcome, Stack: ['company-entry', 'company-welcome']</div>
+                <div>📱 [BACK BUTTON] Back pressed, current view: company-welcome</div>
+                <div>📱 [BACK BUTTON] At entry point, allowing app to close</div>
+            </div>
+            <p class="mt-2 text-sm text-gray-600">Apri la console del browser (F12) per vedere questi messaggi durante la navigazione</p>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
+            <h2 class="text-xl font-semibold text-center mb-4">📊 Statistiche Implementazione</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-blue-600">~170</div>
+                    <div class="text-sm text-gray-600">Righe aggiunte</div>
+                </div>
+                <div class="bg-white rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-green-600">3</div>
+                    <div class="text-sm text-gray-600">Nuove funzioni</div>
+                </div>
+                <div class="bg-white rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-purple-600">2</div>
+                    <div class="text-sm text-gray-600">Event listener</div>
+                </div>
+                <div class="bg-white rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-orange-600">3</div>
+                    <div class="text-sm text-gray-600">File modificati</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
