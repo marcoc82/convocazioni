@@ -296,9 +296,10 @@
                     <button id="welcome-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         Riepilogo Convocazioni
                     </button>
-                    <button id="training-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
+                    <!-- V9.10: Removed "Presenze Allenamenti" button - no longer needed -->
+                    <!-- <button id="training-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
                         Presenze Allenamenti
-                    </button>
+                    </button> -->
                     <button id="allenamenti-button" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                         🏃 Allenamenti
                     </button>
@@ -777,14 +778,13 @@
             </button>
         </div>
 
-        <!-- Training Attendance View -->
-        <div id="training-attendance-view" class="hidden">
+        <!-- V9.10: Training Attendance View - COMMENTED OUT - No longer needed -->
+        <!-- <div id="training-attendance-view" class="hidden">
             <button id="top-back-from-training-attendance-button" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
             </button>
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Presenze Allenamenti</h2>
             
-            <!-- Display allenamentiTotali prominently -->
             <div id="allenamenti-totali-display" class="text-center mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p class="text-lg font-semibold text-blue-800">
                     Allenamenti Totali: <span id="allenamenti-totali-value" class="text-2xl font-bold text-blue-900">-</span>
@@ -803,7 +803,6 @@
                 <p class="text-red-800 text-center">Errore nel caricamento dei dati. Riprova più tardi.</p>
             </div>
             
-            <!-- Training Attendance Table -->
             <div id="training-attendance-content" class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6 overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -814,7 +813,6 @@
                         </tr>
                     </thead>
                     <tbody id="training-attendance-list" class="bg-white divide-y divide-gray-200">
-                        <!-- Training attendance data will be populated here -->
                     </tbody>
                 </table>
             </div>
@@ -829,7 +827,7 @@
             <button id="back-from-training-attendance-button" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Indietro
             </button>
-        </div>
+        </div> -->
 
         <!-- Allenamenti Management View (V8.11) -->
         <div id="allenamenti-view" class="hidden">
@@ -1481,7 +1479,8 @@
             const companyNameDisplay = document.getElementById('company-name-display');
             const enterMisterButton = document.getElementById('enter-mister-button');
             const enterDirigenteButton = document.getElementById('enter-dirigente-button');
-            const trainingAttendanceButton = document.getElementById('training-attendance-button');
+            // V9.10: Training attendance button - COMMENTED OUT - Feature removed
+            // const trainingAttendanceButton = document.getElementById('training-attendance-button');
             const campionatoButton = document.getElementById('campionato-button');
             
             const passwordEntryScreen = document.getElementById('password-entry-screen');
@@ -1602,11 +1601,12 @@
                 // Check if company is POLIS PIEVE 2010 (checks config.nome, nome, or id)
                 const isPolisPieveCompany = isPolisPieve2010(currentCompanyData);
                 
-                if (isPolisCompany) {
-                    trainingAttendanceButton.classList.remove('hidden');
-                } else {
-                    trainingAttendanceButton.classList.add('hidden');
-                }
+                // V9.10: Training attendance button - COMMENTED OUT - Feature removed
+                // if (isPolisCompany) {
+                //     trainingAttendanceButton.classList.remove('hidden');
+                // } else {
+                //     trainingAttendanceButton.classList.add('hidden');
+                // }
                 
                 // Show/hide campionato button for POLIS PIEVE 2010
                 if (isPolisPieveCompany) {
@@ -1820,7 +1820,8 @@
             const enterDirigenteButton = document.getElementById('enter-dirigente-button');
             const viewHistoryButton = document.getElementById('view-history-button');
             const welcomeAttendanceButton = document.getElementById('welcome-attendance-button');
-            const trainingAttendanceButton = document.getElementById('training-attendance-button');
+            // V9.10: Training attendance button - COMMENTED OUT - Feature removed
+            // const trainingAttendanceButton = document.getElementById('training-attendance-button');
             const allenamentiButton = document.getElementById('allenamenti-button');
             const campionatoButton = document.getElementById('campionato-button');
             const managePlayersButton = document.getElementById('manage-players-button');
@@ -1874,7 +1875,8 @@
             const mainView = document.getElementById('main-view');
             const historyView = document.getElementById('history-view');
             const attendanceView = document.getElementById('attendance-view');
-            const trainingAttendanceView = document.getElementById('training-attendance-view');
+            // V9.10: Training attendance view - COMMENTED OUT - Feature removed
+            // const trainingAttendanceView = document.getElementById('training-attendance-view');
             const allenamentiView = document.getElementById('allenamenti-view');
             const campionatoView = document.getElementById('campionato-view');
             const moduloView = document.getElementById('modulo-view'); // V8.13
@@ -4934,8 +4936,9 @@
                     // Show only guest-allowed buttons for guest users
                     guestAllowedButtons.classList.remove('hidden');
                     
+                    // V9.10: Training attendance button - COMMENTED OUT - Feature removed
                     // Hide training attendance button for guests by default
-                    trainingAttendanceButton.classList.add('hidden');
+                    // trainingAttendanceButton.classList.add('hidden');
                     
                     // Show training attendance for specific companies and guests
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
@@ -4943,9 +4946,10 @@
                     // Check if company is POLIS PIEVE 2010 (checks config.nome, nome, or id)
                     const isPolisPieveCompany = isPolisPieve2010(currentCompanyData);
                     
-                    if (isPolisCompany) {
-                        trainingAttendanceButton.classList.remove('hidden');
-                    }
+                    // V9.10: Training attendance button - COMMENTED OUT - Feature removed
+                    // if (isPolisCompany) {
+                    //     trainingAttendanceButton.classList.remove('hidden');
+                    // }
                     
                     // Show/hide campionato button for POLIS PIEVE 2010 (also for guests)
                     if (isPolisPieveCompany) {
@@ -4978,17 +4982,19 @@
                     isGuestUser = false;
                     userRole = null;
                     
+                    // V9.10: Training attendance button - COMMENTED OUT - Feature removed
                     // Show/hide training attendance button based on company name for normal users
                     const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
                     const isPolisCompany = companyName === 'POLIS';
                     // Check if company is POLIS PIEVE 2010 (checks config.nome, nome, or id)
                     const isPolisPieveCompany = isPolisPieve2010(currentCompanyData);
                     
-                    if (isPolisCompany) {
-                        trainingAttendanceButton.classList.remove('hidden');
-                    } else {
-                        trainingAttendanceButton.classList.add('hidden');
-                    }
+                    // V9.10: Training attendance button - COMMENTED OUT - Feature removed
+                    // if (isPolisCompany) {
+                    //     trainingAttendanceButton.classList.remove('hidden');
+                    // } else {
+                    //     trainingAttendanceButton.classList.add('hidden');
+                    // }
                     
                     // Show/hide campionato button for POLIS PIEVE 2010
                     if (isPolisPieveCompany) {
@@ -5042,7 +5048,8 @@
                 mainView.classList.add('hidden');
                 historyView.classList.add('hidden');
                 attendanceView.classList.add('hidden');
-                trainingAttendanceView.classList.add('hidden');
+                // V9.10: Training attendance view - COMMENTED OUT - Feature removed
+                // trainingAttendanceView.classList.add('hidden');
                 campionatoView.classList.add('hidden');
                 moduloView.classList.add('hidden'); // V8.12
             }
@@ -5788,6 +5795,9 @@
                 const periodSelect = document.getElementById('report-period-select');
                 const selectedPeriod = periodSelect.value;
                 
+                // V9.10: Fetch injured players for ambulance icon display
+                const injuredPlayers = await fetchInjuredPlayersFromFirestore();
+                
                 // Calculate report data from training sessions
                 const playerStats = {};
                 
@@ -5864,8 +5874,13 @@
                 statsArray.forEach((stat, index) => {
                     const row = document.createElement('tr');
                     row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                    
+                    // V9.10: Add ambulance icon if player is injured
+                    const isInjured = injuredPlayers.includes(stat.player);
+                    const ambulanceIcon = isInjured ? '🚑 ' : '';
+                    
                     row.innerHTML = `
-                        <td class="px-3 py-2 text-sm text-gray-900">${stat.player}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900">${ambulanceIcon}${stat.player}</td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center">${totalSessions}</td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${stat.presences}</td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${stat.percentage}%</td>
@@ -7606,12 +7621,13 @@
                 attendanceView.classList.remove('hidden');
             });
 
-            trainingAttendanceButton.addEventListener('click', () => {
-                console.log('📊 Opening Training Attendance View...');
-                hideAllScreens();
-                trainingAttendanceView.classList.remove('hidden');
-                loadTrainingAttendance(); // Load data when opening the view
-            });
+            // V9.10: Training attendance button event listener - COMMENTED OUT - Feature removed
+            // trainingAttendanceButton.addEventListener('click', () => {
+            //     console.log('📊 Opening Training Attendance View...');
+            //     hideAllScreens();
+            //     trainingAttendanceView.classList.remove('hidden');
+            //     loadTrainingAttendance(); // Load data when opening the view
+            // });
 
             allenamentiButton.addEventListener('click', () => {
                 console.log('🏃 Opening Allenamenti Management View... (V8.11)');
@@ -8825,34 +8841,34 @@
             // Expose debug function globally for console access
             window.debugMostraGiocatoriSalvati = debugMostraGiocatoriSalvati;
 
-            // Training attendance event listeners
-            const backFromTrainingAttendanceButton = document.getElementById('back-from-training-attendance-button');
-            const topBackFromTrainingAttendanceButton = document.getElementById('top-back-from-training-attendance-button');
-            const refreshTrainingButton = document.getElementById('refresh-training-button');
+            // V9.10: Training attendance event listeners - COMMENTED OUT - Feature removed
+            // const backFromTrainingAttendanceButton = document.getElementById('back-from-training-attendance-button');
+            // const topBackFromTrainingAttendanceButton = document.getElementById('top-back-from-training-attendance-button');
+            // const refreshTrainingButton = document.getElementById('refresh-training-button');
 
-            backFromTrainingAttendanceButton.addEventListener('click', () => {
-                trainingAttendanceView.classList.add('hidden');
-                // Always go back to company welcome screen since training attendance is only available from there
-                if (currentCompanyCode) {
-                    showCompanyWelcome();
-                } else {
-                    mainView.classList.remove('hidden');
-                }
-            });
+            // backFromTrainingAttendanceButton.addEventListener('click', () => {
+            //     trainingAttendanceView.classList.add('hidden');
+            //     // Always go back to company welcome screen since training attendance is only available from there
+            //     if (currentCompanyCode) {
+            //         showCompanyWelcome();
+            //     } else {
+            //         mainView.classList.remove('hidden');
+            //     }
+            // });
             
-            topBackFromTrainingAttendanceButton.addEventListener('click', () => {
-                trainingAttendanceView.classList.add('hidden');
-                // Always go back to company welcome screen since training attendance is only available from there
-                if (currentCompanyCode) {
-                    showCompanyWelcome();
-                } else {
-                    mainView.classList.remove('hidden');
-                }
-            });
+            // topBackFromTrainingAttendanceButton.addEventListener('click', () => {
+            //     trainingAttendanceView.classList.add('hidden');
+            //     // Always go back to company welcome screen since training attendance is only available from there
+            //     if (currentCompanyCode) {
+            //         showCompanyWelcome();
+            //     } else {
+            //         mainView.classList.remove('hidden');
+            //     }
+            // });
 
-            refreshTrainingButton.addEventListener('click', () => {
-                loadTrainingAttendance();
-            });
+            // refreshTrainingButton.addEventListener('click', () => {
+            //     loadTrainingAttendance();
+            // });
             
             // Allenamenti management event listeners (V8.2)
             const backFromAllenamentiButton = document.getElementById('back-from-allenamenti-button');
