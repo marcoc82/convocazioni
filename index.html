@@ -681,9 +681,9 @@
             <div class="mb-4">
                 <label for="history-period-select" class="block text-sm font-medium text-gray-700 mb-2">Filtra per periodo:</label>
                 <select id="history-period-select" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg">
-                    <option value="all">Tutti i periodi</option>
+                    <!-- V9.14: Options will be dynamically populated based on available history -->
                     <option value="week">Settimana corrente</option>
-                    <option value="month" selected>Mese corrente</option>
+                    <option value="all">Tutti i periodi</option>
                 </select>
             </div>
             
@@ -3466,6 +3466,9 @@
                 // Store all unfiltered history
                 allConvocationHistory = history;
                 
+                // V9.14: Populate month dropdown with available months
+                populateMonthDropdown();
+                
                 // Render with default filter (month)
                 renderFilteredHistory();
                 
@@ -3478,6 +3481,82 @@
                 }
             }
             
+            // V9.14: Function to populate month dropdown with all available months
+            function populateMonthDropdown() {
+                const periodSelect = document.getElementById('history-period-select');
+                if (!periodSelect || allConvocationHistory.length === 0) {
+                    return;
+                }
+                
+                // Extract all unique months from history
+                const monthsSet = new Set();
+                allConvocationHistory.forEach(item => {
+                    const matchDateStr = item.details.data;
+                    let dateToUse;
+                    
+                    if (matchDateStr && matchDateStr !== 'N/D') {
+                        dateToUse = new Date(matchDateStr + 'T00:00:00');
+                    } else {
+                        dateToUse = new Date(item.createdAt);
+                    }
+                    
+                    if (!isNaN(dateToUse.getTime())) {
+                        const monthKey = `${dateToUse.getFullYear()}-${String(dateToUse.getMonth() + 1).padStart(2, '0')}`;
+                        monthsSet.add(monthKey);
+                    }
+                });
+                
+                // Convert to array and sort (most recent first)
+                const monthsArray = Array.from(monthsSet).sort().reverse();
+                
+                // Get current month for default selection
+                const now = new Date();
+                const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                
+                // Store current selection before clearing
+                const currentValue = periodSelect.value;
+                
+                // Clear existing options
+                periodSelect.innerHTML = '';
+                
+                // Add "Settimana corrente" option
+                const weekOption = document.createElement('option');
+                weekOption.value = 'week';
+                weekOption.textContent = 'Settimana corrente';
+                periodSelect.appendChild(weekOption);
+                
+                // Add "Tutti i periodi" option
+                const allOption = document.createElement('option');
+                allOption.value = 'all';
+                allOption.textContent = 'Tutti i periodi';
+                periodSelect.appendChild(allOption);
+                
+                // Add individual month options
+                monthsArray.forEach(monthKey => {
+                    const option = document.createElement('option');
+                    option.value = monthKey;
+                    
+                    // Format month name in Italian
+                    const [year, month] = monthKey.split('-');
+                    const date = new Date(year, parseInt(month) - 1, 1);
+                    const monthName = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+                    const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+                    option.textContent = capitalizedMonthName;
+                    
+                    // Select current month by default (only on first load)
+                    if (monthKey === currentMonthKey && currentValue === 'month') {
+                        option.selected = true;
+                    }
+                    
+                    periodSelect.appendChild(option);
+                });
+                
+                // If previous selection was 'month' but we now have specific months, select current month
+                if (currentValue === 'month' && monthsArray.includes(currentMonthKey)) {
+                    periodSelect.value = currentMonthKey;
+                }
+            }
+            
             // Function to filter history by period
             function filterHistoryByPeriod(history, period) {
                 if (period === 'all') {
@@ -3485,6 +3564,10 @@
                 }
                 
                 const now = new Date();
+                
+                // V9.14: Check if period is a specific month (format: YYYY-MM)
+                const isSpecificMonth = /^\d{4}-\d{2}$/.test(period);
+                
                 return history.filter(item => {
                     // Use match date for filtering
                     const matchDateStr = item.details.data;
@@ -3506,6 +3589,11 @@
                         } else if (period === 'month') {
                             return createdDate.getMonth() === now.getMonth() && 
                                    createdDate.getFullYear() === now.getFullYear();
+                        } else if (isSpecificMonth) {
+                            // V9.14: Filter by specific month
+                            const [year, month] = period.split('-');
+                            return createdDate.getMonth() === parseInt(month) - 1 && 
+                                   createdDate.getFullYear() === parseInt(year);
                         }
                         return true;
                     }
@@ -3527,6 +3615,11 @@
                     } else if (period === 'month') {
                         return matchDate.getMonth() === now.getMonth() && 
                                matchDate.getFullYear() === now.getFullYear();
+                    } else if (isSpecificMonth) {
+                        // V9.14: Filter by specific month
+                        const [year, month] = period.split('-');
+                        return matchDate.getMonth() === parseInt(month) - 1 && 
+                               matchDate.getFullYear() === parseInt(year);
                     }
                     
                     return true;
@@ -3546,7 +3639,17 @@
                         'week': 'Settimana corrente',
                         'month': 'Mese corrente'
                     };
-                    filterDisplay.textContent = filterTexts[selectedPeriod] || 'Mese corrente';
+                    
+                    // V9.14: Handle specific month display
+                    if (/^\d{4}-\d{2}$/.test(selectedPeriod)) {
+                        const [year, month] = selectedPeriod.split('-');
+                        const date = new Date(year, parseInt(month) - 1, 1);
+                        const monthName = date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+                        const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+                        filterDisplay.textContent = capitalizedMonthName;
+                    } else {
+                        filterDisplay.textContent = filterTexts[selectedPeriod] || 'Mese corrente';
+                    }
                 }
                 
                 // Filter history
@@ -4121,82 +4224,18 @@
 
                 // Set demo convocation history for attendance filtering
                 convocationHistory = [...demoHistory];
+                allConvocationHistory = [...demoHistory]; // V9.14: Store all history for filtering
+                
+                // V9.14: Populate month dropdown with available months
+                populateMonthDropdown();
 
                 if (demoHistory.length === 0) {
                     historyList.innerHTML = '<p class="text-center text-gray-500">Nessuna convocazione registrata. (Modalità Demo)</p>';
                     return;
                 }
-
-                demoHistory.forEach(data => {
-                    const item = document.createElement('div');
-                    item.className = 'bg-white p-4 rounded-lg shadow-md border border-gray-200';
-                    const createdAt = new Date(data.createdAt);
-                    const formattedDate = createdAt.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
-                    const formattedTime = createdAt.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-
-                    // Format match date with uppercase day of week
-                    let formattedMatchDate = data.details.data;
-                    if (data.details.data !== 'N/D') {
-                        const matchDate = new Date(data.details.data + 'T00:00:00');
-                        const dayOfWeek = matchDate.toLocaleDateString('it-IT', { weekday: 'long' }).toUpperCase();
-                        const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
-                        const dateString = matchDate.toLocaleDateString('it-IT', dateOptions);
-                        formattedMatchDate = `${dayOfWeek} ${dateString}`;
-                    }
-
-                    item.innerHTML = `
-                        <div class="font-bold text-lg mb-2 text-gray-800">${data.details.avversario}</div>
-                        <div class="text-sm text-gray-600 mb-2">
-                            <p>Salvataggio: ${formattedDate} alle ${formattedTime}</p>
-                            <p>🏟️Campo: ${data.details.campo}</p>
-                            <p>📅 Data Partita: ${formattedMatchDate}</p>
-                            <p>🕒 Orario Convocazione: ${data.details.orarioConvocazione}</p>
-                            <p>🕒 Orario Partita: ${data.details.orarioPartita}</p>
-                            <p>Tipo: ${data.details.tipo || 'N/D'}</p>
-                            <p>👤 Mister Partita: ${data.details.misterPartita || 'N/D'}</p>
-                            <p>👤 Mister Tipo: ${data.details.misterTipo || 'N/D'}</p>
-                        </div>
-                        <div class="text-sm text-gray-700">
-                            <p class="font-semibold mb-1">Giocatori: (${data.players.length})</p>
-                            <ul class="list-disc list-inside space-y-0.5">
-                                ${data.players.map(p => {
-                                    if (typeof p === 'string') {
-                                        return `<li>${p}</li>`;
-                                    } else {
-                                        return `<li>${p.numero} ${p.nome}</li>`;
-                                    }
-                                }).join('')}
-                            </ul>
-                        </div>
-                        <div class="mt-3 flex gap-2">
-                            ${canShareHistory() ? `<button class="share-history-btn bg-blue-500 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded" data-convocation='${safeJSONStringify(data)}'>Condividi</button>` : ''}
-                            ${canAccessDistinta() ? `<button class="distinta-history-btn bg-green-500 hover:bg-green-700 text-white text-xs px-3 py-1 rounded" data-convocation='${safeJSONStringify(data)}'>Distinta</button>` : ''}
-                            ${isDirigente() ? `<button class="delete-history-btn bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 rounded" data-docid="${data.id}">Elimina (Demo)</button>` : ''}
-                        </div>
-                        <div class="mt-2 text-xs text-blue-600 italic">Modalità Demo - Dati di esempio</div>
-                    `;
-                    historyList.appendChild(item);
-                });
-
-                // Add demo event handlers
-                const shareButtons = historyList.querySelectorAll('.share-history-btn');
-                shareButtons.forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const convocationData = safeJSONParse(btn.getAttribute('data-convocation'));
-                        if (convocationData) {
-                            generateHistoryShareImage(convocationData);
-                        } else {
-                            showMessage("Errore nel recupero dei dati per la condivisione.", "text-red-600");
-                        }
-                    });
-                });
-
-                const deleteButtons = historyList.querySelectorAll('.delete-history-btn');
-                deleteButtons.forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        alert('Modalità Demo - La funzione di eliminazione non è disponibile');
-                    });
-                });
+                
+                // V9.14: Use renderFilteredHistory instead of manual rendering
+                renderFilteredHistory();
                 
                 // Update filtered attendance tables after loading demo history data
                 updateAttendanceTables();
@@ -9148,6 +9187,15 @@
                             return '#fecaca'; // default light red
                         }
                     });
+                    
+                    // V9.14: Fix text color for gradients containing white
+                    // If gradient contains white (#ffffff), use dark text for readability
+                    const hasWhite = colors.includes('#ffffff');
+                    if (hasWhite) {
+                        playerItem.style.color = '#1f2937'; // dark text
+                    } else {
+                        playerItem.style.color = '#ffffff'; // white text
+                    }
                     
                     // Create gradient with equal segments for each status
                     const step = 100 / colors.length;
