@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.5 - Improved player icon spacing, columnar name display (numero/nome/cognome), centered name box, filter assigned players from list -->
+<!-- Version: V9.7 - Black text on Campionato button for PIEVE, updated player color logic (dark blue for Sunday unavailable, red for weekend/1 training/zero trainings, white for 2 trainings) -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -124,6 +124,25 @@
             font-weight: bold;
             border-color: #7c3aed;
         }
+        /* V9.7: New color classes for updated player status logic */
+        .player-item.selected-marco-blue-dark {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            font-weight: bold;
+            border-color: #1e40af;
+        }
+        .player-item.selected-marco-red {
+            background-color: #dc2626;
+            color: #ffffff;
+            font-weight: bold;
+            border-color: #b91c1c;
+        }
+        .player-item.selected-marco-white {
+            background-color: #ffffff;
+            color: #1f2937;
+            font-weight: bold;
+            border-color: #d1d5db;
+        }
         /* Multi-status gradient styles */
         .player-item.multi-status {
             font-weight: bold;
@@ -135,7 +154,7 @@
             font-weight: normal;
             border-color: #9ca3af;
         }
-        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange):not(.selected-marco-black):not(.selected-marco-purple):not(.already-called-today):not(.multi-status) {
+        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange):not(.selected-marco-black):not(.selected-marco-purple):not(.selected-marco-blue-dark):not(.selected-marco-red):not(.selected-marco-white):not(.already-called-today):not(.multi-status) {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
@@ -236,7 +255,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.5</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.7</span>
             </div>
         </div>
 
@@ -1586,14 +1605,15 @@
                 if (isPolisPieveCompany) {
                     campionatoButton.classList.remove('hidden');
                     // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
-                    campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700');
-                    campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500');
-                    console.log('🎨 Campionato button color changed to yellow for PIEVE2010');
+                    // V9.7: Add text-black for better visibility on yellow background
+                    campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700', 'text-white');
+                    campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
+                    console.log('🎨 Campionato button color changed to yellow with black text for PIEVE2010');
                 } else {
                     campionatoButton.classList.add('hidden');
                     // Reset to purple if not PIEVE2010
-                    campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500');
-                    campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700');
+                    campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
+                    campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700', 'text-white');
                 }
                 
                 // Risultati button is always visible to all users (no conditional logic needed)
@@ -4823,14 +4843,15 @@
                     if (isPolisPieveCompany) {
                         campionatoButton.classList.remove('hidden');
                         // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
-                        campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700');
-                        campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500');
-                        console.log('🎨 Campionato button color changed to yellow for PIEVE2010');
+                        // V9.7: Add text-black for better visibility on yellow background
+                        campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700', 'text-white');
+                        campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
+                        console.log('🎨 Campionato button color changed to yellow with black text for PIEVE2010');
                     } else {
                         campionatoButton.classList.add('hidden');
                         // Reset to purple if not PIEVE2010
-                        campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500');
-                        campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700');
+                        campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
+                        campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700', 'text-white');
                     }
                     
                     // Risultati button is always visible to all users including guests (no conditional logic needed)
@@ -4865,14 +4886,15 @@
                     if (isPolisPieveCompany) {
                         campionatoButton.classList.remove('hidden');
                         // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
-                        campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700');
-                        campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500');
-                        console.log('🎨 Campionato button color changed to yellow for PIEVE2010');
+                        // V9.7: Add text-black for better visibility on yellow background
+                        campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700', 'text-white');
+                        campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
+                        console.log('🎨 Campionato button color changed to yellow with black text for PIEVE2010');
                     } else {
                         campionatoButton.classList.add('hidden');
                         // Reset to purple if not PIEVE2010
-                        campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500');
-                        campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700');
+                        campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
+                        campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700', 'text-white');
                     }
                     
                     console.log('🏢 Normal company login - full UI enabled');
@@ -8392,7 +8414,8 @@
                 if (selectedStatuses.length === 0) {
                     // No status selected - remove unavailability
                     unavailablePlayers.delete(tempPlayerName);
-                    currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'multi-status');
+                    // V9.7: Remove all status classes including new ones
+                    currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'selected-marco-blue-dark', 'selected-marco-red', 'selected-marco-white', 'multi-status');
                     currentPlayerItem.style.background = ''; // Clear any gradient
                 } else if (selectedStatuses.length === 1) {
                     // Single status - store as string for backward compatibility with V6.4 and earlier
@@ -8415,7 +8438,8 @@
                 const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
                 
                 unavailablePlayers.delete(tempPlayerName);
-                currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'multi-status');
+                // V9.7: Remove all status classes including new ones
+                currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'selected-marco-blue-dark', 'selected-marco-red', 'selected-marco-white', 'multi-status');
                 currentPlayerItem.style.background = ''; // Clear any gradient
                 
                 updateUnavailablePlayersView();
@@ -8425,42 +8449,57 @@
             
             // V6.5: Helper function to apply visual styles based on player statuses
             // Supports both single status (backward compatible) and multiple statuses (gradient)
+            // V9.7: Updated color logic for specific statuses
             function applyPlayerStatusStyle(playerItem, statuses) {
                 // Ensure statuses is always an array for consistent processing
                 const statusArray = Array.isArray(statuses) ? statuses : [statuses];
                 
                 // Remove all existing status classes
-                playerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'multi-status');
+                playerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'selected-marco-blue-dark', 'selected-marco-red', 'selected-marco-white', 'multi-status');
                 playerItem.style.background = ''; // Clear any gradient
                 
                 if (statusArray.length === 1) {
                     // Single status - apply single color class (backward compatible)
                     const status = statusArray[0];
+                    // V9.7: Updated color logic
                     if (status === 'Infortunato' || status === 'Squalificato') {
-                        playerItem.classList.add('selected-marco-black');
-                    } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
-                        playerItem.classList.add('selected-marco-purple');
-                    } else if (status === 'Solo 2 allenamenti' || status === 'Solo 1 allenamento') {
-                        playerItem.classList.add('selected-marco-orange');
-                    } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend') {
-                        playerItem.classList.add('selected-marco');
+                        playerItem.classList.add('selected-marco-black'); // Keep black for injured/suspended
+                    } else if (status === 'Non disponibile Domenica') {
+                        playerItem.classList.add('selected-marco-blue-dark'); // Dark blue for unavailable Sunday
+                    } else if (status === 'Non disponibile Sabato') {
+                        playerItem.classList.add('selected-marco-purple'); // Keep purple for unavailable Saturday
+                    } else if (status === 'Non disponibile Weekend') {
+                        playerItem.classList.add('selected-marco-red'); // Red for unavailable weekend
+                    } else if (status === 'Solo 1 allenamento') {
+                        playerItem.classList.add('selected-marco-red'); // Red for only 1 training
+                    } else if (status === 'Zero allenamenti') {
+                        playerItem.classList.add('selected-marco-red'); // Red for zero trainings
+                    } else if (status === 'Solo 2 allenamenti') {
+                        playerItem.classList.add('selected-marco-white'); // White for only 2 trainings
                     } else {
-                        playerItem.classList.add('selected-marco');
+                        playerItem.classList.add('selected-marco'); // Default red for other cases
                     }
                 } else {
                     // Multiple statuses - create gradient background (NEW in V6.5)
+                    // V9.7: Updated color mapping for gradients
                     playerItem.classList.add('multi-status');
                     const colors = statusArray.map(status => {
                         if (status === 'Infortunato' || status === 'Squalificato') {
                             return '#1f2937'; // black
-                        } else if (status === 'Non disponibile Sabato' || status === 'Non disponibile Domenica') {
+                        } else if (status === 'Non disponibile Domenica') {
+                            return '#1e3a8a'; // dark blue
+                        } else if (status === 'Non disponibile Sabato') {
                             return '#8b5cf6'; // purple
-                        } else if (status === 'Solo 2 allenamenti' || status === 'Solo 1 allenamento') {
-                            return '#fed7aa'; // orange
-                        } else if (status === 'Zero allenamenti' || status === 'Non disponibile Weekend') {
-                            return '#fecaca'; // red
+                        } else if (status === 'Non disponibile Weekend') {
+                            return '#dc2626'; // red
+                        } else if (status === 'Solo 1 allenamento') {
+                            return '#dc2626'; // red
+                        } else if (status === 'Zero allenamenti') {
+                            return '#dc2626'; // red
+                        } else if (status === 'Solo 2 allenamenti') {
+                            return '#ffffff'; // white
                         } else {
-                            return '#fecaca'; // default red
+                            return '#fecaca'; // default light red
                         }
                     });
                     
