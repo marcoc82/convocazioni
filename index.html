@@ -143,6 +143,13 @@
             font-weight: bold;
             border-color: #d1d5db;
         }
+        /* V9.10: Yellow color class for Squalificato status */
+        .player-item.selected-marco-yellow {
+            background-color: #fbbf24;
+            color: #1f2937;
+            font-weight: bold;
+            border-color: #f59e0b;
+        }
         /* Multi-status gradient styles */
         .player-item.multi-status {
             font-weight: bold;
@@ -154,7 +161,7 @@
             font-weight: normal;
             border-color: #9ca3af;
         }
-        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange):not(.selected-marco-black):not(.selected-marco-purple):not(.selected-marco-blue-dark):not(.selected-marco-red):not(.selected-marco-white):not(.already-called-today):not(.multi-status) {
+        .player-item:hover:not(.selected-mister):not(.selected-marco):not(.selected-marco-orange):not(.selected-marco-black):not(.selected-marco-purple):not(.selected-marco-blue-dark):not(.selected-marco-red):not(.selected-marco-white):not(.selected-marco-yellow):not(.already-called-today):not(.multi-status) {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
@@ -1138,13 +1145,13 @@
                 <div class="space-y-2 max-h-96 overflow-y-auto">
                     <label class="flex items-center p-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Infortunato" class="status-checkbox w-5 h-5 mr-3 rounded">
-                        <span class="flex-1 font-medium">Infortunato 🚑️</span>
+                        <span class="flex-1 font-medium">Infortunato 🚑</span>
                     </label>
-                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200">
+                    <label class="flex items-center p-3 bg-yellow-400 text-gray-900 rounded-lg hover:bg-yellow-500 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Squalificato" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Squalificato 🟥</span>
                     </label>
-                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200">
+                    <label class="flex items-center p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Non disponibile Sabato" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Non disponibile Sabato</span>
                     </label>
@@ -3946,6 +3953,13 @@
                         // Supports legacy single status (string) and new multiple statuses (array) with gradient
                         const statusArray = Array.isArray(status) ? status : [status];
                         applyPlayerStatusStyle(li, statusArray);
+                        
+                        // V9.10: Add icons for Infortunato and Squalificato in player badge
+                        if (statusArray.includes('Infortunato')) {
+                            li.textContent = `🚑 ${displayName}`;
+                        } else if (statusArray.includes('Squalificato')) {
+                            li.textContent = `🟥 ${displayName}`;
+                        }
                     }
 
                     li.addEventListener('click', () => {
@@ -4706,14 +4720,23 @@
                     const li = document.createElement('li');
                     // V6.5: Handle both single status (string) and multiple statuses (array)
                     // Multiple statuses are displayed comma-separated (e.g., "Squalificato, Non disponibile Domenica")
-                    const statusText = Array.isArray(status) ? status.join(', ') : status;
+                    const statusArray = Array.isArray(status) ? status : [status];
+                    const statusText = statusArray.join(', ');
+                    
+                    // V9.10: Add icons for Infortunato and Squalificato
+                    let playerDisplayName = player;
+                    if (statusArray.includes('Infortunato')) {
+                        playerDisplayName = `🚑 ${player}`;
+                    } else if (statusArray.includes('Squalificato')) {
+                        playerDisplayName = `🟥 ${player}`;
+                    }
                     
                     // V6.7: When Mister views the list, make player names bold
                     // V7.5: Also make player names bold for Dirigente view
                     if (userRole === 'mister' || isDirigente()) {
-                        li.innerHTML = `<strong class="font-bold">${player}</strong>: ${statusText}`;
+                        li.innerHTML = `<strong class="font-bold">${playerDisplayName}</strong>: ${statusText}`;
                     } else {
-                        li.textContent = `${player}: ${statusText}`;
+                        li.textContent = `${playerDisplayName}: ${statusText}`;
                     }
                     li.className = 'font-medium';
                     unavailablePlayersList.appendChild(li);
@@ -8579,21 +8602,21 @@
                 const statusArray = Array.isArray(statuses) ? statuses : [statuses];
                 
                 // Remove all existing status classes
-                playerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'selected-marco-blue-dark', 'selected-marco-red', 'selected-marco-white', 'multi-status');
+                playerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'selected-marco-blue-dark', 'selected-marco-red', 'selected-marco-white', 'selected-marco-yellow', 'multi-status');
                 playerItem.style.background = ''; // Clear any gradient
                 
                 if (statusArray.length === 1) {
                     // Single status - apply single color class (backward compatible)
                     const status = statusArray[0];
-                    // V9.9: Updated color logic
+                    // V9.10: Updated color logic
                     if (status === 'Infortunato') {
                         playerItem.classList.add('selected-marco-black'); // Black for injured
                     } else if (status === 'Squalificato') {
-                        playerItem.classList.add('selected-marco-red'); // Red for suspended
+                        playerItem.classList.add('selected-marco-yellow'); // Yellow for suspended
                     } else if (status === 'Non disponibile Domenica') {
                         playerItem.classList.add('selected-marco-blue-dark'); // Dark blue for unavailable Sunday
                     } else if (status === 'Non disponibile Sabato') {
-                        playerItem.classList.add('selected-marco-red'); // Red for unavailable Saturday
+                        playerItem.classList.add('selected-marco-purple'); // Purple for unavailable Saturday
                     } else if (status === 'Non disponibile Weekend') {
                         playerItem.classList.add('selected-marco-red'); // Red for unavailable weekend
                     } else if (status === 'Solo 1 allenamento') {
@@ -8607,17 +8630,17 @@
                     }
                 } else {
                     // Multiple statuses - create gradient background (NEW in V6.5)
-                    // V9.9: Updated color mapping for gradients
+                    // V9.10: Updated color mapping for gradients
                     playerItem.classList.add('multi-status');
                     const colors = statusArray.map(status => {
                         if (status === 'Infortunato') {
                             return '#1f2937'; // black
                         } else if (status === 'Squalificato') {
-                            return '#dc2626'; // red
+                            return '#fbbf24'; // yellow
                         } else if (status === 'Non disponibile Domenica') {
                             return '#1e3a8a'; // dark blue
                         } else if (status === 'Non disponibile Sabato') {
-                            return '#dc2626'; // red
+                            return '#8b5cf6'; // purple
                         } else if (status === 'Non disponibile Weekend') {
                             return '#dc2626'; // red
                         } else if (status === 'Solo 1 allenamento') {
