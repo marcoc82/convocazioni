@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.14 - History Filter & Multi-Status Text Fix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+        .player-item {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 2px solid;
+            font-weight: bold;
+        }
+        /* Multi-status gradient styles */
+        .player-item.multi-status {
+            font-weight: bold;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .demo-dropdown {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div style="max-width: 1200px; margin: auto;">
+        <h1 style="color: #1f2937; font-size: 28px; margin-bottom: 10px; font-weight: bold;">
+            🎨 V9.14 - Test Improvements
+        </h1>
+        <p style="color: #6b7280; margin-bottom: 30px;">
+            Testing history filter improvements and multi-status text color fix
+        </p>
+
+        <!-- Summary Section -->
+        <div class="test-section" style="background: #dbeafe; border-color: #3b82f6;">
+            <h2 style="color: #1e40af; font-size: 20px; margin-bottom: 15px;">📋 Riepilogo Modifiche V9.14</h2>
+            <ul style="list-style-type: disc; margin-left: 20px; line-height: 2;">
+                <li><strong>FILTRO STORICO:</strong> Dropdown con tutti i mesi disponibili invece di "Mese corrente" generico</li>
+                <li><strong>TESTO MULTI-STATUS:</strong> Testo scuro quando il gradiente include bianco (#ffffff)</li>
+                <li><strong>DEFAULT FILTER:</strong> Mese corrente selezionato di default all'apertura</li>
+                <li><strong>CHIAREZZA UI:</strong> Nome del mese visualizzato nell'indicatore filtro</li>
+            </ul>
+        </div>
+
+        <!-- Test 1: History Filter Dropdown -->
+        <div class="test-section">
+            <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+                ✅ Test 1: Filtro Storico - Dropdown Dinamico
+            </h2>
+            
+            <div style="margin-bottom: 20px;">
+                <p style="margin-bottom: 10px; font-weight: bold;">BEFORE (V9.13): Opzioni fisse</p>
+                <select class="demo-dropdown" disabled>
+                    <option>Tutti i periodi</option>
+                    <option>Settimana corrente</option>
+                    <option selected>Mese corrente</option>
+                </select>
+                <p style="color: #dc2626; margin-top: 5px; font-size: 14px;">❌ "Mese corrente" è generico - non si sa quale mese</p>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <p style="margin-bottom: 10px; font-weight: bold;">AFTER (V9.14): Opzioni dinamiche</p>
+                <select class="demo-dropdown" id="test-dropdown">
+                    <option>Settimana corrente</option>
+                    <option>Tutti i periodi</option>
+                    <option selected>Gennaio 2025</option>
+                    <option>Dicembre 2024</option>
+                    <option>Novembre 2024</option>
+                    <option>Ottobre 2024</option>
+                </select>
+                <p style="color: #16a34a; margin-top: 5px; font-size: 14px;">✅ Tutti i mesi disponibili + chiarezza su quale mese è visualizzato</p>
+            </div>
+        </div>
+
+        <!-- Test 2: Multi-Status Text Color Fix -->
+        <div class="test-section">
+            <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+                ✅ Test 2: Fix Testo Multi-Status con Bianco
+            </h2>
+            
+            <!-- Solo 2 allenamenti + Non disponibile Sabato -->
+            <div style="margin-bottom: 30px;">
+                <p style="margin-bottom: 10px; font-weight: bold;">Scenario: Solo 2 allenamenti + Non disponibile Sabato</p>
+                <div class="comparison-grid">
+                    <div>
+                        <p style="color: #dc2626; margin-bottom: 10px;">❌ BEFORE: Testo bianco su sfondo bianco (illeggibile)</p>
+                        <div class="player-item multi-status" style="background: linear-gradient(90deg, #ffffff 0%, #ffffff 50%, #8b5cf6 50%, #8b5cf6 100%); color: #ffffff;">
+                            14 GIALLI MARCO
+                        </div>
+                    </div>
+                    <div>
+                        <p style="color: #16a34a; margin-bottom: 10px;">✅ AFTER: Testo scuro su sfondo bianco (leggibile)</p>
+                        <div class="player-item multi-status" style="background: linear-gradient(90deg, #ffffff 0%, #ffffff 50%, #8b5cf6 50%, #8b5cf6 100%); color: #1f2937;">
+                            14 GIALLI MARCO
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solo 2 allenamenti + Zero allenamenti -->
+            <div style="margin-bottom: 30px;">
+                <p style="margin-bottom: 10px; font-weight: bold;">Scenario: Solo 2 allenamenti + Zero allenamenti</p>
+                <div class="comparison-grid">
+                    <div>
+                        <p style="color: #dc2626; margin-bottom: 10px;">❌ BEFORE: Testo bianco (illeggibile sulla parte bianca)</p>
+                        <div class="player-item multi-status" style="background: linear-gradient(90deg, #ffffff 0%, #ffffff 50%, #dc2626 50%, #dc2626 100%); color: #ffffff;">
+                            7 BIANCHI LUIGI
+                        </div>
+                    </div>
+                    <div>
+                        <p style="color: #16a34a; margin-bottom: 10px;">✅ AFTER: Testo scuro (leggibile su tutto il gradiente)</p>
+                        <div class="player-item multi-status" style="background: linear-gradient(90deg, #ffffff 0%, #ffffff 50%, #dc2626 50%, #dc2626 100%); color: #1f2937;">
+                            7 BIANCHI LUIGI
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-status senza bianco (unchanged) -->
+            <div style="margin-bottom: 20px;">
+                <p style="margin-bottom: 10px; font-weight: bold;">Scenario: Non disponibile Sabato + Infortunato (UNCHANGED)</p>
+                <div class="comparison-grid">
+                    <div>
+                        <p style="margin-bottom: 10px;">BEFORE: Testo bianco (corretto)</p>
+                        <div class="player-item multi-status" style="background: linear-gradient(90deg, #8b5cf6 0%, #8b5cf6 50%, #1f2937 50%, #1f2937 100%); color: #ffffff;">
+                            23 VERDI GIUSEPPE
+                        </div>
+                    </div>
+                    <div>
+                        <p style="margin-bottom: 10px;">AFTER: Testo bianco (unchanged - corretto)</p>
+                        <div class="player-item multi-status" style="background: linear-gradient(90deg, #8b5cf6 0%, #8b5cf6 50%, #1f2937 50%, #1f2937 100%); color: #ffffff;">
+                            23 VERDI GIUSEPPE
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 3: Filter Display Indicator -->
+        <div class="test-section">
+            <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+                ✅ Test 3: Indicatore Filtro Attivo
+            </h2>
+            
+            <div style="margin-bottom: 20px;">
+                <p style="margin-bottom: 10px; font-weight: bold;">Esempi di indicatori:</p>
+                <div style="display: grid; gap: 10px;">
+                    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
+                        <strong>ℹ️ Filtro attivo:</strong> <span class="font-semibold">Gennaio 2025</span>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
+                        <strong>ℹ️ Filtro attivo:</strong> <span class="font-semibold">Settimana corrente</span>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
+                        <strong>ℹ️ Filtro attivo:</strong> <span class="font-semibold">Tutti i periodi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="test-section" style="background: #dcfce7; border-color: #16a34a;">
+            <h2 style="color: #16a34a; font-size: 20px; margin-bottom: 15px;">
+                ✅ Checklist Modifiche Completate
+            </h2>
+            <ul style="list-style-type: none; margin-left: 0; line-height: 2;">
+                <li>✅ Dropdown dinamico con tutti i mesi disponibili</li>
+                <li>✅ Mese corrente selezionato di default</li>
+                <li>✅ Logica filtro aggiornata per supportare mesi specifici (formato YYYY-MM)</li>
+                <li>✅ Indicatore filtro mostra il nome del mese selezionato</li>
+                <li>✅ Fix testo multi-status: scuro (#1f2937) quando gradiente include bianco</li>
+                <li>✅ Testo multi-status: bianco (#ffffff) per altri gradienti (unchanged)</li>
+                <li>✅ populateMonthDropdown() chiamato in loadHistory() e loadHistoryDemo()</li>
+                <li>✅ Version bump: V9.12 → V9.14 in manifest.json</li>
+            </ul>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="test-section">
+            <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+                🔧 Dettagli Tecnici Implementazione
+            </h2>
+            <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.8;">
+                <li><strong>File Modificati:</strong> index.html, manifest.json</li>
+                <li><strong>Nuova Funzione:</strong> populateMonthDropdown() - genera opzioni dropdown dinamicamente</li>
+                <li><strong>Logica Filtro:</strong> filterHistoryByPeriod() aggiornato per supportare formato YYYY-MM</li>
+                <li><strong>Display Filtro:</strong> renderFilteredHistory() mostra nome mese capitalizzato</li>
+                <li><strong>Fix Multi-Status:</strong> applyPlayerStatusStyle() controlla se gradiente include #ffffff</li>
+                <li><strong>Colore Testo:</strong> #1f2937 (scuro) se bianco presente, #ffffff altrimenti</li>
+            </ul>
+        </div>
+
+        <!-- Example Implementation -->
+        <div class="test-section">
+            <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+                📝 Esempio Codice - Fix Multi-Status Text
+            </h2>
+            <pre style="background: #f3f4f6; padding: 15px; border-radius: 5px; overflow-x: auto; font-size: 12px;"><code>// V9.14: Fix text color for gradients containing white
+// If gradient contains white (#ffffff), use dark text for readability
+const hasWhite = colors.includes('#ffffff');
+if (hasWhite) {
+    playerItem.style.color = '#1f2937'; // dark text
+} else {
+    playerItem.style.color = '#ffffff'; // white text
+}</code></pre>
+        </div>
+
+        <!-- Test Interactive Demo -->
+        <div class="test-section">
+            <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+                🎮 Interactive Demo - Dropdown Filter
+            </h2>
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Seleziona un periodo:</label>
+                <select id="interactive-dropdown" class="demo-dropdown" onchange="updateIndicator()">
+                    <option>Settimana corrente</option>
+                    <option>Tutti i periodi</option>
+                    <option selected>Gennaio 2025</option>
+                    <option>Dicembre 2024</option>
+                    <option>Novembre 2024</option>
+                    <option>Ottobre 2024</option>
+                </select>
+            </div>
+            <div id="filter-indicator" class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
+                <strong>ℹ️ Filtro attivo:</strong> <span id="filter-text" class="font-semibold">Gennaio 2025</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateIndicator() {
+            const dropdown = document.getElementById('interactive-dropdown');
+            const filterText = document.getElementById('filter-text');
+            filterText.textContent = dropdown.value;
+        }
+    </script>
+</body>
+</html>
