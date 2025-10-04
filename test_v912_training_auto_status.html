@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.12 - Training Auto Status</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+            <h1 class="text-3xl font-bold text-center mb-2 text-blue-900">Test V9.12 - Training Auto Status</h1>
+            <p class="text-center text-gray-600 mb-4">Automatic Training Attendance Status Calculation & Disabled Manual Selection</p>
+            <p class="text-center text-sm text-gray-500">Data test: 2024-12-20</p>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+            <h2 class="text-xl font-bold text-green-800 mb-4">✅ Riepilogo Modifiche V9.12</h2>
+            <ul class="space-y-2 text-green-700">
+                <li>✓ <strong>Auto-calcolo:</strong> Stati allenamenti calcolati automaticamente in base alle presenze della settimana</li>
+                <li>✓ <strong>Tasti disabilitati:</strong> Zero/Solo 1/Solo 2 allenamenti NON modificabili manualmente</li>
+                <li>✓ <strong>Tasti manuali:</strong> Infortunato, Squalificato, Non disp. Weekend/Sabato/Domenica rimangono selezionabili</li>
+                <li>✓ <strong>Reset settimanale:</strong> Domenica sera reset automatico (mantiene logica esistente)</li>
+                <li>✓ <strong>Tooltip informativi:</strong> Icona ℹ️ spiega perché i tasti allenamento sono disabilitati</li>
+                <li>✓ <strong>Coerenza viste:</strong> Funziona in modalità Mister e Dirigente</li>
+            </ul>
+        </div>
+
+        <!-- Change 1: Auto-calculation Logic -->
+        <div class="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">📝 Modifica 1: Logica Auto-calcolo Presenze</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2 text-blue-700">Nuove Funzioni JavaScript:</h3>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <pre class="text-sm overflow-x-auto"><code>// V9.12: Calculate current week training attendance for each player
+function calculateCurrentWeekTrainingAttendance() {
+    // Filtra sessioni della settimana corrente (Lunedì-Domenica)
+    // Conta presenze per ogni giocatore
+    // Ritorna Map(playerKey => { attended, total })
+}
+
+// V9.12: Get automatic training status for a player
+function getAutomaticTrainingStatus(playerKey) {
+    const attendance = calculateCurrentWeekTrainingAttendance();
+    if (attended === 0) return 'Zero allenamenti';
+    if (attended === 1) return 'Solo 1 allenamento';
+    if (attended === 2) return 'Solo 2 allenamenti';
+    return null; // 3+ allenamenti, nessuno stato
+}</code></pre>
+                    </div>
+                </div>
+                <div class="bg-blue-100 p-3 rounded">
+                    <p class="text-sm text-blue-800"><strong>💡 Nota:</strong> Il calcolo avviene in tempo reale ad ogni render dei giocatori, garantendo sempre dati aggiornati.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 2: Disabled Training Checkboxes -->
+        <div class="mb-8 p-6 bg-purple-50 rounded-xl border border-purple-200">
+            <h2 class="text-xl font-semibold text-purple-800 mb-4">📝 Modifica 2: Tasti Allenamenti Disabilitati</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2 text-purple-700">❌ Prima (V9.11 - Cliccabili):</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center p-3 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+                        </label>
+                        <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Solo 1 allenamento</span>
+                        </label>
+                        <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2 text-purple-700">✅ Dopo (V9.12 - Disabilitati con tooltip):</h3>
+                    <div class="space-y-2">
+                        <div class="relative">
+                            <label class="flex items-center p-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed opacity-60" title="Calcolato automaticamente in base alle presenze agli allenamenti">
+                                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                                <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+                            </label>
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600">
+                                <span title="Calcolato automaticamente in base alle presenze agli allenamenti">ℹ️</span>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <label class="flex items-center p-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed opacity-60" title="Calcolato automaticamente in base alle presenze agli allenamenti">
+                                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                                <span class="flex-1 font-medium">Solo 1 allenamento</span>
+                            </label>
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600">
+                                <span title="Calcolato automaticamente in base alle presenze agli allenamenti">ℹ️</span>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <label class="flex items-center p-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed opacity-60" title="Calcolato automaticamente in base alle presenze agli allenamenti">
+                                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                                <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+                            </label>
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600">
+                                <span title="Calcolato automaticamente in base alle presenze agli allenamenti">ℹ️</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                            <p><strong>ℹ️ Nota:</strong> Gli stati degli allenamenti sono calcolati automaticamente in base alle presenze della settimana corrente e non possono essere modificati manualmente.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 3: Manual Statuses Still Active -->
+        <div class="mb-8 p-6 bg-green-50 rounded-xl border border-green-200">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">📝 Modifica 3: Stati Manuali Rimangono Attivi</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2 text-green-700">✅ Questi tasti rimangono cliccabili:</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center p-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Infortunato 🚑</span>
+                        </label>
+                        <label class="flex items-center p-3 bg-yellow-400 text-gray-900 rounded-lg hover:bg-yellow-500 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Squalificato 🟥</span>
+                        </label>
+                        <label class="flex items-center p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Non disponibile Sabato</span>
+                        </label>
+                        <label class="flex items-center p-3 bg-blue-900 text-white rounded-lg hover:bg-blue-950 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Non disponibile Domenica</span>
+                        </label>
+                        <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Non disponibile Weekend</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="bg-green-100 p-3 rounded">
+                    <p class="text-sm text-green-800"><strong>💡 Il dirigente può continuare a selezionare manualmente:</strong> Infortunato, Squalificato, Non disponibile Weekend/Sabato/Domenica</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 4: Combined Status Display -->
+        <div class="mb-8 p-6 bg-orange-50 rounded-xl border border-orange-200">
+            <h2 class="text-xl font-semibold text-orange-800 mb-4">📝 Modifica 4: Visualizzazione Stati Combinati</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2 text-orange-700">Esempio: Giocatore con stato manuale + auto</h3>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <p class="mb-2"><strong>Scenario:</strong></p>
+                        <ul class="list-disc ml-6 space-y-1 text-sm">
+                            <li>Dirigente seleziona: <span class="font-semibold text-purple-700">Non disponibile Sabato</span></li>
+                            <li>Sistema calcola: <span class="font-semibold text-red-700">Solo 1 allenamento</span> (basato su presenze)</li>
+                        </ul>
+                        <p class="mt-3 mb-2"><strong>Risultato:</strong></p>
+                        <div class="p-3 bg-gradient-to-r from-purple-600 via-purple-600 to-red-600 text-white rounded-lg font-medium text-center">
+                            10 ROSSI MARIO
+                        </div>
+                        <p class="text-xs text-gray-600 mt-2">Badge mostra gradient con entrambi gli stati. Lista indisponibili mostra: "Non disponibile Sabato, Solo 1 allenamento"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 5: Weekly Reset -->
+        <div class="mb-8 p-6 bg-yellow-50 rounded-xl border border-yellow-200">
+            <h2 class="text-xl font-semibold text-yellow-800 mb-4">📝 Modifica 5: Reset Settimanale (Invariato)</h2>
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-lg border">
+                    <p class="mb-2"><strong>Funzionalità esistente mantenuta:</strong></p>
+                    <ul class="list-disc ml-6 space-y-1 text-sm">
+                        <li>Reset automatico ogni <strong>Lunedì alle 00:00</strong></li>
+                        <li>Cancella gli stati manuali salvati in Firebase</li>
+                        <li>Gli stati allenamenti vengono ricalcolati automaticamente in base alle nuove presenze</li>
+                        <li>Funziona per sia Mister che Dirigente</li>
+                    </ul>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded">
+                    <p class="text-sm text-yellow-800"><strong>⚠️ Importante:</strong> La logica di reset settimanale esistente (checkAndResetWeeklyUnavailability) non è stata modificata.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">🔧 Dettagli Tecnici</h2>
+            <div class="space-y-3">
+                <div class="bg-white p-3 rounded border">
+                    <h3 class="font-semibold text-gray-700 mb-2">Funzioni Modificate:</h3>
+                    <ul class="list-disc ml-6 space-y-1 text-sm text-gray-600">
+                        <li><code>renderPlayers()</code> - Applica stati auto + manuali</li>
+                        <li><code>showModal()</code> - Mostra checkbox allenamenti disabilitati ma checked se auto-calcolati</li>
+                        <li><code>confirmStatusButton handler</code> - Filtra stati allenamenti (non salva mai manualmente)</li>
+                        <li><code>updateUnavailablePlayersView()</code> - Mostra stati combinati nella lista</li>
+                        <li><code>saveSessionAttendance()</code> - Ricarica giocatori dopo salvataggio presenze</li>
+                        <li><code>saveNewTrainingSession()</code> - Ricarica giocatori dopo nuova sessione</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-3 rounded border">
+                    <h3 class="font-semibold text-gray-700 mb-2">Nuove Funzioni:</h3>
+                    <ul class="list-disc ml-6 space-y-1 text-sm text-gray-600">
+                        <li><code>calculateCurrentWeekTrainingAttendance()</code> - Calcola presenze settimana corrente per player</li>
+                        <li><code>getAutomaticTrainingStatus(playerKey)</code> - Ritorna stato auto-calcolato o null</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-3 rounded border">
+                    <h3 class="font-semibold text-gray-700 mb-2">Versione Aggiornata:</h3>
+                    <ul class="list-disc ml-6 space-y-1 text-sm text-gray-600">
+                        <li><code>index.html</code> - V9.12</li>
+                        <li><code>manifest.json</code> - V9.12</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Checklist -->
+        <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+            <h2 class="text-xl font-bold text-blue-800 mb-4">✅ Checklist Test</h2>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Stati allenamenti calcolati automaticamente in base a presenze settimana</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Checkbox allenamenti disabilitati nel modal (grigio, cursor-not-allowed)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Tooltip ℹ️ visibile sui tasti disabilitati</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Nota informativa blu visibile nel modal</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Stati manuali (Infortunato, Squalificato, ecc.) ancora selezionabili</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Badge giocatori mostrano colori corretti per stati combinati</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Lista indisponibili mostra stati auto + manuali</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Stati si aggiornano dopo salvataggio presenze allenamento</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Stati si aggiornano dopo creazione nuova sessione allenamento</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Funziona in modalità Dirigente</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Funziona in modalità Mister (visualizzazione stati)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Reset settimanale continua a funzionare (Lunedì 00:00)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Versione aggiornata a V9.12 (index.html)</span>
+                </label>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600">
+                    <span>Versione aggiornata a V9.12 (manifest.json)</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- User Flow Example -->
+        <div class="mt-6 p-6 bg-indigo-50 rounded-xl border border-indigo-200">
+            <h2 class="text-xl font-semibold text-indigo-800 mb-4">🎬 Flusso Utente Esempio</h2>
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-lg border">
+                    <p class="font-semibold mb-2">Settimana 1 - Lunedì:</p>
+                    <ol class="list-decimal ml-6 space-y-1 text-sm">
+                        <li>Dirigente crea allenamento Martedì ore 18:00</li>
+                        <li>Salva presenze: ROSSI (presente), BIANCHI (assente), VERDI (presente)</li>
+                        <li>Sistema calcola automaticamente: BIANCHI ha "Zero allenamenti"</li>
+                        <li>Badge BIANCHI diventa rosso automaticamente</li>
+                    </ol>
+                </div>
+                <div class="bg-white p-4 rounded-lg border">
+                    <p class="font-semibold mb-2">Settimana 1 - Mercoledì:</p>
+                    <ol class="list-decimal ml-6 space-y-1 text-sm">
+                        <li>Dirigente crea allenamento Mercoledì ore 18:30</li>
+                        <li>Salva presenze: ROSSI (presente), BIANCHI (presente), VERDI (assente)</li>
+                        <li>Sistema ricalcola: BIANCHI ora ha "Solo 1 allenamento", VERDI ha "Solo 1 allenamento"</li>
+                        <li>Badge si aggiornano automaticamente</li>
+                    </ol>
+                </div>
+                <div class="bg-white p-4 rounded-lg border">
+                    <p class="font-semibold mb-2">Settimana 1 - Giovedì:</p>
+                    <ol class="list-decimal ml-6 space-y-1 text-sm">
+                        <li>Dirigente apre modal per BIANCHI</li>
+                        <li>Vede "Solo 1 allenamento" già checked ma disabilitato (grigio)</li>
+                        <li>Seleziona manualmente "Infortunato 🚑"</li>
+                        <li>Badge BIANCHI mostra gradient nero+rosso (Infortunato + Solo 1 allenamento)</li>
+                    </ol>
+                </div>
+                <div class="bg-white p-4 rounded-lg border">
+                    <p class="font-semibold mb-2">Settimana 2 - Lunedì 00:00:</p>
+                    <ol class="list-decimal ml-6 space-y-1 text-sm">
+                        <li>Sistema esegue reset automatico</li>
+                        <li>Cancella stati manuali (Infortunato di BIANCHI)</li>
+                        <li>Stati allenamenti vengono ricalcolati da zero per la nuova settimana</li>
+                        <li>Tutti badge tornano bianco (nessuno stato fino a nuovi allenamenti)</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
