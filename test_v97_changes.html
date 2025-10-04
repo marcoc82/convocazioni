@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.7 Changes - Campionato Button & Player Colors</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .player-item {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 2px solid;
+            font-weight: bold;
+        }
+        /* Original color classes */
+        .selected-marco {
+            background-color: #fecaca;
+            color: #b91c1c;
+            border-color: #ef4444;
+        }
+        .selected-marco-orange {
+            background-color: #fed7aa;
+            color: #ea580c;
+            border-color: #f97316;
+        }
+        .selected-marco-black {
+            background-color: #1f2937;
+            color: #ffffff;
+            border-color: #374151;
+        }
+        .selected-marco-purple {
+            background-color: #8b5cf6;
+            color: #ffffff;
+            border-color: #7c3aed;
+        }
+        /* V9.7: New color classes */
+        .selected-marco-blue-dark {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            border-color: #1e40af;
+        }
+        .selected-marco-red {
+            background-color: #dc2626;
+            color: #ffffff;
+            border-color: #b91c1c;
+        }
+        .selected-marco-white {
+            background-color: #ffffff;
+            color: #1f2937;
+            border-color: #d1d5db;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: #1e293b; font-size: 28px; font-weight: bold; margin-bottom: 20px;">
+        🎨 Test V9.7 Changes - Visual Verification
+    </h1>
+
+    <!-- Test 1: Campionato Button -->
+    <div class="test-section">
+        <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+            ✅ Test 1: Campionato Button for PIEVE2010
+        </h2>
+        <p style="margin-bottom: 10px;"><strong>Requirement:</strong> Yellow background with BLACK text</p>
+        
+        <div class="comparison-grid">
+            <div>
+                <p style="color: #dc2626; margin-bottom: 10px;">❌ BEFORE (V9.5):</p>
+                <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-3 px-6 rounded-lg">
+                    ⚽ Campionato (white text)
+                </button>
+            </div>
+            <div>
+                <p style="color: #16a34a; margin-bottom: 10px;">✅ AFTER (V9.7):</p>
+                <button class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg">
+                    ⚽ Campionato (black text)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test 2: Player Color Logic -->
+    <div class="test-section">
+        <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+            ✅ Test 2: Player Color Logic Changes
+        </h2>
+        
+        <!-- Non disponibile Domenica -->
+        <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px;"><strong>Status: Non disponibile Domenica</strong></p>
+            <div class="comparison-grid">
+                <div>
+                    <p style="color: #dc2626; margin-bottom: 5px;">❌ BEFORE: Purple</p>
+                    <div class="player-item selected-marco-purple">
+                        10 ROSSI MARIO
+                    </div>
+                </div>
+                <div>
+                    <p style="color: #16a34a; margin-bottom: 5px;">✅ AFTER: Dark Blue</p>
+                    <div class="player-item selected-marco-blue-dark">
+                        10 ROSSI MARIO
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Non disponibile Weekend -->
+        <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px;"><strong>Status: Non disponibile Weekend</strong></p>
+            <div class="comparison-grid">
+                <div>
+                    <p style="color: #dc2626; margin-bottom: 5px;">❌ BEFORE: Light Red</p>
+                    <div class="player-item selected-marco">
+                        11 BIANCHI LUCA
+                    </div>
+                </div>
+                <div>
+                    <p style="color: #16a34a; margin-bottom: 5px;">✅ AFTER: Red</p>
+                    <div class="player-item selected-marco-red">
+                        11 BIANCHI LUCA
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Solo 1 allenamento -->
+        <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px;"><strong>Status: Solo 1 allenamento</strong></p>
+            <div class="comparison-grid">
+                <div>
+                    <p style="color: #dc2626; margin-bottom: 5px;">❌ BEFORE: Orange</p>
+                    <div class="player-item selected-marco-orange">
+                        12 VERDI PAOLO
+                    </div>
+                </div>
+                <div>
+                    <p style="color: #16a34a; margin-bottom: 5px;">✅ AFTER: Red</p>
+                    <div class="player-item selected-marco-red">
+                        12 VERDI PAOLO
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zero allenamenti -->
+        <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px;"><strong>Status: Zero allenamenti</strong></p>
+            <div class="comparison-grid">
+                <div>
+                    <p style="color: #dc2626; margin-bottom: 5px;">❌ BEFORE: Light Red</p>
+                    <div class="player-item selected-marco">
+                        13 NERI ANDREA
+                    </div>
+                </div>
+                <div>
+                    <p style="color: #16a34a; margin-bottom: 5px;">✅ AFTER: Red</p>
+                    <div class="player-item selected-marco-red">
+                        13 NERI ANDREA
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Solo 2 allenamenti -->
+        <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px;"><strong>Status: Solo 2 allenamenti</strong></p>
+            <div class="comparison-grid">
+                <div>
+                    <p style="color: #dc2626; margin-bottom: 5px;">❌ BEFORE: Orange</p>
+                    <div class="player-item selected-marco-orange">
+                        14 GIALLI MARCO
+                    </div>
+                </div>
+                <div>
+                    <p style="color: #16a34a; margin-bottom: 5px;">✅ AFTER: White</p>
+                    <div class="player-item selected-marco-white">
+                        14 GIALLI MARCO
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unchanged: Infortunato/Squalificato -->
+        <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px;"><strong>Status: Infortunato/Squalificato (UNCHANGED)</strong></p>
+            <div class="comparison-grid">
+                <div>
+                    <p style="margin-bottom: 5px;">BEFORE: Black</p>
+                    <div class="player-item selected-marco-black">
+                        15 ROSA GIOVANNI
+                    </div>
+                </div>
+                <div>
+                    <p style="margin-bottom: 5px;">AFTER: Black</p>
+                    <div class="player-item selected-marco-black">
+                        15 ROSA GIOVANNI
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unchanged: Non disponibile Sabato -->
+        <div style="margin-bottom: 20px;">
+            <p style="margin-bottom: 10px;"><strong>Status: Non disponibile Sabato (UNCHANGED)</strong></p>
+            <div class="comparison-grid">
+                <div>
+                    <p style="margin-bottom: 5px;">BEFORE: Purple</p>
+                    <div class="player-item selected-marco-purple">
+                        16 VIOLA STEFANO
+                    </div>
+                </div>
+                <div>
+                    <p style="margin-bottom: 5px;">AFTER: Purple</p>
+                    <div class="player-item selected-marco-purple">
+                        16 VIOLA STEFANO
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="test-section" style="background: #dcfce7; border-color: #16a34a;">
+        <h2 style="color: #16a34a; font-size: 20px; margin-bottom: 15px;">
+            ✅ Summary of V9.7 Changes
+        </h2>
+        <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.8;">
+            <li><strong>Campionato Button:</strong> Added text-black class when shown for PIEVE2010 (yellow bg + black text)</li>
+            <li><strong>Non disponibile Domenica:</strong> Purple → Dark Blue (#1e3a8a)</li>
+            <li><strong>Non disponibile Weekend:</strong> Light Red → Red (#dc2626)</li>
+            <li><strong>Solo 1 allenamento:</strong> Orange → Red (#dc2626)</li>
+            <li><strong>Zero allenamenti:</strong> Light Red → Red (#dc2626)</li>
+            <li><strong>Solo 2 allenamenti:</strong> Orange → White (#ffffff)</li>
+            <li><strong>Infortunato/Squalificato:</strong> Black (unchanged)</li>
+            <li><strong>Non disponibile Sabato:</strong> Purple (unchanged)</li>
+        </ul>
+    </div>
+
+    <!-- Technical Details -->
+    <div class="test-section">
+        <h2 style="color: #3b82f6; font-size: 20px; margin-bottom: 15px;">
+            🔧 Technical Implementation Details
+        </h2>
+        <ul style="list-style-type: disc; margin-left: 20px; line-height: 1.8;">
+            <li><strong>Files Modified:</strong> index.html, manifest.json</li>
+            <li><strong>New CSS Classes:</strong> .selected-marco-blue-dark, .selected-marco-red, .selected-marco-white</li>
+            <li><strong>Functions Updated:</strong> applyPlayerStatusStyle(), clearStatusButton event listener</li>
+            <li><strong>Campionato Button:</strong> Updated in 3 locations (normal login, guest login, alternative login)</li>
+            <li><strong>Version:</strong> V9.5 → V9.7</li>
+        </ul>
+    </div>
+</body>
+</html>
