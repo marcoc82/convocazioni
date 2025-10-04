@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Filtro Storico Convocazioni</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Test Filtro Storico Convocazioni</h1>
+        
+        <!-- Feature Overview -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+            <h2 class="text-lg font-semibold text-blue-800 mb-2">✨ Nuova Funzionalità</h2>
+            <ul class="list-disc list-inside space-y-1 text-sm text-blue-900">
+                <li><strong>Filtro per periodo:</strong> Visualizza convocazioni per settimana o mese corrente</li>
+                <li><strong>Default: Mese corrente</strong> - All'apertura mostra solo il mese corrente</li>
+                <li><strong>UI intuitiva:</strong> Dropdown chiaro con indicatore del filtro attivo</li>
+            </ul>
+        </div>
+
+        <!-- History View Simulation -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+            <button class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                Indietro
+            </button>
+            
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Storico Convocazioni</h2>
+            
+            <!-- Period Filter -->
+            <div class="mb-4">
+                <label for="history-period-select" class="block text-sm font-medium text-gray-700 mb-2">Filtra per periodo:</label>
+                <select id="history-period-select" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg">
+                    <option value="all">Tutti i periodi</option>
+                    <option value="week">Settimana corrente</option>
+                    <option value="month" selected>Mese corrente</option>
+                </select>
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800 mb-4">
+                <strong>ℹ️ Filtro attivo:</strong> <span id="history-filter-display" class="font-semibold">Mese corrente</span>
+            </div>
+            
+            <!-- History List -->
+            <div id="history-list" class="space-y-4">
+                <!-- Sample history items will be added here -->
+            </div>
+            
+            <button class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                Indietro
+            </button>
+        </div>
+
+        <!-- Test Instructions -->
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 mt-6">
+            <h2 class="text-lg font-semibold text-green-800 mb-2">🧪 Come Testare</h2>
+            <ol class="list-decimal list-inside space-y-2 text-sm text-green-900">
+                <li>All'apertura, il filtro è impostato su "Mese corrente" (default)</li>
+                <li>Vengono mostrate solo le convocazioni del mese corrente (3 convocazioni)</li>
+                <li>Cambia il filtro a "Settimana corrente" per vedere solo le convocazioni di questa settimana (1 convocazione)</li>
+                <li>Cambia il filtro a "Tutti i periodi" per vedere tutte le convocazioni storiche (6 convocazioni)</li>
+                <li>L'indicatore "Filtro attivo" si aggiorna automaticamente</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Sample convocation history data
+        const allHistory = [
+            {
+                id: 1,
+                createdAt: '2024-12-18T10:00:00',
+                details: {
+                    avversario: 'Squadra A',
+                    campo: 'Campo Comunale',
+                    data: '2024-12-20',
+                    orarioConvocazione: '14:30',
+                    orarioPartita: '15:00',
+                    tipo: 'Campionato',
+                    misterPartita: 'Rossi',
+                    misterTipo: 'Primo'
+                },
+                players: ['1 BIANCHI', '2 VERDI', '3 NERI', '4 GIALLI', '5 ROSA', '6 BLU']
+            },
+            {
+                id: 2,
+                createdAt: '2024-12-15T11:00:00',
+                details: {
+                    avversario: 'Squadra B',
+                    campo: 'Campo Sportivo',
+                    data: '2024-12-17',
+                    orarioConvocazione: '16:00',
+                    orarioPartita: '16:30',
+                    tipo: 'Amichevole',
+                    misterPartita: 'Bianchi',
+                    misterTipo: 'Secondo'
+                },
+                players: ['1 BIANCHI', '3 NERI', '5 ROSA', '7 VERDE', '8 ROSSO']
+            },
+            {
+                id: 3,
+                createdAt: '2024-12-10T09:00:00',
+                details: {
+                    avversario: 'Squadra C',
+                    campo: 'Stadio Principale',
+                    data: '2024-12-12',
+                    orarioConvocazione: '14:00',
+                    orarioPartita: '14:30',
+                    tipo: 'Torneo',
+                    misterPartita: 'Verdi',
+                    misterTipo: 'Primo'
+                },
+                players: ['2 VERDI', '4 GIALLI', '6 BLU', '9 ARANCIONE']
+            },
+            {
+                id: 4,
+                createdAt: '2024-11-28T10:00:00',
+                details: {
+                    avversario: 'Squadra D',
+                    campo: 'Campo Centrale',
+                    data: '2024-11-30',
+                    orarioConvocazione: '15:00',
+                    orarioPartita: '15:30',
+                    tipo: 'Campionato',
+                    misterPartita: 'Neri',
+                    misterTipo: 'Primo'
+                },
+                players: ['1 BIANCHI', '2 VERDI', '5 ROSA', '8 ROSSO', '10 VIOLA']
+            },
+            {
+                id: 5,
+                createdAt: '2024-11-15T12:00:00',
+                details: {
+                    avversario: 'Squadra E',
+                    campo: 'Campo Sportivo 2',
+                    data: '2024-11-18',
+                    orarioConvocazione: '16:30',
+                    orarioPartita: '17:00',
+                    tipo: 'Amichevole',
+                    misterPartita: 'Gialli',
+                    misterTipo: 'Secondo'
+                },
+                players: ['3 NERI', '4 GIALLI', '6 BLU', '7 VERDE', '11 MARRONE']
+            },
+            {
+                id: 6,
+                createdAt: '2024-10-20T14:00:00',
+                details: {
+                    avversario: 'Squadra F',
+                    campo: 'Campo Comunale',
+                    data: '2024-10-25',
+                    orarioConvocazione: '14:00',
+                    orarioPartita: '14:30',
+                    tipo: 'Torneo',
+                    misterPartita: 'Rosa',
+                    misterTipo: 'Primo'
+                },
+                players: ['1 BIANCHI', '3 NERI', '5 ROSA', '9 ARANCIONE', '12 GRIGIO']
+            }
+        ];
+
+        const historyList = document.getElementById('history-list');
+        const historyPeriodSelect = document.getElementById('history-period-select');
+        const filterDisplay = document.getElementById('history-filter-display');
+
+        // Filter history by period
+        function filterHistoryByPeriod(history, period) {
+            if (period === 'all') {
+                return history;
+            }
+            
+            const now = new Date();
+            return history.filter(item => {
+                const matchDateStr = item.details.data;
+                if (!matchDateStr || matchDateStr === 'N/D') {
+                    const createdDate = new Date(item.createdAt);
+                    if (period === 'week') {
+                        const startOfWeek = new Date(now);
+                        const day = startOfWeek.getDay();
+                        const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+                        startOfWeek.setDate(diff);
+                        startOfWeek.setHours(0, 0, 0, 0);
+                        
+                        const endOfWeek = new Date(startOfWeek);
+                        endOfWeek.setDate(startOfWeek.getDate() + 6);
+                        endOfWeek.setHours(23, 59, 59, 999);
+                        
+                        return createdDate >= startOfWeek && createdDate <= endOfWeek;
+                    } else if (period === 'month') {
+                        return createdDate.getMonth() === now.getMonth() && 
+                               createdDate.getFullYear() === now.getFullYear();
+                    }
+                    return true;
+                }
+                
+                const matchDate = new Date(matchDateStr + 'T00:00:00');
+                
+                if (period === 'week') {
+                    const startOfWeek = new Date(now);
+                    const day = startOfWeek.getDay();
+                    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+                    startOfWeek.setDate(diff);
+                    startOfWeek.setHours(0, 0, 0, 0);
+                    
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    endOfWeek.setHours(23, 59, 59, 999);
+                    
+                    return matchDate >= startOfWeek && matchDate <= endOfWeek;
+                } else if (period === 'month') {
+                    return matchDate.getMonth() === now.getMonth() && 
+                           matchDate.getFullYear() === now.getFullYear();
+                }
+                
+                return true;
+            });
+        }
+
+        // Render filtered history
+        function renderFilteredHistory() {
+            const selectedPeriod = historyPeriodSelect.value;
+            
+            // Update filter display text
+            const filterTexts = {
+                'all': 'Tutti i periodi',
+                'week': 'Settimana corrente',
+                'month': 'Mese corrente'
+            };
+            filterDisplay.textContent = filterTexts[selectedPeriod] || 'Mese corrente';
+            
+            // Filter history
+            const filteredHistory = filterHistoryByPeriod(allHistory, selectedPeriod);
+            
+            // Clear history list
+            historyList.innerHTML = '';
+            
+            // Check if filtered result is empty
+            if (filteredHistory.length === 0) {
+                historyList.innerHTML = '<p class="text-center text-gray-500">Nessuna convocazione trovata per il periodo selezionato.</p>';
+                return;
+            }
+            
+            // Render each history item
+            filteredHistory.forEach(data => {
+                const item = document.createElement('div');
+                item.className = 'bg-white p-4 rounded-lg shadow-md border border-gray-200';
+                const createdAt = new Date(data.createdAt);
+                const formattedDate = createdAt.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+                const formattedTime = createdAt.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+                // Format match date with uppercase day of week
+                let formattedMatchDate = data.details.data;
+                if (data.details.data !== 'N/D') {
+                    const matchDate = new Date(data.details.data + 'T00:00:00');
+                    const dayOfWeek = matchDate.toLocaleDateString('it-IT', { weekday: 'long' }).toUpperCase();
+                    const dateOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+                    const dateString = matchDate.toLocaleDateString('it-IT', dateOptions);
+                    formattedMatchDate = `${dayOfWeek} ${dateString}`;
+                }
+
+                item.innerHTML = `
+                    <div class="font-bold text-lg mb-2 text-gray-800">${data.details.avversario}</div>
+                    <div class="text-sm text-gray-600 mb-2">
+                        <p>Salvataggio: ${formattedDate} alle ${formattedTime}</p>
+                        <p>🏟️ Campo: ${data.details.campo}</p>
+                        <p>📅 Data Partita: ${formattedMatchDate}</p>
+                        <p>🕒 Orario Convocazione: ${data.details.orarioConvocazione}</p>
+                        <p>🕒 Orario Partita: ${data.details.orarioPartita}</p>
+                        <p>Tipo: ${data.details.tipo || 'N/D'}</p>
+                        <p>👤 Mister: ${data.details.misterPartita || 'N/D'}</p>
+                    </div>
+                    <div class="text-sm text-gray-700">
+                        <p class="font-semibold mb-1">Giocatori: (${data.players.length})</p>
+                        <ul class="list-disc list-inside space-y-0.5">
+                            ${data.players.map(p => `<li>${p}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="mt-3 flex gap-2 flex-wrap">
+                        <button class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs px-3 py-1 rounded">Modifica</button>
+                        <button class="bg-blue-500 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded">Condividi</button>
+                        <button class="bg-green-500 hover:bg-green-700 text-white text-xs px-3 py-1 rounded">Distinta</button>
+                        <button class="bg-red-500 hover:bg-red-700 text-white text-xs px-3 py-1 rounded">Elimina</button>
+                    </div>
+                `;
+                historyList.appendChild(item);
+            });
+        }
+
+        // Event listener for filter change
+        historyPeriodSelect.addEventListener('change', () => {
+            renderFilteredHistory();
+        });
+
+        // Initial render with default filter (month)
+        renderFilteredHistory();
+    </script>
+</body>
+</html>
