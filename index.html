@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.11 - Added physical back button handling for mobile devices (Android/iOS) and PWA -->
+<!-- Version: V9.12 - Auto-calculate training attendance statuses, disable manual training status selection -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -1162,18 +1162,38 @@
                         <input type="checkbox" data-status="Non disponibile Weekend" class="status-checkbox w-5 h-5 mr-3 rounded">
                         <span class="flex-1 font-medium">Non disponibile WE</span>
                     </label>
-                    <label class="flex items-center p-3 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200">
-                        <input type="checkbox" data-status="Solo 2 allenamenti" class="status-checkbox w-5 h-5 mr-3 rounded">
-                        <span class="flex-1 font-medium">Solo 2 allenamenti</span>
-                    </label>
-                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200">
-                        <input type="checkbox" data-status="Solo 1 allenamento" class="status-checkbox w-5 h-5 mr-3 rounded">
-                        <span class="flex-1 font-medium">Solo 1 allenamento</span>
-                    </label>
-                    <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200">
-                        <input type="checkbox" data-status="Zero allenamenti" class="status-checkbox w-5 h-5 mr-3 rounded">
-                        <span class="flex-1 font-medium">Zero allenamenti ❌</span>
-                    </label>
+                    <!-- V9.12: Training attendance statuses - DISABLED (auto-calculated) -->
+                    <div class="relative">
+                        <label class="flex items-center p-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed opacity-60 transition-colors duration-200" title="Calcolato automaticamente in base alle presenze agli allenamenti">
+                            <input type="checkbox" data-status="Solo 2 allenamenti" class="status-checkbox w-5 h-5 mr-3 rounded" disabled>
+                            <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+                        </label>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600">
+                            <span title="Calcolato automaticamente in base alle presenze agli allenamenti">ℹ️</span>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <label class="flex items-center p-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed opacity-60 transition-colors duration-200" title="Calcolato automaticamente in base alle presenze agli allenamenti">
+                            <input type="checkbox" data-status="Solo 1 allenamento" class="status-checkbox w-5 h-5 mr-3 rounded" disabled>
+                            <span class="flex-1 font-medium">Solo 1 allenamento</span>
+                        </label>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600">
+                            <span title="Calcolato automaticamente in base alle presenze agli allenamenti">ℹ️</span>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <label class="flex items-center p-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed opacity-60 transition-colors duration-200" title="Calcolato automaticamente in base alle presenze agli allenamenti">
+                            <input type="checkbox" data-status="Zero allenamenti" class="status-checkbox w-5 h-5 mr-3 rounded" disabled>
+                            <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+                        </label>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600">
+                            <span title="Calcolato automaticamente in base alle presenze agli allenamenti">ℹ️</span>
+                        </div>
+                    </div>
+                    <!-- V9.12: Info message about automatic calculation -->
+                    <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                        <p><strong>ℹ️ Nota:</strong> Gli stati degli allenamenti sono calcolati automaticamente in base alle presenze della settimana corrente e non possono essere modificati manualmente.</p>
+                    </div>
                 </div>
                 <div class="mt-4 space-y-2">
                     <button id="confirm-status-button" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
@@ -2204,6 +2224,85 @@
                 } catch (error) {
                     console.error('❌ Error resetting unavailable players:', error);
                 }
+            }
+            
+            // V9.12: Calculate current week training attendance for each player
+            function calculateCurrentWeekTrainingAttendance() {
+                const playerAttendance = new Map();
+                
+                if (!trainingSessions || trainingSessions.length === 0) {
+                    return playerAttendance; // No sessions, return empty map
+                }
+                
+                // Get start of current week (Monday 00:00)
+                const now = new Date();
+                const getMonday = (date) => {
+                    const d = new Date(date);
+                    const day = d.getDay();
+                    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+                    d.setDate(diff);
+                    d.setHours(0, 0, 0, 0);
+                    return d;
+                };
+                
+                const currentWeekStart = getMonday(now);
+                const currentWeekEnd = new Date(currentWeekStart);
+                currentWeekEnd.setDate(currentWeekStart.getDate() + 7); // Next Monday
+                
+                // Filter sessions for current week
+                const weekSessions = trainingSessions.filter(session => {
+                    const sessionDate = new Date(session.date);
+                    return sessionDate >= currentWeekStart && sessionDate < currentWeekEnd;
+                });
+                
+                // Calculate attendance for each player
+                const allPlayers = companyPlayers.length > 0 ? companyPlayers : players;
+                allPlayers.forEach(player => {
+                    let playerKey;
+                    if (typeof player === 'string') {
+                        playerKey = player;
+                    } else {
+                        playerKey = `${player.numero} ${player.nome}`;
+                    }
+                    
+                    let attended = 0;
+                    let totalSessions = weekSessions.length;
+                    
+                    weekSessions.forEach(session => {
+                        if (session.attendance && session.attendance[playerKey] === true) {
+                            attended++;
+                        }
+                    });
+                    
+                    playerAttendance.set(playerKey, {
+                        attended: attended,
+                        total: totalSessions
+                    });
+                });
+                
+                return playerAttendance;
+            }
+            
+            // V9.12: Get automatic training status for a player based on current week attendance
+            function getAutomaticTrainingStatus(playerKey) {
+                const weekAttendance = calculateCurrentWeekTrainingAttendance();
+                const attendance = weekAttendance.get(playerKey);
+                
+                if (!attendance || attendance.total === 0) {
+                    return null; // No sessions this week, no automatic status
+                }
+                
+                const attended = attendance.attended;
+                
+                if (attended === 0) {
+                    return 'Zero allenamenti';
+                } else if (attended === 1) {
+                    return 'Solo 1 allenamento';
+                } else if (attended === 2) {
+                    return 'Solo 2 allenamenti';
+                }
+                
+                return null; // 3+ trainings, no automatic status
             }
             
             // V8.17: Demo mode and demo players for tactical module (with jersey numbers)
@@ -4097,26 +4196,67 @@
                         li.classList.add('already-called-today');
                     }
                     // Check for unavailable players (only if not already called today)
-                    else if (unavailablePlayers.has(playerKey)) {
-                        const status = unavailablePlayers.get(playerKey);
-                        // V6.5: Use applyPlayerStatusStyle to handle both single and multiple statuses
-                        // Supports legacy single status (string) and new multiple statuses (array) with gradient
-                        const statusArray = Array.isArray(status) ? status : [status];
-                        applyPlayerStatusStyle(li, statusArray);
+                    else {
+                        // V9.12: Calculate automatic training status
+                        const autoTrainingStatus = getAutomaticTrainingStatus(playerKey);
+                        let finalStatuses = [];
                         
-                        // V9.10: Add icons for Infortunato and Squalificato in player badge
-                        if (statusArray.includes('Infortunato')) {
-                            li.textContent = `🚑 ${displayName}`;
-                        } else if (statusArray.includes('Squalificato')) {
-                            li.textContent = `🟥 ${displayName}`;
+                        // Get manual statuses from unavailablePlayers
+                        if (unavailablePlayers.has(playerKey)) {
+                            const status = unavailablePlayers.get(playerKey);
+                            const manualStatuses = Array.isArray(status) ? status : [status];
+                            
+                            // V9.12: Filter out training statuses from manual selection (they're auto-calculated)
+                            const filteredManualStatuses = manualStatuses.filter(s => 
+                                s !== 'Zero allenamenti' && 
+                                s !== 'Solo 1 allenamento' && 
+                                s !== 'Solo 2 allenamenti'
+                            );
+                            
+                            finalStatuses = filteredManualStatuses;
+                        }
+                        
+                        // V9.12: Add automatic training status if exists
+                        if (autoTrainingStatus) {
+                            finalStatuses.push(autoTrainingStatus);
+                        }
+                        
+                        // Apply styling if there are any statuses
+                        if (finalStatuses.length > 0) {
+                            applyPlayerStatusStyle(li, finalStatuses);
+                            
+                            // V9.10: Add icons for Infortunato and Squalificato in player badge
+                            if (finalStatuses.includes('Infortunato')) {
+                                li.textContent = `🚑 ${displayName}`;
+                            } else if (finalStatuses.includes('Squalificato')) {
+                                li.textContent = `🟥 ${displayName}`;
+                            }
                         }
                     }
 
                     li.addEventListener('click', () => {
                         if (userRole === 'mister') {
-                            if (unavailablePlayers.has(playerKey)) {
-                                const status = unavailablePlayers.get(playerKey);
-                                showUnavailablePlayerModal(playerKey, status);
+                            // V9.12: Check for both manual unavailability and automatic training status
+                            const autoTrainingStatus = getAutomaticTrainingStatus(playerKey);
+                            const hasManualStatus = unavailablePlayers.has(playerKey);
+                            
+                            if (hasManualStatus || autoTrainingStatus) {
+                                // Build combined status for display
+                                let combinedStatus = [];
+                                if (hasManualStatus) {
+                                    const status = unavailablePlayers.get(playerKey);
+                                    const manualStatuses = Array.isArray(status) ? status : [status];
+                                    combinedStatus = manualStatuses.filter(s => 
+                                        s !== 'Zero allenamenti' && 
+                                        s !== 'Solo 1 allenamento' && 
+                                        s !== 'Solo 2 allenamenti'
+                                    );
+                                }
+                                if (autoTrainingStatus) {
+                                    combinedStatus.push(autoTrainingStatus);
+                                }
+                                
+                                showUnavailablePlayerModal(playerKey, combinedStatus.length === 1 ? combinedStatus[0] : combinedStatus);
                                 return; // Don't allow selection of unavailable players (unless forzato)
                             }
                             
@@ -4862,15 +5002,48 @@
 
             function updateUnavailablePlayersView() {
                 unavailablePlayersList.innerHTML = '';
-                if (unavailablePlayers.size === 0) {
+                
+                // V9.12: Build a complete list of players with unavailability (manual or auto)
+                const allUnavailablePlayers = new Map();
+                
+                // Add all manual statuses
+                unavailablePlayers.forEach((status, player) => {
+                    const statusArray = Array.isArray(status) ? status : [status];
+                    // Filter out training statuses (they'll be added automatically)
+                    const filteredStatuses = statusArray.filter(s => 
+                        s !== 'Zero allenamenti' && 
+                        s !== 'Solo 1 allenamento' && 
+                        s !== 'Solo 2 allenamenti'
+                    );
+                    if (filteredStatuses.length > 0) {
+                        allUnavailablePlayers.set(player, filteredStatuses);
+                    }
+                });
+                
+                // V9.12: Add auto training statuses for all players
+                const playersToCheck = companyPlayers.length > 0 ? companyPlayers : players;
+                playersToCheck.forEach(player => {
+                    let playerKey;
+                    if (typeof player === 'string') {
+                        playerKey = player;
+                    } else {
+                        playerKey = `${player.numero} ${player.nome}`;
+                    }
+                    
+                    const autoTrainingStatus = getAutomaticTrainingStatus(playerKey);
+                    if (autoTrainingStatus) {
+                        const existingStatuses = allUnavailablePlayers.get(playerKey) || [];
+                        allUnavailablePlayers.set(playerKey, [...existingStatuses, autoTrainingStatus]);
+                    }
+                });
+                
+                if (allUnavailablePlayers.size === 0) {
                     unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessuna disponibilità registrata.</li>';
                     return;
                 }
-                unavailablePlayers.forEach((status, player) => {
+                
+                allUnavailablePlayers.forEach((statusArray, player) => {
                     const li = document.createElement('li');
-                    // V6.5: Handle both single status (string) and multiple statuses (array)
-                    // Multiple statuses are displayed comma-separated (e.g., "Squalificato, Non disponibile Domenica")
-                    const statusArray = Array.isArray(status) ? status : [status];
                     const statusText = statusArray.join(', ');
                     
                     // V9.10: Add icons for Infortunato and Squalificato
@@ -5870,6 +6043,10 @@
                     // Reload report to reflect changes
                     loadAllenamentiReport();
                     
+                    // V9.12: Re-render players to update automatic training statuses
+                    renderPlayers();
+                    updateUnavailablePlayersView();
+                    
                     // Show success message
                     alert('✅ Presenze salvate con successo!');
                     
@@ -5927,6 +6104,10 @@
                     // V8.11: Re-render with new session expanded and auto-refresh report
                     renderTrainingSessions(newSession.id);
                     loadAllenamentiReport(); // Auto-refresh report after saving new session
+                    
+                    // V9.12: Re-render players to update automatic training statuses
+                    renderPlayers();
+                    updateUnavailablePlayersView();
                     
                     // Close modal
                     document.getElementById('add-training-modal').classList.add('hidden');
@@ -6413,9 +6594,26 @@
                 
                 console.log('🔍 [V6.5] Opening modal for:', tempPlayerName, 'with statuses:', statusArray);
                 
+                // V9.12: Get automatic training status for this player
+                const autoTrainingStatus = getAutomaticTrainingStatus(tempPlayerName);
+                console.log('🏃 [V9.12] Auto training status:', autoTrainingStatus);
+                
                 // Reset all checkboxes first, then check the ones that match existing statuses
                 statusCheckboxes.forEach(checkbox => {
-                    checkbox.checked = statusArray.includes(checkbox.dataset.status);
+                    const status = checkbox.dataset.status;
+                    const isTrainingStatus = status === 'Zero allenamenti' || 
+                                            status === 'Solo 1 allenamento' || 
+                                            status === 'Solo 2 allenamenti';
+                    
+                    if (isTrainingStatus) {
+                        // V9.12: Show training status if it matches auto-calculated status
+                        checkbox.checked = (status === autoTrainingStatus);
+                        checkbox.disabled = true; // Always disabled
+                    } else {
+                        // Manual status - check if it exists in the saved statuses
+                        checkbox.checked = statusArray.includes(status);
+                        checkbox.disabled = false;
+                    }
                 });
                 
                 statusModal.classList.remove('hidden', 'opacity-0');
@@ -8723,30 +8921,28 @@
                 console.log('✅ [V6.5] Confermando selezione indisponibilità per:', tempPlayerName);
                 const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
                 
-                // Get all checked statuses from checkboxes
+                // Get all checked statuses from checkboxes (V9.12: exclude disabled training checkboxes)
                 const selectedStatuses = Array.from(statusCheckboxes)
-                    .filter(checkbox => checkbox.checked)
+                    .filter(checkbox => checkbox.checked && !checkbox.disabled)
                     .map(checkbox => checkbox.dataset.status);
                 
-                console.log('📋 [V6.5] Statuses selezionati:', selectedStatuses);
+                console.log('📋 [V9.12] Manual statuses selected:', selectedStatuses);
                 
                 // Store as array if multiple statuses, or single string for backward compatibility
                 if (selectedStatuses.length === 0) {
-                    // No status selected - remove unavailability
+                    // No manual status selected - remove from unavailablePlayers
+                    // V9.12: Auto training status will still be applied in renderPlayers
                     unavailablePlayers.delete(tempPlayerName);
-                    // V9.7: Remove all status classes including new ones
-                    currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'selected-marco-blue-dark', 'selected-marco-red', 'selected-marco-white', 'multi-status');
-                    currentPlayerItem.style.background = ''; // Clear any gradient
                 } else if (selectedStatuses.length === 1) {
-                    // Single status - store as string for backward compatibility with V6.4 and earlier
+                    // Single status - store as string for backward compatibility
                     unavailablePlayers.set(tempPlayerName, selectedStatuses[0]);
-                    applyPlayerStatusStyle(currentPlayerItem, selectedStatuses);
                 } else {
-                    // Multiple statuses - store as array (NEW in V6.5)
+                    // Multiple statuses - store as array
                     unavailablePlayers.set(tempPlayerName, selectedStatuses);
-                    applyPlayerStatusStyle(currentPlayerItem, selectedStatuses);
                 }
                 
+                // V9.12: Re-render players to apply both manual and automatic statuses
+                renderPlayers();
                 updateUnavailablePlayersView();
                 hideModal();
                 tempPlayerName = null;
@@ -8754,14 +8950,13 @@
             
             // Clear status button - marks player as available
             clearStatusButton.addEventListener('click', () => {
-                console.log('✅ [V6.5] Rendendo disponibile:', tempPlayerName);
-                const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
+                console.log('✅ [V9.12] Rendendo disponibile:', tempPlayerName);
                 
+                // V9.12: Only clear manual statuses, auto training status will still apply
                 unavailablePlayers.delete(tempPlayerName);
-                // V9.7: Remove all status classes including new ones
-                currentPlayerItem.classList.remove('selected-marco', 'selected-marco-orange', 'selected-marco-black', 'selected-marco-purple', 'selected-marco-blue-dark', 'selected-marco-red', 'selected-marco-white', 'multi-status');
-                currentPlayerItem.style.background = ''; // Clear any gradient
                 
+                // Re-render to apply auto training status if exists
+                renderPlayers();
                 updateUnavailablePlayersView();
                 hideModal();
                 tempPlayerName = null;
