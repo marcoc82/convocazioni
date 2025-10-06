@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.17 - Add ranking arrows to training attendance report with sorting by presences then availability percentage -->
+<!-- Version: V9.18 - Add equals symbol for unchanged ranking and handle tied positions (same presences + same availability) -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -4264,7 +4264,7 @@
                 });
 
                 // V9.16: Ranking arrows - Compare with last week's ranking
-                // Calculate ranks considering ties (same presences + same availability = same rank)
+                // V9.18: Calculate ranks considering ties (same presences + same availability = same rank)
                 const currentRanking = [];
                 let currentRank = 1;
                 for (let i = 0; i < sortedPlayers.length; i++) {
@@ -4345,6 +4345,7 @@
                 sortedPlayers.forEach((player, index) => {
                     const rankChange = rankChanges[player.name];
                     let arrowIcon = '';
+                    // V9.18: Show "=" for unchanged position
                     if (rankChange !== undefined) {
                         if (rankChange > 0) {
                             arrowIcon = '<span style="color: #22c55e; margin-left: 4px;">🔼</span>';
@@ -6864,7 +6865,7 @@
                 });
                 
                 // V9.17: Ranking arrows - Compare with last week's ranking (using separate storage key for training)
-                // Calculate ranks considering ties (same presences + same availability = same rank)
+                // V9.18: Calculate ranks considering ties (same presences + same availability = same rank)
                 const currentRanking = [];
                 let currentRank = 1;
                 for (let i = 0; i < statsArray.length; i++) {
@@ -6951,6 +6952,7 @@
                     const ambulanceIcon = isInjured ? '🚑 ' : '';
                     
                     // V9.17: Add ranking arrow
+                    // V9.18: Show "=" for unchanged position
                     const rankChange = rankChanges[stat.player];
                     let arrowIcon = '';
                     if (rankChange !== undefined) {
