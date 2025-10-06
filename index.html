@@ -1748,10 +1748,12 @@
                 passwordEntryScreen.classList.remove('hidden');
                 
                 // Check if biometric authentication is available and enrolled for this user
-                if (isBiometricSupported() && currentCompanyCode && hasBiometricEnrolled(currentCompanyCode, role)) {
-                    biometricLoginContainer.classList.remove('hidden');
-                } else {
-                    biometricLoginContainer.classList.add('hidden');
+                if (biometricLoginContainer) {
+                    if (isBiometricSupported() && currentCompanyCode && hasBiometricEnrolled(currentCompanyCode, role)) {
+                        biometricLoginContainer.classList.remove('hidden');
+                    } else {
+                        biometricLoginContainer.classList.add('hidden');
+                    }
                 }
                 
                 passwordInput.focus();
@@ -8733,7 +8735,9 @@
                             // Stored password is invalid (may have been changed)
                             showMessage(passwordEntryMessageArea, "⚠️ Credenziali biometriche non valide. Inserisci la password.");
                             clearBiometricCredentials(currentCompanyCode, pendingRole);
-                            biometricLoginContainer.classList.add('hidden');
+                            if (biometricLoginContainer) {
+                                biometricLoginContainer.classList.add('hidden');
+                            }
                         }
                     } else {
                         // Biometric authentication failed or was cancelled
