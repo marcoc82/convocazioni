@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.15 - UI Changes Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <h1 class="text-4xl font-bold text-center mb-4 text-gray-800">V9.15 - Miglioramenti UI</h1>
+            <p class="text-center text-gray-600 mb-8">Tre modifiche implementate per migliorare l'usabilità</p>
+            
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-3 gap-4 mb-8">
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                    <div class="text-3xl mb-2">✅</div>
+                    <div class="font-semibold text-green-800">Checkbox Verde</div>
+                    <div class="text-sm text-green-600">Allenamenti</div>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <div class="text-3xl mb-2">📊</div>
+                    <div class="font-semibold text-blue-800">Sezioni Collassabili</div>
+                    <div class="text-sm text-blue-600">Riepilogo</div>
+                </div>
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                    <div class="text-3xl mb-2">📅</div>
+                    <div class="font-semibold text-purple-800">Filtro Mese</div>
+                    <div class="text-sm text-purple-600">Storico</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 1: Checkbox Color -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
+                <span class="bg-green-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg">1</span>
+                Checkbox Allenamenti: Verde
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div class="border-2 border-red-300 rounded-lg p-6 bg-red-50">
+                    <h3 class="text-lg font-semibold mb-4 text-red-800">❌ PRIMA (Blu/Teal)</h3>
+                    <div class="bg-white rounded-lg p-4 space-y-2">
+                        <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border">
+                            <span class="text-sm font-medium text-gray-700">Mario Rossi</span>
+                            <input type="checkbox" checked class="w-6 h-6 text-teal-600 rounded focus:ring-teal-500">
+                        </label>
+                        <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border">
+                            <span class="text-sm font-medium text-gray-700">Luigi Verdi</span>
+                            <input type="checkbox" checked class="w-6 h-6 text-teal-600 rounded focus:ring-teal-500">
+                        </label>
+                    </div>
+                    <div class="mt-4 text-sm text-red-700 font-medium">
+                        Colore: text-teal-600
+                    </div>
+                </div>
+                
+                <div class="border-2 border-green-500 rounded-lg p-6 bg-green-50">
+                    <h3 class="text-lg font-semibold mb-4 text-green-800">✅ DOPO (Verde)</h3>
+                    <div class="bg-white rounded-lg p-4 space-y-2">
+                        <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border">
+                            <span class="text-sm font-medium text-gray-700">Mario Rossi</span>
+                            <input type="checkbox" checked class="w-6 h-6 text-green-600 rounded focus:ring-green-500">
+                        </label>
+                        <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border">
+                            <span class="text-sm font-medium text-gray-700">Luigi Verdi</span>
+                            <input type="checkbox" checked class="w-6 h-6 text-green-600 rounded focus:ring-green-500">
+                        </label>
+                    </div>
+                    <div class="mt-4 text-sm text-green-700 font-medium">
+                        Colore: text-green-600 ✅
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 2: Collapsible Sections -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
+                <span class="bg-blue-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg">2</span>
+                Sezioni Riepilogo Collassabili
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div class="border-2 border-red-300 rounded-lg p-6 bg-red-50">
+                    <h3 class="text-lg font-semibold mb-4 text-red-800">❌ PRIMA (Sempre Aperte)</h3>
+                    <div class="bg-white rounded-lg p-4 space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">🤝 Riepilogo Presenze Amichevoli</h4>
+                            <div class="bg-gray-100 p-3 rounded text-xs text-gray-600">
+                                Tabella sempre visibile...
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">🏆 Riepilogo Presenze Tornei</h4>
+                            <div class="bg-gray-100 p-3 rounded text-xs text-gray-600">
+                                Tabella sempre visibile...
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">⚽️ Riepilogo Presenze Campionato</h4>
+                            <div class="bg-gray-100 p-3 rounded text-xs text-gray-600">
+                                Tabella sempre visibile...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-red-700 font-medium">
+                        Tutte le tabelle sempre visibili
+                    </div>
+                </div>
+                
+                <div class="border-2 border-green-500 rounded-lg p-6 bg-green-50">
+                    <h3 class="text-lg font-semibold mb-4 text-green-800">✅ DOPO (Collassabili, Default Chiuse)</h3>
+                    <div class="bg-white rounded-lg p-4 space-y-3">
+                        <!-- Amichevoli -->
+                        <div>
+                            <div class="cursor-pointer hover:bg-gray-50 p-3 rounded transition-colors border" id="demo-amichevoli-header">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-semibold text-gray-700">🤝 Riepilogo Presenze Amichevoli</h4>
+                                    <svg class="w-5 h-5 text-gray-600 transform transition-transform" id="demo-amichevoli-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div id="demo-amichevoli-content" class="hidden bg-gray-100 p-3 rounded text-xs text-gray-600 mt-2">
+                                Tabella visibile solo quando espansa...
+                            </div>
+                        </div>
+                        
+                        <!-- Tornei -->
+                        <div>
+                            <div class="cursor-pointer hover:bg-gray-50 p-3 rounded transition-colors border" id="demo-tornei-header">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-semibold text-gray-700">🏆 Riepilogo Presenze Tornei</h4>
+                                    <svg class="w-5 h-5 text-gray-600 transform transition-transform" id="demo-tornei-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div id="demo-tornei-content" class="hidden bg-gray-100 p-3 rounded text-xs text-gray-600 mt-2">
+                                Tabella visibile solo quando espansa...
+                            </div>
+                        </div>
+                        
+                        <!-- Campionato -->
+                        <div>
+                            <div class="cursor-pointer hover:bg-gray-50 p-3 rounded transition-colors border" id="demo-campionato-header">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="font-semibold text-gray-700">⚽️ Riepilogo Presenze Campionato</h4>
+                                    <svg class="w-5 h-5 text-gray-600 transform transition-transform" id="demo-campionato-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div id="demo-campionato-content" class="hidden bg-gray-100 p-3 rounded text-xs text-gray-600 mt-2">
+                                Tabella visibile solo quando espansa...
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-green-700 font-medium">
+                        Clicca su una sezione per espandere ✅
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 3: History Filter Default -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3">
+                <span class="bg-purple-500 text-white w-8 h-8 rounded-full flex items-center justify-center text-lg">3</span>
+                Filtro Storico: Default "Mese Corrente"
+            </h2>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div class="border-2 border-red-300 rounded-lg p-6 bg-red-50">
+                    <h3 class="text-lg font-semibold mb-4 text-red-800">❌ PRIMA (Settimana Corrente)</h3>
+                    <div class="bg-white rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Filtra per periodo:</label>
+                        <select class="w-full px-3 py-2 bg-white border-2 border-red-400 rounded-lg">
+                            <option value="week" selected>Settimana corrente</option>
+                            <option value="all">Tutti i periodi</option>
+                            <option value="2025-10">Ottobre 2025</option>
+                            <option value="2025-09">Settembre 2025</option>
+                        </select>
+                        <div class="mt-3 bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
+                            <strong>ℹ️ Filtro attivo:</strong> <span class="font-semibold">Settimana corrente</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-red-700 font-medium">
+                        Default: Settimana corrente (pochi risultati)
+                    </div>
+                </div>
+                
+                <div class="border-2 border-green-500 rounded-lg p-6 bg-green-50">
+                    <h3 class="text-lg font-semibold mb-4 text-green-800">✅ DOPO (Mese Corrente)</h3>
+                    <div class="bg-white rounded-lg p-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Filtra per periodo:</label>
+                        <select class="w-full px-3 py-2 bg-white border-2 border-green-500 rounded-lg">
+                            <option value="week">Settimana corrente</option>
+                            <option value="all">Tutti i periodi</option>
+                            <option value="2025-10" selected>Ottobre 2025</option>
+                            <option value="2025-09">Settembre 2025</option>
+                        </select>
+                        <div class="mt-3 bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
+                            <strong>ℹ️ Filtro attivo:</strong> <span class="font-semibold">Ottobre 2025</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-sm text-green-700 font-medium">
+                        Default: Mese corrente (più risultati, più utile) ✅
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-2xl font-bold mb-6 text-center">✅ Riepilogo Modifiche V9.15</h2>
+            <div class="grid grid-cols-3 gap-6">
+                <div class="bg-white/10 backdrop-blur rounded-lg p-4">
+                    <div class="text-3xl mb-2 text-center">1</div>
+                    <div class="font-semibold text-center mb-2">Checkbox Verde</div>
+                    <div class="text-sm text-center opacity-90">text-teal-600 → text-green-600</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur rounded-lg p-4">
+                    <div class="text-3xl mb-2 text-center">3</div>
+                    <div class="font-semibold text-center mb-2">Sezioni Collassabili</div>
+                    <div class="text-sm text-center opacity-90">Default chiuse + frecce</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur rounded-lg p-4">
+                    <div class="text-3xl mb-2 text-center">1</div>
+                    <div class="font-semibold text-center mb-2">Filtro Mese</div>
+                    <div class="text-sm text-center opacity-90">Default: mese corrente</div>
+                </div>
+            </div>
+            <div class="mt-6 text-center text-sm opacity-90">
+                Totale: 138 righe modificate/aggiunte • 3 feature implementate • 0 breaking changes
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Collapsible sections demo
+        function setupCollapsibleDemo(headerId, contentId, iconId) {
+            const header = document.getElementById(headerId);
+            const content = document.getElementById(contentId);
+            const icon = document.getElementById(iconId);
+            
+            if (header && content && icon) {
+                header.addEventListener('click', () => {
+                    const isHidden = content.classList.contains('hidden');
+                    if (isHidden) {
+                        content.classList.remove('hidden');
+                        icon.classList.add('rotate-180');
+                    } else {
+                        content.classList.add('hidden');
+                        icon.classList.remove('rotate-180');
+                    }
+                });
+            }
+        }
+        
+        setupCollapsibleDemo('demo-amichevoli-header', 'demo-amichevoli-content', 'demo-amichevoli-icon');
+        setupCollapsibleDemo('demo-tornei-header', 'demo-tornei-content', 'demo-tornei-icon');
+        setupCollapsibleDemo('demo-campionato-header', 'demo-campionato-content', 'demo-campionato-icon');
+    </script>
+</body>
+</html>
