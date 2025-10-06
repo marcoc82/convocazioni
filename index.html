@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.20 - Alphabetical sorting for tied players, bullet points in notes, comma-to-newline for mister notes display -->
+<!-- Version: V9.21 - Show bullet points for both mister and dirigente, fix back button navigation on mobile -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -265,7 +265,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.20</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.21</span>
             </div>
         </div>
 
@@ -5801,7 +5801,21 @@
 
             function updateNotesDisplay() {
                 if (isDirigente()) {
-                    notesTextarea.value = currentNotes;
+                    // V9.21: Format notes with bullet points for dirigente
+                    if (currentNotes.trim() === '') {
+                        notesTextarea.value = '';
+                    } else {
+                        const lines = currentNotes
+                            .split('\n') // Split by newline only (commas already converted to newlines on input)
+                            .map(line => line.trim()) // Trim whitespace
+                            .filter(line => line.length > 0); // Remove empty lines
+                        
+                        if (lines.length > 0) {
+                            notesTextarea.value = lines.map(line => `• ${line}`).join('\n');
+                        } else {
+                            notesTextarea.value = '';
+                        }
+                    }
                     // Auto-resize the textarea after setting the value
                     if (notesTextarea) {
                         notesTextarea.style.height = 'auto';
@@ -5868,7 +5882,13 @@
                     return;
                 }
 
-                const notesContent = notesTextarea.value.trim();
+                // V9.21: Remove bullet points before saving
+                const notesContent = notesTextarea.value
+                    .split('\n')
+                    .map(line => line.replace(/^•\s*/, '').trim()) // Remove bullet point and trim
+                    .filter(line => line.length > 0) // Remove empty lines
+                    .join('\n');
+                    
                 // Use document ID path for notes like giocatori and availability
                 const notesBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${currentAppId}/public/data`;
                 const notesDocRef = window.doc(window.db, `${notesBasePath}/notes`, "marco_notes");
@@ -5878,6 +5898,8 @@
                 
                 try {
                     await window.setDoc(notesDocRef, { content: notesContent });
+                    // Update currentNotes to match what was saved (without bullet points)
+                    currentNotes = notesContent;
                     showSuccessPopup("Note salvate con successo!");
                 } catch (e) {
                     console.error("Errore salvataggio note su Firestore: ", e);
@@ -11063,13 +11085,9 @@
                 if (!handled && navigationStack.length === 0) {
                     console.log('📱 [BACK BUTTON] At root level, allowing app to close');
                     // Don't push any state - let it close
-                } else if (handled) {
-                    // We handled the back, push a state to maintain history
-                    const newView = getCurrentView();
-                    if (newView) {
-                        history.pushState({ view: newView }, '', '');
-                    }
                 }
+                // V9.21: Don't push new state after handling back - popstate already handled history
+                // This prevents creating duplicate history entries and navigation confusion
                 
                 isNavigatingBack = false;
             });
