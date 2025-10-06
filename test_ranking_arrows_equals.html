@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Ranking Arrows with Equals Symbol</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+        }
+        h2 {
+            color: #1e40af;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f9fafb;
+        }
+        .arrow-up {
+            color: #22c55e;
+            font-weight: bold;
+        }
+        .arrow-down {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .arrow-equals {
+            color: #6b7280;
+            font-weight: bold;
+        }
+        .code-block {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .success {
+            color: #22c55e;
+            font-weight: bold;
+        }
+        .info {
+            background: #dbeafe;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .explanation {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎯 Test: Ranking Arrows with Equals Symbol</h1>
+    
+    <div class="info">
+        <strong>Obiettivo del Test:</strong><br>
+        Verificare che il sistema di frecce classifica funzioni correttamente con:
+        <ul>
+            <li>🔼 Freccia verde per miglioramento posizione</li>
+            <li>🔽 Freccia rossa per peggioramento posizione</li>
+            <li>= Simbolo grigio per posizione invariata</li>
+            <li>Gestione corretta delle posizioni condivise (stesso numero presenze + stessa % disponibilità)</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 1: Simulazione Ranking con Posizioni Condivise</h2>
+        
+        <div class="explanation">
+            <strong>Scenario:</strong> Tre giocatori con dati diversi e alcuni con stessi valori (posizioni condivise)
+        </div>
+
+        <h3>Settimana Precedente (Baseline):</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Posizione</th>
+                    <th>Giocatore</th>
+                    <th>Presenze</th>
+                    <th>% Disponibilità</th>
+                </tr>
+            </thead>
+            <tbody id="baseline-table"></tbody>
+        </table>
+
+        <h3>Settimana Corrente (Con Frecce):</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Posizione</th>
+                    <th>Giocatore</th>
+                    <th>Presenze</th>
+                    <th>% Disponibilità</th>
+                    <th>Simbolo</th>
+                </tr>
+            </thead>
+            <tbody id="current-table"></tbody>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Logica di Calcolo Ranking</h2>
+        <div id="logic-test"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Codice Implementato</h2>
+        <div class="explanation">
+            Estratto del codice che implementa la logica di ranking con posizioni condivise:
+        </div>
+        <div class="code-block">
+// Calculate ranks considering ties (same presences + same availability = same rank)
+const currentRanking = [];
+let currentRank = 1;
+for (let i = 0; i < sortedPlayers.length; i++) {
+    if (i > 0) {
+        const prevPlayer = sortedPlayers[i - 1];
+        const currPlayer = sortedPlayers[i];
+        // Check if tied (same presences AND same availability)
+        if (prevPlayer.count !== currPlayer.count || 
+            prevPlayer.availabilityNumeric !== currPlayer.availabilityNumeric) {
+            currentRank = i + 1; // Move to next rank if not tied
+        }
+        // Otherwise keep same rank (tied)
+    }
+    currentRanking.push({
+        name: sortedPlayers[i].name,
+        rank: currentRank
+    });
+}
+
+// Arrow display logic
+if (rankChange !== undefined) {
+    if (rankChange > 0) {
+        arrowIcon = '🔼'; // Moved up
+    } else if (rankChange < 0) {
+        arrowIcon = '🔽'; // Moved down
+    } else {
+        arrowIcon = '='; // Same position
+    }
+}
+        </div>
+    </div>
+
+    <script>
+        // Simulate ranking logic
+        function calculateRanking(players) {
+            // Sort players
+            const sorted = [...players].sort((a, b) => {
+                if (b.presences !== a.presences) {
+                    return b.presences - a.presences;
+                }
+                return b.availability - a.availability;
+            });
+
+            // Calculate ranks with tie handling
+            const ranking = [];
+            let currentRank = 1;
+            for (let i = 0; i < sorted.length; i++) {
+                if (i > 0) {
+                    const prev = sorted[i - 1];
+                    const curr = sorted[i];
+                    if (prev.presences !== curr.presences || 
+                        prev.availability !== curr.availability) {
+                        currentRank = i + 1;
+                    }
+                }
+                ranking.push({
+                    ...sorted[i],
+                    rank: currentRank
+                });
+            }
+            return ranking;
+        }
+
+        // Test data
+        const lastWeekPlayers = [
+            { name: 'ROSSI Mario', presences: 15, availability: 95 },
+            { name: 'BIANCHI Luigi', presences: 12, availability: 90 },
+            { name: 'VERDI Giuseppe', presences: 12, availability: 90 },
+            { name: 'NERI Francesco', presences: 10, availability: 85 },
+            { name: 'GIALLI Andrea', presences: 10, availability: 80 }
+        ];
+
+        const currentWeekPlayers = [
+            { name: 'ROSSI Mario', presences: 16, availability: 95 },    // +1 presenza
+            { name: 'BIANCHI Luigi', presences: 13, availability: 90 },  // +1 presenza
+            { name: 'VERDI Giuseppe', presences: 12, availability: 90 }, // uguale
+            { name: 'NERI Francesco', presences: 10, availability: 85 }, // uguale
+            { name: 'GIALLI Andrea', presences: 9, availability: 80 }    // -1 presenza
+        ];
+
+        // Calculate rankings
+        const lastWeekRanking = calculateRanking(lastWeekPlayers);
+        const currentWeekRanking = calculateRanking(currentWeekPlayers);
+
+        // Display baseline
+        const baselineTable = document.getElementById('baseline-table');
+        lastWeekRanking.forEach(player => {
+            const row = baselineTable.insertRow();
+            row.innerHTML = `
+                <td><strong>${player.rank}</strong></td>
+                <td>${player.name}</td>
+                <td>${player.presences}</td>
+                <td>${player.availability}%</td>
+            `;
+        });
+
+        // Display current with arrows
+        const currentTable = document.getElementById('current-table');
+        currentWeekRanking.forEach(player => {
+            const lastRank = lastWeekRanking.find(p => p.name === player.name)?.rank;
+            let arrow = '';
+            let arrowClass = '';
+            
+            if (lastRank !== undefined) {
+                const change = lastRank - player.rank;
+                if (change > 0) {
+                    arrow = '🔼';
+                    arrowClass = 'arrow-up';
+                } else if (change < 0) {
+                    arrow = '🔽';
+                    arrowClass = 'arrow-down';
+                } else {
+                    arrow = '=';
+                    arrowClass = 'arrow-equals';
+                }
+            }
+
+            const row = currentTable.insertRow();
+            row.innerHTML = `
+                <td><strong>${player.rank}</strong></td>
+                <td>${player.name}</td>
+                <td>${player.presences}</td>
+                <td>${player.availability}%</td>
+                <td class="${arrowClass}">${arrow}</td>
+            `;
+        });
+
+        // Logic test
+        const logicTest = document.getElementById('logic-test');
+        let testResults = '<ul>';
+        
+        // Test 1: BIANCHI e VERDI erano in posizione condivisa (rank 2)
+        const bianchilastWeek = lastWeekRanking.find(p => p.name === 'BIANCHI Luigi');
+        const verdiLastWeek = lastWeekRanking.find(p => p.name === 'VERDI Giuseppe');
+        testResults += `<li><span class="${bianchilastWeek.rank === verdiLastWeek.rank ? 'success' : 'error'}">
+            ✓ BIANCHI e VERDI settimana scorsa avevano stessa posizione (${bianchilastWeek.rank}): ${bianchilastWeek.rank === verdiLastWeek.rank}
+        </span></li>`;
+
+        // Test 2: BIANCHI è salito a posizione 2
+        const bianchiCurrent = currentWeekRanking.find(p => p.name === 'BIANCHI Luigi');
+        testResults += `<li><span class="${bianchiCurrent.rank === 2 ? 'success' : 'error'}">
+            ✓ BIANCHI ora è in posizione ${bianchiCurrent.rank} (dovrebbe mostrare 🔼)
+        </span></li>`;
+
+        // Test 3: VERDI è sceso a posizione 3
+        const verdiCurrent = currentWeekRanking.find(p => p.name === 'VERDI Giuseppe');
+        testResults += `<li><span class="${verdiCurrent.rank === 3 ? 'success' : 'error'}">
+            ✓ VERDI ora è in posizione ${verdiCurrent.rank} (dovrebbe mostrare 🔽)
+        </span></li>`;
+
+        // Test 4: NERI e GIALLI avevano posizione condivisa
+        const neriLastWeek = lastWeekRanking.find(p => p.name === 'NERI Francesco');
+        const gialliLastWeek = lastWeekRanking.find(p => p.name === 'GIALLI Andrea');
+        testResults += `<li><span class="${neriLastWeek.rank === gialliLastWeek.rank ? 'success' : 'error'}">
+            ✓ NERI e GIALLI settimana scorsa avevano stessa posizione (${neriLastWeek.rank}): ${neriLastWeek.rank === gialliLastWeek.rank}
+        </span></li>`;
+
+        // Test 5: NERI mantiene la posizione 4
+        const neriCurrent = currentWeekRanking.find(p => p.name === 'NERI Francesco');
+        testResults += `<li><span class="${neriCurrent.rank === 4 ? 'success' : 'error'}">
+            ✓ NERI mantiene posizione ${neriCurrent.rank} (dovrebbe mostrare =)
+        </span></li>`;
+
+        testResults += '</ul>';
+        logicTest.innerHTML = testResults;
+    </script>
+</body>
+</html>

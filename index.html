@@ -4264,10 +4264,25 @@
                 });
 
                 // V9.16: Ranking arrows - Compare with last week's ranking
-                const currentRanking = sortedPlayers.map((player, index) => ({
-                    name: player.name,
-                    rank: index + 1
-                }));
+                // Calculate ranks considering ties (same presences + same availability = same rank)
+                const currentRanking = [];
+                let currentRank = 1;
+                for (let i = 0; i < sortedPlayers.length; i++) {
+                    if (i > 0) {
+                        const prevPlayer = sortedPlayers[i - 1];
+                        const currPlayer = sortedPlayers[i];
+                        // Check if tied (same presences AND same availability)
+                        if (prevPlayer.count !== currPlayer.count || 
+                            prevPlayer.availabilityNumeric !== currPlayer.availabilityNumeric) {
+                            currentRank = i + 1; // Move to next rank if not tied
+                        }
+                        // Otherwise keep same rank (tied)
+                    }
+                    currentRanking.push({
+                        name: sortedPlayers[i].name,
+                        rank: currentRank
+                    });
+                }
                 
                 // Get last week's ranking from localStorage
                 const lastWeekRankingStr = localStorage.getItem('lastWeekRanking');
@@ -4323,19 +4338,22 @@
                     const lastRank = lastWeekRanking[item.name];
                     if (lastRank !== undefined) {
                         const change = lastRank - item.rank; // Positive means moved up
-                        if (change !== 0) {
-                            rankChanges[item.name] = change;
-                        }
+                        rankChanges[item.name] = change;
                     }
                 });
 
                 sortedPlayers.forEach((player, index) => {
                     const rankChange = rankChanges[player.name];
                     let arrowIcon = '';
-                    if (rankChange > 0) {
-                        arrowIcon = '<span style="color: #22c55e; margin-left: 4px;">🔼</span>';
-                    } else if (rankChange < 0) {
-                        arrowIcon = '<span style="color: #ef4444; margin-left: 4px;">🔽</span>';
+                    if (rankChange !== undefined) {
+                        if (rankChange > 0) {
+                            arrowIcon = '<span style="color: #22c55e; margin-left: 4px;">🔼</span>';
+                        } else if (rankChange < 0) {
+                            arrowIcon = '<span style="color: #ef4444; margin-left: 4px;">🔽</span>';
+                        } else {
+                            // rankChange === 0: same position
+                            arrowIcon = '<span style="color: #6b7280; margin-left: 4px;">=</span>';
+                        }
                     }
                     
                     const row = document.createElement('tr');
@@ -6846,10 +6864,25 @@
                 });
                 
                 // V9.17: Ranking arrows - Compare with last week's ranking (using separate storage key for training)
-                const currentRanking = statsArray.map((stat, index) => ({
-                    name: stat.player,
-                    rank: index + 1
-                }));
+                // Calculate ranks considering ties (same presences + same availability = same rank)
+                const currentRanking = [];
+                let currentRank = 1;
+                for (let i = 0; i < statsArray.length; i++) {
+                    if (i > 0) {
+                        const prevStat = statsArray[i - 1];
+                        const currStat = statsArray[i];
+                        // Check if tied (same presences AND same availability)
+                        if (prevStat.presences !== currStat.presences || 
+                            prevStat.availabilityNumeric !== currStat.availabilityNumeric) {
+                            currentRank = i + 1; // Move to next rank if not tied
+                        }
+                        // Otherwise keep same rank (tied)
+                    }
+                    currentRanking.push({
+                        name: statsArray[i].player,
+                        rank: currentRank
+                    });
+                }
                 
                 // Get last week's ranking from localStorage (separate key for training report)
                 const lastWeekRankingStr = localStorage.getItem('lastWeekRankingTraining');
@@ -6904,9 +6937,7 @@
                     const lastRank = lastWeekRanking[item.name];
                     if (lastRank !== undefined) {
                         const change = lastRank - item.rank; // Positive means moved up
-                        if (change !== 0) {
-                            rankChanges[item.name] = change;
-                        }
+                        rankChanges[item.name] = change;
                     }
                 });
                 
@@ -6922,10 +6953,15 @@
                     // V9.17: Add ranking arrow
                     const rankChange = rankChanges[stat.player];
                     let arrowIcon = '';
-                    if (rankChange > 0) {
-                        arrowIcon = '<span style="color: #22c55e; margin-left: 4px;">🔼</span>';
-                    } else if (rankChange < 0) {
-                        arrowIcon = '<span style="color: #ef4444; margin-left: 4px;">🔽</span>';
+                    if (rankChange !== undefined) {
+                        if (rankChange > 0) {
+                            arrowIcon = '<span style="color: #22c55e; margin-left: 4px;">🔼</span>';
+                        } else if (rankChange < 0) {
+                            arrowIcon = '<span style="color: #ef4444; margin-left: 4px;">🔽</span>';
+                        } else {
+                            // rankChange === 0: same position
+                            arrowIcon = '<span style="color: #6b7280; margin-left: 4px;">=</span>';
+                        }
                     }
                     
                     row.innerHTML = `
