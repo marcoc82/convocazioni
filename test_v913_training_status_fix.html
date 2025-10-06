@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.13 - Training Status Fix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+            <h1 class="text-3xl font-bold text-center mb-2 text-blue-900">Test V9.13 - Training Status Fix</h1>
+            <p class="text-center text-gray-600 mb-4">Fix automatic training status calculation and button enabling/disabling</p>
+            <p class="text-center text-sm text-gray-500">Data test: 2024-12-20</p>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+            <h2 class="text-2xl font-bold text-green-800 mb-4">📋 Riepilogo Modifiche V9.13</h2>
+            <ul class="space-y-2 text-green-700">
+                <li>✓ <strong>Caricamento sessioni all'avvio:</strong> Le sessioni di allenamento vengono caricate automaticamente quando l'app si avvia, non solo quando si visita la schermata Allenamenti</li>
+                <li>✓ <strong>Tasti condizionali:</strong> I tasti "Zero/1/2 allenamenti" sono disabilitati SOLO se ci sono sessioni nella settimana corrente</li>
+                <li>✓ <strong>Tasti abilitati senza sessioni:</strong> Se non ci sono sessioni di allenamento, i tasti sono abilitati e selezionabili manualmente</li>
+                <li>✓ <strong>Logica coerente:</strong> Funziona correttamente sia in modalità Mister che Dirigente</li>
+            </ul>
+        </div>
+
+        <!-- Change 1: Load Sessions at App Start -->
+        <div class="mb-8 p-6 bg-blue-50 rounded-xl border border-blue-200">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">📝 Modifica 1: Caricamento Sessioni all'Avvio</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2 text-blue-700">Problema Precedente (V9.12):</h3>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <p class="text-sm text-gray-700">Le sessioni di allenamento venivano caricate SOLO quando l'utente cliccava sul pulsante "Allenamenti". Questo significava che:</p>
+                        <ul class="list-disc ml-6 mt-2 text-sm text-gray-600">
+                            <li>Il calcolo degli stati automatici non funzionava all'apertura della pagina convocazioni</li>
+                            <li>I tasti erano sempre disabilitati, anche se non c'erano sessioni</li>
+                            <li>Bisognava visitare prima la schermata Allenamenti per far funzionare il calcolo</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2 text-blue-700">Soluzione (V9.13):</h3>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <pre class="text-sm overflow-x-auto"><code>// V9.13: Modified startApp function
+async function startApp(appId) {
+    currentAppId = appId;
+    
+    appIdDisplay.textContent = currentAppId;
+    currentAppIdDisplay.textContent = currentAppId;
+
+    hideAllScreens();
+    mainView.classList.remove('hidden');
+
+    setupFirestoreListeners(currentAppId);
+    
+    // V9.13: Load training sessions at app start for automatic status calculation
+    await loadTrainingSessions();
+    
+    renderPlayers();
+    updateUIForRole();
+}</code></pre>
+                    </div>
+                </div>
+                <div class="bg-blue-100 p-3 rounded">
+                    <p class="text-sm text-blue-800"><strong>💡 Nota:</strong> Ora le sessioni vengono caricate subito dopo il login, prima di renderizzare i giocatori.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 2: Conditional Button Enabling -->
+        <div class="mb-8 p-6 bg-purple-50 rounded-xl border border-purple-200">
+            <h2 class="text-xl font-semibold text-purple-800 mb-4">📝 Modifica 2: Abilitazione Condizionale dei Tasti</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2 text-purple-700">Nuova Funzione Helper:</h3>
+                    <div class="bg-white p-4 rounded-lg border">
+                        <pre class="text-sm overflow-x-auto"><code>// V9.13: Check if there are training sessions in the current week
+function hasCurrentWeekTrainingSessions() {
+    if (!trainingSessions || trainingSessions.length === 0) {
+        return false;
+    }
+    
+    // Get start of current week (Monday 00:00)
+    const now = new Date();
+    const getMonday = (date) => {
+        const d = new Date(date);
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        d.setDate(diff);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    };
+    
+    const currentWeekStart = getMonday(now);
+    const currentWeekEnd = new Date(currentWeekStart);
+    currentWeekEnd.setDate(currentWeekStart.getDate() + 7);
+    
+    // Check if there's at least one session in current week
+    const weekSessions = trainingSessions.filter(session => {
+        const sessionDate = new Date(session.date);
+        return sessionDate >= currentWeekStart && sessionDate < currentWeekEnd;
+    });
+    
+    return weekSessions.length > 0;
+}</code></pre>
+                    </div>
+                </div>
+                <div class="bg-purple-100 p-3 rounded">
+                    <p class="text-sm text-purple-800"><strong>💡 Nota:</strong> Questa funzione verifica se ci sono sessioni nella settimana corrente (Lunedì-Domenica).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change 3: Modal Logic -->
+        <div class="mb-8 p-6 bg-orange-50 rounded-xl border border-orange-200">
+            <h2 class="text-xl font-semibold text-orange-800 mb-4">📝 Modifica 3: Logica del Modal</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold mb-2 text-orange-700">Comportamento Condizionale:</h3>
+                    <div class="bg-white p-4 rounded-lg border space-y-3">
+                        <div>
+                            <p class="font-semibold text-green-700">✅ CON sessioni nella settimana corrente:</p>
+                            <ul class="list-disc ml-6 text-sm text-gray-600">
+                                <li>I checkbox allenamenti sono DISABILITATI</li>
+                                <li>I checkbox mostrano lo stato auto-calcolato (checked se applicabile)</li>
+                                <li>Icona ℹ️ visibile con tooltip esplicativo</li>
+                                <li>Stile grigio (bg-gray-300, opacity-60, cursor-not-allowed)</li>
+                                <li>Messaggio: "Gli stati degli allenamenti sono calcolati automaticamente..."</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-blue-700">✅ SENZA sessioni nella settimana corrente:</p>
+                            <ul class="list-disc ml-6 text-sm text-gray-600">
+                                <li>I checkbox allenamenti sono ABILITATI</li>
+                                <li>I checkbox mostrano gli stati salvati manualmente</li>
+                                <li>Icona ℹ️ nascosta</li>
+                                <li>Stile normale colorato (bg-red-600 per 0/1 all., bg-white per 2 all.)</li>
+                                <li>Messaggio: "Nessuna sessione... Gli stati sono selezionabili manualmente"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Comparison -->
+        <div class="mb-8 p-6 bg-yellow-50 rounded-xl border border-yellow-200">
+            <h2 class="text-xl font-semibold text-yellow-800 mb-4">👀 Confronto Visivo</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-semibold mb-2 text-red-700">❌ V9.12 - Sempre Disabilitati:</h3>
+                    <div class="space-y-2">
+                        <div class="relative">
+                            <label class="flex items-center p-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed opacity-60">
+                                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                                <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+                            </label>
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                <span title="Calcolato automaticamente">ℹ️</span>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <label class="flex items-center p-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed opacity-60">
+                                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                                <span class="flex-1 font-medium">Solo 1 allenamento</span>
+                            </label>
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                <span title="Calcolato automaticamente">ℹ️</span>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <label class="flex items-center p-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed opacity-60">
+                                <input type="checkbox" class="w-5 h-5 mr-3 rounded" disabled>
+                                <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+                            </label>
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                                <span title="Calcolato automaticamente">ℹ️</span>
+                            </div>
+                        </div>
+                        <div class="p-2 bg-red-100 border border-red-200 rounded text-xs">
+                            ⚠️ Problema: Disabilitati anche quando non ci sono sessioni!
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-2 text-green-700">✅ V9.13 - Abilitati Senza Sessioni:</h3>
+                    <div class="space-y-2">
+                        <label class="flex items-center p-3 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Solo 2 allenamenti</span>
+                        </label>
+                        <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Solo 1 allenamento</span>
+                        </label>
+                        <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer">
+                            <input type="checkbox" class="w-5 h-5 mr-3 rounded">
+                            <span class="flex-1 font-medium">Zero allenamenti ❌</span>
+                        </label>
+                        <div class="p-2 bg-green-100 border border-green-200 rounded text-xs">
+                            ✓ Soluzione: Abilitati quando non ci sono sessioni!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Details -->
+        <div class="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">🔧 Dettagli Implementazione</h2>
+            <div class="space-y-4">
+                <div class="bg-white p-3 rounded border">
+                    <h3 class="font-semibold text-gray-700 mb-2">Funzioni Modificate:</h3>
+                    <ul class="list-disc ml-6 space-y-1 text-sm text-gray-600">
+                        <li><code>startApp()</code> - Ora async, carica sessioni all'avvio</li>
+                        <li><code>showModal()</code> - Abilita/disabilita checkbox in base a hasCurrentWeekTrainingSessions()</li>
+                        <li><code>confirmStatusButton handler</code> - Salva stati manuali anche se sono training statuses (quando non ci sono sessioni)</li>
+                        <li><code>renderPlayers()</code> - Gestisce training statuses manuali quando non ci sono sessioni</li>
+                        <li><code>updateUnavailablePlayersView()</code> - Gestisce visualizzazione stati in base a presenza sessioni</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-3 rounded border">
+                    <h3 class="font-semibold text-gray-700 mb-2">Nuove Funzioni:</h3>
+                    <ul class="list-disc ml-6 space-y-1 text-sm text-gray-600">
+                        <li><code>hasCurrentWeekTrainingSessions()</code> - Verifica se ci sono sessioni nella settimana corrente</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Scenarios -->
+        <div class="mb-8 p-6 bg-indigo-50 rounded-xl border border-indigo-200">
+            <h2 class="text-xl font-semibold text-indigo-800 mb-4">🧪 Scenari di Test</h2>
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-lg border">
+                    <h3 class="font-semibold text-indigo-700 mb-2">Scenario 1: Nessuna Sessione di Allenamento</h3>
+                    <ol class="list-decimal ml-6 space-y-1 text-sm text-gray-700">
+                        <li>Login come Dirigente</li>
+                        <li>NON visitare la schermata Allenamenti</li>
+                        <li>Aprire il modal di selezione stato per un giocatore</li>
+                        <li><strong>Risultato atteso:</strong> I tasti "Zero/1/2 allenamenti" sono ABILITATI e selezionabili</li>
+                        <li>Selezionare "Solo 1 allenamento" e confermare</li>
+                        <li><strong>Risultato atteso:</strong> Il giocatore ha il badge rosso con "Solo 1 allenamento"</li>
+                    </ol>
+                </div>
+                <div class="bg-white p-4 rounded-lg border">
+                    <h3 class="font-semibold text-indigo-700 mb-2">Scenario 2: Con Sessioni nella Settimana Corrente</h3>
+                    <ol class="list-decimal ml-6 space-y-1 text-sm text-gray-700">
+                        <li>Login come Dirigente</li>
+                        <li>Creare una sessione di allenamento questa settimana (es. Martedì)</li>
+                        <li>Salvare le presenze (alcuni presenti, altri assenti)</li>
+                        <li>Tornare alla schermata convocazioni</li>
+                        <li>Aprire il modal per un giocatore che era assente</li>
+                        <li><strong>Risultato atteso:</strong> Il checkbox "Zero allenamenti" è DISABILITATO e checked</li>
+                        <li><strong>Risultato atteso:</strong> Il giocatore ha automaticamente il badge rosso "Zero allenamenti"</li>
+                    </ol>
+                </div>
+                <div class="bg-white p-4 rounded-lg border">
+                    <h3 class="font-semibold text-indigo-700 mb-2">Scenario 3: Modalità Mister</h3>
+                    <ol class="list-decimal ml-6 space-y-1 text-sm text-gray-700">
+                        <li>Login come Mister</li>
+                        <li>Verificare che i giocatori con stati (manuali o auto) siano visualizzati correttamente</li>
+                        <li>Cliccare su un giocatore indisponibile</li>
+                        <li><strong>Risultato atteso:</strong> Il modal mostra tutti gli stati (manuali + auto)</li>
+                        <li><strong>Risultato atteso:</strong> È possibile "Convocare Ugualmente" se necessario</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="bg-teal-50 border-2 border-teal-200 rounded-xl p-6">
+            <h2 class="text-2xl font-bold text-teal-800 mb-4">✨ Vantaggi della V9.13</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-semibold text-teal-700 mb-2">Per gli Utenti:</h3>
+                    <ul class="space-y-2 text-teal-600">
+                        <li>✓ Il calcolo automatico funziona sempre, anche senza visitare la schermata Allenamenti</li>
+                        <li>✓ Maggiore flessibilità: stati selezionabili quando non ci sono sessioni</li>
+                        <li>✓ Comportamento intuitivo: i tasti sono abilitati/disabilitati in modo logico</li>
+                        <li>✓ Coerenza tra modalità Mister e Dirigente</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-teal-700 mb-2">Tecnici:</h3>
+                    <ul class="space-y-2 text-teal-600">
+                        <li>✓ Caricamento proattivo dei dati all'avvio</li>
+                        <li>✓ Logica condizionale chiara e manutenibile</li>
+                        <li>✓ Backward compatible con dati esistenti</li>
+                        <li>✓ Performance ottimizzata (caricamento asincrono)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🧪 Test page loaded - V9.13 Training Status Fix');
+        console.log('✅ Change 1: Load training sessions at app start');
+        console.log('✅ Change 2: hasCurrentWeekTrainingSessions() helper function');
+        console.log('✅ Change 3: Conditional enabling/disabling of training status checkboxes');
+        console.log('✅ Change 4: Updated modal, renderPlayers, and updateUnavailablePlayersView logic');
+    </script>
+</body>
+</html>
