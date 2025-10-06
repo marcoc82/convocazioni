@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.14 Changes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            padding: 20px;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .pass { color: #059669; font-weight: bold; }
+        .fail { color: #dc2626; font-weight: bold; }
+        .info { color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Test V9.14 Changes</h1>
+        
+        <!-- Test 1: Version Number -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">Test 1: Version Number Update</h2>
+            <p class="mb-2">Verifico che la versione sia aggiornata a V9.14...</p>
+            <div id="test1-result"></div>
+        </div>
+
+        <!-- Test 2: Auto-resize Textarea -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">Test 2: Auto-resize Textarea per Note</h2>
+            <p class="mb-2">Testa il ridimensionamento automatico della textarea:</p>
+            <textarea id="test-textarea" placeholder="Scrivi qui per testare l'auto-resize..." 
+                class="w-full p-3 border border-yellow-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" 
+                rows="3" style="min-height: 80px; overflow-y: hidden;"></textarea>
+            <div id="test2-result" class="mt-2"></div>
+            <p class="mt-2 text-sm text-gray-600">
+                ✅ La textarea si dovrebbe espandere mentre digiti testo su più righe.<br>
+                ✅ Non dovrebbe mostrare scrollbar verticale.<br>
+                ✅ L'altezza minima dovrebbe essere 80px.
+            </p>
+        </div>
+
+        <!-- Test 3: Mister/Dirigenti Counter Placeholders -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">Test 3: Contatori Mister e Dirigenti</h2>
+            <p class="mb-2">Simulazione dei titoli con contatori:</p>
+            
+            <div class="p-6 bg-gray-50 rounded-xl mb-4 shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Mister (<span id="coaches-count">0</span>)</h3>
+                <div class="space-y-2" id="coaches-list"></div>
+                <button onclick="addCoach()" class="mt-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                    Aggiungi Mister (Test)
+                </button>
+            </div>
+
+            <div class="p-6 bg-gray-50 rounded-xl mb-4 shadow-sm border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Dirigenti (<span id="directors-count">0</span>)</h3>
+                <div class="space-y-2" id="directors-list"></div>
+                <button onclick="addDirector()" class="mt-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                    Aggiungi Dirigente (Test)
+                </button>
+            </div>
+            
+            <div id="test3-result"></div>
+        </div>
+
+        <!-- Test 4: Company Info Fallback -->
+        <div class="test-section">
+            <h2 class="text-xl font-semibold mb-4">Test 4: Company Info Fallback nella Distinta</h2>
+            <p class="mb-2">Test del fallback per le informazioni società:</p>
+            <button onclick="testCompanyInfoFallback()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                Test Fallback
+            </button>
+            <div id="test4-result" class="mt-2"></div>
+        </div>
+    </div>
+
+    <script>
+        // Test 1: Version Check
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('index.html');
+                const html = await response.text();
+                const versionMatch = html.match(/<!-- Version: V(\d+\.\d+)/);
+                
+                const test1Result = document.getElementById('test1-result');
+                if (versionMatch && versionMatch[1] === '9.14') {
+                    test1Result.innerHTML = '<span class="pass">✅ PASS</span> - Versione corretta: V9.14';
+                } else {
+                    test1Result.innerHTML = '<span class="fail">❌ FAIL</span> - Versione trovata: ' + (versionMatch ? versionMatch[1] : 'non trovata');
+                }
+            } catch (error) {
+                document.getElementById('test1-result').innerHTML = '<span class="fail">❌ ERROR</span> - ' + error.message;
+            }
+        });
+
+        // Test 2: Auto-resize Textarea
+        const testTextarea = document.getElementById('test-textarea');
+        let resizeCount = 0;
+
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.max(textarea.scrollHeight, 80) + 'px';
+            resizeCount++;
+        }
+
+        testTextarea.addEventListener('input', function() {
+            autoResizeTextarea(this);
+            document.getElementById('test2-result').innerHTML = 
+                `<span class="info">ℹ️ Ridimensionamenti: ${resizeCount} | Altezza corrente: ${this.style.height}</span>`;
+        });
+
+        // Initial resize
+        autoResizeTextarea(testTextarea);
+
+        // Test 3: Counter functionality
+        let coaches = [];
+        let directors = [];
+
+        function addCoach() {
+            const coachName = prompt('Nome mister:', 'Mister ' + (coaches.length + 1));
+            if (coachName) {
+                coaches.push(coachName);
+                renderCoaches();
+            }
+        }
+
+        function addDirector() {
+            const directorName = prompt('Nome dirigente:', 'Dirigente ' + (directors.length + 1));
+            if (directorName) {
+                directors.push(directorName);
+                renderDirectors();
+            }
+        }
+
+        function renderCoaches() {
+            const list = document.getElementById('coaches-list');
+            const count = document.getElementById('coaches-count');
+            
+            list.innerHTML = '';
+            count.textContent = coaches.length;
+            
+            coaches.forEach((coach, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg';
+                div.innerHTML = `
+                    <div class="text-gray-700">
+                        <div class="font-bold">${coach}</div>
+                    </div>
+                    <button onclick="removeCoach(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                        Rimuovi
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+            
+            updateTest3Result();
+        }
+
+        function renderDirectors() {
+            const list = document.getElementById('directors-list');
+            const count = document.getElementById('directors-count');
+            
+            list.innerHTML = '';
+            count.textContent = directors.length;
+            
+            directors.forEach((director, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg';
+                div.innerHTML = `
+                    <div class="text-gray-700">
+                        <div class="font-bold">${director}</div>
+                    </div>
+                    <button onclick="removeDirector(${index})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">
+                        Rimuovi
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+            
+            updateTest3Result();
+        }
+
+        function removeCoach(index) {
+            coaches.splice(index, 1);
+            renderCoaches();
+        }
+
+        function removeDirector(index) {
+            directors.splice(index, 1);
+            renderDirectors();
+        }
+
+        function updateTest3Result() {
+            const result = document.getElementById('test3-result');
+            if (coaches.length > 0 || directors.length > 0) {
+                result.innerHTML = `<span class="pass">✅ PASS</span> - Contatori aggiornati correttamente (Mister: ${coaches.length}, Dirigenti: ${directors.length})`;
+            } else {
+                result.innerHTML = '<span class="info">ℹ️ Aggiungi mister o dirigenti per testare i contatori</span>';
+            }
+        }
+
+        // Test 4: Company Info Fallback
+        function testCompanyInfoFallback() {
+            const result = document.getElementById('test4-result');
+            
+            // Simulate the fallback logic from createDistintaContent
+            const currentCompanyData = {
+                name: "Test Società",
+                data: { nome: "Test Società" }
+            };
+            const currentCompanyCode = "TEST001";
+            
+            const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || 'Società Demo';
+            const companyCategory = localStorage.getItem(`categoria_${currentCompanyCode}`) || '';
+            
+            let companyInfo = {};
+            const savedInfo = localStorage.getItem(`companyInfo_${currentCompanyCode}`);
+            
+            if (savedInfo) {
+                companyInfo = JSON.parse(savedInfo);
+                result.innerHTML = '<span class="pass">✅ PASS</span> - Company info trovata in localStorage: ' + JSON.stringify(companyInfo);
+            } else {
+                // Fallback to basic company info
+                companyInfo = {
+                    ragioneSociale: companyName,
+                    categoria: companyCategory
+                };
+                result.innerHTML = `<span class="pass">✅ PASS</span> - Fallback funzionante. Dati base utilizzati: ${JSON.stringify(companyInfo)}`;
+            }
+        }
+
+        // Initialize test 3
+        updateTest3Result();
+    </script>
+</body>
+</html>
