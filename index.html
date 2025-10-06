@@ -665,8 +665,8 @@
                     Condividi le convocazioni
                 </button>
             </div>
-            <button id="modulo-button" class="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
-                ⚽ Modulo
+            <button id="modulo-button" class="w-full mt-4 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                ⚽ Tattiche
             </button>
             <button id="history-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                 Storico Convocazioni
@@ -9937,61 +9937,71 @@
                 // V9.5: Create goalkeeper (positioned lower on the field)
                 createPlayerIcon('GK', 50, 92, 'Portiere');
                 
-                // V9.5: Enhanced positioning - increased spacing to prevent name overlap
+                // V9.16: New logic - First number = defenders, Last number = attackers, Middle numbers = midfield lines
                 const numLines = formation.length;
+                const numMidfieldLines = numLines - 2; // All lines except first (defenders) and last (attackers)
+                
+                // Counters for player numbering
+                let defenderCount = 0;
+                let midfielderCount = 0;
+                let attackerCount = 0;
                 
                 formation.forEach((lineCount, lineIndex) => {
-                    // V9.5: Determine position based on role with improved spacing
                     let yPosition, xSpacing;
                     let positionLabel, positionName;
+                    let playerStartIndex;
                     
-                    if (formation.length === 2) {
-                        // 2-line formation: defenders and forwards
-                        if (lineIndex === 0) {
-                            // V9.5: Defenders - Y=75%, increased spacing
-                            yPosition = 75;
-                            xSpacing = 90;
-                            positionLabel = 'D';
-                            positionName = 'Difensore';
-                        } else {
-                            // V9.5: Attackers - further forward (Y=15%), increased spacing
-                            yPosition = 15;
-                            xSpacing = 90;
-                            positionLabel = 'A';
-                            positionName = 'Attaccante';
-                        }
+                    if (lineIndex === 0) {
+                        // First line: Defenders - Y=78%, increased spacing
+                        yPosition = 78;
+                        xSpacing = 90;
+                        positionLabel = 'D';
+                        positionName = 'Difensore';
+                        playerStartIndex = defenderCount;
+                        defenderCount += lineCount;
+                    } else if (lineIndex === numLines - 1) {
+                        // Last line: Attackers - further forward (Y=15%), increased spacing
+                        yPosition = 15;
+                        xSpacing = 90;
+                        positionLabel = 'A';
+                        positionName = 'Attaccante';
+                        playerStartIndex = attackerCount;
+                        attackerCount += lineCount;
                     } else {
-                        // 3-line formation: defenders, midfielders, forwards
-                        if (lineIndex === 0) {
-                            // V9.5: Defenders - Y=75%, increased spacing
-                            yPosition = 75;
-                            xSpacing = 90;
-                            positionLabel = 'D';
-                            positionName = 'Difensore';
-                        } else if (lineIndex === 1) {
-                            // V9.5: Midfielders - middle position, wider spacing (115% for better readability)
+                        // Middle lines: Midfielders - distribute evenly between defenders and attackers
+                        // Calculate which midfield line this is (0-indexed from defensive midfield)
+                        const midfieldLineIndex = lineIndex - 1; // 0 for first midfield line, 1 for second, etc.
+                        
+                        // Distribute midfield lines between Y=65% (near defenders) and Y=25% (near attackers)
+                        // More lines = closer spacing
+                        const midfieldStartY = 65;
+                        const midfieldEndY = 25;
+                        const midfieldRange = midfieldStartY - midfieldEndY;
+                        
+                        if (numMidfieldLines === 1) {
+                            // Single midfield line - center it
                             yPosition = 50;
-                            xSpacing = 115;
-                            positionLabel = 'C';
-                            positionName = 'Centrocampista';
                         } else {
-                            // V9.5: Attackers - further forward (Y=15%), increased spacing
-                            yPosition = 15;
-                            xSpacing = 90;
-                            positionLabel = 'A';
-                            positionName = 'Attaccante';
+                            // Multiple midfield lines - distribute evenly
+                            yPosition = midfieldStartY - (midfieldRange * midfieldLineIndex / (numMidfieldLines - 1));
                         }
+                        
+                        xSpacing = 115; // Wider spacing for midfielders
+                        positionLabel = 'C';
+                        positionName = 'Centrocampista';
+                        playerStartIndex = midfielderCount;
+                        midfielderCount += lineCount;
                     }
                     
                     // Create players for this line
                     const xStep = xSpacing / (lineCount + 1);
                     for (let i = 0; i < lineCount; i++) {
                         const xPosition = (100 - xSpacing) / 2 + xStep * (i + 1);
-                        createPlayerIcon(`${positionLabel}${i + 1}`, xPosition, yPosition, positionName);
+                        createPlayerIcon(`${positionLabel}${playerStartIndex + i + 1}`, xPosition, yPosition, positionName);
                     }
                 });
                 
-                console.log(`⚽ V9.5: Field generated with enhanced spacing (A/D=90%, C=115% spacing)`);
+                console.log(`⚽ V9.16: Field generated with new logic (First=D, Last=A, Middle=C lines)`);
             }
             
             // Create a player icon on the field
