@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.15 - Fix mobile swipe-down behavior: reload page instead of navigating to login -->
+<!-- Version: V9.17 - Add ranking arrows to training attendance report with sorting by presences then availability percentage -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -6708,7 +6708,7 @@
             
             // Load allenamenti report (V8.11: independent filter for report, auto-refresh on new session save, calculate average)
             async function loadAllenamentiReport() {
-                console.log('📊 Loading Allenamenti report... (V8.11)');
+                console.log('📊 Loading Allenamenti report... (V9.17)');
                 
                 const reportBody = document.getElementById('allenamenti-report-body');
                 const periodSelect = document.getElementById('report-period-select');
@@ -6716,6 +6716,27 @@
                 
                 // V9.11: Fetch injured players for ambulance icon display (historical data - all injured players for the season)
                 const injuredPlayers = await fetchInjuredPlayersFromFirestore();
+                
+                // V9.17: Fetch availability data for sorting (only for POLIS company)
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const isPolisCompany = companyName === 'POLIS';
+                let availabilityData = {};
+                let availabilityDataNormalized = {};
+                if (isPolisCompany) {
+                    try {
+                        const FIREBASE_CONVOCAZIONI_URL = 'https://polis-2013-default-rtdb.europe-west1.firebasedatabase.app/convocazioni.json';
+                        const response = await fetch(FIREBASE_CONVOCAZIONI_URL);
+                        if (response.ok) {
+                            availabilityData = await response.json() || {};
+                            Object.keys(availabilityData).forEach(key => {
+                                const normalizedKey = normalizePlayerName(key);
+                                availabilityDataNormalized[normalizedKey] = availabilityData[key];
+                            });
+                        }
+                    } catch (error) {
+                        console.error('📊 [V9.17] Errore nel caricamento dei dati disponibilità:', error);
+                    }
+                }
                 
                 // Calculate report data from training sessions
                 const playerStats = {};
@@ -6782,12 +6803,112 @@
                     return;
                 }
                 
-                // Convert to array and sort by presences
-                const statsArray = Object.entries(playerStats).map(([player, stats]) => ({
-                    player,
-                    ...stats,
-                    percentage: stats.total > 0 ? Math.round((stats.presences / stats.total) * 100) : 0
-                })).sort((a, b) => b.presences - a.presences);
+                // V9.17: Convert to array with availability data for sorting
+                const statsArray = Object.entries(playerStats).map(([player, stats]) => {
+                    const percentage = stats.total > 0 ? Math.round((stats.presences / stats.total) * 100) : 0;
+                    
+                    // Get availability percentage for POLIS company
+                    let availabilityNumeric = -1; // For sorting purposes
+                    if (isPolisCompany) {
+                        let rawValue = availabilityData[player];
+                        if (rawValue === undefined) {
+                            const normalizedPlayerName = normalizePlayerName(player);
+                            rawValue = availabilityDataNormalized[normalizedPlayerName];
+                        }
+                        if (rawValue !== undefined && rawValue !== null) {
+                            if (typeof rawValue === 'number') {
+                                availabilityNumeric = Math.ceil(rawValue <= 1 ? rawValue * 100 : rawValue);
+                            } else if (typeof rawValue === 'string') {
+                                const numValue = parseFloat(rawValue);
+                                if (!isNaN(numValue)) {
+                                    availabilityNumeric = Math.ceil(numValue <= 1 ? numValue * 100 : numValue);
+                                }
+                            }
+                        }
+                    }
+                    
+                    return {
+                        player,
+                        presences: stats.presences,
+                        total: stats.total,
+                        percentage,
+                        availabilityNumeric
+                    };
+                });
+                
+                // V9.17: Sort by presences descending, then by availability percentage descending (same as Riepilogo Totale)
+                statsArray.sort((a, b) => {
+                    if (b.presences !== a.presences) {
+                        return b.presences - a.presences; // Primary sort: presences descending
+                    }
+                    // Secondary sort: availability percentage descending
+                    return b.availabilityNumeric - a.availabilityNumeric;
+                });
+                
+                // V9.17: Ranking arrows - Compare with last week's ranking (using separate storage key for training)
+                const currentRanking = statsArray.map((stat, index) => ({
+                    name: stat.player,
+                    rank: index + 1
+                }));
+                
+                // Get last week's ranking from localStorage (separate key for training report)
+                const lastWeekRankingStr = localStorage.getItem('lastWeekRankingTraining');
+                let lastWeekRanking = {};
+                if (lastWeekRankingStr) {
+                    try {
+                        const rankingData = JSON.parse(lastWeekRankingStr);
+                        lastWeekRanking = rankingData.ranking || {};
+                    } catch (e) {
+                        console.error('Error parsing last week training ranking:', e);
+                    }
+                }
+                
+                // Check if we need to update the weekly snapshot (every Monday)
+                const lastUpdateStr = localStorage.getItem('lastRankingUpdateTraining');
+                let shouldUpdate = false;
+                
+                if (!lastUpdateStr) {
+                    shouldUpdate = true;
+                } else {
+                    const lastUpdate = new Date(lastUpdateStr);
+                    const daysSinceUpdate = Math.floor((now - lastUpdate) / (1000 * 60 * 60 * 24));
+                    
+                    // Update if it's Monday and we haven't updated this week
+                    const isMonday = now.getDay() === 1;
+                    const lastUpdateWasBeforeThisWeek = daysSinceUpdate >= 7 || 
+                        (isMonday && lastUpdate.getDay() !== 1) ||
+                        (now.getDay() > lastUpdate.getDay());
+                    
+                    if (lastUpdateWasBeforeThisWeek) {
+                        shouldUpdate = true;
+                    }
+                }
+                
+                if (shouldUpdate) {
+                    // Store current ranking as new baseline
+                    const rankingMap = {};
+                    currentRanking.forEach(item => {
+                        rankingMap[item.name] = item.rank;
+                    });
+                    localStorage.setItem('lastWeekRankingTraining', JSON.stringify({
+                        ranking: rankingMap,
+                        date: now.toISOString()
+                    }));
+                    localStorage.setItem('lastRankingUpdateTraining', now.toISOString());
+                    console.log('📊 [V9.17] Updated weekly training ranking snapshot');
+                }
+                
+                // Calculate rank changes
+                const rankChanges = {};
+                currentRanking.forEach(item => {
+                    const lastRank = lastWeekRanking[item.name];
+                    if (lastRank !== undefined) {
+                        const change = lastRank - item.rank; // Positive means moved up
+                        if (change !== 0) {
+                            rankChanges[item.name] = change;
+                        }
+                    }
+                });
                 
                 // Render rows
                 statsArray.forEach((stat, index) => {
@@ -6798,10 +6919,19 @@
                     const isInjured = injuredPlayers.includes(stat.player);
                     const ambulanceIcon = isInjured ? '🚑 ' : '';
                     
+                    // V9.17: Add ranking arrow
+                    const rankChange = rankChanges[stat.player];
+                    let arrowIcon = '';
+                    if (rankChange > 0) {
+                        arrowIcon = '<span style="color: #22c55e; margin-left: 4px;">🔼</span>';
+                    } else if (rankChange < 0) {
+                        arrowIcon = '<span style="color: #ef4444; margin-left: 4px;">🔽</span>';
+                    }
+                    
                     row.innerHTML = `
                         <td class="px-3 py-2 text-sm text-gray-900">${stat.player}</td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center">${totalSessions}</td>
-                        <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${ambulanceIcon}${stat.presences}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${ambulanceIcon}${stat.presences}${arrowIcon}</td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${stat.percentage}%</td>
                     `;
                     reportBody.appendChild(row);
@@ -6824,7 +6954,7 @@
                     averageDisplay.textContent = `${averagePercentage}%`;
                 }
                 
-                console.log(`✅ Report loaded: ${statsArray.length} players, ${totalSessions} sessions, ${averagePercentage}% average attendance`);
+                console.log(`✅ [V9.17] Report loaded: ${statsArray.length} players, ${totalSessions} sessions, ${averagePercentage}% average attendance`);
             }
 
             async function startApp(appId) {

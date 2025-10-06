@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<!-- V9.17 Visual Test - Training attendance report with ranking arrows and improved sorting -->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.17 Test - Training Report Ranking Arrows</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .view-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .badge-new {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+        }
+        .badge-old {
+            background: #9ca3af;
+            color: white;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-6 text-gray-800">🧪 V9.17 Feature Test</h1>
+        
+        <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
+            <h2 class="text-xl font-bold text-blue-800 mb-2">✨ Changes in V9.17</h2>
+            <ul class="list-disc list-inside text-blue-800 space-y-1">
+                <li><strong>Training Report Ranking Arrows</strong>: Added 🔼 (green) / 🔽 (red) arrows to show ranking changes in "Report Presenze"</li>
+                <li><strong>Improved Training Sorting</strong>: Training report now sorts by presences DESC, then availability % DESC (same as Riepilogo Totale)</li>
+                <li><strong>Separate Storage</strong>: Training rankings use independent localStorage keys (lastWeekRankingTraining)</li>
+                <li><strong>Weekly Updates</strong>: Rankings update automatically every Monday</li>
+                <li><strong>Version Update</strong>: Updated to V 9.17</li>
+            </ul>
+        </div>
+
+        <!-- Test 1: Ranking Arrows in Training Report -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                📊 Test 1: Ranking Arrows in Training Attendance Report
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Before V9.17 -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-old">Before V9.17</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-lg mb-3">📊 Report Presenze</h3>
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs">Giocatore</th>
+                                    <th class="px-3 py-2 text-center text-xs">N° All.</th>
+                                    <th class="px-3 py-2 text-center text-xs">Pres.</th>
+                                    <th class="px-3 py-2 text-center text-xs">% Pres.</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="bg-white">
+                                    <td class="px-3 py-2">10 ROSSI MARIO</td>
+                                    <td class="px-3 py-2 text-center">15</td>
+                                    <td class="px-3 py-2 text-center font-semibold">13</td>
+                                    <td class="px-3 py-2 text-center font-semibold">87%</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-3 py-2">7 BIANCHI LUIGI</td>
+                                    <td class="px-3 py-2 text-center">15</td>
+                                    <td class="px-3 py-2 text-center font-semibold">11</td>
+                                    <td class="px-3 py-2 text-center font-semibold">73%</td>
+                                </tr>
+                                <tr class="bg-white">
+                                    <td class="px-3 py-2">23 VERDI GIUSEPPE</td>
+                                    <td class="px-3 py-2 text-center">15</td>
+                                    <td class="px-3 py-2 text-center font-semibold">10</td>
+                                    <td class="px-3 py-2 text-center font-semibold">67%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-600 italic">
+                        ❌ No ranking arrows<br>
+                        ❌ Basic sorting (presences only)
+                    </div>
+                </div>
+
+                <!-- After V9.17 -->
+                <div class="border-2 border-green-500 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-new">V9.17 - After</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-lg mb-3">📊 Report Presenze</h3>
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs">Giocatore</th>
+                                    <th class="px-3 py-2 text-center text-xs">N° All.</th>
+                                    <th class="px-3 py-2 text-center text-xs">Pres.</th>
+                                    <th class="px-3 py-2 text-center text-xs">% Pres.</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                <tr class="bg-white">
+                                    <td class="px-3 py-2">10 ROSSI MARIO</td>
+                                    <td class="px-3 py-2 text-center">15</td>
+                                    <td class="px-3 py-2 text-center font-semibold">13 <span style="color: #22c55e;">🔼</span></td>
+                                    <td class="px-3 py-2 text-center font-semibold">87%</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="px-3 py-2">23 VERDI GIUSEPPE</td>
+                                    <td class="px-3 py-2 text-center">15</td>
+                                    <td class="px-3 py-2 text-center font-semibold">10 <span style="color: #22c55e;">🔼</span></td>
+                                    <td class="px-3 py-2 text-center font-semibold">67%</td>
+                                </tr>
+                                <tr class="bg-white">
+                                    <td class="px-3 py-2">7 BIANCHI LUIGI</td>
+                                    <td class="px-3 py-2 text-center">15</td>
+                                    <td class="px-3 py-2 text-center font-semibold">11 <span style="color: #ef4444;">🔽</span></td>
+                                    <td class="px-3 py-2 text-center font-semibold">73%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-2 text-sm text-green-600 font-semibold italic">
+                        ✅ Ranking arrows showing position changes<br>
+                        ✅ Sorted by presences, then availability %
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 2: Improved Sorting Logic -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                🔄 Test 2: Improved Sorting Logic
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Before V9.17 -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-old">Before V9.17</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-2">Sorting Code:</p>
+                        <div class="bg-white p-3 rounded border border-gray-300">
+                            <code class="text-xs">
+                                .sort((a, b) => b.presences - a.presences)
+                            </code>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-3 mb-2">Example with ties:</p>
+                        <div class="bg-white p-3 rounded border border-gray-300 text-xs">
+                            <div>1. ROSSI - 10 pres. (80% disp.)</div>
+                            <div>2. BIANCHI - 10 pres. (90% disp.) ← Random order</div>
+                            <div>3. VERDI - 10 pres. (85% disp.) ← Random order</div>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-600 italic">
+                        ❌ Random order when presences are equal
+                    </div>
+                </div>
+
+                <!-- After V9.17 -->
+                <div class="border-2 border-green-500 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-new">V9.17 - After</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600 mb-2">Sorting Code:</p>
+                        <div class="bg-white p-3 rounded border border-green-300">
+                            <code class="text-xs text-green-700">
+                                .sort((a, b) => {<br>
+                                &nbsp;&nbsp;if (b.presences !== a.presences) {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;return b.presences - a.presences;<br>
+                                &nbsp;&nbsp;}<br>
+                                &nbsp;&nbsp;return b.availabilityNumeric - a.availabilityNumeric;<br>
+                                })
+                            </code>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-3 mb-2">Example with ties:</p>
+                        <div class="bg-white p-3 rounded border border-green-300 text-xs text-green-700 font-semibold">
+                            <div>1. BIANCHI - 10 pres. (90% disp.) ← Highest %</div>
+                            <div>2. VERDI - 10 pres. (85% disp.) ← Middle %</div>
+                            <div>3. ROSSI - 10 pres. (80% disp.) ← Lowest %</div>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-sm text-green-600 font-semibold italic">
+                        ✅ Ties broken by availability % (descending)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 3: Storage Keys -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                💾 Test 3: Separate Storage Keys for Training Rankings
+            </h2>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg border-2 border-blue-300">
+                        <h3 class="font-bold text-lg mb-3 text-blue-700">📊 Riepilogo Totale (Matches)</h3>
+                        <p class="text-sm text-gray-600 mb-2">localStorage keys:</p>
+                        <ul class="text-sm space-y-1">
+                            <li>🔹 <code class="bg-blue-50 px-2 py-1 rounded">lastWeekRanking</code></li>
+                            <li>🔹 <code class="bg-blue-50 px-2 py-1 rounded">lastRankingUpdate</code></li>
+                        </ul>
+                        <p class="text-xs text-gray-500 mt-2 italic">Tracks ranking changes for match convocations</p>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border-2 border-green-300">
+                        <h3 class="font-bold text-lg mb-3 text-green-700">📊 Report Presenze (Training)</h3>
+                        <p class="text-sm text-gray-600 mb-2">localStorage keys:</p>
+                        <ul class="text-sm space-y-1">
+                            <li>🔹 <code class="bg-green-50 px-2 py-1 rounded">lastWeekRankingTraining</code></li>
+                            <li>🔹 <code class="bg-green-50 px-2 py-1 rounded">lastRankingUpdateTraining</code></li>
+                        </ul>
+                        <p class="text-xs text-gray-500 mt-2 italic">Tracks ranking changes for training attendance</p>
+                    </div>
+                </div>
+                
+                <div class="mt-4 bg-yellow-50 border border-yellow-300 rounded-lg p-3">
+                    <p class="text-sm text-yellow-800">
+                        ℹ️ <strong>Why separate keys?</strong> Training and match rankings are independent. 
+                        Players may have different ranking positions in training attendance vs. match convocations.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 4: Weekly Update Logic -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                📅 Test 4: Weekly Ranking Update (Every Monday)
+            </h2>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-bold text-lg mb-3">Update Logic:</h3>
+                <div class="space-y-3">
+                    <div class="bg-white p-3 rounded-lg border-2 border-blue-300">
+                        <p class="font-semibold text-blue-700 mb-2">🔄 When Rankings Update:</p>
+                        <ul class="list-disc list-inside text-sm space-y-1">
+                            <li>First time running (no previous data)</li>
+                            <li>Every Monday</li>
+                            <li>If 7+ days have passed since last update</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg border-2 border-green-300">
+                        <p class="font-semibold text-green-700 mb-2">📊 What Gets Stored:</p>
+                        <div class="bg-gray-50 p-2 rounded text-xs">
+                            <code>
+{<br>
+&nbsp;&nbsp;ranking: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"10 ROSSI MARIO": 1,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"7 BIANCHI LUIGI": 2,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;// ... more players<br>
+&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;date: "2024-01-15T10:00:00.000Z"<br>
+}
+                            </code>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-3 rounded-lg border-2 border-purple-300">
+                        <p class="font-semibold text-purple-700 mb-2">🔼🔽 Arrow Display Logic:</p>
+                        <ul class="list-disc list-inside text-sm space-y-1">
+                            <li><code>change > 0</code> → 🔼 Green arrow (moved UP)</li>
+                            <li><code>change < 0</code> → 🔽 Red arrow (moved DOWN)</li>
+                            <li><code>change = 0</code> → No arrow (same position)</li>
+                            <li>No previous data → No arrow (first time)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 5: Implementation Summary -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                📋 Implementation Summary
+            </h2>
+            
+            <div class="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-lg">
+                <h3 class="font-bold text-lg mb-4 text-gray-800">✅ What Changed in V9.17:</h3>
+                
+                <div class="space-y-3">
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <p class="font-semibold text-gray-700 mb-2">1. Modified Function:</p>
+                        <p class="text-sm text-gray-600"><code class="bg-gray-100 px-2 py-1 rounded">loadAllenamentiReport()</code> in index.html</p>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <p class="font-semibold text-gray-700 mb-2">2. New Features:</p>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li>Fetch availability data (POLIS company)</li>
+                            <li>Enhanced sorting (presences → availability %)</li>
+                            <li>Ranking comparison with previous week</li>
+                            <li>Visual arrows for ranking changes</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow-sm">
+                        <p class="font-semibold text-gray-700 mb-2">3. Version Updates:</p>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li>index.html header comment → V9.17</li>
+                            <li>manifest.json version → V9.17</li>
+                            <li>Console logs → V9.17</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Checklist -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                ✅ Testing Checklist
+            </h2>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <ul class="space-y-2">
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">☐</span>
+                        <span>Open Allenamenti page and verify Report Presenze loads</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">☐</span>
+                        <span>Check that players are sorted by presences first</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">☐</span>
+                        <span>For players with same presences, verify those with higher availability % appear first</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">☐</span>
+                        <span>On first load, verify no arrows appear (no previous data)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">☐</span>
+                        <span>Check localStorage for <code>lastWeekRankingTraining</code> and <code>lastRankingUpdateTraining</code></span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">☐</span>
+                        <span>Modify localStorage to simulate previous week's data</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">☐</span>
+                        <span>Reload page and verify arrows appear correctly (🔼 for up, 🔽 for down)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">☐</span>
+                        <span>Test with different period filters (week, month, year, all)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">☐</span>
+                        <span>Verify ambulance icons (🚑) still appear for injured players</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-500 mr-2">☐</span>
+                        <span>Confirm average attendance percentage updates correctly</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
