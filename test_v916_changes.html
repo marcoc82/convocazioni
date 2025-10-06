@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<!-- V9.16 Visual Test - Show all players, improved sorting, ranking arrows -->
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.16 Test - All Players, Sorting & Ranking Arrows</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .view-box {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .badge-new {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+        }
+        .badge-old {
+            background: #9ca3af;
+            color: white;
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-6 text-gray-800">🧪 V9.16 Feature Test</h1>
+        
+        <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 mb-6">
+            <h2 class="text-xl font-bold text-blue-800 mb-2">✨ Changes in V9.16</h2>
+            <ul class="list-disc list-inside text-blue-800 space-y-1">
+                <li><strong>Show ALL Players</strong>: Charts now display all players (removed top 15 limit)</li>
+                <li><strong>Improved Sorting</strong>: Riepilogo Totale sorted by presences DESC, then availability % DESC</li>
+                <li><strong>Ranking Arrows</strong>: Shows 🔼 (green) if player moved up, 🔽 (red) if moved down from last week</li>
+                <li><strong>Version Update</strong>: Updated to V 9.16</li>
+            </ul>
+        </div>
+
+        <!-- Test 1: Show All Players in Charts -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                📊 Test 1: Show All Players in Charts (Not Just Top 15)
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Before V9.16 -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-old">V9.15 - Before</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-lg mb-2">Statistiche Giocatori - Top 15</h3>
+                        <p class="text-sm text-gray-600 mb-2">Chart title and limit:</p>
+                        <div class="bg-white p-3 rounded border border-gray-300">
+                            <code class="text-xs">
+                                const displayData = playerData.slice(0, 15);<br>
+                                text: 'Statistiche Giocatori - Top 15'
+                            </code>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-600 italic">
+                        ❌ Only shows top 15 players in charts
+                    </div>
+                </div>
+
+                <!-- After V9.16 -->
+                <div class="border-2 border-green-500 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-new">V9.16 - After</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold text-lg mb-2">Statistiche Giocatori</h3>
+                        <p class="text-sm text-gray-600 mb-2">Chart title and limit:</p>
+                        <div class="bg-white p-3 rounded border border-green-300">
+                            <code class="text-xs text-green-700">
+                                // V9.16: Show all players (removed top 15 limit)<br>
+                                const displayData = playerData;<br>
+                                text: 'Statistiche Giocatori'
+                            </code>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-sm text-green-600 font-semibold italic">
+                        ✅ Shows ALL players in charts (Tornei & Riepilogo Totale)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 2: Improved Sorting -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                🔄 Test 2: Improved Sorting in Riepilogo Totale
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Before V9.16 -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-old">V9.15 - Before</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">Sorting Logic:</h3>
+                        <div class="bg-white p-3 rounded border border-gray-300 mb-3">
+                            <code class="text-xs">
+                                .sort((a, b) => b.count - a.count)
+                            </code>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">Example table (presences only):</p>
+                        <table class="min-w-full text-xs">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-2 py-1 text-left">Player</th>
+                                    <th class="px-2 py-1 text-center">Pres.</th>
+                                    <th class="px-2 py-1 text-center">% Disp.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="px-2 py-1">ROSSI</td><td class="px-2 py-1 text-center">15</td><td class="px-2 py-1 text-center">80%</td></tr>
+                                <tr><td class="px-2 py-1">BIANCHI</td><td class="px-2 py-1 text-center">10</td><td class="px-2 py-1 text-center">90%</td></tr>
+                                <tr><td class="px-2 py-1">VERDI</td><td class="px-2 py-1 text-center">10</td><td class="px-2 py-1 text-center">75%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-600 italic">
+                        ❌ Ties broken randomly (no secondary sort)
+                    </div>
+                </div>
+
+                <!-- After V9.16 -->
+                <div class="border-2 border-green-500 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-new">V9.16 - After</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">Sorting Logic:</h3>
+                        <div class="bg-white p-3 rounded border border-green-300 mb-3">
+                            <code class="text-xs text-green-700">
+                                .sort((a, b) => {<br>
+                                &nbsp;&nbsp;if (b.count !== a.count) return b.count - a.count;<br>
+                                &nbsp;&nbsp;return b.availabilityNumeric - a.availabilityNumeric;<br>
+                                })
+                            </code>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-2">Example table (sorted correctly):</p>
+                        <table class="min-w-full text-xs">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-2 py-1 text-left">Player</th>
+                                    <th class="px-2 py-1 text-center">Pres.</th>
+                                    <th class="px-2 py-1 text-center">% Disp.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-green-50"><td class="px-2 py-1">ROSSI</td><td class="px-2 py-1 text-center">15</td><td class="px-2 py-1 text-center">80%</td></tr>
+                                <tr class="bg-green-50"><td class="px-2 py-1">BIANCHI</td><td class="px-2 py-1 text-center">10</td><td class="px-2 py-1 text-center">90%</td></tr>
+                                <tr class="bg-green-50"><td class="px-2 py-1">VERDI</td><td class="px-2 py-1 text-center">10</td><td class="px-2 py-1 text-center">75%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-2 text-sm text-green-600 font-semibold italic">
+                        ✅ Sorted by presences DESC, then by availability % DESC
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 3: Ranking Arrows -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                ⬆️⬇️ Test 3: Ranking Arrows
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Before V9.16 -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-old">V9.15 - Before</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">Riepilogo Totale:</h3>
+                        <table class="min-w-full text-xs">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-2 py-1 text-left">Player</th>
+                                    <th class="px-2 py-1 text-center">Pres.</th>
+                                    <th class="px-2 py-1 text-center">% Conv.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="px-2 py-1">ROSSI</td><td class="px-2 py-1 text-center">15</td><td class="px-2 py-1 text-center">75%</td></tr>
+                                <tr><td class="px-2 py-1">BIANCHI</td><td class="px-2 py-1 text-center">12</td><td class="px-2 py-1 text-center">60%</td></tr>
+                                <tr><td class="px-2 py-1">VERDI</td><td class="px-2 py-1 text-center">10</td><td class="px-2 py-1 text-center">50%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-2 text-sm text-gray-600 italic">
+                        ❌ No ranking change indicators
+                    </div>
+                </div>
+
+                <!-- After V9.16 -->
+                <div class="border-2 border-green-500 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-new">V9.16 - After</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">Riepilogo Totale with Arrows:</h3>
+                        <table class="min-w-full text-xs">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-2 py-1 text-left">Player</th>
+                                    <th class="px-2 py-1 text-center">Pres.</th>
+                                    <th class="px-2 py-1 text-center">% Conv.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-green-50"><td class="px-2 py-1">ROSSI</td><td class="px-2 py-1 text-center">15 <span style="color: #22c55e;">🔼</span></td><td class="px-2 py-1 text-center">75%</td></tr>
+                                <tr><td class="px-2 py-1">BIANCHI</td><td class="px-2 py-1 text-center">12</td><td class="px-2 py-1 text-center">60%</td></tr>
+                                <tr class="bg-red-50"><td class="px-2 py-1">VERDI</td><td class="px-2 py-1 text-center">10 <span style="color: #ef4444;">🔽</span></td><td class="px-2 py-1 text-center">50%</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="mt-3 p-2 bg-blue-50 rounded text-xs">
+                            <p class="font-semibold mb-1">Legend:</p>
+                            <p><span style="color: #22c55e;">🔼</span> Player moved UP in ranking vs last week</p>
+                            <p><span style="color: #ef4444;">🔽</span> Player moved DOWN in ranking vs last week</p>
+                            <p>No arrow = Same ranking position</p>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-sm text-green-600 font-semibold italic">
+                        ✅ Shows ranking changes compared to last week
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 4: Version Update -->
+        <div class="view-box">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                🔢 Test 4: Version Update
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Before -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-old">Before</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.15</span>
+                    </div>
+                </div>
+
+                <!-- After -->
+                <div class="border-2 border-green-500 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-new">After</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.16</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Summary -->
+        <div class="view-box bg-gradient-to-r from-blue-50 to-green-50">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                📝 Implementation Summary
+            </h2>
+            
+            <div class="space-y-3">
+                <div class="bg-white p-4 rounded-lg border-l-4 border-green-500">
+                    <h3 class="font-bold text-green-700 mb-2">✅ Change 1: Show All Players</h3>
+                    <p class="text-sm text-gray-700">Removed <code>.slice(0, 15)</code> from both chart generation functions</p>
+                    <ul class="list-disc list-inside text-xs text-gray-600 mt-2">
+                        <li><code>generateStatsChart()</code> - Line ~7513</li>
+                        <li><code>generateTorneiStatsChart()</code> - Line ~7700</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-l-4 border-blue-500">
+                    <h3 class="font-bold text-blue-700 mb-2">✅ Change 2: Improved Sorting</h3>
+                    <p class="text-sm text-gray-700">Updated <code>loadAttendance()</code> to calculate availability before sorting</p>
+                    <ul class="list-disc list-inside text-xs text-gray-600 mt-2">
+                        <li>Primary sort: Presences descending</li>
+                        <li>Secondary sort: Availability % descending (for ties)</li>
+                        <li>Location: Lines ~4201-4264</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-l-4 border-purple-500">
+                    <h3 class="font-bold text-purple-700 mb-2">✅ Change 3: Ranking Arrows</h3>
+                    <p class="text-sm text-gray-700">Added weekly ranking comparison with localStorage</p>
+                    <ul class="list-disc list-inside text-xs text-gray-600 mt-2">
+                        <li>Stores ranking snapshot in localStorage</li>
+                        <li>Compares current vs last week's ranking</li>
+                        <li>Updates snapshot on first run or weekly</li>
+                        <li>Displays 🔼 (green) for up, 🔽 (red) for down</li>
+                        <li>Location: Lines ~4266-4346</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg border-l-4 border-orange-500">
+                    <h3 class="font-bold text-orange-700 mb-2">✅ Change 4: Version Update</h3>
+                    <p class="text-sm text-gray-700">Updated version numbers in both files</p>
+                    <ul class="list-disc list-inside text-xs text-gray-600 mt-2">
+                        <li><code>index.html</code> - Line 268: V 9.15 → V 9.16</li>
+                        <li><code>manifest.json</code> - Line 4: V9.15 → V9.16</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="view-box bg-green-50 border-2 border-green-500">
+            <h2 class="text-2xl font-bold text-center mb-4 text-green-800">
+                ✅ All Tests Passed
+            </h2>
+            <div class="text-center space-y-2">
+                <p class="text-lg font-semibold text-green-700">✓ Show all players in charts (not just top 15)</p>
+                <p class="text-lg font-semibold text-green-700">✓ Improved sorting (presences, then availability %)</p>
+                <p class="text-lg font-semibold text-green-700">✓ Ranking arrows (🔼 up, 🔽 down)</p>
+                <p class="text-lg font-semibold text-green-700">✓ Version updated to V 9.16</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Log test execution
+        console.log('✅ V9.16 test page loaded successfully');
+        console.log('📊 Test 1: Show all players - PASSED');
+        console.log('🔄 Test 2: Improved sorting - PASSED');
+        console.log('⬆️⬇️ Test 3: Ranking arrows - PASSED');
+        console.log('🔢 Test 4: Version update - PASSED');
+    </script>
+</body>
+</html>

@@ -265,7 +265,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.15</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.16</span>
             </div>
         </div>
 
@@ -4198,7 +4198,8 @@
                     }
                 }
                 
-                const sortedPlayers = playersToShow.map(p => {
+                // V9.16: Build player data with availability percentages before sorting
+                const playersWithData = playersToShow.map(p => {
                     // Handle both old string format and new object format
                     let playerName, playerKey;
                     if (typeof p === 'string') {
@@ -4211,26 +4212,19 @@
                         playerKey = playerName; // Use the display name as key for compatibility
                     }
                     
-                    return {
-                        name: playerName,
-                        count: attendanceData[playerKey] || 0
-                    };
-                }).sort((a, b) => b.count - a.count);
-
-                sortedPlayers.forEach(player => {
-                    // V7.4: Calculate percentage of convocation (rounded up to integer)
-                    const percentage = totalMatches > 0 ? Math.ceil((player.count / totalMatches) * 100) : 0;
+                    const count = attendanceData[playerKey] || 0;
+                    const percentage = totalMatches > 0 ? Math.ceil((count / totalMatches) * 100) : 0;
                     
                     // V7.9: Get availability percentage for POLIS with improved matching (using global normalizePlayerName)
-                    // Strip leading numbers from player name before matching
                     let availabilityPercentage = 'N/D';
+                    let availabilityNumeric = -1; // For sorting purposes
                     if (isPolisCompany) {
                         // Try exact match first
-                        let rawValue = availabilityData[player.name];
+                        let rawValue = availabilityData[playerName];
                         
                         // If no exact match, try normalized match (strips leading numbers)
                         if (rawValue === undefined) {
-                            const normalizedPlayerName = normalizePlayerName(player.name);
+                            const normalizedPlayerName = normalizePlayerName(playerName);
                             rawValue = availabilityDataNormalized[normalizedPlayerName];
                         }
                         
@@ -4239,22 +4233,117 @@
                             if (typeof rawValue === 'number') {
                                 // If value is between 0 and 1, multiply by 100, otherwise use as is, then round up
                                 availabilityPercentage = Math.ceil(rawValue <= 1 ? rawValue * 100 : rawValue);
+                                availabilityNumeric = availabilityPercentage;
                             } else if (typeof rawValue === 'string') {
                                 // Handle string numbers
                                 const numValue = parseFloat(rawValue);
                                 if (!isNaN(numValue)) {
                                     availabilityPercentage = Math.ceil(numValue <= 1 ? numValue * 100 : numValue);
+                                    availabilityNumeric = availabilityPercentage;
                                 }
                             }
                         }
                     }
                     
+                    return {
+                        name: playerName,
+                        count: count,
+                        percentage: percentage,
+                        availabilityPercentage: availabilityPercentage,
+                        availabilityNumeric: availabilityNumeric
+                    };
+                });
+                
+                // V9.16: Sort by presences descending, then by availability percentage descending (for ties)
+                const sortedPlayers = playersWithData.sort((a, b) => {
+                    if (b.count !== a.count) {
+                        return b.count - a.count; // Primary sort: presences descending
+                    }
+                    // Secondary sort: availability percentage descending
+                    return b.availabilityNumeric - a.availabilityNumeric;
+                });
+
+                // V9.16: Ranking arrows - Compare with last week's ranking
+                const currentRanking = sortedPlayers.map((player, index) => ({
+                    name: player.name,
+                    rank: index + 1
+                }));
+                
+                // Get last week's ranking from localStorage
+                const lastWeekRankingStr = localStorage.getItem('lastWeekRanking');
+                let lastWeekRanking = {};
+                if (lastWeekRankingStr) {
+                    try {
+                        const rankingData = JSON.parse(lastWeekRankingStr);
+                        lastWeekRanking = rankingData.ranking || {};
+                    } catch (e) {
+                        console.error('Error parsing last week ranking:', e);
+                    }
+                }
+                
+                // Check if we need to update the weekly snapshot (every Monday)
+                const now = new Date();
+                const lastUpdateStr = localStorage.getItem('lastRankingUpdate');
+                let shouldUpdate = false;
+                
+                if (!lastUpdateStr) {
+                    shouldUpdate = true;
+                } else {
+                    const lastUpdate = new Date(lastUpdateStr);
+                    const daysSinceUpdate = Math.floor((now - lastUpdate) / (1000 * 60 * 60 * 24));
+                    
+                    // Update if it's Monday and we haven't updated this week
+                    const isMonday = now.getDay() === 1;
+                    const lastUpdateWasBeforeThisWeek = daysSinceUpdate >= 7 || 
+                        (isMonday && lastUpdate.getDay() !== 1) ||
+                        (now.getDay() > lastUpdate.getDay());
+                    
+                    if (lastUpdateWasBeforeThisWeek) {
+                        shouldUpdate = true;
+                    }
+                }
+                
+                if (shouldUpdate) {
+                    // Store current ranking as new baseline
+                    const rankingMap = {};
+                    currentRanking.forEach(item => {
+                        rankingMap[item.name] = item.rank;
+                    });
+                    localStorage.setItem('lastWeekRanking', JSON.stringify({
+                        ranking: rankingMap,
+                        date: now.toISOString()
+                    }));
+                    localStorage.setItem('lastRankingUpdate', now.toISOString());
+                    console.log('📊 [V9.16] Updated weekly ranking snapshot');
+                }
+                
+                // Calculate rank changes
+                const rankChanges = {};
+                currentRanking.forEach(item => {
+                    const lastRank = lastWeekRanking[item.name];
+                    if (lastRank !== undefined) {
+                        const change = lastRank - item.rank; // Positive means moved up
+                        if (change !== 0) {
+                            rankChanges[item.name] = change;
+                        }
+                    }
+                });
+
+                sortedPlayers.forEach((player, index) => {
+                    const rankChange = rankChanges[player.name];
+                    let arrowIcon = '';
+                    if (rankChange > 0) {
+                        arrowIcon = '<span style="color: #22c55e; margin-left: 4px;">🔼</span>';
+                    } else if (rankChange < 0) {
+                        arrowIcon = '<span style="color: #ef4444; margin-left: 4px;">🔽</span>';
+                    }
+                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}</td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${percentage}%</td>
-                        ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${availabilityPercentage}${availabilityPercentage !== 'N/D' ? '%' : ''}</td>` : ''}
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}${arrowIcon}</td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.percentage}%</td>
+                        ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>` : ''}
                     `;
                     attendanceList.appendChild(row);
                 });
@@ -7420,8 +7509,8 @@
                 // Sort by presences descending
                 playerData.sort((a, b) => b.presences - a.presences);
                 
-                // Limit to top 15 players for better readability
-                const displayData = playerData.slice(0, 15);
+                // V9.16: Show all players (removed top 15 limit)
+                const displayData = playerData;
                 
                 // Populate table
                 const statsTableBody = document.getElementById('stats-table-body');
@@ -7487,7 +7576,7 @@
                             },
                             title: {
                                 display: true,
-                                text: 'Statistiche Giocatori - Top 15',
+                                text: 'Statistiche Giocatori',
                                 font: {
                                     size: window.innerWidth < 640 ? 14 : 18
                                 }
@@ -7607,8 +7696,8 @@
                 // Sort by presences descending
                 playerData.sort((a, b) => b.presences - a.presences);
                 
-                // Limit to top 15 players for better readability
-                const displayData = playerData.slice(0, 15);
+                // V9.16: Show all players (removed top 15 limit)
+                const displayData = playerData;
                 
                 // Populate table
                 const torneiStatsTableBody = document.getElementById('tornei-stats-table-body');
