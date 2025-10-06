@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Biometric Authentication - Rosterkick</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center">🔐 Test Autenticazione Biometrica</h1>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">📋 Requisiti Implementati</h2>
+            <ul class="space-y-2">
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>Requisito 1:</strong> Al primo accesso, viene sempre richiesta la password</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>Requisito 2:</strong> Dopo il primo accesso, la password viene associata all'impronta digitale dell'utente</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>Requisito 3:</strong> Nelle sessioni successive, è possibile accedere tramite impronta digitale</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>Requisito 4:</strong> Se il riconoscimento fallisce, viene richiesta nuovamente la password</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>Requisito 5:</strong> Compatibilità con dispositivi che supportano biometria</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">🔧 Implementazione Tecnica</h2>
+            <div class="space-y-4">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-blue-800 mb-2">Web Authentication API (WebAuthn)</h3>
+                    <p class="text-sm text-blue-900">Utilizzo dell'API standard WebAuthn per l'autenticazione biometrica, compatibile con:</p>
+                    <ul class="text-sm text-blue-900 mt-2 ml-4 list-disc">
+                        <li>Touch ID / Face ID su iOS e macOS</li>
+                        <li>Fingerprint / Face Unlock su Android</li>
+                        <li>Windows Hello su Windows</li>
+                    </ul>
+                </div>
+
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-green-800 mb-2">Funzionalità Implementate</h3>
+                    <ul class="text-sm text-green-900 space-y-1">
+                        <li>✓ <code class="bg-green-100 px-1 rounded">isBiometricSupported()</code> - Verifica supporto browser</li>
+                        <li>✓ <code class="bg-green-100 px-1 rounded">registerBiometric()</code> - Registrazione credenziali biometriche</li>
+                        <li>✓ <code class="bg-green-100 px-1 rounded">authenticateWithBiometric()</code> - Autenticazione tramite biometria</li>
+                        <li>✓ <code class="bg-green-100 px-1 rounded">hasBiometricEnrolled()</code> - Verifica iscrizione esistente</li>
+                        <li>✓ <code class="bg-green-100 px-1 rounded">clearBiometricCredentials()</code> - Rimozione credenziali</li>
+                    </ul>
+                </div>
+
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-purple-800 mb-2">Flusso di Autenticazione</h3>
+                    <ol class="text-sm text-purple-900 space-y-2">
+                        <li><strong>1. Primo Login:</strong> Utente inserisce password → Sistema registra automaticamente credenziale biometrica</li>
+                        <li><strong>2. Login Successivo:</strong> Sistema mostra pulsante "Accedi con impronta digitale" se disponibile</li>
+                        <li><strong>3. Autenticazione Biometrica:</strong> Utente usa impronta/volto → Sistema recupera password e autentica</li>
+                        <li><strong>4. Fallback:</strong> Se biometria fallisce → Utente può sempre inserire password manualmente</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">🧪 Test Interattivi</h2>
+            
+            <div class="mb-4">
+                <h3 class="font-semibold mb-2">Test 1: Verifica Supporto Biometrico</h3>
+                <button id="test-support" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    Verifica Supporto
+                </button>
+                <div id="support-result" class="mt-2 p-3 bg-gray-50 rounded-lg hidden"></div>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="font-semibold mb-2">Test 2: Simula Registrazione Biometrica</h3>
+                <p class="text-sm text-gray-600 mb-2">Nota: Questo test richiede un gesto utente e un dispositivo con supporto biometrico.</p>
+                <button id="test-register" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                    Simula Registrazione
+                </button>
+                <div id="register-result" class="mt-2 p-3 bg-gray-50 rounded-lg hidden"></div>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="font-semibold mb-2">Test 3: Verifica Storage LocalStorage</h3>
+                <button id="test-storage" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg">
+                    Verifica Storage
+                </button>
+                <div id="storage-result" class="mt-2 p-3 bg-gray-50 rounded-lg hidden"></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">📱 Compatibilità Browser/Dispositivo</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">✅ Supportato</h3>
+                    <ul class="text-sm space-y-1">
+                        <li>• Chrome/Edge (Desktop + Mobile)</li>
+                        <li>• Safari (iOS 14+ / macOS)</li>
+                        <li>• Firefox (Desktop + Android)</li>
+                        <li>• Android Chrome con biometria</li>
+                        <li>• iOS Safari con Touch/Face ID</li>
+                    </ul>
+                </div>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-semibold mb-2">⚠️ Fallback a Password</h3>
+                    <ul class="text-sm space-y-1">
+                        <li>• Browser senza WebAuthn</li>
+                        <li>• Dispositivi senza biometria</li>
+                        <li>• Utente cancella autenticazione</li>
+                        <li>• Errori di sistema</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">🔒 Note sulla Sicurezza</h2>
+            <div class="space-y-2 text-sm">
+                <p><strong>✓ Sicurezza Implementata:</strong></p>
+                <ul class="ml-4 space-y-1">
+                    <li>• Le credenziali biometriche sono gestite dal sistema operativo (non accessibili al browser)</li>
+                    <li>• La password è codificata in base64 e memorizzata localmente (solo per dimostrazione)</li>
+                    <li>• Ogni tentativo di autenticazione richiede verifica biometrica reale</li>
+                    <li>• Supporto per "platform authenticator" (Touch ID, Face ID, Windows Hello)</li>
+                </ul>
+                <p class="mt-3"><strong>⚠️ Nota per Produzione:</strong></p>
+                <ul class="ml-4 space-y-1">
+                    <li>• In produzione, la password non dovrebbe essere memorizzata localmente</li>
+                    <li>• Considerare l'uso di token di sessione invece della password</li>
+                    <li>• Implementare scadenza delle credenziali biometriche</li>
+                    <li>• Aggiungere logging per audit di sicurezza</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test 1: Verify biometric support
+        document.getElementById('test-support').addEventListener('click', () => {
+            const resultDiv = document.getElementById('support-result');
+            resultDiv.classList.remove('hidden');
+            
+            const supported = window.PublicKeyCredential !== undefined && 
+                            navigator.credentials !== undefined;
+            
+            if (supported) {
+                resultDiv.className = 'mt-2 p-3 bg-green-100 border border-green-300 rounded-lg';
+                resultDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-green-600 mr-2">✅</span>
+                        <div>
+                            <strong>Supporto Biometrico Disponibile</strong>
+                            <ul class="text-sm mt-1 ml-4">
+                                <li>• PublicKeyCredential API: ✓</li>
+                                <li>• Navigator.credentials: ✓</li>
+                                <li>• Il dispositivo può utilizzare l'autenticazione biometrica</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.className = 'mt-2 p-3 bg-yellow-100 border border-yellow-300 rounded-lg';
+                resultDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-yellow-600 mr-2">⚠️</span>
+                        <div>
+                            <strong>Supporto Biometrico Non Disponibile</strong>
+                            <p class="text-sm mt-1">Il browser o il dispositivo non supporta WebAuthn. L'autenticazione userà solo password.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        // Test 2: Simulate biometric registration
+        document.getElementById('test-register').addEventListener('click', async () => {
+            const resultDiv = document.getElementById('register-result');
+            resultDiv.classList.remove('hidden');
+            resultDiv.className = 'mt-2 p-3 bg-blue-100 border border-blue-300 rounded-lg';
+            resultDiv.innerHTML = '<strong>Tentativo di registrazione in corso...</strong>';
+            
+            try {
+                const challenge = new Uint8Array(32);
+                crypto.getRandomValues(challenge);
+                
+                const userId = new TextEncoder().encode('DEMO_mister');
+                
+                const publicKeyCredentialCreationOptions = {
+                    challenge: challenge,
+                    rp: {
+                        name: "Rosterkick Test",
+                        id: window.location.hostname
+                    },
+                    user: {
+                        id: userId,
+                        name: "DEMO_mister",
+                        displayName: "Mister Demo"
+                    },
+                    pubKeyCredParams: [
+                        { alg: -7, type: "public-key" },
+                        { alg: -257, type: "public-key" }
+                    ],
+                    authenticatorSelection: {
+                        authenticatorAttachment: "platform",
+                        requireResidentKey: false,
+                        userVerification: "preferred"
+                    },
+                    timeout: 60000,
+                    attestation: "none"
+                };
+                
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyCredentialCreationOptions
+                });
+                
+                if (credential) {
+                    resultDiv.className = 'mt-2 p-3 bg-green-100 border border-green-300 rounded-lg';
+                    resultDiv.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="text-green-600 mr-2">✅</span>
+                            <div>
+                                <strong>Registrazione Biometrica Riuscita!</strong>
+                                <p class="text-sm mt-1">Credenziale ID: ${credential.id.substring(0, 20)}...</p>
+                                <p class="text-sm">Type: ${credential.type}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'mt-2 p-3 bg-red-100 border border-red-300 rounded-lg';
+                resultDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-red-600 mr-2">❌</span>
+                        <div>
+                            <strong>Registrazione Fallita</strong>
+                            <p class="text-sm mt-1">Errore: ${error.message}</p>
+                            <p class="text-sm">Possibili cause: utente ha cancellato, dispositivo non supportato, o errore di sistema</p>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+
+        // Test 3: Check localStorage
+        document.getElementById('test-storage').addEventListener('click', () => {
+            const resultDiv = document.getElementById('storage-result');
+            resultDiv.classList.remove('hidden');
+            
+            const biometricKeys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('biometric_cred_')) {
+                    biometricKeys.push(key);
+                }
+            }
+            
+            if (biometricKeys.length > 0) {
+                resultDiv.className = 'mt-2 p-3 bg-green-100 border border-green-300 rounded-lg';
+                resultDiv.innerHTML = `
+                    <div>
+                        <strong>Credenziali Biometriche Trovate: ${biometricKeys.length}</strong>
+                        <ul class="text-sm mt-2 ml-4 space-y-1">
+                            ${biometricKeys.map(key => `<li>• ${key}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else {
+                resultDiv.className = 'mt-2 p-3 bg-gray-100 border border-gray-300 rounded-lg';
+                resultDiv.innerHTML = `
+                    <div>
+                        <strong>Nessuna Credenziale Biometrica Trovata</strong>
+                        <p class="text-sm mt-1">Non sono state ancora registrate credenziali biometriche. Prova ad accedere all'app principale.</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
