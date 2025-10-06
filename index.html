@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.18 - Add equals symbol for unchanged ranking and handle tied positions (same presences + same availability) -->
+<!-- Version: V9.19 - Add color legend button for mister + Fix text readability on blue/white badges -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -265,7 +265,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.16</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.19</span>
             </div>
         </div>
 
@@ -650,7 +650,12 @@
             </div>
 
             <!-- Players List Section -->
-            <h2 class="text-lg font-semibold text-gray-700 mb-2">Lista Giocatori</h2>
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-lg font-semibold text-gray-700">Lista Giocatori</h2>
+                <button id="legend-button" class="hidden bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-lg transition-colors duration-200">
+                    🎨 Legenda Colori
+                </button>
+            </div>
             <p class="text-sm text-gray-500 mb-4" id="players-list-message">Clicca sui nomi per selezionare i convocati.</p>
             <div id="players-list-container" class="bg-gray-50 rounded-xl p-4 mb-6 shadow-sm border border-gray-200">
                 <ul id="players-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -1359,6 +1364,116 @@
             </div>
             <button id="close-share-modal" class="mt-6 w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
                 Annulla
+            </button>
+        </div>
+    </div>
+
+    <!-- V9.19: Modal for Player Color Legend -->
+    <div id="legend-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform scale-95 transition-transform duration-300">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">🎨 Legenda Colori Giocatori</h2>
+            <p class="text-sm text-gray-600 mb-4">I colori dei badge indicano lo stato di disponibilità dei giocatori:</p>
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+                <!-- Single status colors -->
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-gray-900 rounded border-2 border-gray-700 flex items-center justify-center text-white text-xs font-bold">
+                        🚑
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Infortunato</div>
+                        <div class="text-xs text-gray-500">Badge nero con icona ambulanza</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-yellow-400 rounded border-2 border-yellow-500 flex items-center justify-center text-gray-900 text-xs font-bold">
+                        🟥
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Squalificato</div>
+                        <div class="text-xs text-gray-500">Badge giallo con cartellino rosso</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-purple-600 rounded border-2 border-purple-700 flex items-center justify-center text-white text-xs font-bold">
+                        SAB
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Non disponibile Sabato</div>
+                        <div class="text-xs text-gray-500">Badge viola</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-blue-900 rounded border-2 border-blue-950 flex items-center justify-center text-white text-xs font-bold">
+                        DOM
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Non disponibile Domenica</div>
+                        <div class="text-xs text-gray-500">Badge blu scuro</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-red-600 rounded border-2 border-red-700 flex items-center justify-center text-white text-xs font-bold">
+                        WE
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Non disponibile Weekend</div>
+                        <div class="text-xs text-gray-500">Badge rosso</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-white rounded border-2 border-gray-300 flex items-center justify-center text-gray-900 text-xs font-bold">
+                        2 ALL
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Solo 2 allenamenti</div>
+                        <div class="text-xs text-gray-500">Badge bianco (calcolato automaticamente)</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-red-600 rounded border-2 border-red-700 flex items-center justify-center text-white text-xs font-bold">
+                        1 ALL
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Solo 1 allenamento</div>
+                        <div class="text-xs text-gray-500">Badge rosso (calcolato automaticamente)</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-red-600 rounded border-2 border-red-700 flex items-center justify-center text-white text-xs font-bold">
+                        ❌
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Zero allenamenti</div>
+                        <div class="text-xs text-gray-500">Badge rosso (calcolato automaticamente)</div>
+                    </div>
+                </div>
+                
+                <!-- Multi-status gradient example -->
+                <div class="border-t pt-3 mt-3">
+                    <div class="font-medium text-gray-800 mb-2">Stati Multipli:</div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-16 h-10 rounded border-2 border-gray-400 flex items-center justify-center text-xs font-bold" style="background: linear-gradient(90deg, #1e3a8a 0%, #1e3a8a 50%, #ffffff 50%, #ffffff 100%); color: #1f2937;">
+                            <span style="color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">DOM</span>/<span style="color: #1f2937;">2</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm text-gray-700">Non disponibile Domenica + 2 allenamenti</div>
+                            <div class="text-xs text-gray-500">Badge metà blu/metà bianco</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-600 bg-blue-50 p-2 rounded">
+                        <strong>Nota:</strong> Quando un giocatore ha più stati, il badge mostra un gradiente con i colori degli stati combinati.
+                    </div>
+                </div>
+            </div>
+            <button id="close-legend-modal" class="mt-6 w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                Chiudi
             </button>
         </div>
     </div>
@@ -2104,6 +2219,11 @@
             const torneiStatsChartModal = document.getElementById('tornei-stats-chart-modal');
             const torneiStatsChartButton = document.getElementById('tornei-stats-chart-button');
             const closeTorneiStatsChartModalButton = document.getElementById('close-tornei-stats-chart-modal');
+
+            // V9.19: Legend Modal Elements
+            const legendModal = document.getElementById('legend-modal');
+            const legendButton = document.getElementById('legend-button');
+            const closeLegendModalButton = document.getElementById('close-legend-modal');
 
             // --- App State ---
             let userRole = null;
@@ -5479,6 +5599,9 @@
                     matchDetailsSection.classList.remove('hidden');
                     matchDetailsSection.style.display = ''; // Show match details for Mister
 
+                    // V9.19: Show legend button for Mister
+                    legendButton.classList.remove('hidden');
+
                     // Show notes section for Mister (readonly)
                     notesSection.classList.remove('hidden');
                     notesEditable.classList.add('hidden');
@@ -5532,6 +5655,9 @@
                     matchDetailsSection.style.display = 'none'; // Hide match details for Marco
                     unavailablePlayersTitle.textContent = "Giocatori che hai segnato come non disponibili";
                     
+                    // V9.19: Hide legend button for Dirigente
+                    legendButton.classList.add('hidden');
+                    
                     // Hide mister selection dropdowns for Dirigente role
                     document.getElementById('mister-selection-1').classList.add('hidden');
                     document.getElementById('mister-selection-2').classList.add('hidden');
@@ -5562,6 +5688,9 @@
                     playersListMessage.textContent = "Accesso Ospite - Solo visualizzazione.";
                     roleMessage.textContent = "Accesso ospite: puoi solo visualizzare lo storico e le presenze.";
                     roleMessage.classList.remove('hidden');
+                    
+                    // V9.19: Hide legend button for Guests
+                    legendButton.classList.add('hidden');
                     
                     // Hide main action buttons for guests
                     saveButton.style.display = 'none';
@@ -9883,6 +10012,25 @@
             cancelAlreadyCalledButton.addEventListener('click', hideAlreadyCalledModal);
             saveNotesButton.addEventListener('click', saveNotes);
             
+            // V9.19: Legend modal handlers
+            legendButton.addEventListener('click', () => {
+                legendModal.classList.remove('hidden');
+                setTimeout(() => {
+                    legendModal.classList.add('opacity-100');
+                    legendModal.querySelector('.transform').classList.remove('scale-95');
+                    legendModal.querySelector('.transform').classList.add('scale-100');
+                }, 10);
+            });
+            
+            closeLegendModalButton.addEventListener('click', () => {
+                legendModal.classList.remove('opacity-100');
+                legendModal.querySelector('.transform').classList.remove('scale-100');
+                legendModal.querySelector('.transform').classList.add('scale-95');
+                setTimeout(() => {
+                    legendModal.classList.add('hidden');
+                }, 300);
+            });
+            
             // Auto-resize notes textarea
             function autoResizeTextarea(textarea) {
                 textarea.style.height = 'auto';
@@ -10102,13 +10250,25 @@
                         }
                     });
                     
-                    // V9.14: Fix text color for gradients containing white
-                    // If gradient contains white (#ffffff), use dark text for readability
+                    // V9.19: Fix text color for gradients containing both white and dark colors
+                    // If gradient has white + dark blue (common case: "Solo 2 allenamenti" + "Non disponibile Domenica")
+                    // use dark text with white shadow for blue section, making it readable on both parts
                     const hasWhite = colors.includes('#ffffff');
-                    if (hasWhite) {
+                    const hasDarkBlue = colors.includes('#1e3a8a');
+                    
+                    if (hasWhite && hasDarkBlue) {
+                        // Special case: blue-white gradient needs contrasting text on each half
+                        // Use dark text with white text-shadow to make it readable on blue part
+                        playerItem.style.color = '#1f2937'; // dark text for white section
+                        playerItem.style.textShadow = '1px 1px 2px rgba(255, 255, 255, 0.8), -1px -1px 2px rgba(255, 255, 255, 0.8)'; // white shadow for blue section
+                    } else if (hasWhite) {
+                        // Other gradients with white: use dark text
                         playerItem.style.color = '#1f2937'; // dark text
+                        playerItem.style.textShadow = ''; // no shadow needed
                     } else {
+                        // No white: use white text as usual
                         playerItem.style.color = '#ffffff'; // white text
+                        playerItem.style.textShadow = ''; // no shadow needed
                     }
                     
                     // Create gradient with equal segments for each status

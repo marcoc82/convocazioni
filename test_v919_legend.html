@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.19 - Legend and Text Readability</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        .player-item {
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .player-item.multi-status {
+            font-weight: bold;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">
+            🎨 V9.19 - Test Legenda Colori e Leggibilità Testo
+        </h1>
+
+        <!-- Feature 1: Legend Button -->
+        <div class="test-section">
+            <h2 class="text-xl font-bold text-blue-600 mb-4">✅ Funzionalità 1: Pulsante Legenda Colori</h2>
+            <p class="text-gray-700 mb-4">Il pulsante "🎨 Legenda Colori" appare accanto a "Lista Giocatori" quando l'utente è loggato come <strong>Mister</strong>.</p>
+            
+            <div class="bg-gray-50 p-4 rounded-lg border-2 border-blue-200">
+                <div class="flex items-center justify-between mb-2">
+                    <h2 class="text-lg font-semibold text-gray-700">Lista Giocatori</h2>
+                    <button id="legend-button" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-lg transition-colors duration-200">
+                        🎨 Legenda Colori
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500">Clicca sui nomi per selezionare i convocati.</p>
+            </div>
+            
+            <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-sm text-green-800">
+                    ✅ <strong>Risultato:</strong> Il pulsante è visibile solo per il Mister. Per Dirigente e Ospite rimane nascosto.
+                </p>
+            </div>
+        </div>
+
+        <!-- Feature 2: Legend Modal -->
+        <div class="test-section">
+            <h2 class="text-xl font-bold text-blue-600 mb-4">✅ Funzionalità 2: Modal Legenda</h2>
+            <p class="text-gray-700 mb-4">Cliccando sul pulsante si apre un popup che spiega il significato di ogni colore dei badge:</p>
+            
+            <div class="bg-white border-2 border-gray-300 rounded-xl shadow-lg p-6 max-w-md mx-auto">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">🎨 Legenda Colori Giocatori</h2>
+                <p class="text-sm text-gray-600 mb-4">I colori dei badge indicano lo stato di disponibilità dei giocatori:</p>
+                <div class="space-y-3 max-h-96 overflow-y-auto">
+                    <!-- Single status colors -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-16 h-10 bg-gray-900 rounded border-2 border-gray-700 flex items-center justify-center text-white text-xs font-bold">
+                            🚑
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-800">Infortunato</div>
+                            <div class="text-xs text-gray-500">Badge nero con icona ambulanza</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="w-16 h-10 bg-yellow-400 rounded border-2 border-yellow-500 flex items-center justify-center text-gray-900 text-xs font-bold">
+                            🟥
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-800">Squalificato</div>
+                            <div class="text-xs text-gray-500">Badge giallo con cartellino rosso</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="w-16 h-10 bg-purple-600 rounded border-2 border-purple-700 flex items-center justify-center text-white text-xs font-bold">
+                            SAB
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-800">Non disponibile Sabato</div>
+                            <div class="text-xs text-gray-500">Badge viola</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="w-16 h-10 bg-blue-900 rounded border-2 border-blue-950 flex items-center justify-center text-white text-xs font-bold">
+                            DOM
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-800">Non disponibile Domenica</div>
+                            <div class="text-xs text-gray-500">Badge blu scuro</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="w-16 h-10 bg-red-600 rounded border-2 border-red-700 flex items-center justify-center text-white text-xs font-bold">
+                            WE
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-800">Non disponibile Weekend</div>
+                            <div class="text-xs text-gray-500">Badge rosso</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="w-16 h-10 bg-white rounded border-2 border-gray-300 flex items-center justify-center text-gray-900 text-xs font-bold">
+                            2 ALL
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-800">Solo 2 allenamenti</div>
+                            <div class="text-xs text-gray-500">Badge bianco (calcolato automaticamente)</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Multi-status gradient example -->
+                    <div class="border-t pt-3 mt-3">
+                        <div class="font-medium text-gray-800 mb-2">Stati Multipli:</div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-16 h-10 rounded border-2 border-gray-400 flex items-center justify-center text-xs font-bold" style="background: linear-gradient(90deg, #1e3a8a 0%, #1e3a8a 50%, #ffffff 50%, #ffffff 100%); color: #1f2937;">
+                                <span style="color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">DOM</span>/<span style="color: #1f2937;">2</span>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm text-gray-700">Non disponibile Domenica + 2 allenamenti</div>
+                                <div class="text-xs text-gray-500">Badge metà blu/metà bianco</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature 3: Text Readability Fix -->
+        <div class="test-section">
+            <h2 class="text-xl font-bold text-blue-600 mb-4">✅ Funzionalità 3: Fix Leggibilità Testo su Badge Blu/Bianco</h2>
+            <p class="text-gray-700 mb-4">Per i badge con gradiente blu/bianco (es. "Non disponibile Domenica" + "Solo 2 allenamenti"), il testo è ora sempre leggibile:</p>
+            
+            <div class="mb-6">
+                <h3 class="font-semibold text-gray-700 mb-3">❌ PRIMA (V9.14): Testo nero su tutto il badge</h3>
+                <div class="flex gap-4 items-center">
+                    <div class="player-item multi-status text-center py-3 px-4 rounded-lg border-2" style="background: linear-gradient(90deg, #1e3a8a 0%, #1e3a8a 50%, #ffffff 50%, #ffffff 100%); color: #1f2937; font-weight: bold;">
+                        10 ROSSI MARIO
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        Il testo nero è difficile da leggere sulla parte blu scura
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="font-semibold text-green-700 mb-3">✅ DOPO (V9.19): Testo con ombra bianca per leggibilità</h3>
+                <div class="flex gap-4 items-center">
+                    <div class="player-item multi-status text-center py-3 px-4 rounded-lg border-2" style="background: linear-gradient(90deg, #1e3a8a 0%, #1e3a8a 50%, #ffffff 50%, #ffffff 100%); color: #1f2937; font-weight: bold; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8), -1px -1px 2px rgba(255, 255, 255, 0.8);">
+                        10 ROSSI MARIO
+                    </div>
+                    <div class="text-sm text-green-700">
+                        ✅ Il testo è leggibile su entrambe le parti (blu e bianca)
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h4 class="font-semibold text-blue-800 mb-2">Dettagli Tecnici:</h4>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• Testo base: colore scuro (#1f2937) per leggibilità sulla parte bianca</li>
+                    <li>• Text-shadow: ombra bianca per creare contrasto sulla parte blu</li>
+                    <li>• La soluzione funziona perché crea un "contorno" che rende il testo leggibile su entrambi i background</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="test-section bg-green-50 border-2 border-green-300">
+            <h2 class="text-xl font-bold text-green-800 mb-4">📋 Riepilogo Modifiche V9.19</h2>
+            <ul class="space-y-2 text-green-800">
+                <li>✅ <strong>Pulsante Legenda:</strong> Aggiunto accanto a "Lista Giocatori" (visibile solo per Mister)</li>
+                <li>✅ <strong>Modal Legenda:</strong> Popup che spiega il significato di ogni colore badge</li>
+                <li>✅ <strong>Text Shadow:</strong> Migliora la leggibilità su badge con gradiente blu/bianco</li>
+                <li>✅ <strong>Versione App:</strong> Aggiornata da V9.18 a V9.19</li>
+                <li>✅ <strong>Manifest:</strong> Aggiornato a V9.19</li>
+            </ul>
+        </div>
+
+        <!-- Interactive Demo -->
+        <div class="test-section">
+            <h2 class="text-xl font-bold text-purple-600 mb-4">🎮 Demo Interattivo</h2>
+            <p class="text-gray-700 mb-4">Clicca il pulsante per aprire il modal:</p>
+            
+            <button id="demo-legend-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200">
+                🎨 Apri Legenda Colori
+            </button>
+        </div>
+    </div>
+
+    <!-- Demo Modal -->
+    <div id="demo-modal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center p-4" style="z-index: 9999;">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">🎨 Legenda Colori Giocatori</h2>
+            <p class="text-sm text-gray-600 mb-4">I colori dei badge indicano lo stato di disponibilità dei giocatori:</p>
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-gray-900 rounded border-2 border-gray-700 flex items-center justify-center text-white text-xs font-bold">
+                        🚑
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Infortunato</div>
+                        <div class="text-xs text-gray-500">Badge nero con icona ambulanza</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-yellow-400 rounded border-2 border-yellow-500 flex items-center justify-center text-gray-900 text-xs font-bold">
+                        🟥
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Squalificato</div>
+                        <div class="text-xs text-gray-500">Badge giallo con cartellino rosso</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-purple-600 rounded border-2 border-purple-700 flex items-center justify-center text-white text-xs font-bold">
+                        SAB
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Non disponibile Sabato</div>
+                        <div class="text-xs text-gray-500">Badge viola</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-blue-900 rounded border-2 border-blue-950 flex items-center justify-center text-white text-xs font-bold">
+                        DOM
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Non disponibile Domenica</div>
+                        <div class="text-xs text-gray-500">Badge blu scuro</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-red-600 rounded border-2 border-red-700 flex items-center justify-center text-white text-xs font-bold">
+                        WE
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Non disponibile Weekend</div>
+                        <div class="text-xs text-gray-500">Badge rosso</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-16 h-10 bg-white rounded border-2 border-gray-300 flex items-center justify-center text-gray-900 text-xs font-bold">
+                        2 ALL
+                    </div>
+                    <div class="flex-1">
+                        <div class="font-medium text-gray-800">Solo 2 allenamenti</div>
+                        <div class="text-xs text-gray-500">Badge bianco (calcolato automaticamente)</div>
+                    </div>
+                </div>
+                
+                <div class="border-t pt-3 mt-3">
+                    <div class="font-medium text-gray-800 mb-2">Stati Multipli:</div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-16 h-10 rounded border-2 border-gray-400 flex items-center justify-center text-xs font-bold" style="background: linear-gradient(90deg, #1e3a8a 0%, #1e3a8a 50%, #ffffff 50%, #ffffff 100%); color: #1f2937; text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8), -1px -1px 2px rgba(255, 255, 255, 0.8);">
+                            DOM/2
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm text-gray-700">Non disponibile Domenica + 2 allenamenti</div>
+                            <div class="text-xs text-gray-500">Badge metà blu/metà bianco</div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-gray-600 bg-blue-50 p-2 rounded">
+                        <strong>Nota:</strong> Quando un giocatore ha più stati, il badge mostra un gradiente con i colori degli stati combinati.
+                    </div>
+                </div>
+            </div>
+            <button id="demo-close-btn" class="mt-6 w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200">
+                Chiudi
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const demoBtn = document.getElementById('demo-legend-btn');
+        const demoModal = document.getElementById('demo-modal');
+        const demoCloseBtn = document.getElementById('demo-close-btn');
+        
+        demoBtn.addEventListener('click', () => {
+            demoModal.classList.remove('hidden');
+        });
+        
+        demoCloseBtn.addEventListener('click', () => {
+            demoModal.classList.add('hidden');
+        });
+        
+        demoModal.addEventListener('click', (e) => {
+            if (e.target === demoModal) {
+                demoModal.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
