@@ -1594,8 +1594,12 @@
             // Show company entry screen
             companyEntryScreen.classList.remove('hidden');
             
-            // Trigger login animations sequence
-            setTimeout(() => startLoginAnimations(), 100);
+            // Trigger login animations sequence (if available)
+            setTimeout(() => {
+                if (typeof startLoginAnimations === 'function') {
+                    startLoginAnimations();
+                }
+            }, 100);
 
             // Initialize checkbox state based on saved preference
             const savedRememberPreference = localStorage.getItem('rememberCompanyPreference');
@@ -1949,6 +1953,8 @@
             const confirmPasswordButton = document.getElementById('confirm-password-button');
             const cancelPasswordButton = document.getElementById('cancel-password-button');
             const passwordEntryMessageArea = document.getElementById('password-entry-message-area');
+            const biometricLoginContainer = document.getElementById('biometric-login-container');
+            const biometricLoginButton = document.getElementById('biometric-login-button');
             
             const playerManagementScreen = document.getElementById('player-management-screen');
             const playerNumeroInput = document.getElementById('player-numero');
