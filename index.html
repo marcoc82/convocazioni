@@ -401,8 +401,15 @@
             </div>
 
             <!-- Player Management Section -->
-            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Giocatori (<span id="players-count">0</span>)</h3>
+            <div class="cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors mb-3" id="players-section-header">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-700">Gestione Giocatori (<span id="players-count">0</span>)</h3>
+                    <svg class="w-6 h-6 text-gray-600 transform transition-transform" id="players-expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="players-content" class="hidden p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                         <label for="player-numero" class="block text-sm font-medium text-gray-700">🔢 Numero</label>
@@ -428,14 +435,23 @@
                     <!-- Company players will be loaded here -->
                 </div>
             </div>
+            <div id="players-buttons-section" class="hidden mb-6">
             <button id="save-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 mb-4 disabled:bg-gray-400 disabled:cursor-not-allowed">
                 Salva Giocatori
             </button>
             <div id="save-players-message-area" class="mt-2 mb-4 text-center text-sm font-medium text-gray-600 hidden"></div>
+            </div>
             
             <!-- Coach Management Section -->
-            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Mister (<span id="coaches-count">0</span>)</h3>
+            <div class="cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors mb-3" id="coaches-section-header">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-700">Gestione Mister (<span id="coaches-count">0</span>)</h3>
+                    <svg class="w-6 h-6 text-gray-600 transform transition-transform" id="coaches-expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="coaches-content" class="hidden p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4 mb-4">
                     <input type="text" id="new-coach-input" placeholder="Nome mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <input type="text" id="new-coach-matricola-input" placeholder="Matricola mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
@@ -453,8 +469,15 @@
             </div>
             
             <!-- Directors Management Section -->
-            <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Dirigenti (<span id="directors-count">0</span>)</h3>
+            <div class="cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors mb-3" id="directors-section-header">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-gray-700">Gestione Dirigenti (<span id="directors-count">0</span>)</h3>
+                    <svg class="w-6 h-6 text-gray-600 transform transition-transform" id="directors-expand-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+            </div>
+            <div id="directors-content" class="hidden p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4 mb-4">
                     <input type="text" id="new-director-name-input" placeholder="Nome dirigente" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <input type="text" id="new-director-surname-input" placeholder="Cognome dirigente" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
@@ -9160,6 +9183,20 @@
             const campionatoContent = document.getElementById('campionato-content');
             const campionatoIcon = document.getElementById('campionato-expand-icon');
             
+            // Collapsible sections for Gestione Squadra
+            const playersHeader = document.getElementById('players-section-header');
+            const playersContent = document.getElementById('players-content');
+            const playersIcon = document.getElementById('players-expand-icon');
+            const playersButtonsSection = document.getElementById('players-buttons-section');
+            
+            const coachesHeader = document.getElementById('coaches-section-header');
+            const coachesContent = document.getElementById('coaches-content');
+            const coachesIcon = document.getElementById('coaches-expand-icon');
+            
+            const directorsHeader = document.getElementById('directors-section-header');
+            const directorsContent = document.getElementById('directors-content');
+            const directorsIcon = document.getElementById('directors-expand-icon');
+            
             if (amichevoliHeader) {
                 amichevoliHeader.addEventListener('click', () => {
                     const isHidden = amichevoliContent.classList.contains('hidden');
@@ -9195,6 +9232,48 @@
                     } else {
                         campionatoContent.classList.add('hidden');
                         campionatoIcon.classList.remove('rotate-180');
+                    }
+                });
+            }
+            
+            // Collapsible sections for Gestione Squadra
+            if (playersHeader) {
+                playersHeader.addEventListener('click', () => {
+                    const isHidden = playersContent.classList.contains('hidden');
+                    if (isHidden) {
+                        playersContent.classList.remove('hidden');
+                        playersIcon.classList.add('rotate-180');
+                        playersButtonsSection.classList.remove('hidden');
+                    } else {
+                        playersContent.classList.add('hidden');
+                        playersIcon.classList.remove('rotate-180');
+                        playersButtonsSection.classList.add('hidden');
+                    }
+                });
+            }
+            
+            if (coachesHeader) {
+                coachesHeader.addEventListener('click', () => {
+                    const isHidden = coachesContent.classList.contains('hidden');
+                    if (isHidden) {
+                        coachesContent.classList.remove('hidden');
+                        coachesIcon.classList.add('rotate-180');
+                    } else {
+                        coachesContent.classList.add('hidden');
+                        coachesIcon.classList.remove('rotate-180');
+                    }
+                });
+            }
+            
+            if (directorsHeader) {
+                directorsHeader.addEventListener('click', () => {
+                    const isHidden = directorsContent.classList.contains('hidden');
+                    if (isHidden) {
+                        directorsContent.classList.remove('hidden');
+                        directorsIcon.classList.add('rotate-180');
+                    } else {
+                        directorsContent.classList.add('hidden');
+                        directorsIcon.classList.remove('rotate-180');
                     }
                 });
             }
@@ -9244,8 +9323,20 @@
                 textarea.style.height = Math.max(textarea.scrollHeight, 80) + 'px';
             }
             
-            // Add input event listener for auto-resize
-            notesTextarea.addEventListener('input', function() {
+            // Add input event listener for auto-resize and comma-to-newline
+            notesTextarea.addEventListener('input', function(e) {
+                // Check if a comma was just typed
+                const cursorPosition = this.selectionStart;
+                const textBeforeCursor = this.value.substring(0, cursorPosition);
+                const textAfterCursor = this.value.substring(cursorPosition);
+                
+                // If the last character before cursor is a comma, replace it with comma + newline
+                if (textBeforeCursor.endsWith(',') && e.inputType === 'insertText' && e.data === ',') {
+                    this.value = textBeforeCursor + '\n' + textAfterCursor;
+                    // Restore cursor position after the newline
+                    this.selectionStart = this.selectionEnd = cursorPosition + 1;
+                }
+                
                 autoResizeTextarea(this);
             });
             
