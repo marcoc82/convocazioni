@@ -337,6 +337,16 @@
                 <img src="logo Rosterkick.png" alt="Rosterkick Logo" class="w-20 h-20 object-contain">
             </div>
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci la password</h2>
+            <!-- Biometric Authentication Button (shown only for returning users with biometric enrolled) -->
+            <div id="biometric-login-container" class="hidden mb-6">
+                <button type="button" id="biometric-login-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 flex items-center justify-center gap-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                    </svg>
+                    <span>Accedi con impronta digitale</span>
+                </button>
+                <p class="text-center text-sm text-gray-500 mt-2">oppure inserisci la password manualmente</p>
+            </div>
             <form id="password-form" class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4">
                     <p id="role-prompt" class="text-center text-gray-600"></p>
@@ -1572,6 +1582,8 @@
             const confirmPasswordButton = document.getElementById('confirm-password-button');
             const cancelPasswordButton = document.getElementById('cancel-password-button');
             const passwordEntryMessageArea = document.getElementById('password-entry-message-area');
+            const biometricLoginContainer = document.getElementById('biometric-login-container');
+            const biometricLoginButton = document.getElementById('biometric-login-button');
 
             let currentCompanyCode = null;
             window.currentCompanyCode = currentCompanyCode;
@@ -1734,6 +1746,14 @@
                 rolePrompt.textContent = `Inserisci la password per ${role === 'mister' ? 'Mister' : 'Dirigente'}:`;
                 passwordInput.value = '';
                 passwordEntryScreen.classList.remove('hidden');
+                
+                // Check if biometric authentication is available and enrolled for this user
+                if (isBiometricSupported() && currentCompanyCode && hasBiometricEnrolled(currentCompanyCode, role)) {
+                    biometricLoginContainer.classList.remove('hidden');
+                } else {
+                    biometricLoginContainer.classList.add('hidden');
+                }
+                
                 passwordInput.focus();
             }
 
@@ -1808,7 +1828,7 @@
             });
 
             // Common password validation function for demo mode
-            function handlePasswordSubmissionDemo() {
+            async function handlePasswordSubmissionDemo() {
                 const password = passwordInput.value.trim();
                 if (!password) {
                     showMessage(passwordEntryMessageArea, "Inserisci la password.");
@@ -1825,6 +1845,16 @@
                 
                 if (isValid) {
                     showMessage(passwordEntryMessageArea, "Accesso effettuato! (Demo mode)", false);
+                    
+                    // Register biometric authentication if not already enrolled (demo mode)
+                    if (isBiometricSupported() && !hasBiometricEnrolled(currentCompanyCode, pendingRole)) {
+                        console.log('📱 [DEMO] Attempting to register biometric authentication...');
+                        const registered = await registerBiometric(currentCompanyCode, pendingRole, password);
+                        if (registered) {
+                            showMessage(passwordEntryMessageArea, "✅ Autenticazione biometrica attivata! (Demo mode)", false);
+                        }
+                    }
+                    
                     setTimeout(() => {
                         alert(`Benvenuto ${pendingRole === 'mister' ? 'Mister' : 'Dirigente'}!\n\nIn modalità demo, le funzionalità complete sarebbero disponibili con Firebase attivo.\n\nCodici di prova:\n- Codice società: DEMO\n- Password Mister: mister123\n- Password Dirigente: marco123`);
                     }, 1000);
@@ -2781,6 +2811,197 @@
                 
                 return false;
             }
+            
+            // ========================================
+            // BIOMETRIC AUTHENTICATION FUNCTIONS
+            // ========================================
+            
+            /**
+             * Check if the browser supports biometric authentication via WebAuthn API
+             */
+            function isBiometricSupported() {
+                return window.PublicKeyCredential !== undefined && 
+                       navigator.credentials !== undefined &&
+                       typeof navigator.credentials.create === 'function' &&
+                       typeof navigator.credentials.get === 'function';
+            }
+            
+            /**
+             * Get the storage key for biometric credentials
+             */
+            function getBiometricStorageKey(companyCode, role) {
+                return `biometric_cred_${companyCode}_${role}`;
+            }
+            
+            /**
+             * Check if user has enrolled biometric authentication for this company/role
+             */
+            function hasBiometricEnrolled(companyCode, role) {
+                const storageKey = getBiometricStorageKey(companyCode, role);
+                const storedData = localStorage.getItem(storageKey);
+                return storedData !== null;
+            }
+            
+            /**
+             * Generate a random challenge for WebAuthn
+             */
+            function generateChallenge() {
+                const array = new Uint8Array(32);
+                crypto.getRandomValues(array);
+                return array;
+            }
+            
+            /**
+             * Convert base64url string to ArrayBuffer
+             */
+            function base64urlToBuffer(base64url) {
+                const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
+                const binary = atob(base64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) {
+                    bytes[i] = binary.charCodeAt(i);
+                }
+                return bytes.buffer;
+            }
+            
+            /**
+             * Convert ArrayBuffer to base64url string
+             */
+            function bufferToBase64url(buffer) {
+                const bytes = new Uint8Array(buffer);
+                let binary = '';
+                for (let i = 0; i < bytes.length; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                const base64 = btoa(binary);
+                return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+            }
+            
+            /**
+             * Register biometric authentication for the user after successful password login
+             */
+            async function registerBiometric(companyCode, role, password) {
+                if (!isBiometricSupported()) {
+                    console.log('📱 Biometric authentication not supported on this device');
+                    return false;
+                }
+                
+                try {
+                    const challenge = generateChallenge();
+                    const userId = new TextEncoder().encode(`${companyCode}_${role}`);
+                    
+                    const publicKeyCredentialCreationOptions = {
+                        challenge: challenge,
+                        rp: {
+                            name: "Rosterkick",
+                            id: window.location.hostname
+                        },
+                        user: {
+                            id: userId,
+                            name: `${companyCode}_${role}`,
+                            displayName: `${role === 'mister' ? 'Mister' : 'Dirigente'} - ${companyCode}`
+                        },
+                        pubKeyCredParams: [
+                            { alg: -7, type: "public-key" },  // ES256
+                            { alg: -257, type: "public-key" } // RS256
+                        ],
+                        authenticatorSelection: {
+                            authenticatorAttachment: "platform", // Use platform authenticator (Touch ID, Face ID, Windows Hello)
+                            requireResidentKey: false,
+                            userVerification: "preferred"
+                        },
+                        timeout: 60000,
+                        attestation: "none"
+                    };
+                    
+                    const credential = await navigator.credentials.create({
+                        publicKey: publicKeyCredentialCreationOptions
+                    });
+                    
+                    if (credential) {
+                        // Store credential ID and encrypted password
+                        const storageKey = getBiometricStorageKey(companyCode, role);
+                        const credentialData = {
+                            credentialId: bufferToBase64url(credential.rawId),
+                            password: btoa(password), // Simple base64 encoding (not fully secure, but better than plaintext)
+                            timestamp: Date.now()
+                        };
+                        
+                        localStorage.setItem(storageKey, JSON.stringify(credentialData));
+                        console.log('✅ Biometric authentication registered successfully');
+                        return true;
+                    }
+                } catch (error) {
+                    console.error('❌ Error registering biometric:', error);
+                    // User may have cancelled or device doesn't support it
+                    return false;
+                }
+                
+                return false;
+            }
+            
+            /**
+             * Authenticate using biometric and retrieve stored password
+             */
+            async function authenticateWithBiometric(companyCode, role) {
+                if (!isBiometricSupported()) {
+                    return null;
+                }
+                
+                const storageKey = getBiometricStorageKey(companyCode, role);
+                const storedDataStr = localStorage.getItem(storageKey);
+                
+                if (!storedDataStr) {
+                    return null;
+                }
+                
+                try {
+                    const storedData = JSON.parse(storedDataStr);
+                    const challenge = generateChallenge();
+                    const credentialId = base64urlToBuffer(storedData.credentialId);
+                    
+                    const publicKeyCredentialRequestOptions = {
+                        challenge: challenge,
+                        allowCredentials: [{
+                            id: credentialId,
+                            type: 'public-key',
+                            transports: ['internal']
+                        }],
+                        timeout: 60000,
+                        userVerification: "preferred"
+                    };
+                    
+                    const assertion = await navigator.credentials.get({
+                        publicKey: publicKeyCredentialRequestOptions
+                    });
+                    
+                    if (assertion) {
+                        // Biometric authentication successful, return stored password
+                        const password = atob(storedData.password);
+                        console.log('✅ Biometric authentication successful');
+                        return password;
+                    }
+                } catch (error) {
+                    console.error('❌ Biometric authentication failed:', error);
+                    // User may have cancelled, or biometric didn't match
+                    return null;
+                }
+                
+                return null;
+            }
+            
+            /**
+             * Clear biometric credentials for a company/role
+             */
+            function clearBiometricCredentials(companyCode, role) {
+                const storageKey = getBiometricStorageKey(companyCode, role);
+                localStorage.removeItem(storageKey);
+                console.log('🗑️ Biometric credentials cleared');
+            }
+            
+            // ========================================
+            // END BIOMETRIC AUTHENTICATION FUNCTIONS
+            // ========================================
             
             // Functions to handle player loading error messages in UI
             function showPlayerLoadingError(message) {
@@ -8433,6 +8654,16 @@
                     console.log(`   🏢 Società attiva - Nome: ${currentCompanyData?.name || currentCompanyData?.data?.nome || 'N/A'}`);
                     console.log(`   📋 App ID che verrà utilizzato: ${currentCompanyDocumentId || currentCompanyCode}`);
                     
+                    // Register biometric authentication if not already enrolled
+                    if (isBiometricSupported() && !hasBiometricEnrolled(currentCompanyCode, userRole)) {
+                        console.log('📱 Attempting to register biometric authentication...');
+                        const registered = await registerBiometric(currentCompanyCode, userRole, password);
+                        if (registered) {
+                            showMessage(passwordEntryMessageArea, "✅ Autenticazione biometrica attivata per i prossimi accessi!", false);
+                            setTimeout(() => passwordEntryMessageArea.classList.add('hidden'), 3000);
+                        }
+                    }
+                    
                     // Load company players from Firebase database
                     companyPlayers = await loadCompanyPlayers();
                     companyCoaches = await loadCompanyCoaches();
@@ -8456,6 +8687,70 @@
             passwordForm.addEventListener('submit', (e) => {
                 e.preventDefault(); // Prevent default form submission
                 handlePasswordSubmissionMain();
+            });
+            
+            // Biometric login button handler
+            biometricLoginButton.addEventListener('click', async () => {
+                if (!pendingRole || !currentCompanyCode) {
+                    showMessage(passwordEntryMessageArea, "Errore: dati di autenticazione mancanti.");
+                    return;
+                }
+                
+                // Show loading state
+                biometricLoginButton.disabled = true;
+                biometricLoginButton.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 mr-2 inline" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Autenticazione in corso...</span>
+                `;
+                
+                try {
+                    const password = await authenticateWithBiometric(currentCompanyCode, pendingRole);
+                    
+                    if (password) {
+                        // Biometric authentication successful, verify password
+                        const isValid = await verifyPassword(pendingRole, password);
+                        
+                        if (isValid) {
+                            userRole = pendingRole;
+                            localStorage.setItem('userRole', userRole);
+                            
+                            console.log(`🔑 [BIOMETRIC] Login come ${userRole} tramite impronta digitale`);
+                            console.log(`   🏢 Società attiva - Codice: ${currentCompanyCode}`);
+                            
+                            // Load company data
+                            companyPlayers = await loadCompanyPlayers();
+                            companyCoaches = await loadCompanyCoaches();
+                            companyDirectors = await loadCompanyDirectors();
+                            
+                            const companyAppId = currentCompanyDocumentId || currentCompanyCode;
+                            localStorage.setItem('convocazioniAppId', companyAppId);
+                            startApp(companyAppId);
+                        } else {
+                            // Stored password is invalid (may have been changed)
+                            showMessage(passwordEntryMessageArea, "⚠️ Credenziali biometriche non valide. Inserisci la password.");
+                            clearBiometricCredentials(currentCompanyCode, pendingRole);
+                            biometricLoginContainer.classList.add('hidden');
+                        }
+                    } else {
+                        // Biometric authentication failed or was cancelled
+                        showMessage(passwordEntryMessageArea, "Autenticazione biometrica fallita. Inserisci la password.");
+                    }
+                } catch (error) {
+                    console.error('Errore durante autenticazione biometrica:', error);
+                    showMessage(passwordEntryMessageArea, "Errore nell'autenticazione biometrica. Usa la password.");
+                } finally {
+                    // Reset button state
+                    biometricLoginButton.disabled = false;
+                    biometricLoginButton.innerHTML = `
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                        </svg>
+                        <span>Accedi con impronta digitale</span>
+                    `;
+                }
             });
 
             cancelPasswordButton.addEventListener('click', () => {
