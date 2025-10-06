@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.19 - Add color legend button for mister + Fix text readability on blue/white badges -->
+<!-- Version: V9.20 - Alphabetical sorting for tied players, bullet points in notes, comma-to-newline for mister notes display -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -265,7 +265,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.19</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.20</span>
             </div>
         </div>
 
@@ -4374,13 +4374,18 @@
                     };
                 });
                 
-                // V9.16: Sort by presences descending, then by availability percentage descending (for ties)
+                // V9.20: Sort by presences descending, then by availability percentage descending, then alphabetically by name
                 const sortedPlayers = playersWithData.sort((a, b) => {
                     if (b.count !== a.count) {
                         return b.count - a.count; // Primary sort: presences descending
                     }
-                    // Secondary sort: availability percentage descending
-                    return b.availabilityNumeric - a.availabilityNumeric;
+                    if (b.availabilityNumeric !== a.availabilityNumeric) {
+                        return b.availabilityNumeric - a.availabilityNumeric; // Secondary sort: availability percentage descending
+                    }
+                    // Tertiary sort: alphabetically by name (ignoring jersey number)
+                    const nameA = a.name.replace(/^\d+\s*/, '').trim();
+                    const nameB = b.name.replace(/^\d+\s*/, '').trim();
+                    return nameA.localeCompare(nameB, 'it');
                 });
 
                 // V9.16: Ranking arrows - Compare with last week's ranking
@@ -5806,7 +5811,17 @@
                     if (currentNotes.trim() === '') {
                         notesDisplay.innerHTML = '<span class="text-gray-500 italic">Nessuna nota registrata</span>';
                     } else {
-                        notesDisplay.textContent = currentNotes;
+                        // V9.20: Format notes with bullet points and split by commas/newlines
+                        const lines = currentNotes
+                            .split(/[,\n]/) // Split by comma or newline
+                            .map(line => line.trim()) // Trim whitespace
+                            .filter(line => line.length > 0); // Remove empty lines
+                        
+                        if (lines.length > 0) {
+                            notesDisplay.innerHTML = lines.map(line => `• ${line}`).join('<br>');
+                        } else {
+                            notesDisplay.innerHTML = '<span class="text-gray-500 italic">Nessuna nota registrata</span>';
+                        }
                     }
                 }
             }
@@ -6984,13 +6999,18 @@
                     };
                 });
                 
-                // V9.17: Sort by presences descending, then by availability percentage descending (same as Riepilogo Totale)
+                // V9.20: Sort by presences descending, then by availability percentage descending, then alphabetically by name
                 statsArray.sort((a, b) => {
                     if (b.presences !== a.presences) {
                         return b.presences - a.presences; // Primary sort: presences descending
                     }
-                    // Secondary sort: availability percentage descending
-                    return b.availabilityNumeric - a.availabilityNumeric;
+                    if (b.availabilityNumeric !== a.availabilityNumeric) {
+                        return b.availabilityNumeric - a.availabilityNumeric; // Secondary sort: availability percentage descending
+                    }
+                    // Tertiary sort: alphabetically by name (ignoring jersey number)
+                    const nameA = a.player.replace(/^\d+\s*/, '').trim();
+                    const nameB = b.player.replace(/^\d+\s*/, '').trim();
+                    return nameA.localeCompare(nameB, 'it');
                 });
                 
                 // V9.17: Ranking arrows - Compare with last week's ranking (using separate storage key for training)
