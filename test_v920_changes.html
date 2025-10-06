@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.20 Changes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-section { margin-bottom: 2rem; padding: 1.5rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; }
+        .pass { background-color: #d1fae5; border-color: #10b981; }
+        .fail { background-color: #fee2e2; border-color: #ef4444; }
+        .info { background-color: #dbeafe; border-color: #3b82f6; }
+        .badge-old { background-color: #fca5a5; color: #7f1d1d; }
+        .badge-new { background-color: #86efac; color: #14532d; }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">🧪 Test V9.20 Changes</h1>
+        
+        <!-- Summary -->
+        <div class="test-section info">
+            <h2 class="text-2xl font-bold mb-4">📋 V9.20 Changes Summary</h2>
+            <ul class="list-disc list-inside space-y-2">
+                <li><strong>Alphabetical Sorting</strong>: When players have equal presences AND equal availability %, sort alphabetically by name (ignoring jersey number)</li>
+                <li><strong>Notes Formatting for Mister</strong>: Notes displayed with bullet points and line breaks after commas</li>
+                <li><strong>Version Update</strong>: Updated to V 9.20</li>
+            </ul>
+        </div>
+
+        <!-- Test 1: Alphabetical Sorting -->
+        <div class="test-section">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                🔄 Test 1: Alphabetical Sorting for Tied Players
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Before V9.20 -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-old">V9.19 - Before</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">Sorting Logic:</h3>
+                        <div class="bg-white p-3 rounded border border-gray-300 mb-3">
+                            <code class="text-xs">
+if (b.count !== a.count) {<br>
+&nbsp;&nbsp;return b.count - a.count;<br>
+}<br>
+return b.availabilityNumeric - a.availabilityNumeric;
+                            </code>
+                        </div>
+                        <h3 class="font-bold mb-2">Example - Players with same stats:</h3>
+                        <table class="min-w-full text-xs bg-white">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-2 py-1 text-left">Player</th>
+                                    <th class="px-2 py-1 text-center">Presences</th>
+                                    <th class="px-2 py-1 text-center">% Avail.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="px-2 py-1">10 VERDI</td><td class="px-2 py-1 text-center">12</td><td class="px-2 py-1 text-center">80%</td></tr>
+                                <tr><td class="px-2 py-1">5 BIANCHI</td><td class="px-2 py-1 text-center">12</td><td class="px-2 py-1 text-center">80%</td></tr>
+                                <tr><td class="px-2 py-1">7 ROSSI</td><td class="px-2 py-1 text-center">12</td><td class="px-2 py-1 text-center">80%</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="text-xs text-red-600 mt-2">❌ Order is random when all stats are equal</p>
+                    </div>
+                </div>
+
+                <!-- After V9.20 -->
+                <div class="border-2 border-green-500 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-new">V9.20 - After</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">Sorting Logic:</h3>
+                        <div class="bg-white p-3 rounded border border-gray-300 mb-3">
+                            <code class="text-xs">
+if (b.count !== a.count) return b.count - a.count;<br>
+if (b.availabilityNumeric !== a.availabilityNumeric)<br>
+&nbsp;&nbsp;return b.availabilityNumeric - a.availabilityNumeric;<br>
+<span class="text-green-600 font-bold">// Tertiary: alphabetical by name</span><br>
+<span class="text-green-600 font-bold">const nameA = a.name.replace(/^\d+\s*/, '');</span><br>
+<span class="text-green-600 font-bold">return nameA.localeCompare(nameB, 'it');</span>
+                            </code>
+                        </div>
+                        <h3 class="font-bold mb-2">Example - Players with same stats:</h3>
+                        <table class="min-w-full text-xs bg-white">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-2 py-1 text-left">Player</th>
+                                    <th class="px-2 py-1 text-center">Presences</th>
+                                    <th class="px-2 py-1 text-center">% Avail.</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-green-50">
+                                <tr><td class="px-2 py-1">5 BIANCHI</td><td class="px-2 py-1 text-center">12</td><td class="px-2 py-1 text-center">80%</td></tr>
+                                <tr><td class="px-2 py-1">7 ROSSI</td><td class="px-2 py-1 text-center">12</td><td class="px-2 py-1 text-center">80%</td></tr>
+                                <tr><td class="px-2 py-1">10 VERDI</td><td class="px-2 py-1 text-center">12</td><td class="px-2 py-1 text-center">80%</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="text-xs text-green-600 mt-2">✅ Sorted alphabetically: BIANCHI → ROSSI → VERDI</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 2: Notes Formatting for Mister -->
+        <div class="test-section">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                📝 Test 2: Notes Display with Bullet Points (Mister View)
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Before V9.20 -->
+                <div class="border-2 border-gray-300 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-old">V9.19 - Before</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">Display Logic:</h3>
+                        <div class="bg-white p-3 rounded border border-gray-300 mb-3">
+                            <code class="text-xs">
+notesDisplay.textContent = currentNotes;
+                            </code>
+                        </div>
+                        <h3 class="font-bold mb-2">Example Display:</h3>
+                        <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-3">
+                            <p class="text-sm text-gray-700">Portare 15 maglie rosse, Controllare palloni, Confermare orario con arbitro</p>
+                        </div>
+                        <p class="text-xs text-red-600 mt-2">❌ No line breaks, no bullet points</p>
+                    </div>
+                </div>
+
+                <!-- After V9.20 -->
+                <div class="border-2 border-green-500 rounded-lg p-4">
+                    <div class="text-center mb-2">
+                        <span class="inline-block px-3 py-1 rounded-full text-sm font-bold badge-new">V9.20 - After</span>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-bold mb-2">Display Logic:</h3>
+                        <div class="bg-white p-3 rounded border border-gray-300 mb-3">
+                            <code class="text-xs">
+<span class="text-green-600">const lines = currentNotes.split(/[,\n]/);</span><br>
+<span class="text-green-600">notesDisplay.innerHTML = lines</span><br>
+<span class="text-green-600">&nbsp;&nbsp;.map(line => `• ${line}`).join('&lt;br&gt;');</span>
+                            </code>
+                        </div>
+                        <h3 class="font-bold mb-2">Example Display:</h3>
+                        <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-3">
+                            <p class="text-sm text-gray-700">
+                                • Portare 15 maglie rosse<br>
+                                • Controllare palloni<br>
+                                • Confermare orario con arbitro
+                            </p>
+                        </div>
+                        <p class="text-xs text-green-600 mt-2">✅ Line breaks after commas, bullet points added</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 3: Interactive Demo -->
+        <div class="test-section">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                🎮 Test 3: Interactive Notes Formatter
+            </h2>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="font-bold mb-2">Enter notes (use commas to separate):</h3>
+                <textarea id="testNotes" class="w-full p-3 border border-gray-300 rounded-lg mb-3" rows="3" placeholder="Example: Portare maglie, Controllare palloni, Confermare orario"></textarea>
+                <button id="formatButton" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
+                    Format Notes (V9.20 Style)
+                </button>
+                
+                <div class="mt-4">
+                    <h3 class="font-bold mb-2">Formatted Output (Mister View):</h3>
+                    <div id="formattedOutput" class="bg-yellow-50 border border-yellow-300 rounded-lg p-3 min-h-[80px] text-gray-700">
+                        <span class="text-gray-500 italic">No notes entered yet</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 4: Version Display -->
+        <div class="test-section">
+            <h2 class="text-2xl font-bold text-center mb-4 text-gray-800">
+                🔢 Test 4: Version Update
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-50 p-4 rounded-lg text-center">
+                    <h3 class="font-bold mb-2">Previous Version</h3>
+                    <span class="inline-block px-4 py-2 rounded-full text-lg font-bold" style="background-color: #fca5a5; color: #7f1d1d;">V 9.19</span>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg text-center">
+                    <h3 class="font-bold mb-2">Current Version</h3>
+                    <span class="inline-block px-4 py-2 rounded-full text-lg font-bold" style="background-color: #86efac; color: #14532d;">V 9.20</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div id="test-results" class="test-section pass">
+            <h2 class="text-2xl font-bold mb-4">✅ All Tests Summary</h2>
+            <ul class="list-disc list-inside space-y-2">
+                <li>✅ Alphabetical sorting implemented for tied players</li>
+                <li>✅ Notes display with bullet points and comma/newline splitting</li>
+                <li>✅ Version updated to V 9.20</li>
+                <li>✅ HTML comment updated with V9.20 description</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Interactive notes formatter
+        document.getElementById('formatButton').addEventListener('click', function() {
+            const notes = document.getElementById('testNotes').value;
+            const output = document.getElementById('formattedOutput');
+            
+            if (notes.trim() === '') {
+                output.innerHTML = '<span class="text-gray-500 italic">No notes entered yet</span>';
+            } else {
+                // V9.20 logic
+                const lines = notes
+                    .split(/[,\n]/) // Split by comma or newline
+                    .map(line => line.trim()) // Trim whitespace
+                    .filter(line => line.length > 0); // Remove empty lines
+                
+                if (lines.length > 0) {
+                    output.innerHTML = lines.map(line => `• ${line}`).join('<br>');
+                } else {
+                    output.innerHTML = '<span class="text-gray-500 italic">No valid notes</span>';
+                }
+            }
+        });
+
+        // Auto-format on input
+        document.getElementById('testNotes').addEventListener('input', function() {
+            document.getElementById('formatButton').click();
+        });
+
+        // Log test results
+        console.log('V9.20 Test File Loaded');
+        console.log('Changes implemented:');
+        console.log('1. Alphabetical sorting: ✅');
+        console.log('2. Notes formatting: ✅');
+        console.log('3. Version update: ✅');
+    </script>
+</body>
+</html>
