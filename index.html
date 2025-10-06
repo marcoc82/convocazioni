@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.13 - Fix automatic training status calculation: load sessions at app start, enable/disable training buttons based on current week sessions -->
+<!-- Version: V9.14 - Fix company info in distinta, auto-resize notes textarea, show mister/dirigenti counts -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -435,7 +435,7 @@
             
             <!-- Coach Management Section -->
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Mister</h3>
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Mister (<span id="coaches-count">0</span>)</h3>
                 <div class="flex flex-col gap-4 mb-4">
                     <input type="text" id="new-coach-input" placeholder="Nome mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <input type="text" id="new-coach-matricola-input" placeholder="Matricola mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
@@ -454,7 +454,7 @@
             
             <!-- Directors Management Section -->
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Dirigenti</h3>
+                <h3 class="text-lg font-semibold text-gray-700 mb-4">Gestione Dirigenti (<span id="directors-count">0</span>)</h3>
                 <div class="flex flex-col gap-4 mb-4">
                     <input type="text" id="new-director-name-input" placeholder="Nome dirigente" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <input type="text" id="new-director-surname-input" placeholder="Cognome dirigente" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
@@ -548,7 +548,7 @@
             <div id="notes-section" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hidden">
                 <h3 class="text-lg font-semibold text-yellow-800 mb-2">Note (Segnate dal Dirigente)</h3>
                 <div id="notes-editable" class="hidden">
-                    <textarea id="notes-textarea" placeholder="Inserisci le tue note qui..." class="w-full p-3 border border-yellow-300 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-yellow-500" rows="3"></textarea>
+                    <textarea id="notes-textarea" placeholder="Inserisci le tue note qui..." class="w-full p-3 border border-yellow-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" rows="3" style="min-height: 80px; overflow-y: hidden;"></textarea>
                     <button id="save-notes-button" class="mt-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
                         Salva Note
                     </button>
@@ -5306,6 +5306,11 @@
             function updateNotesDisplay() {
                 if (isDirigente()) {
                     notesTextarea.value = currentNotes;
+                    // Auto-resize the textarea after setting the value
+                    if (notesTextarea) {
+                        notesTextarea.style.height = 'auto';
+                        notesTextarea.style.height = Math.max(notesTextarea.scrollHeight, 80) + 'px';
+                    }
                 } else if (userRole === 'mister') {
                     if (currentNotes.trim() === '') {
                         notesDisplay.innerHTML = '<span class="text-gray-500 italic">Nessuna nota registrata</span>';
@@ -6493,6 +6498,9 @@
                 // V9.13: Load training sessions at app start for automatic status calculation
                 await loadTrainingSessions();
                 
+                // V9.14: Load company info at app start to ensure it's available for distinta
+                await loadCompanyInfo();
+                
                 renderPlayers();
                 updateUIForRole();
             }
@@ -6623,6 +6631,12 @@
             function renderCompanyCoaches() {
                 companyCoachesList.innerHTML = '';
                 
+                // Update coaches count in title
+                const coachesCountElement = document.getElementById('coaches-count');
+                if (coachesCountElement) {
+                    coachesCountElement.textContent = companyCoaches.length;
+                }
+                
                 companyCoaches.forEach((coach, index) => {
                     const coachDiv = document.createElement('div');
                     // V7.6: Uniform styling
@@ -6712,6 +6726,12 @@
 
             function renderCompanyDirectors() {
                 companyDirectorsList.innerHTML = '';
+                
+                // Update directors count in title
+                const directorsCountElement = document.getElementById('directors-count');
+                if (directorsCountElement) {
+                    directorsCountElement.textContent = companyDirectors.length;
+                }
                 
                 companyDirectors.forEach((director, index) => {
                     const directorDiv = document.createElement('div');
@@ -7617,10 +7637,20 @@
                         companyInfo = JSON.parse(savedInfo);
                         console.log('✅ CREATE DISTINTA: Company info loaded from localStorage:', companyInfo);
                     } else {
-                        console.log('ℹ️ CREATE DISTINTA: No company info in localStorage');
+                        console.log('ℹ️ CREATE DISTINTA: No company info in localStorage, using defaults from currentCompanyData');
+                        // V9.14: Fallback to basic company info if not saved in Gestione Squadra
+                        companyInfo = {
+                            ragioneSociale: companyName,
+                            categoria: companyCategory
+                        };
                     }
                 } catch (error) {
                     console.warn('⚠️ CREATE DISTINTA: Could not parse company info:', error);
+                    // V9.14: Fallback to basic company info on error
+                    companyInfo = {
+                        ragioneSociale: companyName,
+                        categoria: companyCategory
+                    };
                 }
                 
                 // Format match date
@@ -9207,6 +9237,22 @@
             confirmAlreadyCalledButton.addEventListener('click', confirmAlreadyCalledSelection);
             cancelAlreadyCalledButton.addEventListener('click', hideAlreadyCalledModal);
             saveNotesButton.addEventListener('click', saveNotes);
+            
+            // Auto-resize notes textarea
+            function autoResizeTextarea(textarea) {
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.max(textarea.scrollHeight, 80) + 'px';
+            }
+            
+            // Add input event listener for auto-resize
+            notesTextarea.addEventListener('input', function() {
+                autoResizeTextarea(this);
+            });
+            
+            // Initial resize when notes are loaded
+            if (notesTextarea) {
+                autoResizeTextarea(notesTextarea);
+            }
 
             // Distinta Modal Event Listeners
             closeDistintaLocationModalButton.addEventListener('click', hideDistintaLocationModal);
