@@ -4348,12 +4348,12 @@
                     // V9.18: Show "=" for unchanged position
                     if (rankChange !== undefined) {
                         if (rankChange > 0) {
-                            arrowIcon = '<span style="color: #22c55e; margin-left: 4px;">🔼</span>';
+                            arrowIcon = '<span style="color: green; margin-left: 4px;">▲</span>';
                         } else if (rankChange < 0) {
-                            arrowIcon = '<span style="color: #ef4444; margin-left: 4px;">🔽</span>';
+                            arrowIcon = '<span style="color: red; margin-left: 4px;">▼</span>';
                         } else {
                             // rankChange === 0: same position
-                            arrowIcon = '<span style="color: #6b7280; margin-left: 4px;">=</span>';
+                            arrowIcon = '<span style="color: gray; margin-left: 4px;">=</span>';
                         }
                     }
                     
@@ -6957,12 +6957,12 @@
                     let arrowIcon = '';
                     if (rankChange !== undefined) {
                         if (rankChange > 0) {
-                            arrowIcon = '<span style="color: #22c55e; margin-left: 4px;">🔼</span>';
+                            arrowIcon = '<span style="color: green; margin-left: 4px;">▲</span>';
                         } else if (rankChange < 0) {
-                            arrowIcon = '<span style="color: #ef4444; margin-left: 4px;">🔽</span>';
+                            arrowIcon = '<span style="color: red; margin-left: 4px;">▼</span>';
                         } else {
                             // rankChange === 0: same position
-                            arrowIcon = '<span style="color: #6b7280; margin-left: 4px;">=</span>';
+                            arrowIcon = '<span style="color: gray; margin-left: 4px;">=</span>';
                         }
                     }
                     
