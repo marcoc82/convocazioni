@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo UI - Bottone Biometrico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center">📱 Demo Interfaccia Utente - Autenticazione Biometrica</h1>
+        
+        <div class="bg-green-50 border-2 border-green-500 rounded-xl p-6 mb-6">
+            <h2 class="text-2xl font-semibold mb-3 text-green-800 flex items-center gap-2">
+                <span class="text-3xl">✅</span>
+                Implementazione Completa
+            </h2>
+            <p class="text-green-900 text-lg">
+                Questa è una dimostrazione visuale dell'interfaccia utente del bottone biometrico <strong>già implementato</strong> nell'applicazione Rosterkick.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Scenario 1: Primo Accesso (Nessuna Biometria) -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b-2 border-gray-200 pb-2">
+                    🔐 Scenario 1: Primo Accesso
+                </h2>
+                <p class="text-sm text-gray-600 mb-4">
+                    L'utente accede per la prima volta. Il bottone biometrico <strong>NON è visibile</strong>.
+                </p>
+                
+                <div class="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
+                    <div class="flex justify-center mb-4">
+                        <div class="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
+                            <img src="logo Rosterkick.png" alt="Logo" class="w-16 h-16 object-contain" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏢</text></svg>'">
+                        </div>
+                    </div>
+                    <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci la password</h2>
+                    
+                    <!-- NO biometric button here -->
+                    
+                    <!-- Password Form -->
+                    <div class="p-6 bg-gray-50 rounded-xl shadow-sm border border-gray-200">
+                        <p class="text-center text-gray-600 mb-3">Inserisci la password per Mister:</p>
+                        <input type="password" placeholder="Password" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg mb-3">
+                        <div class="flex gap-2">
+                            <button class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                                Conferma
+                            </button>
+                            <button class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                                Annulla
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 bg-blue-50 border-l-4 border-blue-500 p-3">
+                    <p class="text-sm text-blue-900">
+                        <strong>Dopo il login:</strong> Il sistema registra automaticamente la biometria e mostra "✅ Autenticazione biometrica attivata!"
+                    </p>
+                </div>
+            </div>
+
+            <!-- Scenario 2: Accesso Successivo (Con Biometria) -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b-2 border-blue-200 pb-2">
+                    👆 Scenario 2: Accesso Successivo
+                </h2>
+                <p class="text-sm text-gray-600 mb-4">
+                    L'utente ha già registrato la biometria. Il bottone <strong>è visibile</strong> e pronto all'uso.
+                </p>
+                
+                <div class="bg-gray-50 rounded-lg p-6 border-2 border-solid border-blue-300">
+                    <div class="flex justify-center mb-4">
+                        <div class="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
+                            <img src="logo Rosterkick.png" alt="Logo" class="w-16 h-16 object-contain" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏢</text></svg>'">
+                        </div>
+                    </div>
+                    <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci la password</h2>
+                    
+                    <!-- Biometric Button - VISIBLE -->
+                    <div class="mb-6">
+                        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                            </svg>
+                            <span>Accedi con impronta digitale</span>
+                        </button>
+                        <p class="text-center text-sm text-gray-500 mt-2">oppure inserisci la password manualmente</p>
+                    </div>
+                    
+                    <!-- Password Form - ALWAYS AVAILABLE AS FALLBACK -->
+                    <div class="p-6 bg-gray-50 rounded-xl shadow-sm border border-gray-200">
+                        <p class="text-center text-gray-600 mb-3">Inserisci la password per Mister:</p>
+                        <input type="password" placeholder="Password" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg mb-3">
+                        <div class="flex gap-2">
+                            <button class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                                Conferma
+                            </button>
+                            <button class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                                Annulla
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 bg-green-50 border-l-4 border-green-500 p-3">
+                    <p class="text-sm text-green-900">
+                        <strong>✅ Due opzioni disponibili:</strong>
+                        <br>1. Click su bottone blu → Biometria
+                        <br>2. Inserisci password → Metodo tradizionale
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenario 3: Biometria in Loading -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b-2 border-purple-200 pb-2">
+                ⏳ Scenario 3: Autenticazione Biometrica in Corso
+            </h2>
+            <p class="text-sm text-gray-600 mb-4">
+                Quando l'utente clicca il bottone biometrico, viene mostrato uno stato di loading mentre il sistema verifica l'impronta.
+            </p>
+            
+            <div class="max-w-md mx-auto bg-gray-50 rounded-lg p-6 border-2 border-solid border-purple-300">
+                <div class="mb-6">
+                    <button disabled class="w-full bg-blue-600 text-white font-semibold py-4 px-6 rounded-lg flex items-center justify-center gap-3 shadow-lg opacity-75 cursor-not-allowed">
+                        <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Autenticazione in corso...</span>
+                    </button>
+                    <p class="text-center text-sm text-gray-500 mt-2">Verifica la tua identità con il sensore biometrico</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenario 4: Biometria Fallita -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800 border-b-2 border-red-200 pb-2">
+                ❌ Scenario 4: Autenticazione Biometrica Fallita
+            </h2>
+            <p class="text-sm text-gray-600 mb-4">
+                Se la biometria fallisce (cancellata, non riconosciuta, errore), viene mostrato un messaggio chiaro e il form password rimane disponibile.
+            </p>
+            
+            <div class="max-w-md mx-auto bg-gray-50 rounded-lg p-6 border-2 border-solid border-red-300">
+                <!-- Error Message -->
+                <div class="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
+                    <p class="text-red-800 font-semibold">Autenticazione biometrica fallita. Inserisci la password.</p>
+                </div>
+                
+                <div class="mb-6">
+                    <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center gap-3 shadow-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                        </svg>
+                        <span>Riprova con impronta digitale</span>
+                    </button>
+                    <p class="text-center text-sm text-gray-500 mt-2">oppure inserisci la password manualmente</p>
+                </div>
+                
+                <!-- Password Form - ALWAYS AVAILABLE -->
+                <div class="p-6 bg-white rounded-xl shadow-sm border-2 border-gray-200">
+                    <p class="text-center text-gray-600 mb-3">Inserisci la password per Mister:</p>
+                    <input type="password" placeholder="Password" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg mb-3" value="">
+                    <div class="flex gap-2">
+                        <button class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                            Conferma
+                        </button>
+                        <button class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                            Annulla
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 bg-yellow-50 border-l-4 border-yellow-500 p-3">
+                <p class="text-sm text-yellow-900">
+                    <strong>⚠️ Fallback Garantito:</strong> In caso di errore, l'utente può sempre inserire la password manualmente. Non viene mai bloccato.
+                </p>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">🔧 Dettagli Tecnici</h2>
+            
+            <div class="space-y-4">
+                <div class="border-l-4 border-blue-500 pl-4 py-2">
+                    <h3 class="font-semibold text-gray-800 mb-1">Controllo Visibilità Bottone</h3>
+                    <pre class="bg-gray-900 text-blue-400 p-3 rounded text-xs overflow-x-auto">if (isBiometricSupported() && currentCompanyCode && hasBiometricEnrolled(currentCompanyCode, role)) {
+    biometricLoginContainer.classList.remove('hidden');
+} else {
+    biometricLoginContainer.classList.add('hidden');
+}</pre>
+                </div>
+
+                <div class="border-l-4 border-green-500 pl-4 py-2">
+                    <h3 class="font-semibold text-gray-800 mb-1">Verifica Compatibilità WebAuthn</h3>
+                    <pre class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">function isBiometricSupported() {
+    return window.PublicKeyCredential !== undefined && 
+           navigator.credentials !== undefined &&
+           typeof navigator.credentials.create === 'function' &&
+           typeof navigator.credentials.get === 'function';
+}</pre>
+                </div>
+
+                <div class="border-l-4 border-purple-500 pl-4 py-2">
+                    <h3 class="font-semibold text-gray-800 mb-1">Gestione Errori e Fallback</h3>
+                    <pre class="bg-gray-900 text-purple-400 p-3 rounded text-xs overflow-x-auto">try {
+    const password = await authenticateWithBiometric(currentCompanyCode, pendingRole);
+    if (password) {
+        // Successo - continua con login
+    } else {
+        // Fallito - mostra messaggio + form password disponibile
+        showMessage("Autenticazione biometrica fallita. Inserisci la password.");
+    }
+} catch (error) {
+    // Errore - mostra messaggio + form password disponibile
+    showMessage("Errore nell'autenticazione biometrica. Usa la password.");
+}</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compatibility -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">📱 Compatibilità</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="border-2 border-green-300 rounded-lg p-4 bg-green-50">
+                    <h3 class="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                        <span class="text-2xl">📱</span> iOS
+                    </h3>
+                    <ul class="text-sm space-y-1 text-green-900">
+                        <li>✅ Touch ID</li>
+                        <li>✅ Face ID</li>
+                        <li>✅ Safari</li>
+                    </ul>
+                </div>
+                
+                <div class="border-2 border-green-300 rounded-lg p-4 bg-green-50">
+                    <h3 class="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                        <span class="text-2xl">🤖</span> Android
+                    </h3>
+                    <ul class="text-sm space-y-1 text-green-900">
+                        <li>✅ Fingerprint</li>
+                        <li>✅ Face Unlock</li>
+                        <li>✅ Chrome</li>
+                    </ul>
+                </div>
+                
+                <div class="border-2 border-green-300 rounded-lg p-4 bg-green-50">
+                    <h3 class="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                        <span class="text-2xl">💻</span> Desktop
+                    </h3>
+                    <ul class="text-sm space-y-1 text-green-900">
+                        <li>✅ Windows Hello</li>
+                        <li>✅ macOS Touch ID</li>
+                        <li>✅ Chrome/Edge/Firefox</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Summary -->
+        <div class="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-500 rounded-xl p-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+                <span class="text-3xl">✅</span>
+                Riepilogo Finale
+            </h2>
+            
+            <div class="space-y-3">
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-2xl">✅</span>
+                    <div>
+                        <p class="font-semibold text-gray-800">Bottone Implementato</p>
+                        <p class="text-sm text-gray-600">Il bottone "Accedi con impronta digitale" è presente nel codice e funzionante</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-2xl">✅</span>
+                    <div>
+                        <p class="font-semibold text-gray-800">Verifica Compatibilità</p>
+                        <p class="text-sm text-gray-600">Il sistema verifica automaticamente il supporto WebAuthn prima di mostrare il bottone</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-2xl">✅</span>
+                    <div>
+                        <p class="font-semibold text-gray-800">Fallback Completo</p>
+                        <p class="text-sm text-gray-600">In caso di errore o fallimento biometrico, il form password è sempre disponibile</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-3">
+                    <span class="text-green-600 text-2xl">✅</span>
+                    <div>
+                        <p class="font-semibold text-gray-800">UX Mobile Ottimizzata</p>
+                        <p class="text-sm text-gray-600">Design responsive, messaggi chiari, bottoni touch-friendly</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 p-4 bg-white rounded-lg border-2 border-blue-400">
+                <p class="text-center text-lg font-bold text-blue-800">
+                    🎉 Nessuna modifica necessaria - Implementazione completa!
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
