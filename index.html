@@ -9952,17 +9952,17 @@
                     let playerStartIndex;
                     
                     if (lineIndex === 0) {
-                        // First line: Defenders - Y=78%, increased spacing
-                        yPosition = 78;
-                        xSpacing = 90;
+                        // First line: Defenders - Y=80%, increased spacing for better separation
+                        yPosition = 80;
+                        xSpacing = 95;
                         positionLabel = 'D';
                         positionName = 'Difensore';
                         playerStartIndex = defenderCount;
                         defenderCount += lineCount;
                     } else if (lineIndex === numLines - 1) {
-                        // Last line: Attackers - further forward (Y=15%), increased spacing
-                        yPosition = 15;
-                        xSpacing = 90;
+                        // Last line: Attackers - further forward (Y=10%), increased spacing
+                        yPosition = 10;
+                        xSpacing = 95;
                         positionLabel = 'A';
                         positionName = 'Attaccante';
                         playerStartIndex = attackerCount;
@@ -9972,21 +9972,21 @@
                         // Calculate which midfield line this is (0-indexed from defensive midfield)
                         const midfieldLineIndex = lineIndex - 1; // 0 for first midfield line, 1 for second, etc.
                         
-                        // Distribute midfield lines between Y=65% (near defenders) and Y=25% (near attackers)
-                        // More lines = closer spacing
-                        const midfieldStartY = 65;
-                        const midfieldEndY = 25;
+                        // Distribute midfield lines between Y=62% (near defenders) and Y=20% (near attackers)
+                        // Increased range for better spacing between lines
+                        const midfieldStartY = 62;
+                        const midfieldEndY = 20;
                         const midfieldRange = midfieldStartY - midfieldEndY;
                         
                         if (numMidfieldLines === 1) {
                             // Single midfield line - center it
-                            yPosition = 50;
+                            yPosition = 48;
                         } else {
                             // Multiple midfield lines - distribute evenly
                             yPosition = midfieldStartY - (midfieldRange * midfieldLineIndex / (numMidfieldLines - 1));
                         }
                         
-                        xSpacing = 115; // Wider spacing for midfielders
+                        xSpacing = 120; // Wider spacing for midfielders for better readability
                         positionLabel = 'C';
                         positionName = 'Centrocampista';
                         playerStartIndex = midfielderCount;
@@ -10001,7 +10001,7 @@
                     }
                 });
                 
-                console.log(`⚽ V9.16: Field generated with new logic (First=D, Last=A, Middle=C lines)`);
+                console.log(`⚽ V9.17: Field generated with improved spacing (D=80%/95%, C=62-20%/120%, A=10%/95%)`);
             }
             
             // Create a player icon on the field

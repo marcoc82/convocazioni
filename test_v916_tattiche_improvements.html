@@ -188,18 +188,18 @@
                 let playerStartIndex;
                 
                 if (lineIndex === 0) {
-                    // Defenders
-                    yPosition = 78;
-                    xSpacing = 90;
+                    // Defenders - Y=80%, increased spacing for better separation
+                    yPosition = 80;
+                    xSpacing = 95;
                     positionLabel = 'D';
                     positionName = 'Difensore';
                     bgColor = 'bg-red-600';
                     playerStartIndex = defenderCount;
                     defenderCount += lineCount;
                 } else if (lineIndex === numLines - 1) {
-                    // Attackers
-                    yPosition = 15;
-                    xSpacing = 90;
+                    // Attackers - further forward (Y=10%), increased spacing
+                    yPosition = 10;
+                    xSpacing = 95;
                     positionLabel = 'A';
                     positionName = 'Attaccante';
                     bgColor = 'bg-blue-600';
@@ -208,17 +208,17 @@
                 } else {
                     // Midfielders
                     const midfieldLineIndex = lineIndex - 1;
-                    const midfieldStartY = 65;
-                    const midfieldEndY = 25;
+                    const midfieldStartY = 62;
+                    const midfieldEndY = 20;
                     const midfieldRange = midfieldStartY - midfieldEndY;
                     
                     if (numMidfieldLines === 1) {
-                        yPosition = 50;
+                        yPosition = 48;
                     } else {
                         yPosition = midfieldStartY - (midfieldRange * midfieldLineIndex / (numMidfieldLines - 1));
                     }
                     
-                    xSpacing = 115;
+                    xSpacing = 120;
                     positionLabel = 'C';
                     positionName = 'Centrocampista';
                     bgColor = 'bg-gray-600';
