@@ -25,3 +25,7 @@ build/
 
 # Screenshots and images (temporary)
 *.png
+# But allow test screenshots for documentation
+!test_*.png
+!favicon*.png
+!logo*.png
