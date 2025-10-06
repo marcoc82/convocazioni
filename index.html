@@ -2259,6 +2259,8 @@
                     navigationStack.push(viewName);
                     history.pushState({ view: viewName }, '', '');
                     console.log(`📱 [BACK BUTTON] Pushed state: ${viewName}, Stack:`, navigationStack);
+                } else {
+                    console.log(`📱 [BACK BUTTON] SKIPPED push (navigating back): ${viewName}, Stack:`, navigationStack);
                 }
             }
 
