@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.12 - Auto-calculate training attendance statuses, disable manual training status selection -->
+<!-- Version: V9.13 - Fix automatic training status calculation: load sessions at app start, enable/disable training buttons based on current week sessions -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -2299,6 +2299,36 @@
                 return playerAttendance;
             }
             
+            // V9.13: Check if there are training sessions in the current week
+            function hasCurrentWeekTrainingSessions() {
+                if (!trainingSessions || trainingSessions.length === 0) {
+                    return false;
+                }
+                
+                // Get start of current week (Monday 00:00)
+                const now = new Date();
+                const getMonday = (date) => {
+                    const d = new Date(date);
+                    const day = d.getDay();
+                    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+                    d.setDate(diff);
+                    d.setHours(0, 0, 0, 0);
+                    return d;
+                };
+                
+                const currentWeekStart = getMonday(now);
+                const currentWeekEnd = new Date(currentWeekStart);
+                currentWeekEnd.setDate(currentWeekStart.getDate() + 7); // Next Monday
+                
+                // Check if there's at least one session in current week
+                const weekSessions = trainingSessions.filter(session => {
+                    const sessionDate = new Date(session.date);
+                    return sessionDate >= currentWeekStart && sessionDate < currentWeekEnd;
+                });
+                
+                return weekSessions.length > 0;
+            }
+            
             // V9.12: Get automatic training status for a player based on current week attendance
             function getAutomaticTrainingStatus(playerKey) {
                 const weekAttendance = calculateCurrentWeekTrainingAttendance();
@@ -4354,8 +4384,11 @@
                     }
                     // Check for unavailable players (only if not already called today)
                     else {
-                        // V9.12: Calculate automatic training status
-                        const autoTrainingStatus = getAutomaticTrainingStatus(playerKey);
+                        // V9.13: Check if there are sessions in current week
+                        const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
+                        
+                        // V9.12: Calculate automatic training status (only if sessions exist)
+                        const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
                         let finalStatuses = [];
                         
                         // Get manual statuses from unavailablePlayers
@@ -4363,14 +4396,18 @@
                             const status = unavailablePlayers.get(playerKey);
                             const manualStatuses = Array.isArray(status) ? status : [status];
                             
-                            // V9.12: Filter out training statuses from manual selection (they're auto-calculated)
-                            const filteredManualStatuses = manualStatuses.filter(s => 
-                                s !== 'Zero allenamenti' && 
-                                s !== 'Solo 1 allenamento' && 
-                                s !== 'Solo 2 allenamenti'
-                            );
-                            
-                            finalStatuses = filteredManualStatuses;
+                            if (hasCurrentWeekSessions) {
+                                // V9.12: If sessions exist, filter out training statuses (they're auto-calculated)
+                                const filteredManualStatuses = manualStatuses.filter(s => 
+                                    s !== 'Zero allenamenti' && 
+                                    s !== 'Solo 1 allenamento' && 
+                                    s !== 'Solo 2 allenamenti'
+                                );
+                                finalStatuses = filteredManualStatuses;
+                            } else {
+                                // V9.13: If NO sessions exist, keep all manual statuses including training ones
+                                finalStatuses = manualStatuses;
+                            }
                         }
                         
                         // V9.12: Add automatic training status if exists
@@ -4393,8 +4430,11 @@
 
                     li.addEventListener('click', () => {
                         if (userRole === 'mister') {
+                            // V9.13: Check if there are sessions in current week
+                            const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
+                            
                             // V9.12: Check for both manual unavailability and automatic training status
-                            const autoTrainingStatus = getAutomaticTrainingStatus(playerKey);
+                            const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
                             const hasManualStatus = unavailablePlayers.has(playerKey);
                             
                             if (hasManualStatus || autoTrainingStatus) {
@@ -4403,11 +4443,18 @@
                                 if (hasManualStatus) {
                                     const status = unavailablePlayers.get(playerKey);
                                     const manualStatuses = Array.isArray(status) ? status : [status];
-                                    combinedStatus = manualStatuses.filter(s => 
-                                        s !== 'Zero allenamenti' && 
-                                        s !== 'Solo 1 allenamento' && 
-                                        s !== 'Solo 2 allenamenti'
-                                    );
+                                    
+                                    if (hasCurrentWeekSessions) {
+                                        // V9.12: If sessions exist, filter out training statuses (auto-calculated)
+                                        combinedStatus = manualStatuses.filter(s => 
+                                            s !== 'Zero allenamenti' && 
+                                            s !== 'Solo 1 allenamento' && 
+                                            s !== 'Solo 2 allenamenti'
+                                        );
+                                    } else {
+                                        // V9.13: If NO sessions exist, keep all manual statuses including training ones
+                                        combinedStatus = manualStatuses;
+                                    }
                                 }
                                 if (autoTrainingStatus) {
                                     combinedStatus.push(autoTrainingStatus);
@@ -5160,39 +5207,50 @@
             function updateUnavailablePlayersView() {
                 unavailablePlayersList.innerHTML = '';
                 
+                // V9.13: Check if there are sessions in current week
+                const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
+                
                 // V9.12: Build a complete list of players with unavailability (manual or auto)
                 const allUnavailablePlayers = new Map();
                 
                 // Add all manual statuses
                 unavailablePlayers.forEach((status, player) => {
                     const statusArray = Array.isArray(status) ? status : [status];
-                    // Filter out training statuses (they'll be added automatically)
-                    const filteredStatuses = statusArray.filter(s => 
-                        s !== 'Zero allenamenti' && 
-                        s !== 'Solo 1 allenamento' && 
-                        s !== 'Solo 2 allenamenti'
-                    );
-                    if (filteredStatuses.length > 0) {
-                        allUnavailablePlayers.set(player, filteredStatuses);
+                    
+                    if (hasCurrentWeekSessions) {
+                        // V9.12: If sessions exist, filter out training statuses (they'll be added automatically)
+                        const filteredStatuses = statusArray.filter(s => 
+                            s !== 'Zero allenamenti' && 
+                            s !== 'Solo 1 allenamento' && 
+                            s !== 'Solo 2 allenamenti'
+                        );
+                        if (filteredStatuses.length > 0) {
+                            allUnavailablePlayers.set(player, filteredStatuses);
+                        }
+                    } else {
+                        // V9.13: If NO sessions exist, keep all manual statuses including training ones
+                        allUnavailablePlayers.set(player, statusArray);
                     }
                 });
                 
-                // V9.12: Add auto training statuses for all players
-                const playersToCheck = companyPlayers.length > 0 ? companyPlayers : players;
-                playersToCheck.forEach(player => {
-                    let playerKey;
-                    if (typeof player === 'string') {
-                        playerKey = player;
-                    } else {
-                        playerKey = `${player.numero} ${player.nome}`;
-                    }
-                    
-                    const autoTrainingStatus = getAutomaticTrainingStatus(playerKey);
-                    if (autoTrainingStatus) {
-                        const existingStatuses = allUnavailablePlayers.get(playerKey) || [];
-                        allUnavailablePlayers.set(playerKey, [...existingStatuses, autoTrainingStatus]);
-                    }
-                });
+                // V9.12: Add auto training statuses for all players (only if sessions exist)
+                if (hasCurrentWeekSessions) {
+                    const playersToCheck = companyPlayers.length > 0 ? companyPlayers : players;
+                    playersToCheck.forEach(player => {
+                        let playerKey;
+                        if (typeof player === 'string') {
+                            playerKey = player;
+                        } else {
+                            playerKey = `${player.numero} ${player.nome}`;
+                        }
+                        
+                        const autoTrainingStatus = getAutomaticTrainingStatus(playerKey);
+                        if (autoTrainingStatus) {
+                            const existingStatuses = allUnavailablePlayers.get(playerKey) || [];
+                            allUnavailablePlayers.set(playerKey, [...existingStatuses, autoTrainingStatus]);
+                        }
+                    });
+                }
                 
                 if (allUnavailablePlayers.size === 0) {
                     unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessuna disponibilità registrata.</li>';
@@ -6399,7 +6457,7 @@
                 console.log(`✅ Report loaded: ${statsArray.length} players, ${totalSessions} sessions, ${averagePercentage}% average attendance`);
             }
 
-            function startApp(appId) {
+            async function startApp(appId) {
                 currentAppId = appId;
                 
                 appIdDisplay.textContent = currentAppId;
@@ -6409,6 +6467,10 @@
                 mainView.classList.remove('hidden');
 
                 setupFirestoreListeners(currentAppId);
+                
+                // V9.13: Load training sessions at app start for automatic status calculation
+                await loadTrainingSessions();
+                
                 renderPlayers();
                 updateUIForRole();
             }
@@ -6751,8 +6813,12 @@
                 
                 console.log('🔍 [V6.5] Opening modal for:', tempPlayerName, 'with statuses:', statusArray);
                 
-                // V9.12: Get automatic training status for this player
-                const autoTrainingStatus = getAutomaticTrainingStatus(tempPlayerName);
+                // V9.13: Check if there are training sessions in current week
+                const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
+                console.log('🏃 [V9.13] Has current week sessions:', hasCurrentWeekSessions);
+                
+                // V9.12: Get automatic training status for this player (only if sessions exist)
+                const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(tempPlayerName) : null;
                 console.log('🏃 [V9.12] Auto training status:', autoTrainingStatus);
                 
                 // Reset all checkboxes first, then check the ones that match existing statuses
@@ -6763,15 +6829,74 @@
                                             status === 'Solo 2 allenamenti';
                     
                     if (isTrainingStatus) {
-                        // V9.12: Show training status if it matches auto-calculated status
-                        checkbox.checked = (status === autoTrainingStatus);
-                        checkbox.disabled = true; // Always disabled
+                        // V9.13: Training status checkboxes behavior based on current week sessions
+                        const label = checkbox.closest('label');
+                        const parentDiv = checkbox.closest('.relative');
+                        
+                        if (hasCurrentWeekSessions) {
+                            // If there are sessions in current week: disabled and auto-calculated
+                            checkbox.checked = (status === autoTrainingStatus);
+                            checkbox.disabled = true;
+                            
+                            // Update label classes to show disabled state
+                            if (label) {
+                                label.classList.remove('bg-white', 'border-2', 'border-gray-300', 'hover:bg-gray-50', 'cursor-pointer');
+                                label.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed', 'opacity-60');
+                                label.setAttribute('title', 'Calcolato automaticamente in base alle presenze agli allenamenti');
+                            }
+                            
+                            // Show info icon
+                            if (parentDiv) {
+                                const infoIcon = parentDiv.querySelector('.absolute');
+                                if (infoIcon) {
+                                    infoIcon.classList.remove('hidden');
+                                }
+                            }
+                        } else {
+                            // If NO sessions in current week: enabled and manually selectable
+                            checkbox.checked = statusArray.includes(status);
+                            checkbox.disabled = false;
+                            
+                            // Update label classes to show enabled state (match manual status style)
+                            if (label) {
+                                label.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed', 'opacity-60');
+                                label.classList.add('cursor-pointer');
+                                label.removeAttribute('title');
+                                
+                                // Apply the correct color based on status
+                                if (status === 'Solo 2 allenamenti') {
+                                    label.classList.add('bg-white', 'border-2', 'border-gray-300', 'hover:bg-gray-50');
+                                } else if (status === 'Solo 1 allenamento' || status === 'Zero allenamenti') {
+                                    label.classList.add('bg-red-600', 'text-white', 'hover:bg-red-700');
+                                }
+                            }
+                            
+                            // Hide info icon
+                            if (parentDiv) {
+                                const infoIcon = parentDiv.querySelector('.absolute');
+                                if (infoIcon) {
+                                    infoIcon.classList.add('hidden');
+                                }
+                            }
+                        }
                     } else {
                         // Manual status - check if it exists in the saved statuses
                         checkbox.checked = statusArray.includes(status);
                         checkbox.disabled = false;
                     }
                 });
+                
+                // V9.13: Update info message based on whether sessions exist
+                const infoMessage = document.querySelector('#status-modal .p-3.bg-blue-50');
+                if (infoMessage) {
+                    if (hasCurrentWeekSessions) {
+                        infoMessage.innerHTML = '<p><strong>ℹ️ Nota:</strong> Gli stati degli allenamenti sono calcolati automaticamente in base alle presenze della settimana corrente e non possono essere modificati manualmente.</p>';
+                        infoMessage.classList.remove('hidden');
+                    } else {
+                        infoMessage.innerHTML = '<p><strong>ℹ️ Nota:</strong> Nessuna sessione di allenamento registrata questa settimana. Gli stati degli allenamenti sono selezionabili manualmente.</p>';
+                        infoMessage.classList.remove('hidden');
+                    }
+                }
                 
                 statusModal.classList.remove('hidden', 'opacity-0');
                 statusModal.classList.add('flex', 'opacity-100');
@@ -9087,17 +9212,29 @@
                 console.log('✅ [V6.5] Confermando selezione indisponibilità per:', tempPlayerName);
                 const currentPlayerItem = document.querySelector(`.player-item[data-player="${tempPlayerName}"]`);
                 
-                // Get all checked statuses from checkboxes (V9.12: exclude disabled training checkboxes)
+                // V9.13: Check if there are sessions in current week
+                const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
+                
+                // Get all checked statuses from checkboxes
+                // V9.13: If there are sessions in current week, exclude disabled training checkboxes (auto-calculated)
+                // V9.13: If there are NO sessions, include training checkboxes (manually selectable)
                 const selectedStatuses = Array.from(statusCheckboxes)
-                    .filter(checkbox => checkbox.checked && !checkbox.disabled)
+                    .filter(checkbox => {
+                        if (!checkbox.checked) return false;
+                        
+                        // If sessions exist in current week, exclude disabled checkboxes (auto-calculated)
+                        if (hasCurrentWeekSessions && checkbox.disabled) return false;
+                        
+                        return true;
+                    })
                     .map(checkbox => checkbox.dataset.status);
                 
-                console.log('📋 [V9.12] Manual statuses selected:', selectedStatuses);
+                console.log('📋 [V9.13] Selected statuses:', selectedStatuses, '(sessions exist:', hasCurrentWeekSessions + ')');
                 
                 // Store as array if multiple statuses, or single string for backward compatibility
                 if (selectedStatuses.length === 0) {
                     // No manual status selected - remove from unavailablePlayers
-                    // V9.12: Auto training status will still be applied in renderPlayers
+                    // V9.12: Auto training status will still be applied in renderPlayers (if sessions exist)
                     unavailablePlayers.delete(tempPlayerName);
                 } else if (selectedStatuses.length === 1) {
                     // Single status - store as string for backward compatibility
