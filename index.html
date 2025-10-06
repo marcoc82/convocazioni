@@ -4315,13 +4315,13 @@
                 const campionatoHeader = document.getElementById('campionato-header');
                 
                 if (amichevoliHeader) {
-                    amichevoliHeader.innerHTML = `🤝 Riepilogo Presenze Amichevoli <span class="text-gray-600 text-base font-normal">(${amichevoliCount} ${amichevoliCount === 1 ? 'partita' : 'partite'})</span>`;
+                    amichevoliHeader.innerHTML = `🤝 Riepilogo Presenze Amichevoli<br><span class="text-gray-600 text-base font-normal">${amichevoliCount} ${amichevoliCount === 1 ? 'partita' : 'partite'}</span>`;
                 }
                 if (torneiHeader) {
-                    torneiHeader.innerHTML = `🏆 Riepilogo Presenze Tornei <span class="text-gray-600 text-base font-normal">(${torneiCount} ${torneiCount === 1 ? 'torneo' : 'tornei'})</span>`;
+                    torneiHeader.innerHTML = `🏆 Riepilogo Presenze Tornei<br><span class="text-gray-600 text-base font-normal">${torneiCount} ${torneiCount === 1 ? 'torneo' : 'tornei'}</span>`;
                 }
                 if (campionatoHeader) {
-                    campionatoHeader.innerHTML = `⚽️ Riepilogo Presenze Campionato <span class="text-gray-600 text-base font-normal">(${campionatoCount} ${campionatoCount === 1 ? 'partita' : 'partite'})</span>`;
+                    campionatoHeader.innerHTML = `⚽️ Riepilogo Presenze Campionato<br><span class="text-gray-600 text-base font-normal">${campionatoCount} ${campionatoCount === 1 ? 'partita' : 'partite'}</span>`;
                 }
                 
                 // Use companyPlayers instead of global players array to show correct company data
@@ -8690,7 +8690,8 @@
             });
             
             // Biometric login button handler
-            biometricLoginButton.addEventListener('click', async () => {
+            if (biometricLoginButton) {
+                biometricLoginButton.addEventListener('click', async () => {
                 if (!pendingRole || !currentCompanyCode) {
                     showMessage(passwordEntryMessageArea, "Errore: dati di autenticazione mancanti.");
                     return;
@@ -8752,6 +8753,7 @@
                     `;
                 }
             });
+            }
 
             cancelPasswordButton.addEventListener('click', () => {
                 pendingRole = null;
