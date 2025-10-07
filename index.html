@@ -755,7 +755,14 @@
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h2>
             <p id="total-matches-display" class="text-center text-gray-600 mb-6">Partite totali: <span id="total-matches-count" class="font-semibold">0</span></p>
             
+            <!-- Loading Spinner for Total Attendance -->
+            <div id="attendance-totale-loading" class="text-center py-8 hidden">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                <p class="mt-2 text-gray-600">Caricamento riepilogo totale...</p>
+            </div>
+            
             <!-- Total Attendance Table -->
+            <div id="attendance-totale-content" class="hidden">
             <div class="flex items-center gap-2 mb-3">
                 <h3 class="text-lg font-semibold text-gray-700">📊 Riepilogo Totale</h3>
                 <button id="stats-chart-button" class="hidden text-blue-600 hover:text-blue-800 transition-colors" title="Visualizza grafico statistiche">
@@ -856,6 +863,7 @@
                         <!-- Campionato attendance data will be populated here -->
                     </tbody>
                 </table>
+            </div>
             </div>
 
             <button id="back-from-attendance-button" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
@@ -4646,6 +4654,12 @@
                 
                 console.log(`📊 [DIAGNOSTIC] Tabella presenze aggiornata con ${sortedPlayers.length} giocatori`);
                 
+                // Hide loading spinner and show content
+                const loadingElement = document.getElementById('attendance-totale-loading');
+                const contentElement = document.getElementById('attendance-totale-content');
+                if (loadingElement) loadingElement.classList.add('hidden');
+                if (contentElement) contentElement.classList.remove('hidden');
+                
                 // Update filtered attendance tables
                 updateAttendanceTables();
             }
@@ -5008,6 +5022,12 @@
                     `;
                     attendanceList.appendChild(row);
                 });
+                
+                // Hide loading spinner and show content
+                const loadingElement = document.getElementById('attendance-totale-loading');
+                const contentElement = document.getElementById('attendance-totale-content');
+                if (loadingElement) loadingElement.classList.add('hidden');
+                if (contentElement) contentElement.classList.remove('hidden');
                 
                 // Update filtered attendance tables for demo mode
                 updateAttendanceTables();
@@ -9235,6 +9255,12 @@
                 attendanceView.classList.remove('hidden');
                 pushNavigationState('attendance');
                 
+                // Show loading spinner, hide content
+                const loadingElement = document.getElementById('attendance-totale-loading');
+                const contentElement = document.getElementById('attendance-totale-content');
+                if (loadingElement) loadingElement.classList.remove('hidden');
+                if (contentElement) contentElement.classList.add('hidden');
+                
                 // Ensure convocation history is loaded before updating tables
                 ensureConvocationHistoryLoaded().then(() => {
                     // Update attendance tables with current data
@@ -10118,6 +10144,12 @@
                 mainView.classList.add('hidden');
                 historyView.classList.add('hidden');
                 attendanceView.classList.remove('hidden');
+                
+                // Show loading spinner, hide content
+                const loadingElement = document.getElementById('attendance-totale-loading');
+                const contentElement = document.getElementById('attendance-totale-content');
+                if (loadingElement) loadingElement.classList.remove('hidden');
+                if (contentElement) contentElement.classList.add('hidden');
                 
                 // Ensure convocation history is loaded before updating tables
                 ensureConvocationHistoryLoaded().then(() => {
