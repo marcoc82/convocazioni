@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fix: Riepilogo Convocazioni - Primo Accesso</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .badge-before {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .badge-after {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .step-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .code-block {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">🔧 Fix: Riepilogo Convocazioni - Primo Accesso</h1>
+            <p class="text-lg text-gray-600 mb-4">
+                Test per verificare che il pulsante "Riepilogo Convocazioni" mostri i dati correttamente al primo accesso,
+                senza dover passare prima dalla pagina "Storico Convocazioni".
+            </p>
+            <div class="mt-4">
+                <span class="badge badge-after">✅ FIX APPLICATO</span>
+            </div>
+        </div>
+
+        <!-- Problem Description -->
+        <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold text-red-900 mb-4">❌ Problema Precedente</h2>
+            <div class="space-y-3 text-red-800">
+                <p><strong>Sintomo:</strong> Al primo accesso alla pagina "Riepilogo Convocazioni", le tabelle erano vuote.</p>
+                <p><strong>Comportamento atteso:</strong> Visualizzare i dati delle convocazioni sin dal primo accesso.</p>
+                <p><strong>Workaround:</strong> Era necessario visitare prima la pagina "Storico Convocazioni" e poi tornare al Riepilogo.</p>
+            </div>
+        </div>
+
+        <!-- Root Cause Analysis -->
+        <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold text-blue-900 mb-4">🔍 Causa del Problema</h2>
+            <div class="space-y-4">
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-blue-900 mb-2">1. Caricamento Dati</h3>
+                    <p class="text-gray-700">I dati delle convocazioni vengono caricati automaticamente da Firestore tramite <code class="bg-blue-100 px-2 py-1 rounded">setupFirestoreListeners()</code></p>
+                    <div class="code-block mt-2">
+                        <pre>// Line ~3770
+const historyUnsub = window.onSnapshot(historyCollectionRef, (querySnapshot) => {
+    loadHistory(querySnapshot);
+});</pre>
+                    </div>
+                </div>
+
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-blue-900 mb-2">2. Aggiornamento Tabelle</h3>
+                    <p class="text-gray-700">La funzione <code class="bg-blue-100 px-2 py-1 rounded">updateAttendanceTables()</code> popola le tabelle del riepilogo usando i dati in <code class="bg-blue-100 px-2 py-1 rounded">convocationHistory[]</code></p>
+                    <div class="code-block mt-2">
+                        <pre>// Line ~3970
+function loadHistory(querySnapshot) {
+    // ... load data into convocationHistory ...
+    updateAttendanceTables(); // ✅ Chiamata qui
+}</pre>
+                    </div>
+                </div>
+
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-red-900 mb-2">❌ 3. Problema: Click sul Pulsante</h3>
+                    <p class="text-gray-700 mb-2">Quando l'utente cliccava su "Riepilogo Convocazioni", il codice mostrava solo la vista ma <strong>NON chiamava</strong> <code class="bg-red-100 px-2 py-1 rounded">updateAttendanceTables()</code></p>
+                    <div class="code-block mt-2 bg-red-50 border-red-200">
+                        <pre>// PRIMA (linea ~10013)
+attendanceButton.addEventListener('click', () => {
+    // ... setup code ...
+    attendanceView.classList.remove('hidden');
+    // ❌ MANCAVA: updateAttendanceTables();
+});</pre>
+                    </div>
+                    <p class="text-red-700 mt-2 font-semibold">Risultato: Vista mostrata, ma tabelle vuote!</p>
+                </div>
+
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-green-900 mb-2">✅ 4. Perché Funzionava Dopo lo Storico?</h3>
+                    <p class="text-gray-700">Visitando la pagina "Storico Convocazioni", la funzione <code class="bg-green-100 px-2 py-1 rounded">loadHistory()</code> veniva eseguita e chiamava <code class="bg-green-100 px-2 py-1 rounded">updateAttendanceTables()</code>, popolando le tabelle.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Solution -->
+        <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold text-green-900 mb-4">✅ Soluzione Implementata</h2>
+            <div class="space-y-4">
+                <p class="text-green-800 text-lg">
+                    Aggiunta la chiamata a <code class="bg-green-100 px-2 py-1 rounded font-semibold">updateAttendanceTables()</code> 
+                    in entrambi i gestori dei pulsanti "Riepilogo Convocazioni".
+                </p>
+
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-green-900 mb-3">📝 Modifiche al Codice</h3>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-gray-900 mb-2">1. Welcome Screen Button (linea ~9134)</h4>
+                        <div class="code-block bg-green-50 border-green-200">
+                            <pre>welcomeAttendanceButton.addEventListener('click', () => {
+    // ... existing setup code ...
+    attendanceView.classList.remove('hidden');
+    pushNavigationState('attendance');
+    
+    // ✅ AGGIUNTO: Update attendance tables with current data
+    updateAttendanceTables();
+});</pre>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-2">2. Main View Button (linea ~10013)</h4>
+                        <div class="code-block bg-green-50 border-green-200">
+                            <pre>attendanceButton.addEventListener('click', () => {
+    // ... existing setup code ...
+    attendanceView.classList.remove('hidden');
+    
+    // ✅ AGGIUNTO: Update attendance tables with current data
+    updateAttendanceTables();
+});</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold text-purple-900 mb-4">🎯 Benefici della Soluzione</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-purple-900 mb-2">✅ Primo Accesso Funzionante</h3>
+                    <p class="text-gray-700">Le tabelle mostrano i dati correttamente al primo click su "Riepilogo Convocazioni"</p>
+                </div>
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-purple-900 mb-2">✅ Nessun Workaround Necessario</h3>
+                    <p class="text-gray-700">Non è più necessario visitare lo Storico prima del Riepilogo</p>
+                </div>
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-purple-900 mb-2">✅ Esperienza Utente Migliorata</h3>
+                    <p class="text-gray-700">Navigazione più intuitiva e prevedibile</p>
+                </div>
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-purple-900 mb-2">✅ Codice Coerente</h3>
+                    <p class="text-gray-700">Entrambi i pulsanti ora seguono la stessa logica</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Scenarios -->
+        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold text-yellow-900 mb-4">🧪 Scenari di Test</h2>
+            <div class="space-y-3">
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Scenario 1: Accesso dal Welcome Screen</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                        <li>Accedi all'applicazione con codice società</li>
+                        <li>Dalla schermata di benvenuto, clicca "Riepilogo Convocazioni"</li>
+                        <li><strong>Risultato atteso:</strong> Le tabelle mostrano immediatamente i dati delle presenze</li>
+                    </ol>
+                </div>
+
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Scenario 2: Accesso dal Main View</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                        <li>Accedi come Mister o Dirigente</li>
+                        <li>Dalla vista principale, clicca il pulsante "Riepilogo Convocazioni"</li>
+                        <li><strong>Risultato atteso:</strong> Le tabelle mostrano immediatamente i dati delle presenze</li>
+                    </ol>
+                </div>
+
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Scenario 3: Dati Vuoti</h3>
+                    <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                        <li>Accedi a una società senza convocazioni storiche</li>
+                        <li>Clicca "Riepilogo Convocazioni"</li>
+                        <li><strong>Risultato atteso:</strong> Le tabelle mostrano lo stato vuoto (nessun errore)</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="bg-gray-100 border-2 border-gray-300 rounded-xl p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">📊 Dettagli Tecnici</h2>
+            <div class="space-y-3">
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Funzione Coinvolta</h3>
+                    <div class="code-block">
+                        <pre>async function updateAttendanceTables() {
+    // Calcola e aggiorna le tabelle di presenza per:
+    // - Amichevoli
+    // - Tornei
+    // - Campionato
+    
+    // Usa convocationHistory per calcolare le presenze
+    convocationHistory.forEach(convocation => {
+        // ... logica di calcolo ...
+    });
+}</pre>
+                    </div>
+                </div>
+
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Variabili Globali Utilizzate</h3>
+                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                        <li><code class="bg-gray-100 px-2 py-1 rounded">convocationHistory[]</code> - Array delle convocazioni storiche</li>
+                        <li><code class="bg-gray-100 px-2 py-1 rounded">companyPlayers[]</code> - Lista giocatori della società</li>
+                        <li><code class="bg-gray-100 px-2 py-1 rounded">currentCompanyData</code> - Dati società corrente</li>
+                    </ul>
+                </div>
+
+                <div class="step-card bg-white">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">File Modificato</h3>
+                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                        <li><strong>File:</strong> <code class="bg-gray-100 px-2 py-1 rounded">index.html</code></li>
+                        <li><strong>Linee modificate:</strong> 9166, 10047</li>
+                        <li><strong>Linee aggiunte:</strong> 6 (2 chiamate + 4 righe di commento)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">📝 Riepilogo</h2>
+            <div class="space-y-3 text-gray-700">
+                <p>
+                    <strong>Problema:</strong> Il pulsante "Riepilogo Convocazioni" mostrava la pagina vuota al primo accesso.
+                </p>
+                <p>
+                    <strong>Causa:</strong> Mancava la chiamata a <code class="bg-gray-100 px-2 py-1 rounded">updateAttendanceTables()</code> 
+                    nei gestori dei pulsanti.
+                </p>
+                <p>
+                    <strong>Soluzione:</strong> Aggiunta la chiamata a <code class="bg-gray-100 px-2 py-1 rounded">updateAttendanceTables()</code> 
+                    in entrambi i gestori (welcomeAttendanceButton e attendanceButton).
+                </p>
+                <p>
+                    <strong>Impatto:</strong> Modifica minimale (6 righe), fix chirurgico che risolve completamente il problema.
+                </p>
+                <p class="text-green-700 font-semibold">
+                    ✅ Il riepilogo ora mostra i dati correttamente sin dal primo accesso!
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
