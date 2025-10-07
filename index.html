@@ -4447,16 +4447,22 @@
                 if (!lastUpdateStr) {
                     shouldUpdate = true;
                 } else {
+                    // Helper function to get Monday of a given week
+                    const getMondayOfWeek = (date) => {
+                        const d = new Date(date);
+                        const day = d.getDay();
+                        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+                        d.setDate(diff);
+                        d.setHours(0, 0, 0, 0);
+                        return d;
+                    };
+                    
                     const lastUpdate = new Date(lastUpdateStr);
-                    const daysSinceUpdate = Math.floor((now - lastUpdate) / (1000 * 60 * 60 * 24));
+                    const currentWeekMonday = getMondayOfWeek(now);
+                    const lastUpdateWeekMonday = getMondayOfWeek(lastUpdate);
                     
-                    // Update if it's Monday and we haven't updated this week
-                    const isMonday = now.getDay() === 1;
-                    const lastUpdateWasBeforeThisWeek = daysSinceUpdate >= 7 || 
-                        (isMonday && lastUpdate.getDay() !== 1) ||
-                        (now.getDay() > lastUpdate.getDay());
-                    
-                    if (lastUpdateWasBeforeThisWeek) {
+                    // Update only if we're in a different week (comparing Mondays)
+                    if (currentWeekMonday.getTime() !== lastUpdateWeekMonday.getTime()) {
                         shouldUpdate = true;
                     }
                 }
@@ -7129,16 +7135,22 @@
                 if (!lastUpdateStr) {
                     shouldUpdate = true;
                 } else {
+                    // Helper function to get Monday of a given week
+                    const getMondayOfWeek = (date) => {
+                        const d = new Date(date);
+                        const day = d.getDay();
+                        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+                        d.setDate(diff);
+                        d.setHours(0, 0, 0, 0);
+                        return d;
+                    };
+                    
                     const lastUpdate = new Date(lastUpdateStr);
-                    const daysSinceUpdate = Math.floor((now - lastUpdate) / (1000 * 60 * 60 * 24));
+                    const currentWeekMonday = getMondayOfWeek(now);
+                    const lastUpdateWeekMonday = getMondayOfWeek(lastUpdate);
                     
-                    // Update if it's Monday and we haven't updated this week
-                    const isMonday = now.getDay() === 1;
-                    const lastUpdateWasBeforeThisWeek = daysSinceUpdate >= 7 || 
-                        (isMonday && lastUpdate.getDay() !== 1) ||
-                        (now.getDay() > lastUpdate.getDay());
-                    
-                    if (lastUpdateWasBeforeThisWeek) {
+                    // Update only if we're in a different week (comparing Mondays)
+                    if (currentWeekMonday.getTime() !== lastUpdateWeekMonday.getTime()) {
                         shouldUpdate = true;
                     }
                 }
