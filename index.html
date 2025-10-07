@@ -9161,6 +9161,9 @@
                 hideAllScreens();
                 attendanceView.classList.remove('hidden');
                 pushNavigationState('attendance');
+                
+                // Update attendance tables with current data
+                updateAttendanceTables();
             });
 
             // V9.10: Training attendance button event listener - COMMENTED OUT - Feature removed
@@ -10039,6 +10042,9 @@
                 mainView.classList.add('hidden');
                 historyView.classList.add('hidden');
                 attendanceView.classList.remove('hidden');
+                
+                // Update attendance tables with current data
+                updateAttendanceTables();
             });
             backFromHistoryButton.addEventListener('click', () => {
                 historyView.classList.add('hidden');
