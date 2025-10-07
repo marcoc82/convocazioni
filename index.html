@@ -3933,6 +3933,61 @@
                 }
             }
 
+            // Function to ensure convocation history is loaded
+            // This is called when opening Riepilogo to guarantee data is available
+            async function ensureConvocationHistoryLoaded() {
+                // If data is already loaded, return immediately
+                if (convocationHistory.length > 0) {
+                    console.log(`✅ convocationHistory già caricato (${convocationHistory.length} convocazioni)`);
+                    return;
+                }
+                
+                console.log(`🔄 convocationHistory vuoto, caricamento esplicito dei dati...`);
+                
+                // Check if Firebase is available
+                if (!window.db || !window.collection || !window.getDocs) {
+                    console.log('⚠️ Firebase non disponibile, usando modalità demo');
+                    loadHistoryDemo();
+                    return;
+                }
+                
+                // Load data from Firestore
+                try {
+                    const historyBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${currentAppId}/public/data`;
+                    const historyCollectionRef = window.collection(window.db, `${historyBasePath}/convocations_history`);
+                    console.log(`📍 Caricamento esplicito da: ${historyBasePath}/convocations_history`);
+                    
+                    const querySnapshot = await window.getDocs(historyCollectionRef);
+                    
+                    if (querySnapshot.empty) {
+                        console.log(`📝 Nessuna convocazione trovata per società ${currentCompanyDocumentId}`);
+                        convocationHistory = [];
+                        allConvocationHistory = [];
+                        return;
+                    }
+                    
+                    const history = [];
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const historyItem = { ...data, id: doc.id };
+                        history.push(historyItem);
+                        convocationHistory.push(historyItem);
+                    });
+                    
+                    // Sort by createdAt descending
+                    history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    
+                    // Store all unfiltered history
+                    allConvocationHistory = history;
+                    
+                    console.log(`✅ Caricato ${convocationHistory.length} convocazioni storiche`);
+                } catch (error) {
+                    console.error('❌ Errore durante il caricamento delle convocazioni:', error);
+                    convocationHistory = [];
+                    allConvocationHistory = [];
+                }
+            }
+
             // Function to load and display history from Firestore
             function loadHistory(querySnapshot) {
                 convocationHistory = []; // reset convocation history data
@@ -9162,8 +9217,11 @@
                 attendanceView.classList.remove('hidden');
                 pushNavigationState('attendance');
                 
-                // Update attendance tables with current data
-                updateAttendanceTables();
+                // Ensure convocation history is loaded before updating tables
+                ensureConvocationHistoryLoaded().then(() => {
+                    // Update attendance tables with current data
+                    updateAttendanceTables();
+                });
             });
 
             // V9.10: Training attendance button event listener - COMMENTED OUT - Feature removed
@@ -10043,8 +10101,11 @@
                 historyView.classList.add('hidden');
                 attendanceView.classList.remove('hidden');
                 
-                // Update attendance tables with current data
-                updateAttendanceTables();
+                // Ensure convocation history is loaded before updating tables
+                ensureConvocationHistoryLoaded().then(() => {
+                    // Update attendance tables with current data
+                    updateAttendanceTables();
+                });
             });
             backFromHistoryButton.addEventListener('click', () => {
                 historyView.classList.add('hidden');
