@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Reset Automatico - Domenica a Mezzanotte</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800">🔄 Test Reset Automatico Indisponibilità</h1>
+        
+        <!-- Info Box -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h2 class="text-xl font-semibold text-blue-800 mb-2">📋 Obiettivo del Test</h2>
+            <ul class="list-disc list-inside space-y-1 text-blue-700">
+                <li><strong>Requisito:</strong> Il reset deve avvenire la domenica a mezzanotte (00:00)</li>
+                <li><strong>Bug precedente:</strong> Il reset avveniva ogni lunedì a mezzanotte</li>
+                <li><strong>Fix:</strong> Cambio da "last Monday" a "last Sunday" come inizio settimana</li>
+            </ul>
+        </div>
+
+        <!-- Test Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">🧪 Test Logic</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Seleziona data/ora di test:</label>
+                    <input type="datetime-local" id="test-date" class="border border-gray-300 rounded px-3 py-2 w-full">
+                </div>
+                
+                <button onclick="runTest()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg">
+                    Esegui Test
+                </button>
+            </div>
+
+            <div id="results" class="mt-6"></div>
+        </div>
+
+        <!-- Expected Behavior -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <h2 class="text-xl font-semibold text-green-800 mb-2">✅ Comportamento Atteso</h2>
+            <div class="space-y-2 text-green-700 text-sm">
+                <p><strong>Scenario 1:</strong> Sabato 23:59 → Nessun reset (stessa settimana)</p>
+                <p><strong>Scenario 2:</strong> Domenica 00:00 → Reset! (nuova settimana inizia)</p>
+                <p><strong>Scenario 3:</strong> Domenica 10:00 → Reset! (se ultima registrazione era settimana scorsa)</p>
+                <p><strong>Scenario 4:</strong> Lunedì 00:00 → Nessun reset (già resettato domenica)</p>
+            </div>
+        </div>
+
+        <!-- Code Comparison -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700">📝 Confronto Codice</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border border-red-300 rounded p-4 bg-red-50">
+                    <h3 class="font-bold text-red-700 mb-2">❌ Vecchio (Bug)</h3>
+                    <pre class="text-xs bg-white p-2 rounded overflow-x-auto"><code>const getLastMonday = (date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    // Calcola lunedì
+    const diff = d.getDate() - day + 
+                 (day === 0 ? -6 : 1);
+    d.setDate(diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+};</code></pre>
+                </div>
+                
+                <div class="border border-green-300 rounded p-4 bg-green-50">
+                    <h3 class="font-bold text-green-700 mb-2">✅ Nuovo (Fix)</h3>
+                    <pre class="text-xs bg-white p-2 rounded overflow-x-auto"><code>const getLastSunday = (date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    // Calcola domenica
+    const diff = day === 0 ? 0 : day;
+    d.setDate(d.getDate() - diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+};</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // OLD IMPLEMENTATION (Bug)
+        function getLastMonday(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            d.setDate(diff);
+            d.setHours(0, 0, 0, 0);
+            return d;
+        }
+
+        // NEW IMPLEMENTATION (Fix)
+        function getLastSunday(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = day === 0 ? 0 : day;
+            d.setDate(d.getDate() - diff);
+            d.setHours(0, 0, 0, 0);
+            return d;
+        }
+
+        function runTest() {
+            const testDateInput = document.getElementById('test-date').value;
+            if (!testDateInput) {
+                alert('Seleziona una data/ora di test');
+                return;
+            }
+
+            const testDate = new Date(testDateInput);
+            const resultsDiv = document.getElementById('results');
+            
+            // Calculate week starts
+            const mondayStart = getLastMonday(testDate);
+            const sundayStart = getLastSunday(testDate);
+            
+            // Simulate checking if reset is needed
+            const dayName = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'][testDate.getDay()];
+            
+            resultsDiv.innerHTML = `
+                <div class="space-y-3">
+                    <div class="border-l-4 border-blue-500 pl-4">
+                        <p class="font-semibold">Data/Ora di Test:</p>
+                        <p class="text-gray-700">${testDate.toLocaleString('it-IT', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}</p>
+                    </div>
+                    
+                    <div class="border-l-4 border-red-500 pl-4">
+                        <p class="font-semibold text-red-700">❌ Vecchia Logica (getLastMonday):</p>
+                        <p class="text-gray-700">Inizio settimana: ${mondayStart.toLocaleDateString('it-IT', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}</p>
+                    </div>
+                    
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <p class="font-semibold text-green-700">✅ Nuova Logica (getLastSunday):</p>
+                        <p class="text-gray-700">Inizio settimana: ${sundayStart.toLocaleDateString('it-IT', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        })}</p>
+                    </div>
+                    
+                    <div class="bg-gray-100 rounded p-4">
+                        <p class="font-semibold mb-2">📊 Analisi:</p>
+                        <ul class="list-disc list-inside space-y-1 text-sm text-gray-700">
+                            <li>Giorno testato: <strong>${dayName}</strong></li>
+                            <li>Differenza tra vecchia e nuova: <strong>${Math.floor((sundayStart - mondayStart) / (1000 * 60 * 60 * 24))} giorni</strong></li>
+                            ${testDate.getDay() === 0 ? 
+                                '<li class="text-green-700"><strong>✅ È Domenica! Con la nuova logica il reset si attiva!</strong></li>' : 
+                                '<li class="text-blue-700">Non è domenica, reset non si attiva oggi.</li>'
+                            }
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Set default to current date/time
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+        document.getElementById('test-date').value = localISOTime;
+    </script>
+</body>
+</html>
