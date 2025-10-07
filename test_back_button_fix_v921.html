@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.21 - Back Button Navigation Fix</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .version {
+            text-align: center;
+            color: #764ba2;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .section h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .test-area {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .screen {
+            display: none;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            min-height: 200px;
+            margin: 10px 0;
+        }
+        .screen.active {
+            display: block;
+        }
+        .screen h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 3px 0;
+            padding: 3px;
+            border-left: 3px solid transparent;
+            padding-left: 8px;
+        }
+        .log-info {
+            color: #4ec9b0;
+            border-left-color: #4ec9b0;
+        }
+        .log-warn {
+            color: #dcdcaa;
+            border-left-color: #dcdcaa;
+        }
+        .log-error {
+            color: #f48771;
+            border-left-color: #f48771;
+        }
+        .log-success {
+            color: #b5cea8;
+            border-left-color: #b5cea8;
+        }
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .status {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        .feature-list li {
+            padding: 10px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #28a745;
+        }
+        .feature-list li:before {
+            content: '✓ ';
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .stack-display {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+        }
+        .instructions ol {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔙 Test Back Button Navigation Fix</h1>
+        <div class="version">Version 9.21</div>
+
+        <div class="section">
+            <h2>📋 Descrizione del Bug Risolto</h2>
+            <p><strong>Problema:</strong> Quando l'utente premeva il tasto indietro del telefono (Android/iOS), il codice creava voci duplicate nella cronologia del browser, causando sovrapposizione di pagine e confusione nella navigazione.</p>
+            
+            <p><strong>Causa:</strong> Il gestore dell'evento <code>popstate</code> chiamava <code>history.pushState()</code> dopo aver gestito la navigazione indietro, creando un duplicato nella cronologia.</p>
+            
+            <p><strong>Soluzione:</strong> La funzione <code>pushNavigationState()</code> ora controlla il flag <code>isNavigatingBack</code> e salta il push durante la navigazione indietro.</p>
+        </div>
+
+        <div class="section">
+            <h2>✅ Funzionalità Implementate</h2>
+            <ul class="feature-list">
+                <li>Flag <code>isNavigatingBack</code> per tracciare la navigazione indietro</li>
+                <li>Controllo del flag in <code>pushNavigationState()</code> per prevenire duplicati</li>
+                <li>Logging dettagliato quando i push vengono saltati</li>
+                <li>Gestione corretta dello stack di navigazione</li>
+                <li>Sincronizzazione tra browser history e internal stack</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🧪 Test Interattivo</h2>
+            <div class="instructions">
+                <h3>Istruzioni per il test:</h3>
+                <ol>
+                    <li>Clicca sui pulsanti per navigare tra le schermate</li>
+                    <li>Usa il tasto "Indietro" del browser (o Alt+←)</li>
+                    <li>Osserva il log per vedere che il push viene saltato durante la navigazione indietro</li>
+                    <li>Verifica che lo stack rimanga sincronizzato con la cronologia del browser</li>
+                </ol>
+            </div>
+
+            <div class="test-area">
+                <div id="screen-entry" class="screen active">
+                    <h3>🏠 Company Entry Screen</h3>
+                    <p>Questa è la schermata iniziale dove inserisci il codice società.</p>
+                    <button onclick="navigateTo('welcome')">Entra in Welcome →</button>
+                </div>
+
+                <div id="screen-welcome" class="screen">
+                    <h3>👋 Company Welcome Screen</h3>
+                    <p>Benvenuto! Da qui puoi accedere a varie funzionalità.</p>
+                    <button onclick="navigateTo('history')">Storico →</button>
+                    <button onclick="navigateTo('attendance')">Presenze →</button>
+                    <button onclick="navigateTo('allenamenti')">Allenamenti →</button>
+                    <button onclick="navigateTo('main')">Main View →</button>
+                </div>
+
+                <div id="screen-history" class="screen">
+                    <h3>📜 History Screen</h3>
+                    <p>Visualizza lo storico delle convocazioni.</p>
+                    <p style="color: #666; font-style: italic;">Usa il tasto Indietro per tornare a Welcome</p>
+                </div>
+
+                <div id="screen-attendance" class="screen">
+                    <h3>📊 Attendance Screen</h3>
+                    <p>Visualizza le presenze.</p>
+                    <p style="color: #666; font-style: italic;">Usa il tasto Indietro per tornare a Welcome</p>
+                </div>
+
+                <div id="screen-allenamenti" class="screen">
+                    <h3>⚽ Allenamenti Screen</h3>
+                    <p>Gestisci gli allenamenti.</p>
+                    <p style="color: #666; font-style: italic;">Usa il tasto Indietro per tornare a Welcome</p>
+                </div>
+
+                <div id="screen-main" class="screen">
+                    <h3>📋 Main View Screen</h3>
+                    <p>Vista principale dell'applicazione.</p>
+                    <p style="color: #666; font-style: italic;">Usa il tasto Indietro per tornare a Welcome</p>
+                </div>
+            </div>
+
+            <div class="stack-display">
+                <strong>📚 Navigation Stack:</strong>
+                <div id="stack-display" style="margin-top: 10px; font-size: 16px; color: #667eea; font-weight: bold;">[]</div>
+            </div>
+
+            <div id="log"></div>
+        </div>
+
+        <div class="section">
+            <h2>💻 Codice Implementato</h2>
+            <p><strong>Prima della Fix (Bug):</strong></p>
+            <div class="code-block">
+window.addEventListener('popstate', (event) => {
+    const handled = handleBackButton();
+    
+    if (handled) {
+        // 🐛 BUG: Crea voci duplicate!
+        const newView = getCurrentView();
+        if (newView) {
+            history.pushState({ view: newView }, '', '');
+        }
+    }
+});
+            </div>
+
+            <p><strong>Dopo la Fix (V9.21):</strong></p>
+            <div class="code-block">
+function pushNavigationState(viewName) {
+    if (!isNavigatingBack) {
+        navigationStack.push(viewName);
+        history.pushState({ view: viewName }, '', '');
+        console.log(`✅ Pushed: ${viewName}`);
+    } else {
+        console.log(`⏭️ SKIPPED (back nav): ${viewName}`);
+    }
+}
+
+window.addEventListener('popstate', (event) => {
+    isNavigatingBack = true;
+    const handled = handleBackButton();
+    // ✅ NO push - il flag previene duplicati
+    isNavigatingBack = false;
+});
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Risultati Attesi</h2>
+            <div class="status success">
+                ✅ Nessuna voce duplicata nella cronologia
+            </div>
+            <div class="status success">
+                ✅ Nessuna sovrapposizione di pagine
+            </div>
+            <div class="status success">
+                ✅ Comportamento pulito e prevedibile del tasto indietro
+            </div>
+            <div class="status success">
+                ✅ Stack sincronizzato con browser history
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let navigationStack = [];
+        let isNavigatingBack = false;
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            const timestamp = new Date().toLocaleTimeString('it-IT');
+            entry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+            updateStackDisplay();
+        }
+
+        function updateStackDisplay() {
+            const stackDisplay = document.getElementById('stack-display');
+            stackDisplay.textContent = JSON.stringify(navigationStack);
+        }
+
+        function getCurrentView() {
+            const screens = document.querySelectorAll('.screen');
+            for (const screen of screens) {
+                if (screen.classList.contains('active')) {
+                    return screen.id.replace('screen-', '');
+                }
+            }
+            return null;
+        }
+
+        function showScreen(viewName) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(s => s.classList.remove('active'));
+
+            const screen = document.getElementById(`screen-${viewName}`);
+            if (screen) {
+                screen.classList.add('active');
+                log(`👁️ Showing screen: ${viewName}`, 'info');
+            }
+        }
+
+        function pushNavigationState(viewName) {
+            if (!isNavigatingBack) {
+                navigationStack.push(viewName);
+                history.pushState({ view: viewName }, '', '');
+                log(`✅ Pushed state: ${viewName}, Stack: [${navigationStack.join(', ')}]`, 'success');
+            } else {
+                log(`⏭️ SKIPPED push (navigating back): ${viewName}, Stack: [${navigationStack.join(', ')}]`, 'warn');
+            }
+            updateStackDisplay();
+        }
+
+        function navigateTo(viewName) {
+            showScreen(viewName);
+            pushNavigationState(viewName);
+        }
+
+        function handleBackButton() {
+            const currentView = getCurrentView();
+            log(`🔙 Back button pressed, current view: ${currentView}`, 'info');
+
+            // Pop current state from stack if it exists
+            if (navigationStack.length > 0 && navigationStack[navigationStack.length - 1] === currentView) {
+                const popped = navigationStack.pop();
+                log(`📤 Popped from stack: ${popped}, Stack now: [${navigationStack.join(', ')}]`, 'info');
+                updateStackDisplay();
+            }
+
+            // Determine where to go back
+            switch(currentView) {
+                case 'history':
+                case 'attendance':
+                case 'allenamenti':
+                case 'main':
+                    showScreen('welcome');
+                    // Note: showScreen doesn't call pushNavigationState directly here
+                    // In the real app, these cases might call showCompanyWelcome()
+                    // which would try to push, but it gets skipped due to isNavigatingBack flag
+                    break;
+                case 'welcome':
+                    showScreen('entry');
+                    break;
+                case 'entry':
+                default:
+                    log('📍 At entry point, allowing default behavior', 'warn');
+                    return false;
+            }
+
+            return true;
+        }
+
+        // Handle physical back button press
+        window.addEventListener('popstate', (event) => {
+            log(`📱 Popstate event triggered, state: ${JSON.stringify(event.state)}`, 'info');
+            isNavigatingBack = true;
+
+            const handled = handleBackButton();
+
+            if (!handled && navigationStack.length === 0) {
+                log('🚪 At root level, allowing app to close', 'warn');
+            }
+
+            isNavigatingBack = false;
+        });
+
+        // Initialize
+        const initialView = getCurrentView();
+        if (initialView) {
+            history.replaceState({ view: initialView }, '', '');
+            navigationStack.push(initialView);
+            log(`🚀 Initial state: ${initialView}, Stack: [${navigationStack.join(', ')}]`, 'success');
+            updateStackDisplay();
+        }
+
+        // Add keyboard shortcut hint
+        log('💡 Suggerimento: Usa Alt+← (o il tasto Indietro del browser) per testare la navigazione indietro', 'info');
+    </script>
+</body>
+</html>
