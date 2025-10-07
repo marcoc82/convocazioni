@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fix Implementation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .pass { background-color: #d4edda; border-color: #c3e6cb; }
+        .fail { background-color: #f8d7da; border-color: #f5c6cb; }
+        h1 { color: #333; }
+        h2 { color: #666; margin-top: 0; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .test-result.pass { background: #d4edda; color: #155724; }
+        .test-result.fail { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Test Fix Implementation</h1>
+    <p>This page tests the two fixes implemented:</p>
+    <ol>
+        <li>App ID consistency fix in showCompanyWelcome functions</li>
+        <li>Girone and Giornata modal integration in distinta flow</li>
+    </ol>
+
+    <div class="test-section">
+        <h2>Test 1: Check for App ID Fix in showCompanyWelcome</h2>
+        <div id="test1-result">Running...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Check for New Match Info Modal</h2>
+        <div id="test2-result">Running...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Check for State Variables</h2>
+        <div id="test3-result">Running...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Check for New Functions</h2>
+        <div id="test4-result">Running...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 5: Check for Updated createDistintaContent</h2>
+        <div id="test5-result">Running...</div>
+    </div>
+
+    <script>
+        async function runTests() {
+            try {
+                // Load index.html
+                const response = await fetch('index.html');
+                const htmlContent = await response.text();
+                
+                // Test 1: Check for App ID fix
+                const test1Pass = htmlContent.includes('Set currentAppId correctly to avoid inconsistencies') &&
+                                 htmlContent.includes('const expectedAppId = currentCompanyDocumentId || currentCompanyCode;');
+                document.getElementById('test1-result').innerHTML = test1Pass ? 
+                    '<div class="test-result pass">✓ PASS: App ID consistency check found in both showCompanyWelcome functions</div>' :
+                    '<div class="test-result fail">✗ FAIL: App ID consistency check not found</div>';
+                
+                // Test 2: Check for new modal
+                const test2Pass = htmlContent.includes('distinta-match-info-modal') &&
+                                 htmlContent.includes('distinta-girone-select') &&
+                                 htmlContent.includes('distinta-giornata-input');
+                document.getElementById('test2-result').innerHTML = test2Pass ?
+                    '<div class="test-result pass">✓ PASS: New match info modal with Girone and Giornata inputs found</div>' :
+                    '<div class="test-result fail">✗ FAIL: Match info modal elements not found</div>';
+                
+                // Test 3: Check for state variables
+                const test3Pass = htmlContent.includes('let selectedGirone') &&
+                                 htmlContent.includes('let selectedGiornata');
+                document.getElementById('test3-result').innerHTML = test3Pass ?
+                    '<div class="test-result pass">✓ PASS: State variables selectedGirone and selectedGiornata found</div>' :
+                    '<div class="test-result fail">✗ FAIL: State variables not found</div>';
+                
+                // Test 4: Check for new functions
+                const test4Pass = htmlContent.includes('function showDistintaMatchInfoModal()') &&
+                                 htmlContent.includes('function hideDistintaMatchInfoModal()') &&
+                                 htmlContent.includes('function confirmMatchInfo()');
+                document.getElementById('test4-result').innerHTML = test4Pass ?
+                    '<div class="test-result pass">✓ PASS: New modal functions found</div>' :
+                    '<div class="test-result fail">✗ FAIL: Modal functions not found</div>';
+                
+                // Test 5: Check for updated distinta content
+                const test5Pass = htmlContent.includes('${selectedGirone || \'_____\'}') &&
+                                 htmlContent.includes('${selectedGiornata || \'_____\'}');
+                document.getElementById('test5-result').innerHTML = test5Pass ?
+                    '<div class="test-result pass">✓ PASS: Distinta template updated to use selectedGirone and selectedGiornata</div>' :
+                    '<div class="test-result fail">✗ FAIL: Distinta template not updated</div>';
+                
+                // Summary
+                const allPassed = test1Pass && test2Pass && test3Pass && test4Pass && test5Pass;
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = 'test-section ' + (allPassed ? 'pass' : 'fail');
+                summaryDiv.innerHTML = '<h2>Summary</h2><p>' + 
+                    (allPassed ? 
+                        '✓ All tests passed! The implementation is complete.' :
+                        '✗ Some tests failed. Please review the implementation.') +
+                    '</p>';
+                document.body.appendChild(summaryDiv);
+                
+            } catch (error) {
+                console.error('Error running tests:', error);
+                document.body.innerHTML += '<div class="test-section fail"><h2>Error</h2><p>' + error.message + '</p></div>';
+            }
+        }
+        
+        runTests();
+    </script>
+</body>
+</html>

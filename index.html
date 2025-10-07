@@ -1524,6 +1524,41 @@
         </div>
     </div>
 
+    <!-- Modal for Girone and Giornata Input -->
+    <div id="distinta-match-info-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform scale-95 transition-transform duration-300">
+            <h2 class="text-xl font-bold mb-4 text-center">Informazioni Partita</h2>
+            <p class="text-gray-600 text-center mb-6">Inserisci il girone e il numero della giornata:</p>
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label for="distinta-girone-select" class="block text-sm font-medium text-gray-700 mb-2">Girone:</label>
+                    <select id="distinta-girone-select" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Seleziona girone...</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="distinta-giornata-input" class="block text-sm font-medium text-gray-700 mb-2">Numero della Giornata:</label>
+                    <input type="number" id="distinta-giornata-input" min="1" max="99" placeholder="Es: 1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <button id="confirm-match-info" class="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-md transition-colors duration-200">
+                    Conferma
+                </button>
+                <button id="close-distinta-match-info-modal" class="flex-1 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                    Annulla
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal for Distinta Display -->
     <div id="distinta-display-modal" class="fixed inset-0 hidden modal flex items-center justify-center p-4 transition-opacity duration-300 ease-in-out opacity-0">
         <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto transform scale-95 transition-transform duration-300">
@@ -1815,6 +1850,14 @@
             function showCompanyWelcome() {
                 hideAllScreens();
                 companyNameDisplay.textContent = currentCompanyData.name;
+                
+                // Set currentAppId correctly to avoid inconsistencies
+                // Use document ID if available, otherwise use company code
+                const expectedAppId = currentCompanyDocumentId || currentCompanyCode;
+                if (currentAppId !== expectedAppId) {
+                    console.log(`🔧 Setting App ID to: ${expectedAppId} (was: ${currentAppId})`);
+                    currentAppId = expectedAppId;
+                }
                 
                 // Show/hide training attendance button based on company name
                 const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
@@ -2215,6 +2258,12 @@
             const confirmDirigentiSelectionButton = document.getElementById('confirm-dirigenti-selection');
             const closeDistintaDirigentiModalButton = document.getElementById('close-distinta-dirigenti-modal');
             
+            const distintaMatchInfoModal = document.getElementById('distinta-match-info-modal');
+            const distintaGironeSelect = document.getElementById('distinta-girone-select');
+            const distintaGiornataInput = document.getElementById('distinta-giornata-input');
+            const confirmMatchInfoButton = document.getElementById('confirm-match-info');
+            const closeDistintaMatchInfoModalButton = document.getElementById('close-distinta-match-info-modal');
+            
             const distintaDisplayModal = document.getElementById('distinta-display-modal');
             const distintaContent = document.getElementById('distinta-content');
             const closeDistintaDisplayModalButton = document.getElementById('close-distinta-display-modal');
@@ -2256,6 +2305,8 @@
             let unsubscribeListeners = [];
             let selectedDistintaLocation = null; // home/away selection for distinta
             let selectedDirigenti = []; // selected dirigenti for distinta
+            let selectedGirone = ''; // selected girone for distinta
+            let selectedGiornata = ''; // selected giornata for distinta
             let historyPreviousView = null; // track where history was accessed from
             let attendancePreviousView = null; // track where attendance was accessed from
             let convocationHistory = []; // store convocation history data for attendance filtering
@@ -6068,6 +6119,14 @@
                 hideAllScreens();
                 companyNameDisplay.textContent = currentCompanyData.name;
                 
+                // Set currentAppId correctly to avoid inconsistencies
+                // Use document ID if available, otherwise use company code
+                const expectedAppId = currentCompanyDocumentId || currentCompanyCode;
+                if (currentAppId !== expectedAppId) {
+                    console.log(`🔧 Setting App ID to: ${expectedAppId} (was: ${currentAppId})`);
+                    currentAppId = expectedAppId;
+                }
+                
                 // Log societa data for debugging
                 console.log('📊 DEBUG - Societa data at login:', {
                     societa: currentCompanyData?.data,
@@ -7839,6 +7898,17 @@
                 // Note: selectedDirigenti is NOT cleared here to preserve selection for distinta generation
             }
 
+            function showDistintaMatchInfoModal() {
+                console.log('📝 DISTINTA FLOW: showDistintaMatchInfoModal() called');
+                distintaMatchInfoModal.classList.remove('hidden', 'opacity-0');
+                distintaMatchInfoModal.classList.add('flex', 'opacity-100');
+            }
+
+            function hideDistintaMatchInfoModal() {
+                distintaMatchInfoModal.classList.remove('flex', 'opacity-100');
+                distintaMatchInfoModal.classList.add('hidden', 'opacity-0');
+            }
+
             function populateDirigentiSelection() {
                 dirigentiSelectionList.innerHTML = '';
                 
@@ -8310,11 +8380,35 @@
                 console.log('🚪 DISTINTA FLOW: Hiding dirigenti modal...');
                 hideDistintaDirigentiModal();
                 
+                console.log('📝 DISTINTA FLOW: About to show match info modal for Girone and Giornata...');
+                showDistintaMatchInfoModal();
+            }
+
+            function confirmMatchInfo() {
+                console.log('🔄 DISTINTA FLOW: confirmMatchInfo() called');
+                
+                selectedGirone = distintaGironeSelect.value;
+                selectedGiornata = distintaGiornataInput.value;
+                
+                console.log('📝 Girone selected:', selectedGirone);
+                console.log('📝 Giornata selected:', selectedGiornata);
+                
+                // Validate that at least one field is filled
+                if (!selectedGirone && !selectedGiornata) {
+                    alert('Inserisci almeno il girone o il numero della giornata.');
+                    return;
+                }
+                
+                console.log('🚪 DISTINTA FLOW: Hiding match info modal...');
+                hideDistintaMatchInfoModal();
+                
                 console.log('🎯 DISTINTA FLOW: About to call generateDistinta()');
                 console.log('🔍 Pre-generateDistinta state check:');
                 console.log('   - currentDistintaData exists:', !!window.currentDistintaData);
                 console.log('   - selectedDistintaLocation:', selectedDistintaLocation);
                 console.log('   - selectedDirigenti count:', selectedDirigenti.length);
+                console.log('   - selectedGirone:', selectedGirone);
+                console.log('   - selectedGiornata:', selectedGiornata);
                 
                 generateDistinta();
             }
@@ -8471,8 +8565,8 @@
                             <p style="margin: 2px 0;"><strong>Campo:</strong> ${convocationData.details.campo || 'N/D'}</p>
                             
                             ${companyInfo.categoria ? `<p style="margin: 2px 0;"><strong>Categoria:</strong> ${companyInfo.categoria}</p>` : ''}
-                            <p style="margin: 2px 0;"><strong>Girone:</strong> <span style="padding-left: 8px; display: inline-block; min-width: 120px;" contenteditable="true" id="editable-girone"> </span></p>
-                            <p style="margin: 2px 0;"><strong>Giornata:</strong> <span style="padding-left: 8px; display: inline-block; min-width: 120px;" contenteditable="true" id="editable-giornata"> </span></p>
+                            <p style="margin: 2px 0;"><strong>Girone:</strong> ${selectedGirone || '_____'}</p>
+                            <p style="margin: 2px 0;"><strong>Giornata:</strong> ${selectedGiornata || '_____'}</p>
                         </div>
                         
                         <table style="width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 11px; page-break-inside: avoid;">
@@ -10184,6 +10278,8 @@
             closeDistintaLocationModalButton.addEventListener('click', hideDistintaLocationModal);
             closeDistintaDirigentiModalButton.addEventListener('click', hideDistintaDirigentiModal);
             confirmDirigentiSelectionButton.addEventListener('click', confirmDirigentiSelection);
+            closeDistintaMatchInfoModalButton.addEventListener('click', hideDistintaMatchInfoModal);
+            confirmMatchInfoButton.addEventListener('click', confirmMatchInfo);
             closeDistintaDisplayModalButton.addEventListener('click', hideDistintaDisplayModal);
             distintaHomeButton.addEventListener('click', async () => await selectDistintaLocation('casa'));
             distintaAwayButton.addEventListener('click', async () => await selectDistintaLocation('trasferta'));
