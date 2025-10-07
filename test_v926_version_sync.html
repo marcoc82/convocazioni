@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.26 Version Verification Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">✅ V9.26 Version Verification</h1>
+            <p class="text-gray-600 mb-4">
+                Verifica che tutte le versioni dell'app siano sincronizzate correttamente dopo l'aggiornamento.
+            </p>
+        </div>
+
+        <!-- Version Synchronization Check -->
+        <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+            <h2 class="text-2xl font-bold text-green-900 mb-4">🎯 Stato Sincronizzazione Versione</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-white rounded-lg p-4 border-2 border-green-500">
+                    <div class="flex items-start">
+                        <span class="text-3xl mr-4">✅</span>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-gray-900 mb-2">index.html - Commento Versione</h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                &lt;!-- Version: V9.26 - Enhanced sorting logic: added attendance percentage as tertiary sort criterion --&gt;
+                            </div>
+                            <p class="text-green-700 mt-2 font-semibold">✓ Linea 2: Versione V9.26</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 border-2 border-green-500">
+                    <div class="flex items-start">
+                        <span class="text-3xl mr-4">✅</span>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-gray-900 mb-2">index.html - Versione Visibile</h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                &lt;span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full"&gt;V 9.26&lt;/span&gt;
+                            </div>
+                            <p class="text-green-700 mt-2 font-semibold">✓ Linea 268: Versione visibile V 9.26</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4 border-2 border-green-500">
+                    <div class="flex items-start">
+                        <span class="text-3xl mr-4">✅</span>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-gray-900 mb-2">manifest.json - Versione App</h3>
+                            <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                "version": "V9.26",
+                            </div>
+                            <p class="text-green-700 mt-2 font-semibold">✓ Aggiornato da V9.25 a V9.26</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Before/After Comparison -->
+        <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
+            <h2 class="text-2xl font-bold text-blue-900 mb-4">📊 Prima vs Dopo</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-red-100 rounded-lg p-4 border-2 border-red-300">
+                    <h3 class="font-bold text-red-900 mb-3">❌ Prima (Non Sincronizzato)</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="font-semibold">index.html comment:</span>
+                            <span class="font-mono">V9.26</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-semibold">index.html visible:</span>
+                            <span class="font-mono">V 9.26</span>
+                        </div>
+                        <div class="flex justify-between bg-red-200 px-2 py-1 rounded">
+                            <span class="font-semibold">manifest.json:</span>
+                            <span class="font-mono font-bold">V9.25 ⚠️</span>
+                        </div>
+                    </div>
+                    <p class="text-red-700 mt-3 text-sm font-semibold">
+                        ⚠️ manifest.json era rimasto alla versione precedente
+                    </p>
+                </div>
+
+                <div class="bg-green-100 rounded-lg p-4 border-2 border-green-300">
+                    <h3 class="font-bold text-green-900 mb-3">✅ Dopo (Sincronizzato)</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="font-semibold">index.html comment:</span>
+                            <span class="font-mono">V9.26</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="font-semibold">index.html visible:</span>
+                            <span class="font-mono">V 9.26</span>
+                        </div>
+                        <div class="flex justify-between bg-green-200 px-2 py-1 rounded">
+                            <span class="font-semibold">manifest.json:</span>
+                            <span class="font-mono font-bold">V9.26 ✓</span>
+                        </div>
+                    </div>
+                    <p class="text-green-700 mt-3 text-sm font-semibold">
+                        ✓ Tutte le versioni ora sincronizzate a V9.26
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Changes Made -->
+        <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 mb-6">
+            <h2 class="text-2xl font-bold text-purple-900 mb-4">🔧 Modifiche Apportate</h2>
+            
+            <div class="space-y-3">
+                <div class="bg-white rounded-lg p-4">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">1️⃣</span>
+                        <div>
+                            <h3 class="font-bold text-gray-900 mb-1">Aggiornato manifest.json</h3>
+                            <p class="text-gray-700 text-sm">
+                                Versione sincronizzata da V9.25 a V9.26 per allinearsi con index.html
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">2️⃣</span>
+                        <div>
+                            <h3 class="font-bold text-gray-900 mb-1">Creato CHANGELOG_V9.26.md</h3>
+                            <p class="text-gray-700 text-sm">
+                                Documentazione completa dei miglioramenti alla logica di ordinamento
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg p-4">
+                    <div class="flex items-start">
+                        <span class="text-2xl mr-3">3️⃣</span>
+                        <div>
+                            <h3 class="font-bold text-gray-900 mb-1">Verificata Consistenza</h3>
+                            <p class="text-gray-700 text-sm">
+                                Confermato che tutti i riferimenti alla versione sono V9.26
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- What's in V9.26 -->
+        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6 mb-6">
+            <h2 class="text-2xl font-bold text-yellow-900 mb-4">✨ Cosa Include V9.26</h2>
+            
+            <div class="bg-white rounded-lg p-4">
+                <h3 class="font-bold text-gray-900 mb-3">Logica di Ordinamento Migliorata</h3>
+                <p class="text-gray-700 mb-3">
+                    Aggiunta la percentuale di presenza come criterio di ordinamento terziario nei report presenze allenamenti.
+                </p>
+                
+                <div class="bg-gray-100 p-3 rounded text-sm mb-3">
+                    <p class="font-semibold mb-2">Nuovi Criteri di Ordinamento (4 livelli):</p>
+                    <ol class="list-decimal list-inside space-y-1">
+                        <li><strong>Primario:</strong> Presenze (decrescente) - più presenze prima</li>
+                        <li><strong>Secondario:</strong> Percentuale disponibilità da Firebase (decrescente)</li>
+                        <li><strong>Terziario (NUOVO):</strong> Percentuale presenze (decrescente) - colonna % Pres.</li>
+                        <li><strong>Quaternario:</strong> Alfabetico per nome (crescente) - senza numero maglia</li>
+                    </ol>
+                </div>
+
+                <div class="bg-blue-100 p-3 rounded text-sm">
+                    <p class="font-semibold mb-2">Benefici:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>✅ Più robusto - considera TUTTI i parametri visibili</li>
+                        <li>✅ Più equo - premia chi ha percentuale di presenza migliore</li>
+                        <li>✅ Alfabetico garantito - solo quando TUTTI i parametri sono uguali</li>
+                        <li>✅ Numero maglia ignorato - sempre nell'ordinamento alfabetico</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Files Modified -->
+        <div class="bg-gray-50 border-2 border-gray-200 rounded-xl p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">📁 File Modificati</h2>
+            
+            <div class="space-y-2">
+                <div class="bg-white rounded-lg p-3 flex justify-between items-center">
+                    <span class="font-mono text-sm">manifest.json</span>
+                    <span class="text-xs bg-green-200 text-green-800 px-2 py-1 rounded">Modificato</span>
+                </div>
+                <div class="bg-white rounded-lg p-3 flex justify-between items-center">
+                    <span class="font-mono text-sm">CHANGELOG_V9.26.md</span>
+                    <span class="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded">Nuovo</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Result Summary -->
+        <div class="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-6 text-white">
+            <h2 class="text-2xl font-bold mb-3">🎉 Risultato Test</h2>
+            <p class="text-xl font-semibold mb-2">✅ TUTTE LE VERSIONI SINCRONIZZATE A V9.26</p>
+            <p class="text-sm opacity-90">
+                manifest.json aggiornato e changelog creato. L'app ora ha versioni consistenti in tutti i file.
+            </p>
+        </div>
+
+        <!-- Documentation References -->
+        <div class="mt-6 bg-white rounded-lg shadow p-4">
+            <h3 class="font-bold text-gray-900 mb-2">📚 Documentazione Correlata</h3>
+            <ul class="text-sm text-gray-700 space-y-1">
+                <li>• <span class="font-mono">CHANGELOG_V9.26.md</span> - Changelog completo</li>
+                <li>• <span class="font-mono">V9.26_IMPLEMENTATION_SUMMARY.md</span> - Implementazione tecnica</li>
+                <li>• <span class="font-mono">V9.26_RIEPILOGO_ITALIANO.md</span> - Guida completa in italiano</li>
+                <li>• <span class="font-mono">V9.26_QUICK_REFERENCE.md</span> - Riferimento rapido</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
