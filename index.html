@@ -580,6 +580,14 @@
             <div id="role-message" class="mt-4 p-3 bg-blue-100 border border-blue-200 rounded-lg text-blue-800 text-sm font-medium hidden"></div>
 
             <!-- Notes section (editable by dirigente/marco, viewable by mister) -->
+            <!-- Reset timestamp display (above notes) -->
+            <div id="reset-timestamp-display" class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg hidden">
+                <p class="text-sm text-blue-700">
+                    <span class="font-semibold">🔄 Ultimo reset indisponibilità:</span>
+                    <span id="reset-timestamp-text" class="ml-1">-</span>
+                </p>
+            </div>
+
             <div id="notes-section" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg hidden">
                 <h3 class="text-lg font-semibold text-yellow-800 mb-2">Note (Segnate dal Dirigente)</h3>
                 <div id="notes-editable" class="hidden">
@@ -2161,6 +2169,10 @@
             const notesDisplay = document.getElementById('notes-display');
             const saveNotesButton = document.getElementById('save-notes-button');
             
+            // Reset timestamp display elements
+            const resetTimestampDisplay = document.getElementById('reset-timestamp-display');
+            const resetTimestampText = document.getElementById('reset-timestamp-text');
+            
             // Modal Elements
             const statusModal = document.getElementById('status-modal');
             const closeModalButton = document.getElementById('close-modal');
@@ -2386,23 +2398,25 @@
             // Distinta-related global variables
             window.currentDistintaData = null;
             
-            // Weekly reset functionality - reset unavailable players every Monday
+            // Weekly reset functionality - reset unavailable players every Sunday at midnight
             function checkAndResetWeeklyUnavailability() {
                 const RESET_KEY = 'lastUnavailabilityReset';
                 const now = new Date();
                 const lastResetStr = localStorage.getItem(RESET_KEY);
                 
-                // Get the last Monday at 00:00 (start of week)
-                const getLastMonday = (date) => {
+                // Get the last Sunday at 00:00 (start of week) - domenica sera = Sunday at midnight
+                const getLastSunday = (date) => {
                     const d = new Date(date);
                     const day = d.getDay();
-                    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-                    d.setDate(diff);
+                    // Calculate days to subtract to get to last Sunday
+                    // If day is 0 (Sunday), we're already at the start of the week
+                    const diff = day === 0 ? 0 : day;
+                    d.setDate(d.getDate() - diff);
                     d.setHours(0, 0, 0, 0);
                     return d;
                 };
                 
-                const currentWeekStart = getLastMonday(now);
+                const currentWeekStart = getLastSunday(now);
                 
                 // Check if we need to reset
                 let needsReset = false;
@@ -2412,7 +2426,7 @@
                     localStorage.setItem(RESET_KEY, currentWeekStart.toISOString());
                 } else {
                     const lastReset = new Date(lastResetStr);
-                    const lastResetWeekStart = getLastMonday(lastReset);
+                    const lastResetWeekStart = getLastSunday(lastReset);
                     
                     // If current week is different from last reset week, we need to reset
                     if (currentWeekStart.getTime() !== lastResetWeekStart.getTime()) {
@@ -2443,6 +2457,7 @@
                     unavailablePlayers = new Map();
                     renderPlayers(); // Re-render players
                     updateUnavailablePlayersView(); // Update view
+                    updateResetTimestampDisplay(); // Update reset timestamp display
                 } catch (error) {
                     console.error('❌ Error resetting unavailable players:', error);
                 }
@@ -3753,6 +3768,7 @@
                         console.log(`📝 Subcollection 'notes' vuota o non trovata per società document ID ${currentCompanyDocumentId}`);
                     }
                     updateNotesDisplay();
+                    updateResetTimestampDisplay();
                 });
                 unsubscribeListeners.push(notesUnsub);
             }
@@ -5799,6 +5815,27 @@
                     li.className = 'font-medium';
                     unavailablePlayersList.appendChild(li);
                 });
+            }
+
+            function updateResetTimestampDisplay() {
+                const RESET_KEY = 'lastUnavailabilityReset';
+                const lastResetStr = localStorage.getItem(RESET_KEY);
+                
+                if (lastResetStr && resetTimestampDisplay && resetTimestampText) {
+                    const lastResetDate = new Date(lastResetStr);
+                    const formattedDate = lastResetDate.toLocaleDateString('it-IT', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    resetTimestampText.textContent = formattedDate;
+                    resetTimestampDisplay.classList.remove('hidden');
+                } else if (resetTimestampDisplay) {
+                    resetTimestampDisplay.classList.add('hidden');
+                }
             }
 
             function updateNotesDisplay() {
