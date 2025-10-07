@@ -4431,8 +4431,9 @@
                     });
                 }
                 
-                // Get last week's ranking from localStorage
-                const lastWeekRankingStr = localStorage.getItem('lastWeekRanking');
+                // Get last week's ranking from localStorage (company-specific)
+                const companyKey = currentCompanyCode || 'default';
+                const lastWeekRankingStr = localStorage.getItem(`lastWeekRanking_${companyKey}`);
                 let lastWeekRanking = {};
                 if (lastWeekRankingStr) {
                     try {
@@ -4445,7 +4446,7 @@
                 
                 // Check if we need to update the weekly snapshot (every Monday)
                 const now = new Date();
-                const lastUpdateStr = localStorage.getItem('lastRankingUpdate');
+                const lastUpdateStr = localStorage.getItem(`lastRankingUpdate_${companyKey}`);
                 let shouldUpdate = false;
                 
                 if (!lastUpdateStr) {
@@ -4472,17 +4473,17 @@
                 }
                 
                 if (shouldUpdate) {
-                    // Store current ranking as new baseline
+                    // Store current ranking as new baseline (company-specific)
                     const rankingMap = {};
                     currentRanking.forEach(item => {
                         rankingMap[item.name] = item.rank;
                     });
-                    localStorage.setItem('lastWeekRanking', JSON.stringify({
+                    localStorage.setItem(`lastWeekRanking_${companyKey}`, JSON.stringify({
                         ranking: rankingMap,
                         date: now.toISOString()
                     }));
-                    localStorage.setItem('lastRankingUpdate', now.toISOString());
-                    console.log('📊 [V9.16] Updated weekly ranking snapshot');
+                    localStorage.setItem(`lastRankingUpdate_${companyKey}`, now.toISOString());
+                    console.log(`📊 [V9.16] Updated weekly ranking snapshot for ${companyKey}`);
                 }
                 
                 // Calculate rank changes
@@ -7124,8 +7125,9 @@
                     });
                 }
                 
-                // Get last week's ranking from localStorage (separate key for training report)
-                const lastWeekRankingStr = localStorage.getItem('lastWeekRankingTraining');
+                // Get last week's ranking from localStorage (company-specific, separate key for training report)
+                const companyKey = currentCompanyCode || 'default';
+                const lastWeekRankingStr = localStorage.getItem(`lastWeekRankingTraining_${companyKey}`);
                 let lastWeekRanking = {};
                 if (lastWeekRankingStr) {
                     try {
@@ -7137,7 +7139,7 @@
                 }
                 
                 // Check if we need to update the weekly snapshot (every Monday)
-                const lastUpdateStr = localStorage.getItem('lastRankingUpdateTraining');
+                const lastUpdateStr = localStorage.getItem(`lastRankingUpdateTraining_${companyKey}`);
                 let shouldUpdate = false;
                 
                 if (!lastUpdateStr) {
@@ -7164,17 +7166,17 @@
                 }
                 
                 if (shouldUpdate) {
-                    // Store current ranking as new baseline
+                    // Store current ranking as new baseline (company-specific)
                     const rankingMap = {};
                     currentRanking.forEach(item => {
                         rankingMap[item.name] = item.rank;
                     });
-                    localStorage.setItem('lastWeekRankingTraining', JSON.stringify({
+                    localStorage.setItem(`lastWeekRankingTraining_${companyKey}`, JSON.stringify({
                         ranking: rankingMap,
                         date: now.toISOString()
                     }));
-                    localStorage.setItem('lastRankingUpdateTraining', now.toISOString());
-                    console.log('📊 [V9.17] Updated weekly training ranking snapshot');
+                    localStorage.setItem(`lastRankingUpdateTraining_${companyKey}`, now.toISOString());
+                    console.log(`📊 [V9.17] Updated weekly training ranking snapshot for ${companyKey}`);
                 }
                 
                 // Calculate rank changes
