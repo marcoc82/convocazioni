@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Company-Specific Ranking Arrows</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+        }
+        h2 {
+            color: #3b82f6;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 10px;
+        }
+        .success {
+            background-color: #dcfce7;
+            border-left: 4px solid #16a34a;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .info {
+            background-color: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .code {
+            background-color: #f3f4f6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+        .arrow-up {
+            color: #22c55e;
+        }
+        .arrow-down {
+            color: #ef4444;
+        }
+        .arrow-same {
+            color: #6b7280;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .storage-display {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test: Frecce Classifica Specifiche per Società</h1>
+    
+    <div class="test-section">
+        <h2>📋 Panoramica delle Modifiche</h2>
+        <div class="info">
+            <strong>Problema Risolto:</strong> Le frecce di classifica (verde ▲, rossa ▼, grigio =) ora funzionano per TUTTE le società, non solo per POLIS.
+        </div>
+        <div class="success">
+            <strong>Soluzione Implementata:</strong> Le chiavi localStorage ora includono il codice società, garantendo che ogni società abbia i propri dati di ranking separati.
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 Modifiche al Codice</h2>
+        
+        <h3>1. Report Presenze Principale (Riepilogo Totale)</h3>
+        <div class="code">
+<strong>Prima:</strong>
+localStorage.getItem('lastWeekRanking')
+localStorage.getItem('lastRankingUpdate')
+
+<strong>Dopo:</strong>
+const companyKey = currentCompanyCode || 'default';
+localStorage.getItem(`lastWeekRanking_${companyKey}`)
+localStorage.getItem(`lastRankingUpdate_${companyKey}`)
+        </div>
+
+        <h3>2. Report Presenze Allenamenti (Gestione Allenamenti)</h3>
+        <div class="code">
+<strong>Prima:</strong>
+localStorage.getItem('lastWeekRankingTraining')
+localStorage.getItem('lastRankingUpdateTraining')
+
+<strong>Dopo:</strong>
+const companyKey = currentCompanyCode || 'default';
+localStorage.getItem(`lastWeekRankingTraining_${companyKey}`)
+localStorage.getItem(`lastRankingUpdateTraining_${companyKey}`)
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Struttura delle Chiavi localStorage</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tipo Report</th>
+                    <th>Chiave Vecchia (Globale)</th>
+                    <th>Nuova Chiave (Specifica per Società)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Riepilogo Totale - Ranking</td>
+                    <td><code>lastWeekRanking</code></td>
+                    <td><code>lastWeekRanking_POLIS</code><br><code>lastWeekRanking_DEMO</code><br><code>lastWeekRanking_COMPANY_X</code></td>
+                </tr>
+                <tr>
+                    <td>Riepilogo Totale - Update</td>
+                    <td><code>lastRankingUpdate</code></td>
+                    <td><code>lastRankingUpdate_POLIS</code><br><code>lastRankingUpdate_DEMO</code><br><code>lastRankingUpdate_COMPANY_X</code></td>
+                </tr>
+                <tr>
+                    <td>Report Allenamenti - Ranking</td>
+                    <td><code>lastWeekRankingTraining</code></td>
+                    <td><code>lastWeekRankingTraining_POLIS</code><br><code>lastWeekRankingTraining_DEMO</code><br><code>lastWeekRankingTraining_COMPANY_X</code></td>
+                </tr>
+                <tr>
+                    <td>Report Allenamenti - Update</td>
+                    <td><code>lastRankingUpdateTraining</code></td>
+                    <td><code>lastRankingUpdateTraining_POLIS</code><br><code>lastRankingUpdateTraining_DEMO</code><br><code>lastRankingUpdateTraining_COMPANY_X</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ Test delle Frecce</h2>
+        <div class="info">
+            <strong>Come testare:</strong>
+            <ol>
+                <li>Accedi con una società (es. POLIS)</li>
+                <li>Visualizza il Report Presenze nel Riepilogo Totale</li>
+                <li>Verifica che le frecce appaiano dopo la prima settimana di dati</li>
+                <li>Cambia società (es. passa a un'altra società)</li>
+                <li>Verifica che le frecce siano indipendenti e specifiche per la nuova società</li>
+                <li>Torna alla prima società e verifica che le frecce siano ancora presenti</li>
+            </ol>
+        </div>
+        
+        <h3>Esempio Visivo delle Frecce</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Giocatore</th>
+                    <th>Presenze</th>
+                    <th>Significato</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ROSSI MARIO</td>
+                    <td>15 <span class="arrow-up">▲</span></td>
+                    <td>Salito in classifica</td>
+                </tr>
+                <tr>
+                    <td>BIANCHI LUIGI</td>
+                    <td>13 <span class="arrow-down">▼</span></td>
+                    <td>Sceso in classifica</td>
+                </tr>
+                <tr>
+                    <td>VERDI GIUSEPPE</td>
+                    <td>12 <span class="arrow-same">=</span></td>
+                    <td>Stessa posizione</td>
+                </tr>
+                <tr>
+                    <td>NERI ANTONIO</td>
+                    <td>10</td>
+                    <td>Prima settimana (nessun confronto)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Strumenti di Debug</h2>
+        <div>
+            <button onclick="viewLocalStorage()">Visualizza localStorage</button>
+            <button onclick="clearRankingData()">Pulisci Dati Ranking</button>
+            <button onclick="simulateCompanySwitch()">Simula Cambio Società</button>
+        </div>
+        <div id="storage-display" class="storage-display" style="margin-top: 15px;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 Note Importanti</h2>
+        <ul>
+            <li><strong>Fallback:</strong> Se <code>currentCompanyCode</code> non è definito, usa 'default' come chiave</li>
+            <li><strong>Compatibilità:</strong> Le vecchie chiavi globali non vengono migrate automaticamente</li>
+            <li><strong>Reset Settimanale:</strong> Il confronto viene aggiornato ogni lunedì alle 00:00</li>
+            <li><strong>Indipendenza:</strong> Ogni società ha i propri dati di ranking completamente separati</li>
+            <li><strong>Report Separati:</strong> Il Riepilogo Totale e il Report Allenamenti usano chiavi diverse</li>
+        </ul>
+    </div>
+
+    <script>
+        function viewLocalStorage() {
+            const display = document.getElementById('storage-display');
+            const rankingKeys = Object.keys(localStorage).filter(key => 
+                key.includes('lastWeekRanking') || key.includes('lastRankingUpdate')
+            );
+            
+            if (rankingKeys.length === 0) {
+                display.innerHTML = '<p style="color: #6b7280; font-style: italic;">Nessun dato di ranking trovato in localStorage</p>';
+                return;
+            }
+            
+            let html = '<h4>Chiavi localStorage per Ranking:</h4>';
+            rankingKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                let displayValue = value;
+                try {
+                    const parsed = JSON.parse(value);
+                    displayValue = JSON.stringify(parsed, null, 2);
+                } catch (e) {
+                    // Keep original value if not JSON
+                }
+                html += `
+                    <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 4px;">
+                        <strong style="color: #3b82f6;">${key}:</strong>
+                        <pre style="margin: 5px 0; white-space: pre-wrap; font-size: 12px;">${displayValue}</pre>
+                    </div>
+                `;
+            });
+            display.innerHTML = html;
+        }
+        
+        function clearRankingData() {
+            const confirmed = confirm('Vuoi eliminare tutti i dati di ranking da localStorage?');
+            if (!confirmed) return;
+            
+            const rankingKeys = Object.keys(localStorage).filter(key => 
+                key.includes('lastWeekRanking') || key.includes('lastRankingUpdate')
+            );
+            
+            rankingKeys.forEach(key => localStorage.removeItem(key));
+            
+            const display = document.getElementById('storage-display');
+            display.innerHTML = `<p style="color: #16a34a; font-weight: bold;">✓ ${rankingKeys.length} chiavi di ranking eliminate con successo!</p>`;
+        }
+        
+        function simulateCompanySwitch() {
+            const companies = ['POLIS', 'DEMO', 'TEST_COMPANY', 'ALTRA_SOCIETA'];
+            const display = document.getElementById('storage-display');
+            
+            let html = '<h4>Simulazione Dati per Diverse Società:</h4>';
+            html += '<p style="color: #6b7280; margin-bottom: 15px;">Questo mostra come ogni società avrebbe le proprie chiavi separate.</p>';
+            
+            companies.forEach(company => {
+                html += `
+                    <div style="margin: 15px 0; padding: 15px; background: #f9fafb; border-left: 4px solid #3b82f6; border-radius: 4px;">
+                        <strong style="color: #1e40af; font-size: 16px;">${company}</strong>
+                        <div style="margin-top: 10px; font-family: monospace; font-size: 13px;">
+                            <div>📊 <code>lastWeekRanking_${company}</code></div>
+                            <div>📅 <code>lastRankingUpdate_${company}</code></div>
+                            <div>🏃 <code>lastWeekRankingTraining_${company}</code></div>
+                            <div>📅 <code>lastRankingUpdateTraining_${company}</code></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            display.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
