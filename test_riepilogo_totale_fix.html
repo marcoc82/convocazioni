@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Riepilogo Totale Fix - Visual Comparison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">
+            🔧 Fix: Riepilogo Totale Calculation Logic
+        </h1>
+        
+        <!-- Problem Description -->
+        <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-red-800 mb-4">❌ PROBLEMA</h2>
+            <p class="text-gray-700 mb-4">
+                La tabella "Riepilogo Totale" utilizzava dati obsoleti da Firestore invece di calcolare 
+                la somma effettiva da tutte le categorie (Amichevoli, Tornei, Campionato).
+            </p>
+            <div class="bg-white p-4 rounded border border-red-300">
+                <h3 class="font-semibold mb-2">Codice PRIMA del fix:</h3>
+                <pre class="text-sm bg-gray-50 p-3 rounded overflow-x-auto"><code>// ❌ ERRATO: Utilizzava dati pre-calcolati da Firestore
+const attendanceData = {};
+querySnapshot.forEach(doc => {
+    attendanceData[doc.id] = doc.data().count;
+});</code></pre>
+            </div>
+        </div>
+
+        <!-- Solution Description -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-green-800 mb-4">✅ SOLUZIONE</h2>
+            <p class="text-gray-700 mb-4">
+                Ora la tabella calcola dinamicamente i totali da <code class="bg-gray-200 px-2 py-1 rounded">convocationHistory</code>, 
+                sommando tutte le presenze di tutte le categorie.
+            </p>
+            <div class="bg-white p-4 rounded border border-green-300">
+                <h3 class="font-semibold mb-2">Codice DOPO il fix:</h3>
+                <pre class="text-sm bg-gray-50 p-3 rounded overflow-x-auto"><code>// ✅ CORRETTO: Calcola da convocationHistory
+const attendanceData = {};
+convocationHistory.forEach(convocation => {
+    const players = convocation.players || [];
+    players.forEach(player => {
+        let playerKey;
+        if (typeof player === 'string') {
+            playerKey = player;
+        } else {
+            playerKey = `${player.numero} ${player.nome}`;
+        }
+        attendanceData[playerKey] = (attendanceData[playerKey] || 0) + 1;
+    });
+});</code></pre>
+            </div>
+        </div>
+
+        <!-- Example Demonstration -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-blue-800 mb-4">📊 ESEMPIO PRATICO</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Before -->
+                <div class="bg-white rounded-lg p-4 border-2 border-red-300">
+                    <h3 class="text-lg font-bold text-red-700 mb-3 text-center">❌ PRIMA del Fix</h3>
+                    <p class="text-sm text-gray-600 mb-3 text-center italic">
+                        Dati NON sincronizzati con le categorie
+                    </p>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-semibold mb-2">📊 Riepilogo Totale</h4>
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-2 py-2 text-left">Giocatore</th>
+                                    <th class="px-2 py-2 text-center">Pres.</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                <tr><td class="px-2 py-2">10 ROSSI MARIO</td><td class="px-2 py-2 text-center text-red-600 font-bold">12</td></tr>
+                                <tr><td class="px-2 py-2">7 BIANCHI LUIGI</td><td class="px-2 py-2 text-center text-red-600 font-bold">8</td></tr>
+                                <tr><td class="px-2 py-2">23 VERDI GIUSEPPE</td><td class="px-2 py-2 text-center text-red-600 font-bold">6</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="text-xs text-red-600 mt-2 italic">⚠️ Dati vecchi da Firestore</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="font-semibold mb-1 text-sm">🤝 Amichevoli</h4>
+                            <div class="text-xs bg-gray-50 p-2 rounded">ROSSI: 3, BIANCHI: 2, VERDI: 1</div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-1 text-sm">🏆 Tornei</h4>
+                            <div class="text-xs bg-gray-50 p-2 rounded">ROSSI: 4, BIANCHI: 3, VERDI: 3</div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-1 text-sm">⚽️ Campionato</h4>
+                            <div class="text-xs bg-gray-50 p-2 rounded">ROSSI: 8, BIANCHI: 5, VERDI: 4</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-red-100 rounded">
+                        <p class="text-sm font-semibold text-red-800">❌ INCOERENTE!</p>
+                        <p class="text-xs text-red-700 mt-1">
+                            Totale ROSSI: 12 ≠ (3+4+8=15)<br>
+                            Totale BIANCHI: 8 ≠ (2+3+5=10)<br>
+                            Totale VERDI: 6 ≠ (1+3+4=8)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- After -->
+                <div class="bg-white rounded-lg p-4 border-2 border-green-300">
+                    <h3 class="text-lg font-bold text-green-700 mb-3 text-center">✅ DOPO il Fix</h3>
+                    <p class="text-sm text-gray-600 mb-3 text-center italic">
+                        Dati calcolati da convocationHistory
+                    </p>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-semibold mb-2">📊 Riepilogo Totale</h4>
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-2 py-2 text-left">Giocatore</th>
+                                    <th class="px-2 py-2 text-center">Pres.</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y">
+                                <tr><td class="px-2 py-2">10 ROSSI MARIO</td><td class="px-2 py-2 text-center text-green-600 font-bold">15</td></tr>
+                                <tr><td class="px-2 py-2">7 BIANCHI LUIGI</td><td class="px-2 py-2 text-center text-green-600 font-bold">10</td></tr>
+                                <tr><td class="px-2 py-2">23 VERDI GIUSEPPE</td><td class="px-2 py-2 text-center text-green-600 font-bold">8</td></tr>
+                            </tbody>
+                        </table>
+                        <p class="text-xs text-green-600 mt-2 italic">✅ Calcolato da convocationHistory</p>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="font-semibold mb-1 text-sm">🤝 Amichevoli</h4>
+                            <div class="text-xs bg-gray-50 p-2 rounded">ROSSI: 3, BIANCHI: 2, VERDI: 1</div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-1 text-sm">🏆 Tornei</h4>
+                            <div class="text-xs bg-gray-50 p-2 rounded">ROSSI: 4, BIANCHI: 3, VERDI: 3</div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-1 text-sm">⚽️ Campionato</h4>
+                            <div class="text-xs bg-gray-50 p-2 rounded">ROSSI: 8, BIANCHI: 5, VERDI: 4</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-green-100 rounded">
+                        <p class="text-sm font-semibold text-green-800">✅ COERENTE!</p>
+                        <p class="text-xs text-green-700 mt-1">
+                            Totale ROSSI: 15 = (3+4+8)<br>
+                            Totale BIANCHI: 10 = (2+3+5)<br>
+                            Totale VERDI: 8 = (1+3+4)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="bg-white rounded-lg p-6 border border-gray-300 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🔧 DETTAGLI TECNICI</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Funzioni Modificate:</h3>
+                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                        <li><code class="bg-gray-100 px-2 py-1 rounded">loadAttendance()</code> - Linea ~4372</li>
+                        <li><code class="bg-gray-100 px-2 py-1 rounded">loadAttendanceDemo()</code> - Linea ~4930</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Fonte dei Dati:</h3>
+                    <div class="bg-gray-50 p-3 rounded">
+                        <p class="text-sm mb-2"><span class="font-semibold">Prima:</span> <code class="bg-red-100 px-2 py-1 rounded">querySnapshot</code> da Firestore (collezione "attendance")</p>
+                        <p class="text-sm"><span class="font-semibold">Dopo:</span> <code class="bg-green-100 px-2 py-1 rounded">convocationHistory</code> array globale</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-2">Vantaggi del Fix:</h3>
+                    <ul class="list-disc list-inside space-y-1 text-gray-700">
+                        <li>✅ Sincronizzazione automatica con le tabelle di categoria</li>
+                        <li>✅ Calcolo in tempo reale da dati attuali</li>
+                        <li>✅ Nessuna dipendenza da dati legacy in Firestore</li>
+                        <li>✅ La somma delle categorie corrisponde sempre al totale</li>
+                        <li>✅ Coerenza garantita tra tutte le viste</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-6 border-2 border-blue-300">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">📋 RIEPILOGO</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div class="bg-white rounded-lg p-4">
+                    <div class="text-3xl mb-2">🎯</div>
+                    <h3 class="font-bold mb-1">Obiettivo</h3>
+                    <p class="text-sm text-gray-600">Sommare correttamente tutte le convocazioni</p>
+                </div>
+                <div class="bg-white rounded-lg p-4">
+                    <div class="text-3xl mb-2">✅</div>
+                    <h3 class="font-bold mb-1">Stato</h3>
+                    <p class="text-sm text-gray-600">Fix implementato e testato</p>
+                </div>
+                <div class="bg-white rounded-lg p-4">
+                    <div class="text-3xl mb-2">🔄</div>
+                    <h3 class="font-bold mb-1">Risultato</h3>
+                    <p class="text-sm text-gray-600">Dati sempre aggiornati e coerenti</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

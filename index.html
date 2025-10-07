@@ -4372,9 +4372,21 @@
             async function loadAttendance(querySnapshot) {
                 console.log(`📊 [DIAGNOSTIC] loadAttendance chiamata, caricamento dati presenze...`);
                 attendanceList.innerHTML = '';
+                
+                // Calculate total attendance from convocationHistory (sum of all categories)
                 const attendanceData = {};
-                querySnapshot.forEach(doc => {
-                    attendanceData[doc.id] = doc.data().count;
+                convocationHistory.forEach(convocation => {
+                    const players = convocation.players || [];
+                    players.forEach(player => {
+                        // Handle both old string format and new object format
+                        let playerKey;
+                        if (typeof player === 'string') {
+                            playerKey = player;
+                        } else {
+                            playerKey = `${player.numero} ${player.nome}`;
+                        }
+                        attendanceData[playerKey] = (attendanceData[playerKey] || 0) + 1;
+                    });
                 });
                 
                 // Use companyPlayers instead of global players array to show correct company data
@@ -4918,24 +4930,22 @@
             // Demo version for loadAttendance when Firebase is not available
             function loadAttendanceDemo() {
                 attendanceList.innerHTML = '';
-                // Create sample demo attendance data based on demo players
-                const demoPlayers = ['1 DEMO MARIO', '2 TEST LUIGI', '3 EXAMPLE GIUSEPPE', '4 SAMPLE ANTONIO'];
-                const demoAttendanceData = {
-                    '1 DEMO MARIO': 15,
-                    '2 TEST LUIGI': 12,
-                    '3 EXAMPLE GIUSEPPE': 8,
-                    '4 SAMPLE ANTONIO': 5,
-                    '10 AZZURRI LUCA': 18,
-                    '2 BIANCHI LUIGI': 14,
-                    '6 BLU MARCO': 11,
-                    '5 GIALLI FRANCESCO': 9,
-                    '9 GRIGIO PAOLO': 7,
-                    '4 NERI ANTONIO': 13,
-                    '8 ROSA ANDREA': 6,
-                    '1 ROSSI MARIO': 16,
-                    '3 VERDI GIUSEPPE': 10,
-                    '7 VIOLA STEFANO': 4
-                };
+                
+                // Calculate total attendance from convocationHistory (sum of all categories)
+                const demoAttendanceData = {};
+                convocationHistory.forEach(convocation => {
+                    const players = convocation.players || [];
+                    players.forEach(player => {
+                        // Handle both old string format and new object format
+                        let playerKey;
+                        if (typeof player === 'string') {
+                            playerKey = player;
+                        } else {
+                            playerKey = `${player.numero} ${player.nome}`;
+                        }
+                        demoAttendanceData[playerKey] = (demoAttendanceData[playerKey] || 0) + 1;
+                    });
+                });
                 
                 // V7.2: Calculate total matches from convocationHistory
                 const totalMatches = convocationHistory.length;
@@ -4957,7 +4967,7 @@
                     }
                 }
                 
-                const playersToShow = companyPlayers.length > 0 ? companyPlayers : demoPlayers;
+                const playersToShow = companyPlayers.length > 0 ? companyPlayers : players;
                 const sortedPlayers = playersToShow.map(p => {
                     // Handle both old string format and new object format
                     let playerName, playerKey;
