@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.26 - Enhanced sorting logic: added attendance percentage as tertiary sort criterion -->
+<!-- Version: V7.10 - Fixed Riepilogo Totale table: now correctly displays total convocations by calling loadAttendance after history is loaded -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -3998,6 +3998,8 @@
                     console.log(`📝 Subcollection 'convocations_history' vuota o non trovata per società document ID ${currentCompanyDocumentId}`);
                     // Update attendance tables even if no history (to show empty state)
                     updateAttendanceTables();
+                    // V7.10: Update total attendance table as well
+                    loadAttendance(querySnapshot);
                     return;
                 }
                 
@@ -4023,6 +4025,9 @@
                 
                 // Update filtered attendance tables after loading history data
                 updateAttendanceTables();
+                
+                // V7.10: Update total attendance table (Riepilogo Totale) after loading history
+                loadAttendance(querySnapshot);
                 
                 // Re-render players to apply already-called-today styling
                 if (userRole === 'mister') {
@@ -4925,6 +4930,9 @@
                 
                 // Update filtered attendance tables after loading demo history data
                 updateAttendanceTables();
+                
+                // V7.10: Update total attendance table (Riepilogo Totale) for demo mode
+                loadAttendanceDemo();
             }
 
             // Demo version for loadAttendance when Firebase is not available
