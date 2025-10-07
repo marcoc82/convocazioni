@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.23 - Update player availability status labels (shortened text) -->
+<!-- Version: V9.24 - Update status labels: add N.D. W.E. for weekend unavailability -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -265,7 +265,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.23</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.24</span>
             </div>
         </div>
 
@@ -1236,15 +1236,15 @@
                     </label>
                     <label class="flex items-center p-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Non disponibile Sabato" class="status-checkbox w-5 h-5 mr-3 rounded">
-                        <span class="flex-1 font-medium">ND SABATO</span>
+                        <span class="flex-1 font-medium">N.D. SABATO</span>
                     </label>
                     <label class="flex items-center p-3 bg-blue-900 text-white rounded-lg hover:bg-blue-950 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Non disponibile Domenica" class="status-checkbox w-5 h-5 mr-3 rounded">
-                        <span class="flex-1 font-medium">ND DOMENICA</span>
+                        <span class="flex-1 font-medium">N.D. DOMENICA</span>
                     </label>
                     <label class="flex items-center p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 cursor-pointer transition-colors duration-200">
                         <input type="checkbox" data-status="Non disponibile Weekend" class="status-checkbox w-5 h-5 mr-3 rounded">
-                        <span class="flex-1 font-medium">Non disponibile WE</span>
+                        <span class="flex-1 font-medium">N.D. W.E.</span>
                     </label>
                     <!-- V9.12: Training attendance statuses - DISABLED (auto-calculated) -->
                     <div class="relative">
@@ -1408,7 +1408,7 @@
                         SAB
                     </div>
                     <div class="flex-1">
-                        <div class="font-medium text-gray-800">ND SABATO</div>
+                        <div class="font-medium text-gray-800">N.D. SABATO</div>
                         <div class="text-xs text-gray-500">Badge viola</div>
                     </div>
                 </div>
@@ -1418,7 +1418,7 @@
                         DOM
                     </div>
                     <div class="flex-1">
-                        <div class="font-medium text-gray-800">ND DOMENICA</div>
+                        <div class="font-medium text-gray-800">N.D. DOMENICA</div>
                         <div class="text-xs text-gray-500">Badge blu scuro</div>
                     </div>
                 </div>
@@ -1428,7 +1428,7 @@
                         WE
                     </div>
                     <div class="flex-1">
-                        <div class="font-medium text-gray-800">Non disponibile Weekend</div>
+                        <div class="font-medium text-gray-800">N.D. W.E.</div>
                         <div class="text-xs text-gray-500">Badge rosso</div>
                     </div>
                 </div>
@@ -1471,7 +1471,7 @@
                             <span style="color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">DOM</span>/<span style="color: #1f2937;">2</span>
                         </div>
                         <div class="flex-1">
-                            <div class="text-sm text-gray-700">ND DOMENICA + 2 ALLENAMENTI</div>
+                            <div class="text-sm text-gray-700">N.D. DOMENICA + 2 ALLENAMENTI</div>
                             <div class="text-xs text-gray-500">Badge metà blu/metà bianco</div>
                         </div>
                     </div>
@@ -5740,11 +5740,12 @@
                 updateNotesDisplay();
             }
 
-            // V9.23: Transform status text for display
+            // V9.24: Transform status text for display (added N.D. W.E. for weekend)
             function formatStatusForDisplay(status) {
                 const statusMap = {
-                    'Non disponibile Sabato': 'ND SABATO',
-                    'Non disponibile Domenica': 'ND DOMENICA',
+                    'Non disponibile Sabato': 'N.D. SABATO',
+                    'Non disponibile Domenica': 'N.D. DOMENICA',
+                    'Non disponibile Weekend': 'N.D. W.E.',
                     'Solo 2 allenamenti': '2 ALLENAMENTI',
                     'Solo 1 allenamento': '1 ALLENAMENTO',
                     'Zero allenamenti': '0 ALLENAMENTI'
@@ -5807,7 +5808,7 @@
                 
                 allUnavailablePlayers.forEach((statusArray, player) => {
                     const li = document.createElement('li');
-                    // V9.23: Format each status for display
+                    // V9.24: Format each status for display
                     const formattedStatuses = statusArray.map(s => formatStatusForDisplay(s));
                     const statusText = formattedStatuses.join(', ');
                     

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.24 - Status Labels Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+            <h1 class="text-3xl font-bold text-center text-blue-600 mb-2">V9.24 - Status Labels Verification</h1>
+            <p class="text-center text-gray-600 mb-6">Test page for updated status labels</p>
+            
+            <!-- Version Badge -->
+            <div class="text-center mb-8">
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.24</span>
+            </div>
+        </div>
+
+        <!-- Before/After Comparison -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">📊 Before vs After Comparison</h2>
+            
+            <div class="space-y-6">
+                <!-- Sabato -->
+                <div class="border-b pb-4">
+                    <h3 class="font-semibold text-lg mb-2">1. Non disponibile Sabato</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">❌ V9.23:</p>
+                            <div class="bg-purple-600 text-white p-3 rounded-lg text-center font-medium">
+                                ND SABATO
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">✅ V9.24:</p>
+                            <div class="bg-purple-600 text-white p-3 rounded-lg text-center font-medium">
+                                N.D. SABATO
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Domenica -->
+                <div class="border-b pb-4">
+                    <h3 class="font-semibold text-lg mb-2">2. Non disponibile Domenica</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">❌ V9.23:</p>
+                            <div class="bg-blue-900 text-white p-3 rounded-lg text-center font-medium">
+                                ND DOMENICA
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">✅ V9.24:</p>
+                            <div class="bg-blue-900 text-white p-3 rounded-lg text-center font-medium">
+                                N.D. DOMENICA
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekend -->
+                <div class="border-b pb-4">
+                    <h3 class="font-semibold text-lg mb-2">3. Non disponibile Weekend</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">❌ V9.23:</p>
+                            <div class="bg-red-600 text-white p-3 rounded-lg text-center font-medium">
+                                Non disponibile WE
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">✅ V9.24:</p>
+                            <div class="bg-red-600 text-white p-3 rounded-lg text-center font-medium">
+                                N.D. W.E.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2 Allenamenti -->
+                <div class="border-b pb-4">
+                    <h3 class="font-semibold text-lg mb-2">4. Solo 2 allenamenti</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">✅ V9.23 (unchanged):</p>
+                            <div class="bg-white border-2 border-gray-300 text-gray-900 p-3 rounded-lg text-center font-medium">
+                                2 ALLENAMENTI
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">✅ V9.24 (unchanged):</p>
+                            <div class="bg-white border-2 border-gray-300 text-gray-900 p-3 rounded-lg text-center font-medium">
+                                2 ALLENAMENTI
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1 Allenamento -->
+                <div class="border-b pb-4">
+                    <h3 class="font-semibold text-lg mb-2">5. Solo 1 allenamento</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">✅ V9.23 (unchanged):</p>
+                            <div class="bg-red-600 text-white p-3 rounded-lg text-center font-medium">
+                                1 ALLENAMENTO
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">✅ V9.24 (unchanged):</p>
+                            <div class="bg-red-600 text-white p-3 rounded-lg text-center font-medium">
+                                1 ALLENAMENTO
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 0 Allenamenti -->
+                <div>
+                    <h3 class="font-semibold text-lg mb-2">6. Zero allenamenti</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">✅ V9.23 (unchanged):</p>
+                            <div class="bg-red-600 text-white p-3 rounded-lg text-center font-medium">
+                                0 ALLENAMENTI ❌
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">✅ V9.24 (unchanged):</p>
+                            <div class="bg-red-600 text-white p-3 rounded-lg text-center font-medium">
+                                0 ALLENAMENTI ❌
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mock Player List -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">👥 Example: Giocatori Non Disponibili</h2>
+            
+            <div class="bg-red-100 p-4 rounded-xl shadow-sm border border-red-200">
+                <h3 class="text-lg font-semibold text-red-700 mb-3">Giocatori Non Disponibili (Segnalati dal Dirigente)</h3>
+                <ul class="space-y-2 text-red-600">
+                    <li class="font-medium"><strong class="font-bold">10 ROSSI MARIO:</strong> N.D. SABATO</li>
+                    <li class="font-medium"><strong class="font-bold">5 VERDI GIUSEPPE:</strong> N.D. DOMENICA</li>
+                    <li class="font-medium"><strong class="font-bold">22 BIANCHI LUCA:</strong> N.D. W.E.</li>
+                    <li class="font-medium"><strong class="font-bold">15 NERI PAOLO:</strong> 1 ALLENAMENTO</li>
+                    <li class="font-medium"><strong class="font-bold">8 GIALLI ANDREA:</strong> 0 ALLENAMENTI ❌</li>
+                    <li class="font-medium"><strong class="font-bold">3 BLU FEDERICO:</strong> 2 ALLENAMENTI</li>
+                    <li class="font-medium"><strong class="font-bold">7 VIOLA STEFANO:</strong> N.D. DOMENICA, 2 ALLENAMENTI</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-gradient-to-r from-green-500 to-blue-600 rounded-xl shadow-lg p-8 text-white">
+            <h2 class="text-2xl font-bold mb-4">✅ V9.24 Implementation Summary</h2>
+            <div class="space-y-2">
+                <p>✓ Added dots to "N.D. SABATO" (was "ND SABATO")</p>
+                <p>✓ Added dots to "N.D. DOMENICA" (was "ND DOMENICA")</p>
+                <p>✓ Changed "Non disponibile WE" to "N.D. W.E."</p>
+                <p>✓ Updated formatStatusForDisplay() function</p>
+                <p>✓ Updated modal checkboxes</p>
+                <p>✓ Updated legend section</p>
+                <p>✓ Updated version to V9.24</p>
+            </div>
+            <div class="mt-4 pt-4 border-t border-white/30">
+                <p class="font-semibold">All status labels now use consistent abbreviated format with dots!</p>
+            </div>
+        </div>
+
+        <!-- formatStatusForDisplay Function Code -->
+        <div class="bg-gray-900 text-white rounded-xl shadow-lg p-8 mt-6">
+            <h2 class="text-2xl font-bold mb-4 text-green-400">📝 formatStatusForDisplay() Function (V9.24)</h2>
+            <pre class="bg-gray-800 p-4 rounded-lg overflow-x-auto text-sm"><code>function formatStatusForDisplay(status) {
+    const statusMap = {
+        'Non disponibile Sabato': 'N.D. SABATO',
+        'Non disponibile Domenica': 'N.D. DOMENICA',
+        'Non disponibile Weekend': 'N.D. W.E.',    // ← NEW in V9.24
+        'Solo 2 allenamenti': '2 ALLENAMENTI',
+        'Solo 1 allenamento': '1 ALLENAMENTO',
+        'Zero allenamenti': '0 ALLENAMENTI'
+    };
+    return statusMap[status] || status;
+}</code></pre>
+        </div>
+    </div>
+</body>
+</html>
