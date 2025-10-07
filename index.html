@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.25 - Fix weekly arrow update logic: arrows only update once per week -->
+<!-- Version: V9.26 - Enhanced sorting logic: added attendance percentage as tertiary sort criterion -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -265,7 +265,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.24</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.26</span>
             </div>
         </div>
 
@@ -4392,7 +4392,7 @@
                     };
                 });
                 
-                // V9.20: Sort by presences descending, then by availability percentage descending, then alphabetically by name
+                // V9.26: Sort by presences descending, then by availability percentage descending, then by attendance percentage descending, then alphabetically by name
                 const sortedPlayers = playersWithData.sort((a, b) => {
                     if (b.count !== a.count) {
                         return b.count - a.count; // Primary sort: presences descending
@@ -4400,23 +4400,27 @@
                     if (b.availabilityNumeric !== a.availabilityNumeric) {
                         return b.availabilityNumeric - a.availabilityNumeric; // Secondary sort: availability percentage descending
                     }
-                    // Tertiary sort: alphabetically by name (ignoring jersey number)
+                    if (b.percentage !== a.percentage) {
+                        return b.percentage - a.percentage; // Tertiary sort: attendance percentage descending
+                    }
+                    // Quaternary sort: alphabetically by name (ignoring jersey number)
                     const nameA = a.name.replace(/^\d+\s*/, '').trim();
                     const nameB = b.name.replace(/^\d+\s*/, '').trim();
                     return nameA.localeCompare(nameB, 'it');
                 });
 
                 // V9.16: Ranking arrows - Compare with last week's ranking
-                // V9.18: Calculate ranks considering ties (same presences + same availability = same rank)
+                // V9.26: Calculate ranks considering ties (same presences + same availability + same attendance percentage = same rank)
                 const currentRanking = [];
                 let currentRank = 1;
                 for (let i = 0; i < sortedPlayers.length; i++) {
                     if (i > 0) {
                         const prevPlayer = sortedPlayers[i - 1];
                         const currPlayer = sortedPlayers[i];
-                        // Check if tied (same presences AND same availability)
+                        // Check if tied (same presences AND same availability AND same attendance percentage)
                         if (prevPlayer.count !== currPlayer.count || 
-                            prevPlayer.availabilityNumeric !== currPlayer.availabilityNumeric) {
+                            prevPlayer.availabilityNumeric !== currPlayer.availabilityNumeric ||
+                            prevPlayer.percentage !== currPlayer.percentage) {
                             currentRank = i + 1; // Move to next rank if not tied
                         }
                         // Otherwise keep same rank (tied)
@@ -7081,7 +7085,7 @@
                     };
                 });
                 
-                // V9.20: Sort by presences descending, then by availability percentage descending, then alphabetically by name
+                // V9.26: Sort by presences descending, then by availability percentage descending, then by attendance percentage descending, then alphabetically by name
                 statsArray.sort((a, b) => {
                     if (b.presences !== a.presences) {
                         return b.presences - a.presences; // Primary sort: presences descending
@@ -7089,23 +7093,27 @@
                     if (b.availabilityNumeric !== a.availabilityNumeric) {
                         return b.availabilityNumeric - a.availabilityNumeric; // Secondary sort: availability percentage descending
                     }
-                    // Tertiary sort: alphabetically by name (ignoring jersey number)
+                    if (b.percentage !== a.percentage) {
+                        return b.percentage - a.percentage; // Tertiary sort: attendance percentage descending
+                    }
+                    // Quaternary sort: alphabetically by name (ignoring jersey number)
                     const nameA = a.player.replace(/^\d+\s*/, '').trim();
                     const nameB = b.player.replace(/^\d+\s*/, '').trim();
                     return nameA.localeCompare(nameB, 'it');
                 });
                 
                 // V9.17: Ranking arrows - Compare with last week's ranking (using separate storage key for training)
-                // V9.18: Calculate ranks considering ties (same presences + same availability = same rank)
+                // V9.26: Calculate ranks considering ties (same presences + same availability + same attendance percentage = same rank)
                 const currentRanking = [];
                 let currentRank = 1;
                 for (let i = 0; i < statsArray.length; i++) {
                     if (i > 0) {
                         const prevStat = statsArray[i - 1];
                         const currStat = statsArray[i];
-                        // Check if tied (same presences AND same availability)
+                        // Check if tied (same presences AND same availability AND same attendance percentage)
                         if (prevStat.presences !== currStat.presences || 
-                            prevStat.availabilityNumeric !== currStat.availabilityNumeric) {
+                            prevStat.availabilityNumeric !== currStat.availabilityNumeric ||
+                            prevStat.percentage !== currStat.percentage) {
                             currentRank = i + 1; // Move to next rank if not tied
                         }
                         // Otherwise keep same rank (tied)
