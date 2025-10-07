@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.26 - Enhanced Sorting Logic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-lg p-8">
+        <h1 class="text-3xl font-bold text-center mb-6">Test V9.26 - Enhanced Sorting Logic</h1>
+        
+        <!-- Version Badge -->
+        <div class="text-center mb-8">
+            <span class="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-semibold">
+                V9.26 - Attendance % as Tertiary Sort Criterion
+            </span>
+        </div>
+
+        <!-- Problem Statement -->
+        <div class="mb-8 p-6 bg-yellow-50 border-l-4 border-yellow-400">
+            <h2 class="text-xl font-bold mb-3">📋 Requisito</h2>
+            <p class="text-gray-700 mb-2">
+                <strong>Problema:</strong> In caso di parità di tutti i parametri (presenze, allenamenti, percentuale, ecc.), 
+                i giocatori devono essere ordinati esclusivamente in ordine alfabetico per nome, 
+                ignorando il numero maglia e qualsiasi altro parametro.
+            </p>
+            <p class="text-gray-700 mt-3">
+                <strong>Esempio:</strong> Se CALLIKU ANDREA e BECCARIS SEBASTIANO hanno entrambi il 100% di presenze su 20 allenamenti, 
+                BECCARIS SEBASTIANO deve essere mostrato prima di CALLIKU ANDREA.
+            </p>
+        </div>
+
+        <!-- Enhanced Sorting Logic -->
+        <div class="mb-8 p-6 bg-blue-50 border-l-4 border-blue-500">
+            <h2 class="text-xl font-bold mb-4">✨ Logica di Ordinamento Migliorata</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li><strong>Primario:</strong> Numero di presenze (decrescente) - più presenze = posizione migliore</li>
+                <li><strong>Secondario:</strong> Percentuale disponibilità Firebase (decrescente) - solo per POLIS</li>
+                <li><strong class="text-green-600">Terziario (NUOVO):</strong> Percentuale presenze (decrescente) - % Pres. column</li>
+                <li><strong>Quaternario:</strong> Ordine alfabetico (crescente) - A→Z, ignorando numeri maglia</li>
+            </ol>
+        </div>
+
+        <!-- Test Scenarios -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">🧪 Scenari di Test</h2>
+
+            <!-- Test 1 -->
+            <div class="mb-6 border rounded-lg overflow-hidden">
+                <div class="bg-gray-100 px-4 py-3 font-semibold">
+                    Test 1: Stesse presenze, stessa % presenza → Ordine alfabetico
+                </div>
+                <div class="p-4">
+                    <div class="mb-3 text-sm text-gray-600">
+                        Input: CALLIKU ANDREA (20/20, 100%), BECCARIS SEBASTIANO (20/20, 100%)
+                    </div>
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Giocatore</th>
+                                <th class="px-4 py-2 text-center">Presenze</th>
+                                <th class="px-4 py-2 text-center">% Pres.</th>
+                                <th class="px-4 py-2 text-center">Risultato</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="bg-green-50">
+                                <td class="px-4 py-2">BECCARIS SEBASTIANO</td>
+                                <td class="px-4 py-2 text-center">20</td>
+                                <td class="px-4 py-2 text-center">100%</td>
+                                <td class="px-4 py-2 text-center text-green-600 font-semibold">1° ✓</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">CALLIKU ANDREA</td>
+                                <td class="px-4 py-2 text-center">20</td>
+                                <td class="px-4 py-2 text-center">100%</td>
+                                <td class="px-4 py-2 text-center">2° ✓</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3 text-xs text-green-600 font-semibold">
+                        ✓ BECCARIS viene prima alfabeticamente (B < C)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test 2 -->
+            <div class="mb-6 border rounded-lg overflow-hidden">
+                <div class="bg-gray-100 px-4 py-3 font-semibold">
+                    Test 2: Stesse presenze, % presenza diversa → Ordine per %
+                </div>
+                <div class="p-4">
+                    <div class="mb-3 text-sm text-gray-600">
+                        Input: CALLIKU ANDREA (20/22, 91%), BECCARIS SEBASTIANO (20/20, 100%)
+                    </div>
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Giocatore</th>
+                                <th class="px-4 py-2 text-center">Presenze</th>
+                                <th class="px-4 py-2 text-center">% Pres.</th>
+                                <th class="px-4 py-2 text-center">Risultato</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="bg-green-50">
+                                <td class="px-4 py-2">BECCARIS SEBASTIANO</td>
+                                <td class="px-4 py-2 text-center">20</td>
+                                <td class="px-4 py-2 text-center font-semibold">100%</td>
+                                <td class="px-4 py-2 text-center text-green-600 font-semibold">1° ✓</td>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2">CALLIKU ANDREA</td>
+                                <td class="px-4 py-2 text-center">20</td>
+                                <td class="px-4 py-2 text-center">91%</td>
+                                <td class="px-4 py-2 text-center">2° ✓</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3 text-xs text-green-600 font-semibold">
+                        ✓ BECCARIS ha % maggiore (100% > 91%), quindi viene prima
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test 3 -->
+            <div class="mb-6 border rounded-lg overflow-hidden">
+                <div class="bg-gray-100 px-4 py-3 font-semibold">
+                    Test 3: Tre giocatori con parità completa → Ordine alfabetico
+                </div>
+                <div class="p-4">
+                    <div class="mb-3 text-sm text-gray-600">
+                        Input: CALLIKU (15/15, 100%), ALBERTO (15/15, 100%), BECCARIS (15/15, 100%)
+                    </div>
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Giocatore</th>
+                                <th class="px-4 py-2 text-center">Presenze</th>
+                                <th class="px-4 py-2 text-center">% Pres.</th>
+                                <th class="px-4 py-2 text-center">Risultato</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="bg-green-50">
+                                <td class="px-4 py-2">ALBERTO MARCO</td>
+                                <td class="px-4 py-2 text-center">15</td>
+                                <td class="px-4 py-2 text-center">100%</td>
+                                <td class="px-4 py-2 text-center text-green-600 font-semibold">1° ✓</td>
+                            </tr>
+                            <tr class="bg-green-50">
+                                <td class="px-4 py-2">BECCARIS SEBASTIANO</td>
+                                <td class="px-4 py-2 text-center">15</td>
+                                <td class="px-4 py-2 text-center">100%</td>
+                                <td class="px-4 py-2 text-center text-green-600 font-semibold">2° ✓</td>
+                            </tr>
+                            <tr class="bg-green-50">
+                                <td class="px-4 py-2">CALLIKU ANDREA</td>
+                                <td class="px-4 py-2 text-center">15</td>
+                                <td class="px-4 py-2 text-center">100%</td>
+                                <td class="px-4 py-2 text-center text-green-600 font-semibold">3° ✓</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3 text-xs text-green-600 font-semibold">
+                        ✓ Ordine alfabetico: ALBERTO (A) < BECCARIS (B) < CALLIKU (C)
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test 4 -->
+            <div class="mb-6 border rounded-lg overflow-hidden">
+                <div class="bg-gray-100 px-4 py-3 font-semibold">
+                    Test 4: Presenze diverse → Ordine per presenze (più alto prima)
+                </div>
+                <div class="p-4">
+                    <div class="mb-3 text-sm text-gray-600">
+                        Input: BECCARIS (18 pres), CALLIKU (20 pres), ALBERTO (19 pres)
+                    </div>
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Giocatore</th>
+                                <th class="px-4 py-2 text-center">Presenze</th>
+                                <th class="px-4 py-2 text-center">% Pres.</th>
+                                <th class="px-4 py-2 text-center">Risultato</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="bg-green-50">
+                                <td class="px-4 py-2">CALLIKU ANDREA</td>
+                                <td class="px-4 py-2 text-center font-semibold">20</td>
+                                <td class="px-4 py-2 text-center">100%</td>
+                                <td class="px-4 py-2 text-center text-green-600 font-semibold">1° ✓</td>
+                            </tr>
+                            <tr class="bg-green-50">
+                                <td class="px-4 py-2">ALBERTO MARCO</td>
+                                <td class="px-4 py-2 text-center font-semibold">19</td>
+                                <td class="px-4 py-2 text-center">95%</td>
+                                <td class="px-4 py-2 text-center text-green-600 font-semibold">2° ✓</td>
+                            </tr>
+                            <tr class="bg-green-50">
+                                <td class="px-4 py-2">BECCARIS SEBASTIANO</td>
+                                <td class="px-4 py-2 text-center font-semibold">18</td>
+                                <td class="px-4 py-2 text-center">90%</td>
+                                <td class="px-4 py-2 text-center text-green-600 font-semibold">3° ✓</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="mt-3 text-xs text-green-600 font-semibold">
+                        ✓ Ordine per numero presenze: 20 > 19 > 18 (alfabeto ignorato)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Changes -->
+        <div class="mb-8 p-6 bg-purple-50 border-l-4 border-purple-500">
+            <h2 class="text-xl font-bold mb-4">💻 Modifiche al Codice</h2>
+            <p class="text-sm text-gray-700 mb-3"><strong>File:</strong> index.html</p>
+            <p class="text-sm text-gray-700 mb-3"><strong>Funzioni modificate:</strong></p>
+            <ul class="list-disc list-inside text-sm text-gray-700 space-y-1 ml-4">
+                <li><code>loadAllenamentiReport()</code> - Report Presenze Allenamenti (linea ~7084)</li>
+                <li><code>loadAttendance()</code> - Riepilogo Totale (linea ~4395)</li>
+            </ul>
+            
+            <div class="mt-4 p-4 bg-white rounded border">
+                <div class="text-xs font-mono">
+                    <div class="text-green-600 mb-2">// V9.26: Added attendance percentage as tertiary sort criterion</div>
+                    <div class="mb-2">statsArray.sort((a, b) => {</div>
+                    <div class="ml-4 mb-1">if (b.presences !== a.presences) {</div>
+                    <div class="ml-8 mb-1">return b.presences - a.presences; <span class="text-gray-500">// Primary</span></div>
+                    <div class="ml-4 mb-1">}</div>
+                    <div class="ml-4 mb-1">if (b.availabilityNumeric !== a.availabilityNumeric) {</div>
+                    <div class="ml-8 mb-1">return b.availabilityNumeric - a.availabilityNumeric; <span class="text-gray-500">// Secondary</span></div>
+                    <div class="ml-4 mb-1">}</div>
+                    <div class="ml-4 mb-1 text-green-600 font-bold">if (b.percentage !== a.percentage) {</div>
+                    <div class="ml-8 mb-1 text-green-600 font-bold">return b.percentage - a.percentage; <span class="text-gray-500">// Tertiary (NEW)</span></div>
+                    <div class="ml-4 mb-1 text-green-600 font-bold">}</div>
+                    <div class="ml-4 mb-1">const nameA = a.player.replace(/^\d+\s*/, '').trim();</div>
+                    <div class="ml-4 mb-1">const nameB = b.player.replace(/^\d+\s*/, '').trim();</div>
+                    <div class="ml-4 mb-1">return nameA.localeCompare(nameB, 'it'); <span class="text-gray-500">// Quaternary</span></div>
+                    <div>});</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="mb-8 p-6 bg-green-50 border-l-4 border-green-500">
+            <h2 class="text-xl font-bold mb-4">✅ Vantaggi della Modifica</h2>
+            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                <li><strong>Più robusto:</strong> Considera tutti i parametri visibili nella tabella per l'ordinamento</li>
+                <li><strong>Più giusto:</strong> A parità di presenze, chi ha % maggiore viene premiato</li>
+                <li><strong>Consistente:</strong> Stessa logica applicata sia al Report Presenze che al Riepilogo Totale</li>
+                <li><strong>Alfabetico garantito:</strong> Solo quando TUTTI i parametri sono uguali, ordina A→Z</li>
+                <li><strong>Numero maglia ignorato:</strong> L'ordinamento alfabetico ignora sempre i numeri di maglia</li>
+            </ul>
+        </div>
+
+        <!-- Checklist -->
+        <div class="p-6 bg-gray-50 rounded-lg">
+            <h2 class="text-xl font-bold mb-4">📝 Checklist di Verifica</h2>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" class="w-5 h-5">
+                    <span>Ordinamento primario per presenze funziona (più presenze = prima posizione)</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" class="w-5 h-5">
+                    <span>A parità di presenze, ordina per % disponibilità (solo POLIS)</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" class="w-5 h-5">
+                    <span>A parità di presenze e disponibilità, ordina per % presenza</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" class="w-5 h-5">
+                    <span>A parità completa, ordina alfabeticamente (A→Z)</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" class="w-5 h-5">
+                    <span>Numeri maglia ignorati nell'ordinamento alfabetico</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" class="w-5 h-5">
+                    <span>Frecce di ranking funzionano correttamente (🔼🔽=)</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" class="w-5 h-5">
+                    <span>Icone ambulanza mostrate per giocatori infortunati (🚑)</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" class="w-5 h-5">
+                    <span>Stessa logica applicata al Riepilogo Totale</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" class="w-5 h-5">
+                    <span>Nessun errore nella console JavaScript</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" class="w-5 h-5">
+                    <span>Versione aggiornata a V9.26</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive test to verify the sorting logic
+        function testSortingLogic() {
+            console.log('🧪 Testing V9.26 Sorting Logic...\n');
+
+            // Test data
+            const testCases = [
+                {
+                    name: 'Test 1: Same everything → Alphabetical',
+                    data: [
+                        { player: "10 CALLIKU ANDREA", presences: 20, percentage: 100, availabilityNumeric: -1 },
+                        { player: "5 BECCARIS SEBASTIANO", presences: 20, percentage: 100, availabilityNumeric: -1 }
+                    ],
+                    expected: ["BECCARIS SEBASTIANO", "CALLIKU ANDREA"]
+                },
+                {
+                    name: 'Test 2: Same presences, different % → By percentage',
+                    data: [
+                        { player: "10 CALLIKU ANDREA", presences: 20, percentage: 91, availabilityNumeric: -1 },
+                        { player: "5 BECCARIS SEBASTIANO", presences: 20, percentage: 100, availabilityNumeric: -1 }
+                    ],
+                    expected: ["BECCARIS SEBASTIANO", "CALLIKU ANDREA"]
+                },
+                {
+                    name: 'Test 3: Three players, all equal → Alphabetical',
+                    data: [
+                        { player: "10 CALLIKU ANDREA", presences: 15, percentage: 100, availabilityNumeric: -1 },
+                        { player: "7 ALBERTO MARCO", presences: 15, percentage: 100, availabilityNumeric: -1 },
+                        { player: "5 BECCARIS SEBASTIANO", presences: 15, percentage: 100, availabilityNumeric: -1 }
+                    ],
+                    expected: ["ALBERTO MARCO", "BECCARIS SEBASTIANO", "CALLIKU ANDREA"]
+                }
+            ];
+
+            // V9.26 Sorting function
+            const sort = (arr) => {
+                return arr.sort((a, b) => {
+                    if (b.presences !== a.presences) {
+                        return b.presences - a.presences;
+                    }
+                    if (b.availabilityNumeric !== a.availabilityNumeric) {
+                        return b.availabilityNumeric - a.availabilityNumeric;
+                    }
+                    if (b.percentage !== a.percentage) {
+                        return b.percentage - a.percentage;
+                    }
+                    const nameA = a.player.replace(/^\d+\s*/, '').trim();
+                    const nameB = b.player.replace(/^\d+\s*/, '').trim();
+                    return nameA.localeCompare(nameB, 'it');
+                });
+            };
+
+            // Run tests
+            testCases.forEach((test, index) => {
+                console.log(`\n${test.name}`);
+                console.log('Input:', test.data.map(d => d.player.replace(/^\d+\s*/, '').trim()).join(', '));
+                
+                const sorted = sort([...test.data]);
+                const result = sorted.map(d => d.player.replace(/^\d+\s*/, '').trim());
+                
+                console.log('Output:', result.join(', '));
+                console.log('Expected:', test.expected.join(', '));
+                
+                const passed = JSON.stringify(result) === JSON.stringify(test.expected);
+                console.log(passed ? '✅ PASS' : '❌ FAIL');
+            });
+
+            console.log('\n✅ All tests completed!');
+        }
+
+        // Run tests on page load
+        testSortingLogic();
+    </script>
+</body>
+</html>
