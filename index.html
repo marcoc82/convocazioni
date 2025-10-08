@@ -4219,6 +4219,7 @@
                     
                     // Sort by createdAt descending
                     history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    convocationHistory.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                     
                     // Store all unfiltered history
                     allConvocationHistory = history;
@@ -4256,6 +4257,7 @@
                 
                 // Sort by createdAt descending
                 history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                convocationHistory.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 
                 // Store all unfiltered history
                 allConvocationHistory = history;
@@ -4695,7 +4697,8 @@
             
             function getRecentCallups(playerName) {
                 // Get last 5 convocations with details
-                const recentConvocations = convocationHistory.slice(-5).reverse();
+                // convocationHistory is sorted descending (most recent first)
+                const recentConvocations = convocationHistory.slice(0, 5);
                 const callups = [];
                 
                 recentConvocations.forEach(conv => {
