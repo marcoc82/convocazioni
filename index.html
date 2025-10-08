@@ -4659,9 +4659,6 @@
                 const contentElement = document.getElementById('attendance-totale-content');
                 if (loadingElement) loadingElement.classList.add('hidden');
                 if (contentElement) contentElement.classList.remove('hidden');
-                
-                // Update filtered attendance tables
-                updateAttendanceTables();
             }
 
             // Function to update filtered attendance tables based on convocation history
@@ -5034,9 +5031,6 @@
                 const contentElement = document.getElementById('attendance-totale-content');
                 if (loadingElement) loadingElement.classList.add('hidden');
                 if (contentElement) contentElement.classList.remove('hidden');
-                
-                // Update filtered attendance tables for demo mode
-                updateAttendanceTables();
                 
                 // Re-render players to apply already-called-today styling
                 if (userRole === 'mister') {
@@ -9269,7 +9263,9 @@
                 
                 // Ensure convocation history is loaded before updating tables
                 ensureConvocationHistoryLoaded().then(() => {
-                    // Update attendance tables with current data
+                    // Update total attendance table (Riepilogo Totale)
+                    loadAttendance(null);
+                    // Update filtered attendance tables with current data
                     updateAttendanceTables();
                 });
             });
@@ -10159,7 +10155,9 @@
                 
                 // Ensure convocation history is loaded before updating tables
                 ensureConvocationHistoryLoaded().then(() => {
-                    // Update attendance tables with current data
+                    // Update total attendance table (Riepilogo Totale)
+                    loadAttendance(null);
+                    // Update filtered attendance tables with current data
                     updateAttendanceTables();
                 });
             });
