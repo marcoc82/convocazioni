@@ -1,5 +1,5 @@
 // Nome della cache
-const CACHE_NAME = 'polis-convocazioni-v3.6';
+const CACHE_NAME = 'polis-convocazioni-v9.36';
 // File da mettere in cache
 const urlsToCache = [
   './index.html',
@@ -40,7 +40,12 @@ self.addEventListener('fetch', event => {
           return response;
         }
         // Altrimenti, fa una richiesta di rete
-        return fetch(event.request);
+        return fetch(event.request).catch(() => {
+          // Se anche la rete fallisce e la richiesta è per una pagina HTML, mostra l'index.html dalla cache
+          if (event.request.destination === 'document') {
+            return caches.match('./index.html');
+          }
+        });
       })
   );
 });
