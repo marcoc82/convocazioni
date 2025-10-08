@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<!-- Version: V9.35 - Fixed modal close button ID collision, added match type display, verified last 5 convocations ordering -->
+<!-- Version: V9.36 - Added PWA support: manifest link, service worker registration, install prompt -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rosterkick</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -462,7 +465,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.27</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.36</span>
             </div>
         </div>
 
@@ -11920,6 +11923,121 @@
                 console.log('📱 [BACK BUTTON] Initial state:', initialView);
             }
         });
+    </script>
+    
+    <!-- PWA Service Worker Registration and Install Prompt -->
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker registrato con successo:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 Nuova versione disponibile! Ricarica la pagina per aggiornare.');
+                                    // Optional: Show a notification to the user about the update
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('❌ Errore nella registrazione del Service Worker:', error);
+                    });
+            });
+        }
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        let installButton;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            console.log('📱 PWA installabile rilevata');
+            
+            // Show install button if we're on the welcome screen
+            showInstallButton();
+        });
+        
+        function showInstallButton() {
+            // Check if we're on the welcome/login screen
+            const welcomeScreen = document.getElementById('welcome-screen');
+            if (!welcomeScreen || welcomeScreen.style.display === 'none') {
+                return;
+            }
+            
+            // Check if button already exists
+            if (document.getElementById('pwa-install-button')) {
+                return;
+            }
+            
+            // Create install button
+            installButton = document.createElement('button');
+            installButton.id = 'pwa-install-button';
+            installButton.className = 'mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-200 flex items-center justify-center';
+            installButton.innerHTML = '📱 Installa App sul Dispositivo';
+            installButton.onclick = installPWA;
+            
+            // Insert after the version badge
+            const versionDiv = welcomeScreen.querySelector('.mt-6.pt-4.border-t');
+            if (versionDiv) {
+                versionDiv.parentNode.insertBefore(installButton, versionDiv.nextSibling);
+            }
+        }
+        
+        async function installPWA() {
+            if (!deferredPrompt) {
+                console.log('❌ Prompt di installazione non disponibile');
+                return;
+            }
+            
+            // Show the install prompt
+            deferredPrompt.prompt();
+            
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`👤 Scelta utente: ${outcome}`);
+            
+            if (outcome === 'accepted') {
+                console.log('✅ Utente ha accettato l\'installazione');
+            } else {
+                console.log('❌ Utente ha rifiutato l\'installazione');
+            }
+            
+            // Clear the deferredPrompt
+            deferredPrompt = null;
+            
+            // Hide install button
+            if (installButton) {
+                installButton.style.display = 'none';
+            }
+        }
+        
+        // Track if app is installed
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('✅ PWA è stata installata con successo!');
+            // Hide install button if visible
+            if (installButton) {
+                installButton.style.display = 'none';
+            }
+        });
+        
+        // Detect if running as PWA
+        function isPWA() {
+            return window.matchMedia('(display-mode: standalone)').matches || 
+                   window.navigator.standalone === true;
+        }
+        
+        if (isPWA()) {
+            console.log('🚀 App in esecuzione come PWA');
+        }
     </script>
 </body>
 </html>
