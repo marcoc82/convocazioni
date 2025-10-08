@@ -4772,15 +4772,9 @@
             }
             
             // Event listeners for modal
+            // V9.32: Modal closes ONLY with X button, not by clicking outside
             if (closeModalBtn) {
                 closeModalBtn.addEventListener('click', closePlayerModal);
-            }
-            if (playerModal) {
-                playerModal.addEventListener('click', function(e) {
-                    if (e.target === playerModal) {
-                        closePlayerModal();
-                    }
-                });
             }
 
             // Function to load and display attendance summary from Firestore
