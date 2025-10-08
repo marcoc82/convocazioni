@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<!-- Version: V9.40 - Added numeric counter animation to progress bars for % Disp. and % Conv. columns -->
+<!-- Version: V9.41 - Added animations and modal to Allenamenti report -->
+<!-- V9.41 Changes:
+     1. Added numeric + progress bar animations to % Pres. in Allenamenti report
+     2. Added TOP PLAYER badge to Allenamenti report (player with highest presences)
+     3. Made player names clickable in Allenamenti to open modal with training statistics
+     Previous: V9.40 - Added numeric counter animation to progress bars for % Disp. and % Conv. columns -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -1906,6 +1911,46 @@
                     <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
                         <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime 5 Convocazioni</h3>
                         <div class="space-y-2" id="modal-callups"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- V9.41: Training Modal for Allenamenti -->
+    <div id="training-modal" class="player-modal">
+        <div class="player-modal-content">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800" id="modal-training-player-name">Player Name</h2>
+                    <button id="close-training-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Stats Section -->
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h3>
+                        <div id="modal-training-stats"></div>
+                    </div>
+
+                    <!-- Trend Section -->
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">📈 Trend Presenze</h3>
+                        <div id="modal-training-trend"></div>
+                        <h3 class="text-sm font-bold text-gray-800 mb-3 mt-4">📊 Ultimi 8 Allenamenti</h3>
+                        <div class="mini-chart" id="modal-training-chart"></div>
+                    </div>
+
+                    <!-- Recent Sessions Section -->
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultimi 5 Allenamenti</h3>
+                        <div class="space-y-2" id="modal-training-sessions"></div>
                     </div>
                 </div>
             </div>
@@ -4822,6 +4867,133 @@
                 if (trend === 'positive') return '<div class="trend-badge positive">📈 In Crescita</div>';
                 if (trend === 'negative') return '<div class="trend-badge negative">📉 In Calo</div>';
                 return '<div class="trend-badge neutral">➡️ Stabile</div>';
+            }
+            
+            // V9.41: Helper functions for training modal
+            function getPlayerTrainingData(playerName) {
+                // Get training sessions data for the player
+                const playerSessions = [];
+                
+                trainingSessions.forEach(session => {
+                    const attendance = session.attendance || {};
+                    const isPresent = attendance[playerName] === true;
+                    
+                    playerSessions.push({
+                        date: session.date,
+                        status: isPresent ? 'presente' : 'assente'
+                    });
+                });
+                
+                // Sort by date descending (most recent first)
+                playerSessions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // Calculate stats
+                const totalSessions = playerSessions.length;
+                const presences = playerSessions.filter(s => s.status === 'presente').length;
+                const percentage = totalSessions > 0 ? Math.round((presences / totalSessions) * 100) : 0;
+                
+                // Get last 8 sessions for chart
+                const recentSessions = playerSessions.slice(0, 8).reverse(); // Reverse for chart display (oldest to newest)
+                const chartData = recentSessions.map(s => s.status === 'presente' ? 100 : 0);
+                
+                // Pad with zeros if less than 8
+                while (chartData.length < 8) {
+                    chartData.unshift(0);
+                }
+                
+                // Calculate trend
+                let trend = 'neutral';
+                if (recentSessions.length >= 4) {
+                    const firstHalf = recentSessions.slice(0, Math.floor(recentSessions.length / 2));
+                    const secondHalf = recentSessions.slice(Math.floor(recentSessions.length / 2));
+                    
+                    const firstAvg = firstHalf.filter(s => s.status === 'presente').length / firstHalf.length;
+                    const secondAvg = secondHalf.filter(s => s.status === 'presente').length / secondHalf.length;
+                    
+                    if (secondAvg > firstAvg + 0.15) trend = 'positive';
+                    else if (secondAvg < firstAvg - 0.15) trend = 'negative';
+                }
+                
+                return {
+                    totalSessions,
+                    presences,
+                    percentage,
+                    chartData,
+                    trend,
+                    recentSessions: playerSessions.slice(0, 5) // Last 5 sessions
+                };
+            }
+            
+            function generateTrainingList(sessions) {
+                if (sessions.length === 0) {
+                    return '<div class="text-xs text-gray-500">Nessun dato disponibile</div>';
+                }
+                return sessions.map(session => {
+                    const icon = session.status === 'presente' ? '✅' : '❌';
+                    
+                    // Format date
+                    let formattedDate = session.date;
+                    try {
+                        const dateObj = new Date(session.date);
+                        formattedDate = dateObj.toLocaleDateString('it-IT', { 
+                            day: '2-digit', 
+                            month: '2-digit',
+                            year: 'numeric'
+                        });
+                    } catch (e) {
+                        formattedDate = session.date;
+                    }
+                    
+                    return `
+                        <div class="recent-callup ${session.status}">
+                            <span>${icon}</span>
+                            <div class="flex flex-col">
+                                <span><strong>${formattedDate}</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">${session.status === 'presente' ? 'Presente' : 'Assente'}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            // V9.41: Training modal control functions
+            const trainingModal = document.getElementById('training-modal');
+            const closeTrainingModalBtn = document.getElementById('close-training-modal');
+            const modalTrainingPlayerName = document.getElementById('modal-training-player-name');
+            const modalTrainingStats = document.getElementById('modal-training-stats');
+            const modalTrainingTrend = document.getElementById('modal-training-trend');
+            const modalTrainingChart = document.getElementById('modal-training-chart');
+            const modalTrainingSessions = document.getElementById('modal-training-sessions');
+            
+            function openTrainingModal(playerName, trainingData) {
+                modalTrainingPlayerName.textContent = playerName;
+                
+                // Display stats
+                modalTrainingStats.innerHTML = `
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-blue-600">${trainingData.presences}/${trainingData.totalSessions}</p>
+                        <p class="text-sm text-gray-600">Presenze Totali</p>
+                        <p class="text-2xl font-bold text-green-600 mt-2">${trainingData.percentage}%</p>
+                        <p class="text-sm text-gray-600">Percentuale Presenza</p>
+                    </div>
+                `;
+                
+                modalTrainingTrend.innerHTML = getTrendBadge(trainingData.trend);
+                modalTrainingChart.innerHTML = generateMiniChart(trainingData.chartData);
+                modalTrainingSessions.innerHTML = generateTrainingList(trainingData.recentSessions);
+                
+                trainingModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeTrainingModal() {
+                trainingModal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+            
+            // Event listeners for training modal
+            if (closeTrainingModalBtn) {
+                closeTrainingModalBtn.addEventListener('click', closeTrainingModal);
             }
             
             // V9.30: Modal control functions
@@ -7926,13 +8098,34 @@
                     // V9.22: Display only player name without jersey number
                     const playerNameOnly = stat.player.replace(/^\d+\s*/, '').trim();
                     
+                    // V9.41: Determine if this is the top player (highest presences)
+                    const isTopPlayer = index === 0 && stat.presences > 0;
+                    const topPlayerBadge = isTopPlayer ? '<span class="top-player-badge">🏆 Top Player</span>' : '';
+                    
+                    // V9.41: Create progress bar for percentage with animation
+                    const progressBarHTML = createProgressBar(stat.percentage);
+                    
+                    // V9.41: Get training data for modal
+                    const trainingData = getPlayerTrainingData(stat.player);
+                    
                     row.innerHTML = `
-                        <td class="px-3 py-2 text-sm text-gray-900">${playerNameOnly}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900">
+                            <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
+                        </td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center">${totalSessions}</td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${ambulanceIcon}${stat.presences}${arrowIcon}</td>
-                        <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${stat.percentage}%</td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${progressBarHTML}</td>
                     `;
                     reportBody.appendChild(row);
+                    
+                    // V9.41: Add click handler to open training modal
+                    const nameElement = row.querySelector('.player-name-clickable');
+                    if (nameElement) {
+                        nameElement.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            openTrainingModal(playerNameOnly, trainingData);
+                        });
+                    }
                 });
                 
                 // V8.11: Calculate and display average attendance percentage
@@ -7951,6 +8144,11 @@
                 if (averageDisplay) {
                     averageDisplay.textContent = `${averagePercentage}%`;
                 }
+                
+                // V9.41: Animate progress bar percentage texts in training report
+                setTimeout(() => {
+                    animateProgressBarTexts();
+                }, 100);
                 
                 console.log(`✅ [V9.17] Report loaded: ${statsArray.length} players, ${totalSessions} sessions, ${averagePercentage}% average attendance`);
             }
