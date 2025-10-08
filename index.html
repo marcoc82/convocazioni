@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.29 - Add flip card effect to player rows in summary table -->
+<!-- Version: V9.30 - Replace flip card with modal window for player details -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -305,31 +305,41 @@
             transition: all 0.3s ease-out;
         }
         
-        /* V9.29: Flip Card Effect for player rows */
-        .flip-card-row {
-            cursor: pointer;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-        }
-
-        .flip-card-row.flipped {
-            transform: rotateX(180deg);
-        }
-
-        .flip-card-front,
-        .flip-card-back {
-            backface-visibility: hidden;
-            position: relative;
-        }
-
-        .flip-card-back {
-            position: absolute;
+        /* V9.30: Modal Styling */
+        .player-modal {
+            display: none;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            transform: rotateX(180deg);
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .player-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .player-modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-out;
+        }
+
+        .player-modal.show .player-modal-content {
+            transform: scale(1);
         }
 
         /* Make clickable name highlighted */
@@ -1856,6 +1866,44 @@
                         <!-- Tornei stats data will be populated here -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Details Modal -->
+    <div id="player-modal" class="player-modal">
+        <div class="player-modal-content">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800" id="modal-player-name">Player Name</h2>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Trend Section -->
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">📈 Trend delle Convocazioni</h3>
+                        <div id="modal-trend"></div>
+                    </div>
+
+                    <!-- Chart Section -->
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">📊 Ultime 8 Partite</h3>
+                        <div class="mini-chart" id="modal-chart"></div>
+                    </div>
+
+                    <!-- Recent Callups Section -->
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime Convocazioni</h3>
+                        <div class="space-y-2" id="modal-callups"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -4595,7 +4643,7 @@
                 requestAnimationFrame(updateCount);
             }
             
-            // V9.29: Helper functions for flip card effect
+            // V9.30: Helper functions for modal player details
             function getPlayerTrend(playerName) {
                 // Analyze last 8 convocations to determine trend
                 const recentConvocations = convocationHistory.slice(-8);
@@ -4698,6 +4746,41 @@
                 if (trend === 'positive') return '<div class="trend-badge positive">📈 In Crescita</div>';
                 if (trend === 'negative') return '<div class="trend-badge negative">📉 In Calo</div>';
                 return '<div class="trend-badge neutral">➡️ Stabile</div>';
+            }
+            
+            // V9.30: Modal control functions
+            const playerModal = document.getElementById('player-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            const modalPlayerName = document.getElementById('modal-player-name');
+            const modalTrend = document.getElementById('modal-trend');
+            const modalChart = document.getElementById('modal-chart');
+            const modalCallups = document.getElementById('modal-callups');
+            
+            function openPlayerModal(playerName, trend, chartData, recentCallups) {
+                modalPlayerName.textContent = playerName;
+                modalTrend.innerHTML = getTrendBadge(trend);
+                modalChart.innerHTML = generateMiniChart(chartData);
+                modalCallups.innerHTML = generateCallupsList(recentCallups);
+                
+                playerModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closePlayerModal() {
+                playerModal.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+            
+            // Event listeners for modal
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closePlayerModal);
+            }
+            if (playerModal) {
+                playerModal.addEventListener('click', function(e) {
+                    if (e.target === playerModal) {
+                        closePlayerModal();
+                    }
+                });
             }
 
             // Function to load and display attendance summary from Firestore
@@ -4985,65 +5068,29 @@
                         </div>
                     `;
                     
-                    // V9.29: Get flip card data
+                    // V9.30: Get player data for modal
                     const trend = getPlayerTrend(playerNameOnly);
                     const chartData = getPlayerChartData(playerNameOnly);
                     const recentCallups = getRecentCallups(playerNameOnly);
                     
                     const row = document.createElement('tr');
-                    row.className = 'flip-card-row';
-                    
-                    // Front side
-                    const frontHTML = `
-                        <div class="flip-card-front">
-                            <table class="w-full">
-                                <tr>
-                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
-                                    </td>
-                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}${arrowIcon}</td>
-                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
-                                    ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>` : ''}
-                                </tr>
-                            </table>
-                        </div>
+                    row.innerHTML = `
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
+                        </td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}${arrowIcon}</td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
+                        ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>` : ''}
                     `;
                     
-                    // Back side
-                    const backHTML = `
-                        <div class="flip-card-back">
-                            <div class="px-2 sm:px-6 py-3">
-                                <div class="grid grid-cols-3 gap-2 sm:gap-4">
-                                    <div>
-                                        <div class="text-xs font-semibold text-gray-600 mb-1">Trend</div>
-                                        ${getTrendBadge(trend)}
-                                    </div>
-                                    <div>
-                                        <div class="text-xs font-semibold text-gray-600 mb-1">Ultime 8</div>
-                                        <div class="mini-chart">
-                                            ${generateMiniChart(chartData)}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs font-semibold text-gray-600 mb-1">Ultime Conv.</div>
-                                        <div class="space-y-1">
-                                            ${generateCallupsList(recentCallups)}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    row.innerHTML = frontHTML + backHTML;
                     attendanceList.appendChild(row);
                     
-                    // V9.29: Add click handler for flip effect
+                    // V9.30: Add click handler to open modal
                     const nameElement = row.querySelector('.player-name-clickable');
                     if (nameElement) {
                         nameElement.addEventListener('click', function(e) {
                             e.stopPropagation();
-                            row.classList.toggle('flipped');
+                            openPlayerModal(playerNameOnly, trend, chartData, recentCallups);
                         });
                     }
                 });
@@ -5439,65 +5486,29 @@
                         </div>
                     `;
                     
-                    // V9.29: Get flip card data
+                    // V9.30: Get player data for modal
                     const trend = getPlayerTrend(playerNameOnly);
                     const chartData = getPlayerChartData(playerNameOnly);
                     const recentCallups = getRecentCallups(playerNameOnly);
                     
                     const row = document.createElement('tr');
-                    row.className = 'flip-card-row';
-                    
-                    // Front side
-                    const frontHTML = `
-                        <div class="flip-card-front">
-                            <table class="w-full">
-                                <tr>
-                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
-                                    </td>
-                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count} <span class="text-xs text-blue-600">(Demo)</span></td>
-                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
-                                    ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">N/D</td>` : ''}
-                                </tr>
-                            </table>
-                        </div>
+                    row.innerHTML = `
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
+                        </td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count} <span class="text-xs text-blue-600">(Demo)</span></td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
+                        ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">N/D</td>` : ''}
                     `;
                     
-                    // Back side
-                    const backHTML = `
-                        <div class="flip-card-back">
-                            <div class="px-2 sm:px-6 py-3">
-                                <div class="grid grid-cols-3 gap-2 sm:gap-4">
-                                    <div>
-                                        <div class="text-xs font-semibold text-gray-600 mb-1">Trend</div>
-                                        ${getTrendBadge(trend)}
-                                    </div>
-                                    <div>
-                                        <div class="text-xs font-semibold text-gray-600 mb-1">Ultime 8</div>
-                                        <div class="mini-chart">
-                                            ${generateMiniChart(chartData)}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs font-semibold text-gray-600 mb-1">Ultime Conv.</div>
-                                        <div class="space-y-1">
-                                            ${generateCallupsList(recentCallups)}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    row.innerHTML = frontHTML + backHTML;
                     attendanceList.appendChild(row);
                     
-                    // V9.29: Add click handler for flip effect
+                    // V9.30: Add click handler to open modal
                     const nameElement = row.querySelector('.player-name-clickable');
                     if (nameElement) {
                         nameElement.addEventListener('click', function(e) {
                             e.stopPropagation();
-                            row.classList.toggle('flipped');
+                            openPlayerModal(playerNameOnly, trend, chartData, recentCallups);
                         });
                     }
                 });
