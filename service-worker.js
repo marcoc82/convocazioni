@@ -1,9 +1,10 @@
 // Nome della cache
-const CACHE_NAME = 'polis-convocazioni-v9.36';
+const CACHE_NAME = 'polis-convocazioni-v9.37';
 // File da mettere in cache
 const urlsToCache = [
   './index.html',
   './manifest.json',
+  './tailwind.min.css',
   './logo Rosterkick.jpg',
   './logo Rosterkick.png',
   './favicon.ico',
@@ -11,7 +12,6 @@ const urlsToCache = [
   './favicon-32x32.png',
   './favicon-96x96.png',
   './favicon-192x192.png',
-  'https://cdn.tailwindcss.com',
   'https://html2canvas.hertzen.com/dist/html2canvas.min.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap'
 ];
