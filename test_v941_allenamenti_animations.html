@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.41 - Allenamenti Animations & Modal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Progress bar animations */
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            animation: progressFill 1.5s ease-out;
+        }
+        
+        @keyframes progressFill {
+            0% {
+                width: 0 !important;
+            }
+        }
+        
+        .progress-bar.high {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .progress-bar.medium {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        }
+        
+        .progress-bar.low {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        
+        .top-player-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #78350f;
+            box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            animation: badgePulse 2s ease-in-out infinite;
+            margin-left: 8px;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 8px rgba(251, 191, 36, 0.6);
+            }
+        }
+        
+        .player-name-clickable {
+            cursor: pointer;
+            color: #2563eb;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        
+        .player-name-clickable:hover {
+            color: #1d4ed8;
+        }
+        
+        /* Modal styling */
+        .player-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .player-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .player-modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-out;
+        }
+
+        .player-modal.show .player-modal-content {
+            transform: scale(1);
+        }
+        
+        .mini-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 100px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .mini-chart-bar {
+            width: 8%;
+            background: linear-gradient(to top, #3b82f6, #60a5fa);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .mini-chart-bar:hover {
+            transform: scaleY(1.1);
+            background: linear-gradient(to top, #2563eb, #3b82f6);
+        }
+        
+        .trend-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .trend-badge.positive {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .trend-badge.neutral {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+        }
+        
+        .trend-badge.negative {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .recent-callup {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            font-size: 0.75rem;
+        }
+        
+        .recent-callup.presente {
+            border-left: 3px solid #10b981;
+        }
+        
+        .recent-callup.assente {
+            border-left: 3px solid #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Test V9.41 - Allenamenti Animations & Modal</h1>
+            <p class="text-gray-600">Verifica delle animazioni e del modal per gli allenamenti</p>
+            <span class="inline-block mt-4 text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.41</span>
+        </div>
+
+        <!-- Changes Summary -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-8 rounded-lg">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">✨ V9.41 Changes Summary</h2>
+            <ul class="list-disc ml-6 space-y-2 text-blue-700">
+                <li><strong>NEW:</strong> Numeric counter animation + Progress bar for % Presenza in Allenamenti report</li>
+                <li><strong>NEW:</strong> TOP PLAYER badge for player with highest presences in Allenamenti</li>
+                <li><strong>NEW:</strong> Clickable player names in Allenamenti open modal with detailed training statistics</li>
+                <li><strong>Applied to:</strong> Allenamenti report table</li>
+                <li><strong>Same as V9.40:</strong> Animations already working in Riepilogo Convocazioni</li>
+            </ul>
+        </div>
+
+        <!-- Test Demo -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="bg-gradient-to-r from-teal-500 to-teal-600 p-6">
+                <h2 class="text-2xl font-bold text-white">🏃 Report Presenze Allenamenti</h2>
+                <p class="text-teal-100 mt-2">Test of animations and clickable players</p>
+            </div>
+            <div class="p-6">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giocatore</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">N° All.</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pres.</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">% Pres.</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="test-report-body">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Expected Results -->
+        <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-8 rounded-lg">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">✅ Expected Results</h2>
+            <ul class="list-disc ml-6 space-y-2 text-green-700">
+                <li>Progress bars animate from 0% to target width (1.5 seconds)</li>
+                <li>Percentage text animates from 0 to target value (1.5 seconds)</li>
+                <li>Top player (ROSSI MARIO) has golden "🏆 Top Player" badge that pulses</li>
+                <li>Player names are blue, underlined, and clickable</li>
+                <li>Clicking a player name opens a modal with training statistics</li>
+                <li>Modal shows: Stats, Trend, Chart (last 8 trainings), Recent sessions (last 5)</li>
+            </ul>
+        </div>
+
+        <!-- Reload Button -->
+        <div class="text-center">
+            <button onclick="location.reload()" class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition duration-300">
+                🔄 Reload Page to See Animations Again
+            </button>
+        </div>
+    </div>
+
+    <!-- Training Modal -->
+    <div id="training-modal" class="player-modal">
+        <div class="player-modal-content">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800" id="modal-training-player-name">Player Name</h2>
+                    <button id="close-training-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Stats Section -->
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h3>
+                        <div id="modal-training-stats"></div>
+                    </div>
+
+                    <!-- Trend Section -->
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">📈 Trend Presenze</h3>
+                        <div id="modal-training-trend"></div>
+                        <h3 class="text-sm font-bold text-gray-800 mb-3 mt-4">📊 Ultimi 8 Allenamenti</h3>
+                        <div class="mini-chart" id="modal-training-chart"></div>
+                    </div>
+
+                    <!-- Recent Sessions Section -->
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultimi 5 Allenamenti</h3>
+                        <div class="space-y-2" id="modal-training-sessions"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample training data
+        const playersData = [
+            { name: "ROSSI MARIO", sessions: 10, presences: 9, percentage: 90 },
+            { name: "BIANCHI LUIGI", sessions: 10, presences: 8, percentage: 80 },
+            { name: "VERDI PAOLO", sessions: 10, presences: 6, percentage: 60 },
+            { name: "NERI ANTONIO", sessions: 10, presences: 3, percentage: 30 }
+        ];
+
+        // Animation function
+        function animateCountUp(element, targetValue, duration = 1500) {
+            if (!element) return;
+            
+            const startValue = 0;
+            const startTime = performance.now();
+            
+            function updateCount(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const easeOutQuad = progress * (2 - progress);
+                const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOutQuad);
+                
+                element.textContent = currentValue;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCount);
+                } else {
+                    element.textContent = targetValue;
+                }
+            }
+            
+            requestAnimationFrame(updateCount);
+        }
+
+        function createProgressBar(percentage) {
+            let progressBarColor = 'low';
+            if (percentage >= 70) {
+                progressBarColor = 'high';
+            } else if (percentage >= 40) {
+                progressBarColor = 'medium';
+            }
+            
+            return `
+                <div class="progress-bar-container">
+                    <div class="progress-bar ${progressBarColor}" style="width: ${percentage}%">
+                        <span class="progress-bar-text" data-target="${percentage}">0</span>%
+                    </div>
+                </div>
+            `;
+        }
+
+        function animateProgressBarTexts() {
+            const progressBarTexts = document.querySelectorAll('.progress-bar-text');
+            progressBarTexts.forEach(textElement => {
+                const targetValue = parseInt(textElement.getAttribute('data-target'));
+                if (!isNaN(targetValue)) {
+                    animateCountUp(textElement, targetValue, 1500);
+                }
+            });
+        }
+
+        function generateMiniChart(chartData) {
+            const maxHeight = Math.max(...chartData, 1);
+            return chartData.map(value => {
+                const height = value === 0 ? 10 : (value / maxHeight * 100);
+                return `<div class="mini-chart-bar" style="height: ${height}%;"></div>`;
+            }).join('');
+        }
+
+        function generateTrainingList(sessions) {
+            return sessions.map(session => {
+                const icon = session.status === 'presente' ? '✅' : '❌';
+                return `
+                    <div class="recent-callup ${session.status}">
+                        <span>${icon}</span>
+                        <div class="flex flex-col">
+                            <span><strong>${session.date}</strong></span>
+                            <span class="text-xs text-gray-600 mt-1">${session.status === 'presente' ? 'Presente' : 'Assente'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getTrendBadge(trend) {
+            if (trend === 'positive') return '<div class="trend-badge positive">📈 In Crescita</div>';
+            if (trend === 'negative') return '<div class="trend-badge negative">📉 In Calo</div>';
+            return '<div class="trend-badge neutral">➡️ Stabile</div>';
+        }
+
+        function openTrainingModal(playerName, playerData) {
+            const modal = document.getElementById('training-modal');
+            const modalName = document.getElementById('modal-training-player-name');
+            const modalStats = document.getElementById('modal-training-stats');
+            const modalTrend = document.getElementById('modal-training-trend');
+            const modalChart = document.getElementById('modal-training-chart');
+            const modalSessions = document.getElementById('modal-training-sessions');
+
+            modalName.textContent = playerName;
+            
+            modalStats.innerHTML = `
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-blue-600">${playerData.presences}/${playerData.sessions}</p>
+                    <p class="text-sm text-gray-600">Presenze Totali</p>
+                    <p class="text-2xl font-bold text-green-600 mt-2">${playerData.percentage}%</p>
+                    <p class="text-sm text-gray-600">Percentuale Presenza</p>
+                </div>
+            `;
+            
+            modalTrend.innerHTML = getTrendBadge(playerData.trend);
+            modalChart.innerHTML = generateMiniChart(playerData.chartData);
+            modalSessions.innerHTML = generateTrainingList(playerData.recentSessions);
+            
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTrainingModal() {
+            const modal = document.getElementById('training-modal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal button
+        document.getElementById('close-training-modal').addEventListener('click', closeTrainingModal);
+
+        // Populate table
+        const reportBody = document.getElementById('test-report-body');
+        playersData.forEach((player, index) => {
+            const row = document.createElement('tr');
+            row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+            
+            const isTopPlayer = index === 0;
+            const topPlayerBadge = isTopPlayer ? '<span class="top-player-badge">🏆 Top Player</span>' : '';
+            
+            const progressBarHTML = createProgressBar(player.percentage);
+            
+            // Generate mock data for modal
+            const mockData = {
+                sessions: player.sessions,
+                presences: player.presences,
+                percentage: player.percentage,
+                trend: player.percentage >= 70 ? 'positive' : player.percentage >= 40 ? 'neutral' : 'negative',
+                chartData: [100, 100, 0, 100, 100, 100, 0, 100].slice(0, 8),
+                recentSessions: [
+                    { date: '10/12/2024', status: 'presente' },
+                    { date: '08/12/2024', status: 'presente' },
+                    { date: '06/12/2024', status: index === 3 ? 'assente' : 'presente' },
+                    { date: '04/12/2024', status: 'presente' },
+                    { date: '02/12/2024', status: index >= 2 ? 'assente' : 'presente' }
+                ]
+            };
+            
+            row.innerHTML = `
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <span class="player-name-clickable" data-player="${player.name}">${player.name}</span>${topPlayerBadge}
+                </td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.sessions}</td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center font-semibold">${player.presences}</td>
+                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
+            `;
+            
+            reportBody.appendChild(row);
+            
+            // Add click handler
+            const nameElement = row.querySelector('.player-name-clickable');
+            nameElement.addEventListener('click', function() {
+                openTrainingModal(player.name, mockData);
+            });
+        });
+
+        // Animate progress bars on page load
+        setTimeout(() => {
+            animateProgressBarTexts();
+        }, 100);
+    </script>
+</body>
+</html>
