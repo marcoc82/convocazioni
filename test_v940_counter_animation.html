@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.40 - Counter Animation Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* V9.28: Existing Wow Effects - Progress bars */
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            animation: progressFill 1.5s ease-out;
+        }
+        
+        @keyframes progressFill {
+            0% {
+                width: 0 !important;
+            }
+        }
+        
+        .progress-bar.high {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .progress-bar.medium {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        }
+        
+        .progress-bar.low {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">V9.40 - Animated Counter in Progress Bars</h1>
+            <p class="text-gray-600">Demonstration of numeric counter animation (0 → target) + progress bar fill animation</p>
+            <span class="inline-block mt-4 text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.40</span>
+        </div>
+
+        <!-- Changes Summary -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-8 rounded-lg">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">✨ V9.40 Changes Summary</h2>
+            <ul class="list-disc ml-6 space-y-2 text-blue-700">
+                <li><strong>NEW:</strong> Numeric counter animation - percentage text counts from 0 to target value</li>
+                <li><strong>Existing:</strong> Progress bar graphic animation - bar fills from 0% to target width</li>
+                <li><strong>Both animations:</strong> Synchronized at 1.5 seconds duration</li>
+                <li><strong>Applied to:</strong> Both % CONV and % DISP columns</li>
+                <li><strong>Compatibility:</strong> Works on mobile and desktop, no impact on PWA or wow-effects</li>
+            </ul>
+        </div>
+
+        <!-- Before/After Comparison -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-red-600 mb-4">❌ Before V9.40</h2>
+                <p class="text-gray-600 mb-4">Static percentage text (no animation)</p>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-2">% Conv. at 85%</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar high" style="width: 85%; animation: none;">85%</div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-red-600 mt-2">❌ Percentage appears instantly (no counting effect)</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-green-600 mb-4">✅ After V9.40</h2>
+                <p class="text-gray-600 mb-4">Animated counter (0 → 85) + animated bar</p>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-2">% Conv. at 85%</p>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar high" style="width: 85%">
+                                <span class="progress-bar-text" data-target="85">0</span>%
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-green-600 mt-2">✅ Counter animates from 0 to 85 as bar fills</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Demo Table -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
+                <h2 class="text-2xl font-bold text-white">📊 Live Demo: Riepilogo Totale (POLIS)</h2>
+                <p class="text-blue-100 mt-2">Both animations active for % Conv. and % Disp. columns</p>
+            </div>
+            <div class="p-6">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giocatore</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Presenze</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">% Conv.</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">% Disp.</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">ROSSI MARIO</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">12</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar high" style="width: 92%">
+                                        <span class="progress-bar-text" data-target="92">0</span>%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar high" style="width: 88%">
+                                        <span class="progress-bar-text" data-target="88">0</span>%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">VERDI LUCA</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">8</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar medium" style="width: 62%">
+                                        <span class="progress-bar-text" data-target="62">0</span>%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar medium" style="width: 55%">
+                                        <span class="progress-bar-text" data-target="55">0</span>%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">BIANCHI MARCO</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">3</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar low" style="width: 23%">
+                                        <span class="progress-bar-text" data-target="23">0</span>%
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar low" style="width: 30%">
+                                        <span class="progress-bar-text" data-target="30">0</span>%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Technical Implementation -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">🔧 Technical Implementation</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">1. Modified createProgressBar() Function</h3>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+// V9.40: Modified to include counter animation
+function createProgressBar(percentage) {
+    let progressBarColor = 'low';
+    if (percentage >= 70) {
+        progressBarColor = 'high';
+    } else if (percentage >= 40) {
+        progressBarColor = 'medium';
+    }
+    
+    return `
+        &lt;div class="progress-bar-container"&gt;
+            &lt;div class="progress-bar ${progressBarColor}" style="width: ${percentage}%"&gt;
+                &lt;span class="progress-bar-text" data-target="${percentage}"&gt;0&lt;/span&gt;%
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `;
+}</pre>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">2. New Animation Function</h3>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+// V9.40: Animate all progress bar percentage texts
+function animateProgressBarTexts() {
+    const progressBarTexts = document.querySelectorAll('.progress-bar-text');
+    progressBarTexts.forEach(textElement => {
+        const targetValue = parseInt(textElement.getAttribute('data-target'));
+        if (!isNaN(targetValue)) {
+            animateCountUp(textElement, targetValue, 1500);
+        }
+    });
+}</pre>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">3. Trigger After Table Render</h3>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+// V9.40: Animate progress bar percentage texts
+setTimeout(() => {
+    animateProgressBarTexts();
+}, 100);</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-8 rounded-lg">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">✅ Features Implemented</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ul class="list-disc ml-6 space-y-2 text-green-700">
+                    <li class="flex items-start">
+                        <span class="mr-2">🔢</span>
+                        <span><strong>Numeric Animation:</strong> Counter counts from 0 to target percentage</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">📊</span>
+                        <span><strong>Graphic Animation:</strong> Progress bar fills from 0% to target width</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">🎯</span>
+                        <span><strong>Synchronized:</strong> Both animations complete in 1.5 seconds</span>
+                    </li>
+                </ul>
+                <ul class="list-disc ml-6 space-y-2 text-green-700">
+                    <li class="flex items-start">
+                        <span class="mr-2">🎨</span>
+                        <span><strong>Identical Style:</strong> Both % DISP and % CONV columns match</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">📱</span>
+                        <span><strong>Mobile & Desktop:</strong> Works on all screen sizes</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">⚡</span>
+                        <span><strong>No Conflicts:</strong> Compatible with PWA and existing wow-effects</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Reload Button -->
+        <div class="text-center">
+            <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition duration-300">
+                🔄 Reload Page to See Animations Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // V9.28: Existing count-up animation function (reused for V9.40)
+        function animateCountUp(element, targetValue, duration = 1500) {
+            if (!element) return;
+            
+            const startValue = 0;
+            const startTime = performance.now();
+            
+            function updateCount(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function for smooth animation
+                const easeOutQuad = progress * (2 - progress);
+                const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOutQuad);
+                
+                element.textContent = currentValue;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCount);
+                } else {
+                    element.textContent = targetValue;
+                }
+            }
+            
+            requestAnimationFrame(updateCount);
+        }
+
+        // V9.40: Animate all progress bar percentage texts
+        function animateProgressBarTexts() {
+            const progressBarTexts = document.querySelectorAll('.progress-bar-text');
+            progressBarTexts.forEach(textElement => {
+                const targetValue = parseInt(textElement.getAttribute('data-target'));
+                if (!isNaN(targetValue)) {
+                    animateCountUp(textElement, targetValue, 1500);
+                }
+            });
+        }
+
+        // Initialize animations on page load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                animateProgressBarTexts();
+            }, 100);
+        });
+
+        console.log('✨ V9.40 Test Page Loaded');
+        console.log('✅ Numeric counter animation added to progress bars');
+        console.log('✅ Both % Conv. and % Disp. columns animate identically');
+        console.log('✅ Synchronized animations (1.5s duration)');
+    </script>
+</body>
+</html>
