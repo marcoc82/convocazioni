@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.28 - Add wow effects: progress bars, top player badge, count-up animation -->
+<!-- Version: V9.29 - Add flip card effect to player rows in summary table -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -303,6 +303,121 @@
         .count-up {
             display: inline-block;
             transition: all 0.3s ease-out;
+        }
+        
+        /* V9.29: Flip Card Effect for player rows */
+        .flip-card-row {
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flip-card-row.flipped {
+            transform: rotateX(180deg);
+        }
+
+        .flip-card-front,
+        .flip-card-back {
+            backface-visibility: hidden;
+            position: relative;
+        }
+
+        .flip-card-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            transform: rotateX(180deg);
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        }
+
+        /* Make clickable name highlighted */
+        .player-name-clickable {
+            color: #2563eb;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .player-name-clickable:hover {
+            color: #1d4ed8;
+            text-decoration-style: solid;
+        }
+
+        /* Chart styling */
+        .mini-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 50px;
+            padding: 6px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .mini-chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 3px 3px 0 0;
+            transition: all 0.3s;
+            min-height: 8px;
+        }
+
+        .mini-chart-bar:hover {
+            background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+            transform: scaleY(1.1);
+        }
+
+        /* Trend badges */
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 16px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .trend-badge.positive {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .trend-badge.neutral {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .trend-badge.negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Recent callups list */
+        .recent-callup {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            background: white;
+            border-radius: 6px;
+            border-left: 2px solid;
+            font-size: 0.65rem;
+        }
+
+        .recent-callup.presente {
+            border-color: #10b981;
+        }
+
+        .recent-callup.assente {
+            border-color: #ef4444;
+        }
+
+        .recent-callup.non-convocato {
+            border-color: #9ca3af;
         }
     </style>
 </head>
@@ -4479,6 +4594,111 @@
                 
                 requestAnimationFrame(updateCount);
             }
+            
+            // V9.29: Helper functions for flip card effect
+            function getPlayerTrend(playerName) {
+                // Analyze last 8 convocations to determine trend
+                const recentConvocations = convocationHistory.slice(-8);
+                const playerAppearances = [];
+                
+                recentConvocations.forEach(conv => {
+                    const players = conv.players || [];
+                    const isPresent = players.some(p => {
+                        const pName = typeof p === 'string' ? p : `${p.numero} ${p.nome}`;
+                        return pName.includes(playerName);
+                    });
+                    playerAppearances.push(isPresent ? 1 : 0);
+                });
+                
+                if (playerAppearances.length < 4) return 'neutral';
+                
+                const firstHalf = playerAppearances.slice(0, Math.floor(playerAppearances.length / 2));
+                const secondHalf = playerAppearances.slice(Math.floor(playerAppearances.length / 2));
+                
+                const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+                const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+                
+                if (secondAvg > firstAvg + 0.15) return 'positive';
+                if (secondAvg < firstAvg - 0.15) return 'negative';
+                return 'neutral';
+            }
+            
+            function getPlayerChartData(playerName) {
+                // Get last 8 convocations for chart
+                const recentConvocations = convocationHistory.slice(-8);
+                const chartData = [];
+                
+                recentConvocations.forEach(conv => {
+                    const players = conv.players || [];
+                    const isPresent = players.some(p => {
+                        const pName = typeof p === 'string' ? p : `${p.numero} ${p.nome}`;
+                        return pName.includes(playerName);
+                    });
+                    chartData.push(isPresent ? 100 : 0);
+                });
+                
+                // Pad with zeros if less than 8
+                while (chartData.length < 8) {
+                    chartData.unshift(0);
+                }
+                
+                return chartData.slice(-8);
+            }
+            
+            function getRecentCallups(playerName) {
+                // Get last 3 convocations with details
+                const recentConvocations = convocationHistory.slice(-3).reverse();
+                const callups = [];
+                
+                recentConvocations.forEach(conv => {
+                    const players = conv.players || [];
+                    const isPresent = players.some(p => {
+                        const pName = typeof p === 'string' ? p : `${p.numero} ${p.nome}`;
+                        return pName.includes(playerName);
+                    });
+                    
+                    const details = conv.details || {};
+                    const date = details.data || 'N/D';
+                    const opponent = details.avversario || 'N/D';
+                    
+                    callups.push({
+                        date: date.split(' ')[0] || date, // Get just the date part
+                        opponent: opponent,
+                        status: isPresent ? 'presente' : 'non-convocato'
+                    });
+                });
+                
+                return callups;
+            }
+            
+            function generateMiniChart(chartData) {
+                const maxHeight = Math.max(...chartData, 1);
+                return chartData.map(value => {
+                    const height = value === 0 ? 10 : (value / maxHeight * 100);
+                    return `<div class="mini-chart-bar" style="height: ${height}%;"></div>`;
+                }).join('');
+            }
+            
+            function generateCallupsList(callups) {
+                if (callups.length === 0) {
+                    return '<div class="text-xs text-gray-500">Nessun dato disponibile</div>';
+                }
+                return callups.map(callup => {
+                    const icon = callup.status === 'presente' ? '✅' : '⚪';
+                    return `
+                        <div class="recent-callup ${callup.status}">
+                            <span>${icon}</span>
+                            <span>${callup.date} vs ${callup.opponent}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            function getTrendBadge(trend) {
+                if (trend === 'positive') return '<div class="trend-badge positive">📈 In Crescita</div>';
+                if (trend === 'negative') return '<div class="trend-badge negative">📉 In Calo</div>';
+                return '<div class="trend-badge neutral">➡️ Stabile</div>';
+            }
 
             // Function to load and display attendance summary from Firestore
             async function loadAttendance(querySnapshot) {
@@ -4765,14 +4985,67 @@
                         </div>
                     `;
                     
+                    // V9.29: Get flip card data
+                    const trend = getPlayerTrend(playerNameOnly);
+                    const chartData = getPlayerChartData(playerNameOnly);
+                    const recentCallups = getRecentCallups(playerNameOnly);
+                    
                     const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${playerNameOnly}${topPlayerBadge}</td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}${arrowIcon}</td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
-                        ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>` : ''}
+                    row.className = 'flip-card-row';
+                    
+                    // Front side
+                    const frontHTML = `
+                        <div class="flip-card-front">
+                            <table class="w-full">
+                                <tr>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
+                                    </td>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}${arrowIcon}</td>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
+                                    ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>` : ''}
+                                </tr>
+                            </table>
+                        </div>
                     `;
+                    
+                    // Back side
+                    const backHTML = `
+                        <div class="flip-card-back">
+                            <div class="px-2 sm:px-6 py-3">
+                                <div class="grid grid-cols-3 gap-2 sm:gap-4">
+                                    <div>
+                                        <div class="text-xs font-semibold text-gray-600 mb-1">Trend</div>
+                                        ${getTrendBadge(trend)}
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold text-gray-600 mb-1">Ultime 8</div>
+                                        <div class="mini-chart">
+                                            ${generateMiniChart(chartData)}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold text-gray-600 mb-1">Ultime Conv.</div>
+                                        <div class="space-y-1">
+                                            ${generateCallupsList(recentCallups)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    row.innerHTML = frontHTML + backHTML;
                     attendanceList.appendChild(row);
+                    
+                    // V9.29: Add click handler for flip effect
+                    const nameElement = row.querySelector('.player-name-clickable');
+                    if (nameElement) {
+                        nameElement.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            row.classList.toggle('flipped');
+                        });
+                    }
                 });
                 
                 console.log(`📊 [DIAGNOSTIC] Tabella presenze aggiornata con ${sortedPlayers.length} giocatori`);
@@ -5166,14 +5439,67 @@
                         </div>
                     `;
                     
+                    // V9.29: Get flip card data
+                    const trend = getPlayerTrend(playerNameOnly);
+                    const chartData = getPlayerChartData(playerNameOnly);
+                    const recentCallups = getRecentCallups(playerNameOnly);
+                    
                     const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${playerNameOnly}${topPlayerBadge}</td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count} <span class="text-xs text-blue-600">(Demo)</span></td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
-                        ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">N/D</td>` : ''}
+                    row.className = 'flip-card-row';
+                    
+                    // Front side
+                    const frontHTML = `
+                        <div class="flip-card-front">
+                            <table class="w-full">
+                                <tr>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
+                                    </td>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count} <span class="text-xs text-blue-600">(Demo)</span></td>
+                                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
+                                    ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">N/D</td>` : ''}
+                                </tr>
+                            </table>
+                        </div>
                     `;
+                    
+                    // Back side
+                    const backHTML = `
+                        <div class="flip-card-back">
+                            <div class="px-2 sm:px-6 py-3">
+                                <div class="grid grid-cols-3 gap-2 sm:gap-4">
+                                    <div>
+                                        <div class="text-xs font-semibold text-gray-600 mb-1">Trend</div>
+                                        ${getTrendBadge(trend)}
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold text-gray-600 mb-1">Ultime 8</div>
+                                        <div class="mini-chart">
+                                            ${generateMiniChart(chartData)}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs font-semibold text-gray-600 mb-1">Ultime Conv.</div>
+                                        <div class="space-y-1">
+                                            ${generateCallupsList(recentCallups)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    row.innerHTML = frontHTML + backHTML;
                     attendanceList.appendChild(row);
+                    
+                    // V9.29: Add click handler for flip effect
+                    const nameElement = row.querySelector('.player-name-clickable');
+                    if (nameElement) {
+                        nameElement.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            row.classList.toggle('flipped');
+                        });
+                    }
                 });
                 
                 // Hide loading spinner and show content
