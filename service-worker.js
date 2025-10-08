@@ -1,5 +1,5 @@
 // Nome della cache
-const CACHE_NAME = 'polis-convocazioni-v9.39';
+const CACHE_NAME = 'polis-convocazioni-v9.40';
 // File da mettere in cache
 const urlsToCache = [
   './index.html',

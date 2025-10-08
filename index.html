@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.39 - Added animated progress bars for % Disp. column matching % Conv. style -->
+<!-- Version: V9.40 - Added numeric counter animation to progress bars for % Disp. and % Conv. columns -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -466,7 +466,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.39</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.40</span>
             </div>
         </div>
 
@@ -4661,10 +4661,21 @@
                 return `
                     <div class="progress-bar-container">
                         <div class="progress-bar ${progressBarColor}" style="width: ${percentage}%">
-                            ${percentage}%
+                            <span class="progress-bar-text" data-target="${percentage}">0</span>%
                         </div>
                     </div>
                 `;
+            }
+            
+            // V9.40: Animate all progress bar percentage texts
+            function animateProgressBarTexts() {
+                const progressBarTexts = document.querySelectorAll('.progress-bar-text');
+                progressBarTexts.forEach(textElement => {
+                    const targetValue = parseInt(textElement.getAttribute('data-target'));
+                    if (!isNaN(targetValue)) {
+                        animateCountUp(textElement, targetValue, 1500);
+                    }
+                });
             }
             
             // V9.30: Helper functions for modal player details
@@ -5154,6 +5165,11 @@
                 const contentElement = document.getElementById('attendance-totale-content');
                 if (loadingElement) loadingElement.classList.add('hidden');
                 if (contentElement) contentElement.classList.remove('hidden');
+                
+                // V9.40: Animate progress bar percentage texts
+                setTimeout(() => {
+                    animateProgressBarTexts();
+                }, 100);
             }
 
             // Function to update filtered attendance tables based on convocation history
@@ -5369,6 +5385,11 @@
                         tableElement.appendChild(row);
                     });
                 }
+                
+                // V9.40: Animate progress bar percentage texts in filtered tables
+                setTimeout(() => {
+                    animateProgressBarTexts();
+                }, 100);
             }
 
             // Demo version for loadHistory when Firebase is not available
@@ -5563,6 +5584,11 @@
                 const contentElement = document.getElementById('attendance-totale-content');
                 if (loadingElement) loadingElement.classList.add('hidden');
                 if (contentElement) contentElement.classList.remove('hidden');
+                
+                // V9.40: Animate progress bar percentage texts
+                setTimeout(() => {
+                    animateProgressBarTexts();
+                }, 100);
                 
                 // Re-render players to apply already-called-today styling
                 if (userRole === 'mister') {
