@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.36 - Added PWA support: manifest link, service worker registration, install prompt -->
+<!-- Version: V9.37 - Replaced Tailwind CDN with local CSS file for offline PWA support -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -17,8 +17,8 @@
     <link rel="apple-touch-icon" sizes="192x192" href="favicon-192x192.png">
     <meta name="msapplication-TileImage" content="favicon-192x192.png">
     
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS Local -->
+    <link rel="stylesheet" href="tailwind.min.css">
     <!-- html2canvas for image generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- jsPDF for PDF generation -->
@@ -465,7 +465,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.36</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.37</span>
             </div>
         </div>
 
