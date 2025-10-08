@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.30 - Modal Player Details Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* V9.28: Existing Wow Effects */
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            animation: progressFill 1.5s ease-out;
+        }
+        
+        @keyframes progressFill {
+            0% {
+                width: 0 !important;
+            }
+        }
+        
+        .progress-bar.high {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .progress-bar.medium {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        }
+        
+        .progress-bar.low {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        
+        .top-player-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #78350f;
+            box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            animation: badgePulse 2s ease-in-out infinite;
+            margin-left: 8px;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 8px rgba(251, 191, 36, 0.6);
+            }
+        }
+        
+        .count-up {
+            display: inline-block;
+            transition: all 0.3s ease-out;
+        }
+
+        /* V9.30: Modal Styling */
+        .player-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .player-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .player-modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-out;
+        }
+
+        .player-modal.show .player-modal-content {
+            transform: scale(1);
+        }
+
+        /* Make clickable name highlighted */
+        .player-name-clickable {
+            color: #2563eb;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .player-name-clickable:hover {
+            color: #1d4ed8;
+            text-decoration-style: solid;
+        }
+
+        /* Chart styling */
+        .mini-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 60px;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .mini-chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+            min-height: 10px;
+        }
+
+        .mini-chart-bar:hover {
+            background: linear-gradient(180deg, #60a5fa 0%, #3b82f6 100%);
+            transform: scaleY(1.1);
+        }
+
+        /* Trend badges */
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .trend-badge.positive {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .trend-badge.neutral {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .trend-badge.negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Recent callups list */
+        .recent-callup {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid;
+            font-size: 0.75rem;
+        }
+
+        .recent-callup.presente {
+            border-color: #10b981;
+        }
+
+        .recent-callup.assente {
+            border-color: #ef4444;
+        }
+
+        .recent-callup.non-convocato {
+            border-color: #9ca3af;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+            <h1 class="text-3xl font-bold text-center text-blue-600 mb-2">V9.30 - Modal Player Details Test</h1>
+            <p class="text-center text-gray-600 mb-6">Click on player names to open a modal with detailed statistics</p>
+            
+            <!-- Version Badge -->
+            <div class="text-center mb-4">
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.30</span>
+            </div>
+
+            <!-- Instructions -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 class="text-lg font-bold text-blue-800 mb-2">🎯 How to Test</h3>
+                <ul class="text-sm text-blue-800 list-disc list-inside space-y-1">
+                    <li><strong>Click on a player name</strong> (underlined in blue) to open the modal</li>
+                    <li>The modal will show detailed statistics with trend, chart, and recent callups</li>
+                    <li><strong>Click outside</strong> the modal or the close button to dismiss it</li>
+                    <li>All existing effects (progress bars, badges, count-up) remain functional</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Test -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Complete Integration with Modal Effect</h2>
+            
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h3>
+                <p class="text-center text-gray-600 mb-6">
+                    Partite totali: <span id="total-matches-count" class="font-semibold count-up">20</span>
+                </p>
+                
+                <h4 class="text-lg font-semibold text-gray-700 mb-3">📊 Riepilogo Totale</h4>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Pres.</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Conv.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-list" class="bg-white divide-y divide-gray-200">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-sm text-green-800 font-semibold mb-2">✅ Expected Behavior:</p>
+                <ul class="text-sm text-green-800 list-disc list-inside space-y-1">
+                    <li>Player names are clickable (blue underlined text)</li>
+                    <li>Click opens a modal window with detailed statistics</li>
+                    <li>Modal shows: trend badge, mini chart, and recent callups</li>
+                    <li>Click outside or close button to dismiss the modal</li>
+                    <li>All V9.28 effects still work (progress bars, top player badge, count-up)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Feature Details -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎨 Modal Content Details</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Trend Section -->
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                    <h3 class="text-sm font-bold text-gray-800 mb-2">📈 Trend delle Convocazioni</h3>
+                    <p class="text-xs text-gray-600 mb-2">Shows attendance trend with badges:</p>
+                    <div class="space-y-2">
+                        <div class="trend-badge positive">📈 In Crescita</div>
+                        <div class="trend-badge neutral">➡️ Stabile</div>
+                        <div class="trend-badge negative">📉 In Calo</div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                    <h3 class="text-sm font-bold text-gray-800 mb-2">📊 Grafico Personale</h3>
+                    <p class="text-xs text-gray-600 mb-2">Mini bar chart of last 8 matches:</p>
+                    <div class="mini-chart">
+                        <div class="mini-chart-bar" style="height: 80%;"></div>
+                        <div class="mini-chart-bar" style="height: 60%;"></div>
+                        <div class="mini-chart-bar" style="height: 100%;"></div>
+                        <div class="mini-chart-bar" style="height: 40%;"></div>
+                        <div class="mini-chart-bar" style="height: 90%;"></div>
+                        <div class="mini-chart-bar" style="height: 70%;"></div>
+                        <div class="mini-chart-bar" style="height: 85%;"></div>
+                        <div class="mini-chart-bar" style="height: 95%;"></div>
+                    </div>
+                </div>
+
+                <!-- Recent Callups Section -->
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                    <h3 class="text-sm font-bold text-gray-800 mb-2">🗓️ Ultime Convocazioni</h3>
+                    <p class="text-xs text-gray-600 mb-2">List of last 3 matches:</p>
+                    <div class="space-y-2">
+                        <div class="recent-callup presente">
+                            <span>✅</span>
+                            <span>15/12 vs Juventus</span>
+                        </div>
+                        <div class="recent-callup assente">
+                            <span>❌</span>
+                            <span>08/12 vs Milan</span>
+                        </div>
+                        <div class="recent-callup presente">
+                            <span>✅</span>
+                            <span>01/12 vs Inter</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 class="text-xl font-bold text-blue-800 mb-3">✅ V9.30 Implementation Summary</h3>
+            <div class="space-y-2 text-sm text-blue-800">
+                <p><strong>NEW - Modal Window:</strong> Click player names to see detailed statistics in a modal window</p>
+                <p><strong>Modal Content:</strong> Trend badges, personal mini chart, and recent callups list</p>
+                <p><strong>Maintains V9.28:</strong> Progress bars, top player badge, and count-up animation all preserved</p>
+                <p><strong>User Experience:</strong> Smooth modal open/close with backdrop blur effect</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Details Modal -->
+    <div id="player-modal" class="player-modal">
+        <div class="player-modal-content">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800" id="modal-player-name">Player Name</h2>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Trend Section -->
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">📈 Trend delle Convocazioni</h3>
+                        <div id="modal-trend"></div>
+                    </div>
+
+                    <!-- Chart Section -->
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">📊 Ultime 8 Partite</h3>
+                        <div class="mini-chart" id="modal-chart"></div>
+                    </div>
+
+                    <!-- Recent Callups Section -->
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime Convocazioni</h3>
+                        <div class="space-y-2" id="modal-callups"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample player data
+        const playersData = [
+            {
+                name: "ROSSI MARIO",
+                presences: 15,
+                percentage: 75,
+                isTop: true,
+                arrow: "▲",
+                arrowColor: "green",
+                trend: "positive",
+                trendText: "📈 In Crescita",
+                chartData: [80, 60, 100, 40, 90, 70, 85, 95],
+                recentCallups: [
+                    { date: "15/12", opponent: "Juventus", status: "presente" },
+                    { date: "08/12", opponent: "Milan", status: "presente" },
+                    { date: "01/12", opponent: "Inter", status: "presente" }
+                ]
+            },
+            {
+                name: "BIANCHI LUIGI",
+                presences: 12,
+                percentage: 60,
+                isTop: false,
+                arrow: "=",
+                arrowColor: "gray",
+                trend: "neutral",
+                trendText: "➡️ Stabile",
+                chartData: [60, 70, 50, 60, 65, 55, 60, 58],
+                recentCallups: [
+                    { date: "15/12", opponent: "Juventus", status: "presente" },
+                    { date: "08/12", opponent: "Milan", status: "assente" },
+                    { date: "01/12", opponent: "Inter", status: "presente" }
+                ]
+            },
+            {
+                name: "VERDI GIUSEPPE",
+                presences: 10,
+                percentage: 50,
+                isTop: false,
+                arrow: "=",
+                arrowColor: "gray",
+                trend: "neutral",
+                trendText: "➡️ Stabile",
+                chartData: [50, 45, 55, 50, 48, 52, 50, 51],
+                recentCallups: [
+                    { date: "15/12", opponent: "Juventus", status: "presente" },
+                    { date: "08/12", opponent: "Milan", status: "non-convocato" },
+                    { date: "01/12", opponent: "Inter", status: "presente" }
+                ]
+            },
+            {
+                name: "NERI ANTONIO",
+                presences: 6,
+                percentage: 30,
+                isTop: false,
+                arrow: "▼",
+                arrowColor: "red",
+                trend: "negative",
+                trendText: "📉 In Calo",
+                chartData: [40, 35, 30, 25, 20, 28, 32, 30],
+                recentCallups: [
+                    { date: "15/12", opponent: "Juventus", status: "assente" },
+                    { date: "08/12", opponent: "Milan", status: "assente" },
+                    { date: "01/12", opponent: "Inter", status: "presente" }
+                ]
+            }
+        ];
+
+        // Get progress bar color class
+        function getProgressBarColor(percentage) {
+            if (percentage >= 70) return 'high';
+            if (percentage >= 40) return 'medium';
+            return 'low';
+        }
+
+        // Get trend class
+        function getTrendClass(trend) {
+            if (trend === 'positive') return 'positive';
+            if (trend === 'negative') return 'negative';
+            return 'neutral';
+        }
+
+        // Get status icon
+        function getStatusIcon(status) {
+            if (status === 'presente') return '✅';
+            if (status === 'assente') return '❌';
+            return '⚪';
+        }
+
+        // Generate chart HTML
+        function generateChartHTML(chartData) {
+            const maxHeight = Math.max(...chartData);
+            return chartData.map(value => {
+                const height = (value / maxHeight * 100);
+                return `<div class="mini-chart-bar" style="height: ${height}%;"></div>`;
+            }).join('');
+        }
+
+        // Generate recent callups HTML
+        function generateCallupsHTML(callups) {
+            return callups.map(callup => {
+                const icon = getStatusIcon(callup.status);
+                return `
+                    <div class="recent-callup ${callup.status}">
+                        <span>${icon}</span>
+                        <span>${callup.date} vs ${callup.opponent}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Modal elements
+        const modal = document.getElementById('player-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const modalPlayerName = document.getElementById('modal-player-name');
+        const modalTrend = document.getElementById('modal-trend');
+        const modalChart = document.getElementById('modal-chart');
+        const modalCallups = document.getElementById('modal-callups');
+
+        // Open modal with player data
+        function openPlayerModal(player) {
+            const trendClass = getTrendClass(player.trend);
+            
+            modalPlayerName.textContent = player.name;
+            modalTrend.innerHTML = `<div class="trend-badge ${trendClass}">${player.trendText}</div>`;
+            modalChart.innerHTML = generateChartHTML(player.chartData);
+            modalCallups.innerHTML = generateCallupsHTML(player.recentCallups);
+            
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close modal
+        function closePlayerModal() {
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Event listeners for modal
+        closeModalBtn.addEventListener('click', closePlayerModal);
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closePlayerModal();
+            }
+        });
+
+        // Render player rows
+        function renderPlayers() {
+            const tbody = document.getElementById('attendance-list');
+            tbody.innerHTML = '';
+
+            playersData.forEach((player, index) => {
+                const tr = document.createElement('tr');
+                tr.dataset.index = index;
+
+                const topPlayerBadge = player.isTop ? '<span class="top-player-badge">🏆 Top Player</span>' : '';
+                const progressBarColor = getProgressBarColor(player.percentage);
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <span class="player-name-clickable" data-player-index="${index}">${player.name}</span>${topPlayerBadge}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        ${player.presences} <span style="color: ${player.arrowColor};">${player.arrow}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${progressBarColor}" style="width: ${player.percentage}%">${player.percentage}%</div>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+
+                // Add click handler to player name
+                const nameElement = tr.querySelector('.player-name-clickable');
+                nameElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    openPlayerModal(player);
+                });
+            });
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', function() {
+            renderPlayers();
+
+            // Animate progress bars
+            setTimeout(() => {
+                const progressBars = document.querySelectorAll('.progress-bar');
+                progressBars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 300);
+        });
+    </script>
+</body>
+</html>
