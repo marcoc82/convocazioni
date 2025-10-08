@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V7.10 - Fixed Riepilogo Totale table: now correctly displays total convocations by calling loadAttendance after history is loaded -->
+<!-- Version: V9.27 - Hide jersey numbers in all summary tables (Riepilogo Totale, Amichevoli, Tornei, Campionato) -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -265,7 +265,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.26</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.27</span>
             </div>
         </div>
 
@@ -4642,9 +4642,12 @@
                         }
                     }
                     
+                    // V9.27: Display only player name without jersey number
+                    const playerNameOnly = player.name.replace(/^\d+\s*/, '').trim();
+                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${playerNameOnly}</td>
                         <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}${arrowIcon}</td>
                         <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.percentage}%</td>
                         ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>` : ''}
@@ -4856,9 +4859,12 @@
                             availabilityCell = `<td class="${cellPadding} whitespace-nowrap text-sm text-gray-500 text-center">${availabilityPercentage}${availabilityPercentage !== 'N/D' ? '%' : ''}</td>`;
                         }
                         
+                        // V9.27: Display only player name without jersey number
+                        const playerNameOnly = player.name.replace(/^\d+\s*/, '').trim();
+                        
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td class="${cellPadding} whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
+                            <td class="${cellPadding} whitespace-nowrap text-sm font-medium text-gray-900">${playerNameOnly}</td>
                             <td class="${cellPadding} whitespace-nowrap text-sm text-gray-500 text-center">${player.count}</td>
                             ${availabilityCell}
                         `;
