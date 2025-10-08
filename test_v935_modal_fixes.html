@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.35 - Modal Fixes Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .player-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .player-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .player-modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-out;
+        }
+
+        .player-modal.show .player-modal-content {
+            transform: scale(1);
+        }
+
+        .recent-callup {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: white;
+            border: 1px solid #e5e7eb;
+        }
+
+        .recent-callup.presente {
+            background: #f0fdf4;
+            border-color: #86efac;
+        }
+
+        .recent-callup.non-convocato {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .test-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .test-pass {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .test-fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .test-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-8 mb-6 text-white">
+            <h1 class="text-4xl font-bold mb-2">🧪 Test V9.35 - Modal Fixes</h1>
+            <p class="text-xl">Verifica correzioni finestra dettagli giocatore</p>
+            <div class="mt-4 text-sm opacity-90">
+                Test creato per verificare: close button ID fix, match type display, date formatting
+            </div>
+        </div>
+
+        <!-- Test Summary -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 Riepilogo Modifiche</h2>
+            <div class="space-y-3">
+                <div class="flex items-start">
+                    <span class="text-2xl mr-3">1️⃣</span>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Fix Duplicato ID close-modal</h3>
+                        <p class="text-sm text-gray-600">Rinominato il pulsante del status modal a "close-status-modal" per evitare conflitti</p>
+                        <span class="test-badge test-pass mt-2">✓ RISOLTO</span>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <span class="text-2xl mr-3">2️⃣</span>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Aggiunta Tipo Partita</h3>
+                        <p class="text-sm text-gray-600">Mostrato Campionato/Amichevole/Torneo sotto ogni convocazione con emoji</p>
+                        <span class="test-badge test-pass mt-2">✓ IMPLEMENTATO</span>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <span class="text-2xl mr-3">3️⃣</span>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Ordinamento Convocazioni</h3>
+                        <p class="text-sm text-gray-600">Ultime 5 convocazioni dalla più recente alla meno recente (già implementato)</p>
+                        <span class="test-badge test-pass mt-2">✓ VERIFICATO</span>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <span class="text-2xl mr-3">4️⃣</span>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Versioni Aggiornate</h3>
+                        <p class="text-sm text-gray-600">index.html: V9.34 → V9.35, manifest.json: V9.27 → V9.35</p>
+                        <span class="test-badge test-pass mt-2">✓ AGGIORNATO</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Test -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 Test Interattivo</h2>
+            <p class="text-gray-600 mb-4">Clicca sul pulsante per aprire il modal e verificare le correzioni:</p>
+            
+            <button onclick="openTestModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                🔍 Apri Modal Test
+            </button>
+
+            <div class="mt-6 space-y-3">
+                <h3 class="font-bold text-gray-800">Test da eseguire:</h3>
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="font-semibold text-blue-900 mb-2">✅ Test 1: Click sulla X</p>
+                    <p class="text-sm text-blue-800">Cliccare sul pulsante X in alto a destra → Il modal deve chiudersi</p>
+                </div>
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <p class="font-semibold text-purple-900 mb-2">✅ Test 2: Click fuori dal modal</p>
+                    <p class="text-sm text-purple-800">Cliccare sulla zona grigia (backdrop) → Il modal deve rimanere aperto</p>
+                </div>
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <p class="font-semibold text-green-900 mb-2">✅ Test 3: Verifica tipo partita</p>
+                    <p class="text-sm text-green-800">Verificare che sotto ogni convocazione sia mostrato il tipo con emoji (⚽️ Campionato, 🤝 Amichevole, 🏆 Torneo)</p>
+                </div>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p class="font-semibold text-yellow-900 mb-2">✅ Test 4: Verifica date</p>
+                    <p class="text-sm text-yellow-800">Verificare che le date siano in grassetto e in formato italiano (gg/mm/aaaa)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Changes -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">💻 Modifiche al Codice</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                    <h3 class="font-bold text-red-900 mb-2">Fix ID Duplicato (index.html, linea ~1494)</h3>
+                    <div class="font-mono text-xs bg-white p-3 rounded">
+                        <p class="text-red-600">- &lt;button id="close-modal" class="..."&gt;</p>
+                        <p class="text-green-600">+ &lt;button id="close-status-modal" class="..."&gt;</p>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                    <h3 class="font-bold text-blue-900 mb-2">Aggiunta Campo Tipo (index.html, linea ~4710)</h3>
+                    <div class="font-mono text-xs bg-white p-3 rounded">
+                        <p class="text-gray-800">const details = conv.details || {};</p>
+                        <p class="text-gray-800">const date = details.data || 'N/D';</p>
+                        <p class="text-gray-800">const opponent = details.avversario || 'N/D';</p>
+                        <p class="text-green-600">+ const tipo = details.tipo || 'N/D';</p>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 border-l-4 border-purple-500 p-4">
+                    <h3 class="font-bold text-purple-900 mb-2">Display Tipo con Emoji (index.html, linea ~4755)</h3>
+                    <div class="font-mono text-xs bg-white p-3 rounded overflow-x-auto">
+                        <p class="text-green-600">+ // Format match type with emoji</p>
+                        <p class="text-green-600">+ let tipoDisplay = '';</p>
+                        <p class="text-green-600">+ if (callup.tipo === 'Campionato') {</p>
+                        <p class="text-green-600">+     tipoDisplay = '⚽️ Campionato';</p>
+                        <p class="text-green-600">+ } else if (callup.tipo === 'Amichevole') {</p>
+                        <p class="text-green-600">+     tipoDisplay = '🤝 Amichevole';</p>
+                        <p class="text-green-600">+ } else if (callup.tipo === 'Torneo') {</p>
+                        <p class="text-green-600">+     tipoDisplay = '🏆 Torneo';</p>
+                        <p class="text-green-600">+ }</p>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                    <h3 class="font-bold text-green-900 mb-2">Versioni Aggiornate</h3>
+                    <div class="font-mono text-xs bg-white p-3 rounded">
+                        <p class="font-semibold mb-1">index.html (linea 2):</p>
+                        <p class="text-red-600">- &lt;!-- Version: V9.34 --&gt;</p>
+                        <p class="text-green-600">+ &lt;!-- Version: V9.35 --&gt;</p>
+                        <p class="font-semibold mt-2 mb-1">manifest.json (linea 4):</p>
+                        <p class="text-red-600">- "version": "V9.27",</p>
+                        <p class="text-green-600">+ "version": "V9.35",</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expected Results -->
+        <div class="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl shadow-lg p-6 text-white">
+            <h2 class="text-2xl font-bold mb-4">✅ Risultati Attesi</h2>
+            <div class="space-y-2">
+                <p>✓ Pulsante X chiude correttamente il modal sia su desktop che mobile</p>
+                <p>✓ Click sul backdrop NON chiude il modal (comportamento corretto)</p>
+                <p>✓ Ultime 5 convocazioni ordinate dalla più recente alla meno recente</p>
+                <p>✓ Data mostrata in grassetto e formato italiano (gg/mm/aaaa)</p>
+                <p>✓ Tipo partita mostrato sotto ogni convocazione con emoji appropriato</p>
+                <p>✓ Nessun conflitto di ID tra i vari modal dell'applicazione</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Modal -->
+    <div id="player-modal" class="player-modal">
+        <div class="player-modal-content">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800" id="modal-player-name">ROSSI MARIO</h2>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                    <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime 5 Convocazioni</h3>
+                    <div class="space-y-2" id="modal-callups"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample convocation data
+        const sampleCallups = [
+            {
+                date: '2024-03-15',
+                opponent: 'Inter FC',
+                tipo: 'Campionato',
+                status: 'presente'
+            },
+            {
+                date: '2024-03-08',
+                opponent: 'Milan AC',
+                tipo: 'Amichevole',
+                status: 'presente'
+            },
+            {
+                date: '2024-03-01',
+                opponent: 'Juventus',
+                tipo: 'Torneo',
+                status: 'non-convocato'
+            },
+            {
+                date: '2024-02-23',
+                opponent: 'Napoli',
+                tipo: 'Campionato',
+                status: 'presente'
+            },
+            {
+                date: '2024-02-16',
+                opponent: 'Roma',
+                tipo: 'Amichevole',
+                status: 'presente'
+            }
+        ];
+
+        function generateCallupsList(callups) {
+            if (callups.length === 0) {
+                return '<div class="text-xs text-gray-500">Nessun dato disponibile</div>';
+            }
+            return callups.map(callup => {
+                const icon = callup.status === 'presente' ? '✅' : '⚪';
+                
+                // Format date for better visibility
+                let formattedDate = callup.date;
+                try {
+                    // Try to parse and format the date in Italian format
+                    const dateParts = callup.date.split('-');
+                    if (dateParts.length === 3) {
+                        const dateObj = new Date(dateParts[0], parseInt(dateParts[1]) - 1, dateParts[2]);
+                        formattedDate = dateObj.toLocaleDateString('it-IT', { 
+                            day: '2-digit', 
+                            month: '2-digit',
+                            year: 'numeric'
+                        });
+                    }
+                } catch (e) {
+                    // If parsing fails, use the original date
+                    formattedDate = callup.date;
+                }
+                
+                // Format match type with emoji
+                let tipoDisplay = '';
+                if (callup.tipo === 'Campionato') {
+                    tipoDisplay = '⚽️ Campionato';
+                } else if (callup.tipo === 'Amichevole') {
+                    tipoDisplay = '🤝 Amichevole';
+                } else if (callup.tipo === 'Torneo') {
+                    tipoDisplay = '🏆 Torneo';
+                } else {
+                    tipoDisplay = callup.tipo;
+                }
+                
+                return `
+                    <div class="recent-callup ${callup.status}">
+                        <span>${icon}</span>
+                        <div class="flex flex-col">
+                            <span><strong>${formattedDate}</strong> vs ${callup.opponent}</span>
+                            <span class="text-xs text-gray-600 mt-1">${tipoDisplay}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openTestModal() {
+            const modal = document.getElementById('player-modal');
+            const modalCallups = document.getElementById('modal-callups');
+            
+            modalCallups.innerHTML = generateCallupsList(sampleCallups);
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            console.log('✅ Modal aperto - Test interattivo iniziato');
+        }
+
+        function closePlayerModal() {
+            const modal = document.getElementById('player-modal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+            console.log('✅ Modal chiuso con pulsante X');
+        }
+
+        // Event listener for close button
+        document.getElementById('close-modal').addEventListener('click', closePlayerModal);
+
+        // NO backdrop click listener - modal stays open when clicking outside
+        // This is the correct behavior as per requirements
+
+        console.log('✅ Test V9.35 caricato correttamente');
+        console.log('📋 Verifica che:');
+        console.log('  1. Click su X chiude il modal');
+        console.log('  2. Click fuori dal modal NON lo chiude');
+        console.log('  3. Tipo partita mostrato sotto ogni convocazione');
+        console.log('  4. Date in grassetto e formato italiano');
+    </script>
+</body>
+</html>
