@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.28 - Wow Effects Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* V9.28: Wow Effects - Progress bars, top player badge, count-up animation */
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            animation: progressFill 1.5s ease-out;
+        }
+        
+        @keyframes progressFill {
+            0% {
+                width: 0 !important;
+            }
+        }
+        
+        .progress-bar.high {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .progress-bar.medium {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        }
+        
+        .progress-bar.low {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        
+        .top-player-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #78350f;
+            box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            animation: badgePulse 2s ease-in-out infinite;
+            margin-left: 8px;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 8px rgba(251, 191, 36, 0.6);
+            }
+        }
+        
+        .count-up {
+            display: inline-block;
+            transition: all 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+            <h1 class="text-3xl font-bold text-center text-blue-600 mb-2">V9.28 - Wow Effects Test</h1>
+            <p class="text-center text-gray-600 mb-6">Test page for animated progress bars, top player badge, and count-up animation</p>
+            
+            <!-- Version Badge -->
+            <div class="text-center mb-4">
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.28</span>
+            </div>
+        </div>
+
+        <!-- Test 1: Count-up Animation -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Test 1: Count-up Animation</h2>
+            <p class="text-gray-600 mb-4">The total matches count should animate from 0 to the target value.</p>
+            
+            <div class="text-center mb-4">
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Riepilogo Convocazioni</h3>
+                <p class="text-center text-gray-600">
+                    Partite totali: <span id="total-matches-count" class="font-semibold count-up">0</span>
+                </p>
+            </div>
+            
+            <button id="animate-count" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors">
+                Animate Count to 25
+            </button>
+            
+            <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-sm text-green-800">✅ Expected: Number should smoothly count up from 0 to 25 over 1.5 seconds</p>
+            </div>
+        </div>
+
+        <!-- Test 2: Progress Bars -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Test 2: Animated Progress Bars</h2>
+            <p class="text-gray-600 mb-4">Progress bars should animate from 0% to their target width with different colors:</p>
+            
+            <div class="space-y-4">
+                <div>
+                    <p class="text-sm font-semibold mb-2">High Attendance (≥70%) - Green:</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar high" style="width: 85%">
+                            85%
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <p class="text-sm font-semibold mb-2">Medium Attendance (40-69%) - Yellow:</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar medium" style="width: 55%">
+                            55%
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <p class="text-sm font-semibold mb-2">Low Attendance (<40%) - Red:</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar low" style="width: 25%">
+                            25%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-sm text-green-800">✅ Expected: Bars should fill from left to right over 1.5 seconds with gradient colors</p>
+            </div>
+        </div>
+
+        <!-- Test 3: Top Player Badge -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Test 3: Top Player Badge</h2>
+            <p class="text-gray-600 mb-4">The top player should have an animated golden badge:</p>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Pres.</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Conv.</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                ROSSI MARIO<span class="top-player-badge">🏆 Top Player</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">18</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar high" style="width: 90%">90%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                BIANCHI LUIGI
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">15</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar high" style="width: 75%">75%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                VERDI GIUSEPPE
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">12</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar medium" style="width: 60%">60%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                NERI ANTONIO
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">7</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar low" style="width: 35%">35%</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-sm text-green-800">✅ Expected: Golden badge with trophy icon should pulse gently on the top player</p>
+            </div>
+        </div>
+
+        <!-- Test 4: Complete Example -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Test 4: Complete Integration Example</h2>
+            <p class="text-gray-600 mb-4">All effects combined as they appear in the real application:</p>
+            
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h3 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h3>
+                <p id="total-matches-display-2" class="text-center text-gray-600 mb-6">
+                    Partite totali: <span id="total-matches-count-2" class="font-semibold count-up">20</span>
+                </p>
+                
+                <h4 class="text-lg font-semibold text-gray-700 mb-3">📊 Riepilogo Totale</h4>
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Pres.</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Conv.</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    ROSSI MARIO<span class="top-player-badge">🏆 Top Player</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">15 <span style="color: green;">▲</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar high" style="width: 75%">75%</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">BIANCHI LUIGI</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">12 <span style="color: gray;">=</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar medium" style="width: 60%">60%</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">VERDI GIUSEPPE</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">10 <span style="color: gray;">=</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar medium" style="width: 50%">50%</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">NERI ANTONIO</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">6 <span style="color: red;">▼</span></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar low" style="width: 30%">30%</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-sm text-green-800 font-semibold mb-2">✅ Expected Behavior:</p>
+                <ul class="text-sm text-green-800 list-disc list-inside space-y-1">
+                    <li>Top player has golden badge with pulsing animation</li>
+                    <li>Progress bars animate from 0% to target width</li>
+                    <li>Colors change based on percentage (green/yellow/red)</li>
+                    <li>Ranking arrows show position changes</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 class="text-xl font-bold text-blue-800 mb-3">✅ V9.28 Implementation Summary</h3>
+            <div class="space-y-2 text-sm text-blue-800">
+                <p><strong>1. Progress Bars:</strong> Animated gradient bars with color coding (green ≥70%, yellow 40-69%, red <40%)</p>
+                <p><strong>2. Top Player Badge:</strong> Golden pulsing badge for the player with most presences</p>
+                <p><strong>3. Count-up Animation:</strong> Smooth number animation for total matches display</p>
+                <p><strong>4. Applied to:</strong> Both regular and demo modes in loadAttendance functions</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Count-up animation function
+        function animateCountUp(element, targetValue, duration = 1500) {
+            if (!element) return;
+            
+            const startValue = 0;
+            const startTime = performance.now();
+            
+            function updateCount(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function for smooth animation
+                const easeOutQuad = progress * (2 - progress);
+                const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOutQuad);
+                
+                element.textContent = currentValue;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCount);
+                } else {
+                    element.textContent = targetValue;
+                }
+            }
+            
+            requestAnimationFrame(updateCount);
+        }
+
+        // Test button for count-up animation
+        document.getElementById('animate-count').addEventListener('click', function() {
+            const element = document.getElementById('total-matches-count');
+            animateCountUp(element, 25);
+        });
+
+        // Animate progress bars on page load
+        window.addEventListener('load', function() {
+            const progressBars = document.querySelectorAll('.progress-bar');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>
