@@ -4648,7 +4648,9 @@
             // V9.30: Helper functions for modal player details
             function getPlayerTrend(playerName) {
                 // Analyze last 8 convocations to determine trend
-                const recentConvocations = convocationHistory.slice(-8);
+                // convocationHistory is sorted descending (most recent first)
+                // Reverse to get oldest to newest for trend analysis
+                const recentConvocations = convocationHistory.slice(0, 8).reverse();
                 const playerAppearances = [];
                 
                 recentConvocations.forEach(conv => {
@@ -4675,7 +4677,9 @@
             
             function getPlayerChartData(playerName) {
                 // Get last 8 convocations for chart
-                const recentConvocations = convocationHistory.slice(-8);
+                // convocationHistory is sorted descending (most recent first)
+                // Reverse to get oldest to newest for chart display
+                const recentConvocations = convocationHistory.slice(0, 8).reverse();
                 const chartData = [];
                 
                 recentConvocations.forEach(conv => {
