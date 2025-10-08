@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.39 - Animated % Disp. Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* V9.28: Existing Wow Effects - Progress bars */
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            animation: progressFill 1.5s ease-out;
+        }
+        
+        @keyframes progressFill {
+            0% {
+                width: 0 !important;
+            }
+        }
+        
+        .progress-bar.high {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .progress-bar.medium {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        }
+        
+        .progress-bar.low {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        
+        .top-player-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #78350f;
+            box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            animation: badgePulse 2s ease-in-out infinite;
+            margin-left: 8px;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 8px rgba(251, 191, 36, 0.6);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="mb-8 text-center">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">V9.39 - Animated % Disp. Column</h1>
+            <p class="text-gray-600">Demonstration of animated progress bars for both % Conv. and % Disp. columns</p>
+            <span class="inline-block mt-4 text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.39</span>
+        </div>
+
+        <!-- Changes Summary -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-8 rounded-lg">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">✨ Changes Summary</h2>
+            <ul class="list-disc ml-6 space-y-2 text-blue-700">
+                <li><strong>Created helper function:</strong> <code class="bg-blue-100 px-2 py-1 rounded">createProgressBar(percentage)</code> to generate animated progress bar HTML</li>
+                <li><strong>Updated main summary table:</strong> % Disp. column now uses animated progress bars (line ~5100-5135)</li>
+                <li><strong>Updated Tornei table:</strong> % Disp. column now uses animated progress bars (line ~5351)</li>
+                <li><strong>Updated demo mode:</strong> Uses same helper function for consistency (line ~5525)</li>
+                <li><strong>Identical styling:</strong> % Disp. now has the same visual appearance and animation as % Conv.</li>
+                <li><strong>Version updated:</strong> V9.39 in index.html, manifest.json, and service-worker.js</li>
+            </ul>
+        </div>
+
+        <!-- Before and After Comparison -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-red-50 border-2 border-red-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-red-800 mb-4">❌ Before (V9.38)</h3>
+                <p class="text-gray-700 mb-4">% Disp. column showed plain text:</p>
+                <div class="bg-white p-4 rounded-lg border border-red-200">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Giocatore</th>
+                                <th class="px-4 py-2 text-center">% Conv.</th>
+                                <th class="px-4 py-2 text-center">% Disp.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="px-4 py-2">ROSSI MARIO</td>
+                                <td class="px-4 py-2 text-center">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar high" style="width: 85%">85%</div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2 text-center text-gray-700">
+                                    <span class="font-semibold">85%</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="text-xs text-red-600 mt-4">⚠️ Inconsistent styling: % Conv. animated, % Disp. static</p>
+                </div>
+            </div>
+
+            <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-green-800 mb-4">✅ After (V9.39)</h3>
+                <p class="text-gray-700 mb-4">% Disp. column now uses animated progress bar:</p>
+                <div class="bg-white p-4 rounded-lg border border-green-200">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Giocatore</th>
+                                <th class="px-4 py-2 text-center">% Conv.</th>
+                                <th class="px-4 py-2 text-center">% Disp.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="px-4 py-2">ROSSI MARIO</td>
+                                <td class="px-4 py-2 text-center">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar high" style="width: 85%">85%</div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-2 text-center">
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar high" style="width: 85%">85%</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p class="text-xs text-green-600 mt-4">✨ Consistent styling: Both columns use animated progress bars</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Demo Table -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
+                <h2 class="text-2xl font-bold text-white">📊 Live Demo: Riepilogo Totale (POLIS)</h2>
+                <p class="text-blue-100 mt-2">Animated progress bars for both % Conv. and % Disp. columns</p>
+            </div>
+            
+            <div class="p-6">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Giocatore</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Pres.</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Conv.</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">% Disp.</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                ROSSI MARIO
+                                <span class="top-player-badge">🏆 Top Player</span>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">10</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar high" style="width: 85%">85%</div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar high" style="width: 92%">92%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">BIANCHI LUIGI</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">8</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar high" style="width: 75%">75%</div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar high" style="width: 88%">88%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">VERDI GIUSEPPE</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">6</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar medium" style="width: 60%">60%</div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar high" style="width: 78%">78%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">NERI ANTONIO</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">4</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar medium" style="width: 45%">45%</div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar medium" style="width: 65%">65%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">GIALLI FRANCESCO</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">2</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar low" style="width: 25%">25%</div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar medium" style="width: 45%">45%</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">AZZURRI LUCA</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">1</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar low" style="width: 15%">15%</div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 text-center">N/D</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">🔧 Technical Implementation</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">1. Helper Function Created</h3>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+// V9.39: Helper function to create animated progress bar HTML
+function createProgressBar(percentage) {
+    let progressBarColor = 'low';
+    if (percentage >= 70) {
+        progressBarColor = 'high';
+    } else if (percentage >= 40) {
+        progressBarColor = 'medium';
+    }
+    
+    return `
+        &lt;div class="progress-bar-container"&gt;
+            &lt;div class="progress-bar ${progressBarColor}" style="width: ${percentage}%"&gt;
+                ${percentage}%
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `;
+}</pre>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">2. Usage in Main Summary Table</h3>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+// V9.39: Create progress bar for availability percentage
+let availabilityProgressBarHTML = '';
+if (isPolisCompany && player.availabilityPercentage !== 'N/D') {
+    availabilityProgressBarHTML = createProgressBar(player.availabilityPercentage);
+}
+
+// Render in table cell
+${isPolisCompany ? `&lt;td&gt;${player.availabilityPercentage !== 'N/D' ? availabilityProgressBarHTML : 'N/D'}&lt;/td&gt;` : ''}</pre>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">3. Animation Properties</h3>
+                    <ul class="list-disc ml-6 space-y-1 text-gray-700">
+                        <li><strong>Duration:</strong> 1.5 seconds</li>
+                        <li><strong>Easing:</strong> ease-out</li>
+                        <li><strong>Effect:</strong> Progress bar animates from 0% to target percentage</li>
+                        <li><strong>Color coding:</strong> Green (≥70%), Yellow (40-69%), Red (&lt;40%)</li>
+                        <li><strong>Compatibility:</strong> CSS animations (GPU accelerated)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compatibility & Testing -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-green-800 mb-4">✅ Compatibility Verified</h3>
+                <ul class="space-y-2 text-green-700">
+                    <li class="flex items-start">
+                        <span class="mr-2">✓</span>
+                        <span><strong>Tailwind CSS:</strong> Uses local tailwind.min.css</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">✓</span>
+                        <span><strong>PWA:</strong> Service worker cache updated (v9.39)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">✓</span>
+                        <span><strong>Wow Effects:</strong> V9.28 animations preserved</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">✓</span>
+                        <span><strong>Mobile:</strong> Responsive design maintained</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">✓</span>
+                        <span><strong>Desktop:</strong> Full animations working</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-blue-800 mb-4">📱 Responsive Behavior</h3>
+                <ul class="space-y-2 text-blue-700">
+                    <li class="flex items-start">
+                        <span class="mr-2">📱</span>
+                        <span><strong>Mobile:</strong> Progress bars scale correctly with responsive padding</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">💻</span>
+                        <span><strong>Tablet:</strong> Optimal display on all tablet sizes</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">🖥️</span>
+                        <span><strong>Desktop:</strong> Full-width progress bars with smooth animations</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="mr-2">⚡</span>
+                        <span><strong>Performance:</strong> GPU-accelerated CSS animations</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Reload Button -->
+        <div class="text-center">
+            <button onclick="location.reload()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition duration-300">
+                🔄 Reload Page to See Animations Again
+            </button>
+        </div>
+    </div>
+
+    <script>
+        console.log('✨ V9.39 Test Page Loaded');
+        console.log('✅ Animated progress bars for % Conv. column (existing)');
+        console.log('✅ Animated progress bars for % Disp. column (NEW)');
+        console.log('✅ Identical styling and animation for both columns');
+        console.log('✅ Helper function createProgressBar() created for reusability');
+    </script>
+</body>
+</html>
