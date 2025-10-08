@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.34 - Modal player details: Verified X-button only close, last 5 convocations ordered by date with Italian formatting -->
+<!-- Version: V9.35 - Fixed modal close button ID collision, added match type display, verified last 5 convocations ordering -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -1491,7 +1491,7 @@
                     <button id="clear-status-button" class="w-full py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors duration-200">
                         Rendi Disponibile
                     </button>
-                    <button id="close-modal" class="w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
+                    <button id="close-status-modal" class="w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition-colors duration-200">
                         Annulla
                     </button>
                 </div>
@@ -2461,7 +2461,7 @@
             
             // Modal Elements
             const statusModal = document.getElementById('status-modal');
-            const closeModalButton = document.getElementById('close-modal');
+            const closeModalButton = document.getElementById('close-status-modal');
             const statusCheckboxes = statusModal.querySelectorAll('.status-checkbox');
             const confirmStatusButton = document.getElementById('confirm-status-button');
             const clearStatusButton = document.getElementById('clear-status-button');
@@ -4708,10 +4708,12 @@
                     const details = conv.details || {};
                     const date = details.data || 'N/D';
                     const opponent = details.avversario || 'N/D';
+                    const tipo = details.tipo || 'N/D';
                     
                     callups.push({
                         date: date.split(' ')[0] || date, // Get just the date part
                         opponent: opponent,
+                        tipo: tipo,
                         status: isPresent ? 'presente' : 'non-convocato'
                     });
                 });
@@ -4752,10 +4754,25 @@
                         formattedDate = callup.date;
                     }
                     
+                    // Format match type with emoji
+                    let tipoDisplay = '';
+                    if (callup.tipo === 'Campionato') {
+                        tipoDisplay = '⚽️ Campionato';
+                    } else if (callup.tipo === 'Amichevole') {
+                        tipoDisplay = '🤝 Amichevole';
+                    } else if (callup.tipo === 'Torneo') {
+                        tipoDisplay = '🏆 Torneo';
+                    } else {
+                        tipoDisplay = callup.tipo;
+                    }
+                    
                     return `
                         <div class="recent-callup ${callup.status}">
                             <span>${icon}</span>
-                            <span><strong>${formattedDate}</strong> vs ${callup.opponent}</span>
+                            <div class="flex flex-col">
+                                <span><strong>${formattedDate}</strong> vs ${callup.opponent}</span>
+                                <span class="text-xs text-gray-600 mt-1">${tipoDisplay}</span>
+                            </div>
                         </div>
                     `;
                 }).join('');
