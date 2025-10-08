@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.27 - Hide jersey numbers in all summary tables (Riepilogo Totale, Amichevoli, Tornei, Campionato) -->
+<!-- Version: V9.28 - Add wow effects: progress bars, top player badge, count-up animation -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -231,6 +231,78 @@
         
         .animate-slide-in-left {
             animation: slideInLeft 0.8s ease-out forwards;
+        }
+        
+        /* V9.28: Wow Effects - Progress bars, top player badge, count-up animation */
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            animation: progressFill 1.5s ease-out;
+        }
+        
+        @keyframes progressFill {
+            0% {
+                width: 0 !important;
+            }
+        }
+        
+        .progress-bar.high {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .progress-bar.medium {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+        }
+        
+        .progress-bar.low {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        
+        .top-player-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #78350f;
+            box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            animation: badgePulse 2s ease-in-out infinite;
+            margin-left: 8px;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 8px rgba(251, 191, 36, 0.6);
+            }
+        }
+        
+        .count-up {
+            display: inline-block;
+            transition: all 0.3s ease-out;
         }
     </style>
 </head>
@@ -4381,6 +4453,33 @@
                 }
             }
 
+            // V9.28: Count-up animation function for total matches
+            function animateCountUp(element, targetValue, duration = 1500) {
+                if (!element) return;
+                
+                const startValue = 0;
+                const startTime = performance.now();
+                
+                function updateCount(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    // Easing function for smooth animation
+                    const easeOutQuad = progress * (2 - progress);
+                    const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOutQuad);
+                    
+                    element.textContent = currentValue;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(updateCount);
+                    } else {
+                        element.textContent = targetValue;
+                    }
+                }
+                
+                requestAnimationFrame(updateCount);
+            }
+
             // Function to load and display attendance summary from Firestore
             async function loadAttendance(querySnapshot) {
                 console.log(`📊 [DIAGNOSTIC] loadAttendance chiamata, caricamento dati presenze...`);
@@ -4410,7 +4509,8 @@
                 const totalMatches = convocationHistory.length;
                 const totalMatchesCountElement = document.getElementById('total-matches-count');
                 if (totalMatchesCountElement) {
-                    totalMatchesCountElement.textContent = totalMatches;
+                    // V9.28: Use count-up animation instead of direct text update
+                    animateCountUp(totalMatchesCountElement, totalMatches);
                 }
                 console.log(`📊 [V7.2] Partite totali: ${totalMatches}`);
                 
@@ -4645,11 +4745,31 @@
                     // V9.27: Display only player name without jersey number
                     const playerNameOnly = player.name.replace(/^\d+\s*/, '').trim();
                     
+                    // V9.28: Determine if this is the top player (highest count)
+                    const isTopPlayer = index === 0 && player.count > 0;
+                    const topPlayerBadge = isTopPlayer ? '<span class="top-player-badge">🏆 Top Player</span>' : '';
+                    
+                    // V9.28: Create progress bar for percentage
+                    let progressBarColor = 'low';
+                    if (player.percentage >= 70) {
+                        progressBarColor = 'high';
+                    } else if (player.percentage >= 40) {
+                        progressBarColor = 'medium';
+                    }
+                    
+                    const progressBarHTML = `
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${progressBarColor}" style="width: ${player.percentage}%">
+                                ${player.percentage}%
+                            </div>
+                        </div>
+                    `;
+                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${playerNameOnly}</td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${playerNameOnly}${topPlayerBadge}</td>
                         <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}${arrowIcon}</td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.percentage}%</td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
                         ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>` : ''}
                     `;
                     attendanceList.appendChild(row);
@@ -4982,7 +5102,8 @@
                 const totalMatches = convocationHistory.length;
                 const totalMatchesCountElement = document.getElementById('total-matches-count');
                 if (totalMatchesCountElement) {
-                    totalMatchesCountElement.textContent = totalMatches;
+                    // V9.28: Use count-up animation instead of direct text update
+                    animateCountUp(totalMatchesCountElement, totalMatches);
                 }
                 console.log(`📊 [V7.2 Demo] Partite totali: ${totalMatches}`);
                 
@@ -5018,15 +5139,38 @@
                     };
                 }).sort((a, b) => b.count - a.count);
 
-                sortedPlayers.forEach(player => {
+                sortedPlayers.forEach((player, index) => {
                     // V7.4: Calculate percentage of convocation (rounded up to integer)
                     const percentage = totalMatches > 0 ? Math.ceil((player.count / totalMatches) * 100) : 0;
                     
+                    // V9.27: Display only player name without jersey number
+                    const playerNameOnly = player.name.replace(/^\d+\s*/, '').trim();
+                    
+                    // V9.28: Determine if this is the top player (highest count)
+                    const isTopPlayer = index === 0 && player.count > 0;
+                    const topPlayerBadge = isTopPlayer ? '<span class="top-player-badge">🏆 Top Player</span>' : '';
+                    
+                    // V9.28: Create progress bar for percentage
+                    let progressBarColor = 'low';
+                    if (percentage >= 70) {
+                        progressBarColor = 'high';
+                    } else if (percentage >= 40) {
+                        progressBarColor = 'medium';
+                    }
+                    
+                    const progressBarHTML = `
+                        <div class="progress-bar-container">
+                            <div class="progress-bar ${progressBarColor}" style="width: ${percentage}%">
+                                ${percentage}%
+                            </div>
+                        </div>
+                    `;
+                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${player.name}</td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${playerNameOnly}${topPlayerBadge}</td>
                         <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count} <span class="text-xs text-blue-600">(Demo)</span></td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${percentage}%</td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
                         ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">N/D</td>` : ''}
                     `;
                     attendanceList.appendChild(row);
