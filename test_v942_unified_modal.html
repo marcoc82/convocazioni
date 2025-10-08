@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.42 - Unified Player Modal Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            margin: 0;
+        }
+        
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .test-section h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        
+        .test-button {
+            padding: 15px 30px;
+            margin: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .test-button:hover {
+            background: #5568d3;
+        }
+        
+        .feature-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #10b981;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        /* Modal Styles */
+        .player-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .player-modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .player-modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 1000px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        @media (min-width: 768px) {
+            .md\:grid-cols-3 {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+        
+        .p-6 {
+            padding: 1.5rem;
+        }
+        
+        .p-4 {
+            padding: 1rem;
+        }
+        
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+        
+        .mb-3 {
+            margin-bottom: 0.75rem;
+        }
+        
+        .mt-4 {
+            margin-top: 1rem;
+        }
+        
+        .pb-4 {
+            padding-bottom: 1rem;
+        }
+        
+        .pb-2 {
+            padding-bottom: 0.5rem;
+        }
+        
+        .flex {
+            display: flex;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .items-center {
+            align-items: center;
+        }
+        
+        .border-b {
+            border-bottom-width: 1px;
+        }
+        
+        .border-gray-200 {
+            border-color: #e5e7eb;
+        }
+        
+        .border-gray-300 {
+            border-color: #d1d5db;
+        }
+        
+        .text-2xl {
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+        
+        .text-lg {
+            font-size: 1.125rem;
+            line-height: 1.75rem;
+        }
+        
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+        
+        .text-3xl {
+            font-size: 1.875rem;
+            line-height: 2.25rem;
+        }
+        
+        .font-bold {
+            font-weight: 700;
+        }
+        
+        .text-gray-800 {
+            color: #1f2937;
+        }
+        
+        .text-gray-600 {
+            color: #4b5563;
+        }
+        
+        .text-blue-600 {
+            color: #2563eb;
+        }
+        
+        .text-green-600 {
+            color: #16a34a;
+        }
+        
+        .bg-gradient-to-br {
+            background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+        }
+        
+        .from-blue-50 {
+            --tw-gradient-from: #eff6ff;
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(239, 246, 255, 0));
+        }
+        
+        .to-blue-100 {
+            --tw-gradient-to: #dbeafe;
+        }
+        
+        .from-green-50 {
+            --tw-gradient-from: #f0fdf4;
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(240, 253, 244, 0));
+        }
+        
+        .to-green-100 {
+            --tw-gradient-to: #dcfce7;
+        }
+        
+        .from-purple-50 {
+            --tw-gradient-from: #faf5ff;
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0));
+        }
+        
+        .to-purple-100 {
+            --tw-gradient-to: #f3e8ff;
+        }
+        
+        .rounded-lg {
+            border-radius: 0.5rem;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .close-btn {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: #9ca3af;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close-btn:hover {
+            color: #4b5563;
+        }
+        
+        .space-y-2 > * + * {
+            margin-top: 0.5rem;
+        }
+        
+        .recent-callup {
+            padding: 0.5rem;
+            background: white;
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 V9.42 Unified Player Modal Test</h1>
+            <p>Testing modals that show BOTH convocazioni and allenamenti data</p>
+            <div>
+                <span class="feature-badge">✅ Convocazioni Stats</span>
+                <span class="feature-badge">✅ Allenamenti Stats</span>
+                <span class="feature-badge">✅ Unified View</span>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>✨ What's New in V9.42</h2>
+            <ul>
+                <li><strong>Player Modal (from Convocazioni)</strong> now shows BOTH convocazioni AND allenamenti data</li>
+                <li><strong>Training Modal (from Allenamenti)</strong> now shows BOTH allenamenti AND convocazioni data</li>
+                <li>Each modal displays complete player statistics in organized sections</li>
+                <li>No more separate views - one click shows everything</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Test the Modals</h2>
+            <button class="test-button" onclick="openPlayerModal()">Open Player Modal (from Riepilogo Convocazioni)</button>
+            <button class="test-button" onclick="openTrainingModal()">Open Training Modal (from Allenamenti)</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Modal Contents</h2>
+            <h3>Player Modal (from Convocazioni) includes:</h3>
+            <ul>
+                <li>⚽ <strong>Convocazioni Section:</strong> Stats, Trend, Chart (last 8 matches), Recent callups (last 5)</li>
+                <li>🏃 <strong>Allenamenti Section:</strong> Stats, Trend, Chart (last 8 trainings), Recent sessions (last 5)</li>
+            </ul>
+            
+            <h3>Training Modal (from Allenamenti) includes:</h3>
+            <ul>
+                <li>🏃 <strong>Allenamenti Section:</strong> Stats, Trend, Chart (last 8 trainings), Recent sessions (last 5)</li>
+                <li>⚽ <strong>Convocazioni Section:</strong> Stats, Trend, Chart (last 8 matches), Recent callups (last 5)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Player Modal (from Convocazioni) -->
+    <div id="player-modal" class="player-modal">
+        <div class="player-modal-content">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800">ROSSI MARIO</h2>
+                    <button onclick="closePlayerModal()" class="close-btn">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Convocazioni Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">⚽ Convocazioni</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h4>
+                            <div class="text-center">
+                                <p class="text-3xl font-bold text-blue-600">15/20</p>
+                                <p class="text-sm text-gray-600">Convocazioni Totali</p>
+                                <p class="text-2xl font-bold text-green-600 mt-2">75%</p>
+                                <p class="text-sm text-gray-600">Percentuale Convocazioni</p>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📈 Trend</h4>
+                            <div class="text-center">
+                                <span style="font-size: 48px;">📈</span>
+                                <p class="font-bold text-green-600">Positivo</p>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime 5 Convocazioni</h4>
+                            <div class="space-y-2">
+                                <div class="recent-callup">✅ <strong>10/01/2025</strong> vs Team A</div>
+                                <div class="recent-callup">✅ <strong>03/01/2025</strong> vs Team B</div>
+                                <div class="recent-callup">⚪ <strong>20/12/2024</strong> vs Team C</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Allenamenti Section -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">🏃 Allenamenti</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h4>
+                            <div class="text-center">
+                                <p class="text-3xl font-bold text-blue-600">28/35</p>
+                                <p class="text-sm text-gray-600">Presenze Totali</p>
+                                <p class="text-2xl font-bold text-green-600 mt-2">80%</p>
+                                <p class="text-sm text-gray-600">Percentuale Presenza</p>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📈 Trend Presenze</h4>
+                            <div class="text-center">
+                                <span style="font-size: 48px;">📈</span>
+                                <p class="font-bold text-green-600">Positivo</p>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultimi 5 Allenamenti</h4>
+                            <div class="space-y-2">
+                                <div class="recent-callup">✅ <strong>08/01/2025</strong> Presente</div>
+                                <div class="recent-callup">✅ <strong>06/01/2025</strong> Presente</div>
+                                <div class="recent-callup">❌ <strong>03/01/2025</strong> Assente</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Training Modal (from Allenamenti) -->
+    <div id="training-modal" class="player-modal">
+        <div class="player-modal-content">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800">BIANCHI LUCA</h2>
+                    <button onclick="closeTrainingModal()" class="close-btn">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Allenamenti Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">🏃 Allenamenti</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h4>
+                            <div class="text-center">
+                                <p class="text-3xl font-bold text-blue-600">30/35</p>
+                                <p class="text-sm text-gray-600">Presenze Totali</p>
+                                <p class="text-2xl font-bold text-green-600 mt-2">86%</p>
+                                <p class="text-sm text-gray-600">Percentuale Presenza</p>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📈 Trend Presenze</h4>
+                            <div class="text-center">
+                                <span style="font-size: 48px;">📈</span>
+                                <p class="font-bold text-green-600">Positivo</p>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultimi 5 Allenamenti</h4>
+                            <div class="space-y-2">
+                                <div class="recent-callup">✅ <strong>08/01/2025</strong> Presente</div>
+                                <div class="recent-callup">✅ <strong>06/01/2025</strong> Presente</div>
+                                <div class="recent-callup">✅ <strong>03/01/2025</strong> Presente</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Convocazioni Section -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">⚽ Convocazioni</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h4>
+                            <div class="text-center">
+                                <p class="text-3xl font-bold text-blue-600">18/20</p>
+                                <p class="text-sm text-gray-600">Convocazioni Totali</p>
+                                <p class="text-2xl font-bold text-green-600 mt-2">90%</p>
+                                <p class="text-sm text-gray-600">Percentuale Convocazioni</p>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📈 Trend</h4>
+                            <div class="text-center">
+                                <span style="font-size: 48px;">📈</span>
+                                <p class="font-bold text-green-600">Positivo</p>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime 5 Convocazioni</h4>
+                            <div class="space-y-2">
+                                <div class="recent-callup">✅ <strong>10/01/2025</strong> vs Team A</div>
+                                <div class="recent-callup">✅ <strong>03/01/2025</strong> vs Team B</div>
+                                <div class="recent-callup">✅ <strong>20/12/2024</strong> vs Team C</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openPlayerModal() {
+            const modal = document.getElementById('player-modal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePlayerModal() {
+            const modal = document.getElementById('player-modal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        function openTrainingModal() {
+            const modal = document.getElementById('training-modal');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTrainingModal() {
+            const modal = document.getElementById('training-modal');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    </script>
+</body>
+</html>

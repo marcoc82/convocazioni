@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.42 - Progress Bar Width Animation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            margin: 0;
+        }
+        
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .test-section h2 {
+            color: #333;
+            margin-top: 0;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 30px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .progress-bar.high {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .progress-bar.medium {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+        
+        .progress-bar.low {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        
+        .player-row {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .player-name {
+            width: 200px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .player-stats {
+            flex: 1;
+        }
+        
+        .reload-btn {
+            display: block;
+            margin: 30px auto;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .reload-btn:hover {
+            background: #5568d3;
+        }
+        
+        .feature-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #10b981;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 V9.42 Progress Bar Animation Test</h1>
+            <p>Testing progress bar WIDTH animation (not just numbers)</p>
+            <div>
+                <span class="feature-badge">✅ Width Animates</span>
+                <span class="feature-badge">✅ Number Animates</span>
+                <span class="feature-badge">✅ Smooth Transitions</span>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>✨ What's New in V9.42</h2>
+            <ul>
+                <li><strong>Progress bars now animate their WIDTH</strong> from 0% to target (not just the number)</li>
+                <li>Bars start at 0% width and smoothly expand to their target width</li>
+                <li>Numbers simultaneously count up from 0 to target value</li>
+                <li>1.5 second animation with ease-out easing for smooth effect</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Test Cases</h2>
+            
+            <div class="player-row">
+                <div class="player-name">ROSSI MARIO</div>
+                <div class="player-stats">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar high" style="width: 0%" data-target-width="85">
+                            <span class="progress-bar-text" data-target="85">0</span>%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-row">
+                <div class="player-name">BIANCHI LUCA</div>
+                <div class="player-stats">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar high" style="width: 0%" data-target-width="73">
+                            <span class="progress-bar-text" data-target="73">0</span>%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-row">
+                <div class="player-name">VERDI GIUSEPPE</div>
+                <div class="player-stats">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar medium" style="width: 0%" data-target-width="55">
+                            <span class="progress-bar-text" data-target="55">0</span>%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-row">
+                <div class="player-name">NERI ANTONIO</div>
+                <div class="player-stats">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar low" style="width: 0%" data-target-width="25">
+                            <span class="progress-bar-text" data-target="25">0</span>%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Technical Details</h2>
+            <ul>
+                <li><strong>Initial State:</strong> All bars start with <code>style="width: 0%"</code></li>
+                <li><strong>Target Width:</strong> Stored in <code>data-target-width</code> attribute</li>
+                <li><strong>Animation:</strong> JavaScript sets width after render using <code>requestAnimationFrame</code></li>
+                <li><strong>CSS Transition:</strong> <code>transition: width 1.5s ease-out</code> creates smooth animation</li>
+                <li><strong>Number Animation:</strong> Counts from 0 to target using <code>animateCountUp()</code></li>
+            </ul>
+        </div>
+
+        <button class="reload-btn" onclick="location.reload()">🔄 Reload to See Animation Again</button>
+    </div>
+
+    <script>
+        function animateCountUp(element, targetValue, duration = 1500, suffix = '') {
+            if (!element) return;
+            
+            const startValue = 0;
+            const startTime = performance.now();
+            
+            function updateCount(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const easeOutQuad = progress * (2 - progress);
+                const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOutQuad);
+                
+                element.textContent = currentValue + suffix;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCount);
+                } else {
+                    element.textContent = targetValue + suffix;
+                }
+            }
+            
+            requestAnimationFrame(updateCount);
+        }
+
+        function animateProgressBarTexts() {
+            const progressBarTexts = document.querySelectorAll('.progress-bar-text');
+            progressBarTexts.forEach(textElement => {
+                const targetValue = parseInt(textElement.getAttribute('data-target'));
+                if (!isNaN(targetValue)) {
+                    animateCountUp(textElement, targetValue, 1500);
+                }
+            });
+            
+            // Animate progress bar widths
+            const progressBars = document.querySelectorAll('.progress-bar[data-target-width]');
+            progressBars.forEach(bar => {
+                const targetWidth = parseInt(bar.getAttribute('data-target-width'));
+                if (!isNaN(targetWidth)) {
+                    // Use requestAnimationFrame to ensure the initial 0% is rendered first
+                    requestAnimationFrame(() => {
+                        bar.style.width = targetWidth + '%';
+                    });
+                }
+            });
+        }
+
+        // Trigger animations on page load
+        window.addEventListener('load', function() {
+            console.log('✨ V9.42 Test Page Loaded');
+            console.log('🎯 Starting progress bar width and number animations...');
+            
+            setTimeout(() => {
+                animateProgressBarTexts();
+                console.log('✅ Animations triggered!');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
