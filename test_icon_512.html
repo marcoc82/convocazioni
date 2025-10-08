@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Icon 512x512</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e293b;
+            border-bottom: 3px solid #0f172a;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        .icon-display {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .icon-box {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .icon-box img {
+            display: block;
+            margin: 10px auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+        }
+        .icon-label {
+            font-weight: bold;
+            color: #334155;
+            margin-bottom: 10px;
+        }
+        .success {
+            color: #16a34a;
+            font-weight: bold;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Test Icon 512x512 - Rosterkick</h1>
+        
+        <div class="test-section">
+            <h2>📋 Task Completato</h2>
+            <p class="success">✓ Generata versione 512x512 dell'icona</p>
+            <p class="success">✓ Salvata come icon-512.png in /convocazioni/</p>
+            <p class="success">✓ Aggiornato index.html con riferimento alla nuova icona</p>
+            <p class="success">✓ Aggiornato manifest.json per usare icon-512.png</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🖼️ Visualizzazione Icone</h2>
+            <div class="icon-display">
+                <div class="icon-box">
+                    <div class="icon-label">192x192 (esistente)</div>
+                    <img src="favicon-192x192.png" width="192" height="192" alt="Icon 192x192">
+                    <small>favicon-192x192.png</small>
+                </div>
+                <div class="icon-box">
+                    <div class="icon-label">512x512 (NUOVO)</div>
+                    <img src="icon-512.png" width="192" height="192" alt="Icon 512x512" style="width: 192px; height: 192px;">
+                    <small>icon-512.png</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📄 Modifiche a index.html</h2>
+            <p>Aggiunta nuova riga nella sezione <code>&lt;head&gt;</code>:</p>
+            <div class="code-block">
+&lt;link rel="icon" type="image/png" sizes="512x512" href="icon-512.png"&gt;
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📄 Modifiche a manifest.json</h2>
+            <p>Aggiornato l'array icons:</p>
+            <div class="code-block">
+"icons": [
+  {
+    "src": "favicon-192x192.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  },
+  {
+    "src": "icon-512.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }
+]
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Dettagli Tecnici</h2>
+            <ul>
+                <li><strong>File sorgente:</strong> logo Rosterkick.png (500x500)</li>
+                <li><strong>File generato:</strong> icon-512.png (512x512)</li>
+                <li><strong>Metodo:</strong> Ridimensionamento con PIL/Pillow usando LANCZOS resampling</li>
+                <li><strong>Formato:</strong> PNG con ottimizzazione</li>
+                <li><strong>Dimensione file:</strong> ~255KB</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>✅ Verifica PWA</h2>
+            <p>Per verificare che l'icona funzioni correttamente nella PWA:</p>
+            <ol>
+                <li>Apri l'app in Chrome/Edge</li>
+                <li>Premi F12 per aprire DevTools</li>
+                <li>Vai su <strong>Application</strong> → <strong>Manifest</strong></li>
+                <li>Verifica che icon-512.png appaia nella lista delle icone</li>
+                <li>Controlla che la dimensione 512x512 sia corretta</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>📱 Test Installazione PWA</h2>
+            <p>L'icona 512x512 viene utilizzata per:</p>
+            <ul>
+                <li>🎨 Splash screen all'avvio dell'app PWA</li>
+                <li>📱 Icona dell'app su Android/iOS (alta risoluzione)</li>
+                <li>🖥️ Icona dell'app installata su desktop</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Test che l'immagine esista e sia caricabile
+        const img = new Image();
+        img.onload = function() {
+            console.log('✅ Icon-512.png caricata con successo');
+            console.log('Dimensioni:', this.width, 'x', this.height);
+        };
+        img.onerror = function() {
+            console.error('❌ Errore nel caricamento di icon-512.png');
+        };
+        img.src = 'icon-512.png';
+    </script>
+</body>
+</html>
