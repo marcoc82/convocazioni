@@ -1900,7 +1900,7 @@
 
                     <!-- Recent Callups Section -->
                     <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
-                        <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime Convocazioni</h3>
+                        <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime 5 Convocazioni</h3>
                         <div class="space-y-2" id="modal-callups"></div>
                     </div>
                 </div>
@@ -4694,8 +4694,8 @@
             }
             
             function getRecentCallups(playerName) {
-                // Get last 3 convocations with details
-                const recentConvocations = convocationHistory.slice(-3).reverse();
+                // Get last 5 convocations with details
+                const recentConvocations = convocationHistory.slice(-5).reverse();
                 const callups = [];
                 
                 recentConvocations.forEach(conv => {
@@ -4733,10 +4733,29 @@
                 }
                 return callups.map(callup => {
                     const icon = callup.status === 'presente' ? '✅' : '⚪';
+                    
+                    // Format date for better visibility
+                    let formattedDate = callup.date;
+                    try {
+                        // Try to parse and format the date in Italian format
+                        const dateParts = callup.date.split('-');
+                        if (dateParts.length === 3) {
+                            const dateObj = new Date(dateParts[0], parseInt(dateParts[1]) - 1, dateParts[2]);
+                            formattedDate = dateObj.toLocaleDateString('it-IT', { 
+                                day: '2-digit', 
+                                month: '2-digit',
+                                year: 'numeric'
+                            });
+                        }
+                    } catch (e) {
+                        // If parsing fails, use the original date
+                        formattedDate = callup.date;
+                    }
+                    
                     return `
                         <div class="recent-callup ${callup.status}">
                             <span>${icon}</span>
-                            <span>${callup.date} vs ${callup.opponent}</span>
+                            <span><strong>${formattedDate}</strong> vs ${callup.opponent}</span>
                         </div>
                     `;
                 }).join('');
