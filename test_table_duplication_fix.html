@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test: Fix Duplicazione Tabella Riepilogo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">🔧 Test: Fix Duplicazione Tabella Riepilogo</h1>
+            <p class="text-gray-600 mb-4">
+                Questo test verifica che il fix per la duplicazione delle righe nella tabella riepilogo funzioni correttamente.
+            </p>
+        </div>
+
+        <!-- Problem Description -->
+        <div class="bg-red-50 border-2 border-red-200 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-red-900 mb-3">❌ Problema Originale</h2>
+            <p class="text-gray-700 mb-3">
+                La funzione <code class="bg-red-100 px-2 py-1 rounded">loadAttendance()</code> chiamava 
+                <code class="bg-red-100 px-2 py-1 rounded">updateAttendanceTables()</code> alla fine, 
+                causando duplicazioni quando entrambe le funzioni venivano chiamate in sequenza.
+            </p>
+            <div class="bg-white p-4 rounded border border-red-300">
+                <h3 class="font-semibold mb-2">Codice PRIMA del fix:</h3>
+                <pre class="text-sm bg-gray-50 p-3 rounded overflow-x-auto"><code>async function loadAttendance(querySnapshot) {
+    attendanceList.innerHTML = ''; // ✅ Svuota la tabella
+    
+    // ... popola la tabella totale ...
+    
+    // ❌ PROBLEMA: chiama updateAttendanceTables()
+    updateAttendanceTables();
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Solution Description -->
+        <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-green-900 mb-3">✅ Soluzione Implementata</h2>
+            <p class="text-gray-700 mb-3">
+                Rimossa la chiamata a <code class="bg-green-100 px-2 py-1 rounded">updateAttendanceTables()</code> 
+                da entrambe le funzioni <code class="bg-green-100 px-2 py-1 rounded">loadAttendance()</code> e 
+                <code class="bg-green-100 px-2 py-1 rounded">loadAttendanceDemo()</code>.
+            </p>
+            <div class="bg-white p-4 rounded border border-green-300 mb-4">
+                <h3 class="font-semibold mb-2">Codice DOPO il fix:</h3>
+                <pre class="text-sm bg-gray-50 p-3 rounded overflow-x-auto"><code>async function loadAttendance(querySnapshot) {
+    attendanceList.innerHTML = ''; // ✅ Svuota la tabella
+    
+    // ... popola la tabella totale ...
+    
+    // ✅ CORRETTO: NON chiama più updateAttendanceTables()
+}</code></pre>
+            </div>
+            <div class="bg-white p-4 rounded border border-green-300">
+                <h3 class="font-semibold mb-2">Button Handler DOPO il fix:</h3>
+                <pre class="text-sm bg-gray-50 p-3 rounded overflow-x-auto"><code>attendanceButton.addEventListener('click', () => {
+    // ... setup code ...
+    
+    ensureConvocationHistoryLoaded().then(() => {
+        // ✅ NUOVO: Popola la tabella totale
+        loadAttendance(null);
+        // ✅ Popola le tabelle filtrate
+        updateAttendanceTables();
+    });
+});</code></pre>
+            </div>
+        </div>
+
+        <!-- Interactive Test -->
+        <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-blue-900 mb-4">🧪 Test Interattivo</h2>
+            <p class="text-gray-700 mb-4">
+                Clicca i pulsanti per simulare il comportamento prima e dopo il fix:
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Before Fix -->
+                <div>
+                    <h3 class="text-lg font-semibold text-red-700 mb-3">❌ PRIMA del Fix</h3>
+                    <button id="btn-before" class="w-full bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 mb-3">
+                        Carica Riepilogo (PRIMA)
+                    </button>
+                    <div class="bg-white rounded-lg border border-gray-300 p-4">
+                        <h4 class="font-semibold mb-2">Tabella Totale:</h4>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-2 py-2 text-left">Giocatore</th>
+                                    <th class="px-2 py-2 text-center">Presenze</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-before" class="divide-y">
+                                <!-- Rows will be added here -->
+                            </tbody>
+                        </table>
+                        <p id="count-before" class="text-xs text-gray-500 mt-2">Righe: 0</p>
+                    </div>
+                </div>
+
+                <!-- After Fix -->
+                <div>
+                    <h3 class="text-lg font-semibold text-green-700 mb-3">✅ DOPO il Fix</h3>
+                    <button id="btn-after" class="w-full bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 mb-3">
+                        Carica Riepilogo (DOPO)
+                    </button>
+                    <div class="bg-white rounded-lg border border-gray-300 p-4">
+                        <h4 class="font-semibold mb-2">Tabella Totale:</h4>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-2 py-2 text-left">Giocatore</th>
+                                    <th class="px-2 py-2 text-center">Presenze</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-after" class="divide-y">
+                                <!-- Rows will be added here -->
+                            </tbody>
+                        </table>
+                        <p id="count-after" class="text-xs text-gray-500 mt-2">Righe: 0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div class="bg-purple-50 border-2 border-purple-200 rounded-lg p-6">
+            <h2 class="text-xl font-bold text-purple-900 mb-3">📊 Risultati Attesi</h2>
+            <ul class="space-y-2 text-gray-700">
+                <li class="flex items-start">
+                    <span class="text-red-600 mr-2">❌</span>
+                    <span><strong>PRIMA:</strong> Ogni click aggiunge nuove righe duplicate alla tabella (il contatore aumenta)</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-600 mr-2">✅</span>
+                    <span><strong>DOPO:</strong> Ogni click sostituisce le righe esistenti, mantenendo sempre lo stesso numero di righe</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Dati di test
+        const testPlayers = [
+            { name: '10 ROSSI MARIO', count: 15 },
+            { name: '7 BIANCHI LUIGI', count: 12 },
+            { name: '3 VERDI GIUSEPPE', count: 10 }
+        ];
+
+        // Simula il comportamento PRIMA del fix (con duplicazione)
+        document.getElementById('btn-before').addEventListener('click', () => {
+            const table = document.getElementById('table-before');
+            
+            // ❌ PROBLEMA: NON svuota la tabella prima di popolarla
+            // table.innerHTML = ''; // Questa riga è commentata per simulare il bug
+            
+            // Aggiunge le righe (causando duplicazione)
+            testPlayers.forEach(player => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-2 py-2">${player.name}</td>
+                    <td class="px-2 py-2 text-center text-red-600 font-bold">${player.count}</td>
+                `;
+                table.appendChild(row);
+            });
+            
+            // Aggiorna contatore
+            const rowCount = table.children.length;
+            document.getElementById('count-before').textContent = `Righe: ${rowCount} ${rowCount > testPlayers.length ? '⚠️ DUPLICATE!' : ''}`;
+        });
+
+        // Simula il comportamento DOPO il fix (senza duplicazione)
+        document.getElementById('btn-after').addEventListener('click', () => {
+            const table = document.getElementById('table-after');
+            
+            // ✅ CORRETTO: Svuota la tabella prima di popolarla
+            table.innerHTML = '';
+            
+            // Aggiunge le righe (nessuna duplicazione)
+            testPlayers.forEach(player => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-2 py-2">${player.name}</td>
+                    <td class="px-2 py-2 text-center text-green-600 font-bold">${player.count}</td>
+                `;
+                table.appendChild(row);
+            });
+            
+            // Aggiorna contatore
+            const rowCount = table.children.length;
+            document.getElementById('count-after').textContent = `Righe: ${rowCount} ✅ CORRETTO`;
+        });
+    </script>
+</body>
+</html>
