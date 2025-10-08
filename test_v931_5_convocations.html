@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.31 - Last 5 Convocations Modal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* V9.30: Modal Styling */
+        .player-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .player-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
+        .player-modal-content {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-out;
+        }
+
+        .player-modal.show .player-modal-content {
+            transform: scale(1);
+        }
+
+        /* Recent callups list */
+        .recent-callup {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid;
+            font-size: 0.75rem;
+        }
+
+        .recent-callup.presente {
+            border-color: #10b981;
+        }
+
+        .recent-callup.non-convocato {
+            border-color: #9ca3af;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Test V9.31 - Last 5 Convocations</h1>
+            <p class="text-gray-600">Testing the updated modal logic to show the last 5 convocations instead of 3</p>
+        </div>
+
+        <!-- Test Description -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-blue-800 mb-3">✅ Test Requirements</h2>
+            <ul class="text-sm text-blue-800 list-disc list-inside space-y-2">
+                <li><strong>Show last 5 convocations:</strong> Modal should display up to 5 recent convocations</li>
+                <li><strong>Order:</strong> Most recent to least recent (already implemented via reverse())</li>
+                <li><strong>Date visibility:</strong> Date should be bold and clearly formatted (dd/mm/yyyy)</li>
+                <li><strong>Handle fewer than 5:</strong> If player has fewer than 5 convocations, show only available ones</li>
+                <li><strong>Maintain effects:</strong> All existing wow effects should remain functional</li>
+            </ul>
+        </div>
+
+        <!-- Test Scenarios -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Test Scenarios</h2>
+            
+            <div class="space-y-4">
+                <!-- Scenario 1: Player with 5+ convocations -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2">Scenario 1: Player with 7 convocations</h3>
+                    <button onclick="testPlayer1()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        Open Modal - ROSSI MARIO (7 convocations)
+                    </button>
+                    <p class="text-sm text-gray-600 mt-2">Expected: Show last 5 convocations (most recent: 15/01/2024)</p>
+                </div>
+
+                <!-- Scenario 2: Player with exactly 5 convocations -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2">Scenario 2: Player with 5 convocations</h3>
+                    <button onclick="testPlayer2()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        Open Modal - VERDI GIUSEPPE (5 convocations)
+                    </button>
+                    <p class="text-sm text-gray-600 mt-2">Expected: Show all 5 convocations</p>
+                </div>
+
+                <!-- Scenario 3: Player with fewer than 5 convocations -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2">Scenario 3: Player with 3 convocations</h3>
+                    <button onclick="testPlayer3()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        Open Modal - BIANCHI LUCA (3 convocations)
+                    </button>
+                    <p class="text-sm text-gray-600 mt-2">Expected: Show only 3 convocations available</p>
+                </div>
+
+                <!-- Scenario 4: Player with 1 convocation -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2">Scenario 4: Player with 1 convocation</h3>
+                    <button onclick="testPlayer4()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        Open Modal - NERI ANTONIO (1 convocation)
+                    </button>
+                    <p class="text-sm text-gray-600 mt-2">Expected: Show only 1 convocation</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expected Results -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+            <h2 class="text-xl font-bold text-green-800 mb-3">✅ Expected Results</h2>
+            <ul class="text-sm text-green-800 list-disc list-inside space-y-2">
+                <li>Modal header shows "🗓️ Ultime 5 Convocazioni"</li>
+                <li>Maximum of 5 convocations displayed</li>
+                <li>Dates are <strong>bold</strong> and in format dd/mm/yyyy</li>
+                <li>Convocations ordered from most recent to oldest</li>
+                <li>✅ icon for "presente", ⚪ icon for "non-convocato"</li>
+                <li>Players with fewer than 5 convocations show only available ones</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Player Details Modal -->
+    <div id="player-modal" class="player-modal">
+        <div class="player-modal-content">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800" id="modal-player-name">Player Name</h2>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                    <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime 5 Convocazioni</h3>
+                    <div class="space-y-2" id="modal-callups"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock convocation history
+        const convocationHistory = [
+            // Older convocations
+            { details: { data: '2023-10-01', avversario: 'Team A' }, players: ['ROSSI MARIO', 'VERDI GIUSEPPE', 'BIANCHI LUCA'] },
+            { details: { data: '2023-10-08', avversario: 'Team B' }, players: ['ROSSI MARIO', 'VERDI GIUSEPPE'] },
+            { details: { data: '2023-10-15', avversario: 'Team C' }, players: ['ROSSI MARIO', 'VERDI GIUSEPPE', 'BIANCHI LUCA'] },
+            { details: { data: '2023-11-05', avversario: 'Team D' }, players: ['ROSSI MARIO', 'VERDI GIUSEPPE', 'BIANCHI LUCA'] },
+            { details: { data: '2023-11-12', avversario: 'Team E' }, players: ['ROSSI MARIO', 'VERDI GIUSEPPE', 'NERI ANTONIO'] },
+            { details: { data: '2023-12-03', avversario: 'Team F' }, players: ['ROSSI MARIO', 'VERDI GIUSEPPE'] },
+            { details: { data: '2024-01-08', avversario: 'Team G' }, players: ['ROSSI MARIO'] },
+            { details: { data: '2024-01-15', avversario: 'Team H' }, players: ['ROSSI MARIO'] },
+        ];
+
+        const playerModal = document.getElementById('player-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const modalPlayerName = document.getElementById('modal-player-name');
+        const modalCallups = document.getElementById('modal-callups');
+
+        // UPDATED FUNCTION: Get last 5 convocations
+        function getRecentCallups(playerName) {
+            // Get last 5 convocations with details
+            const recentConvocations = convocationHistory.slice(-5).reverse();
+            const callups = [];
+            
+            recentConvocations.forEach(conv => {
+                const players = conv.players || [];
+                const isPresent = players.some(p => {
+                    const pName = typeof p === 'string' ? p : `${p.numero} ${p.nome}`;
+                    return pName.includes(playerName);
+                });
+                
+                const details = conv.details || {};
+                const date = details.data || 'N/D';
+                const opponent = details.avversario || 'N/D';
+                
+                callups.push({
+                    date: date.split(' ')[0] || date, // Get just the date part
+                    opponent: opponent,
+                    status: isPresent ? 'presente' : 'non-convocato'
+                });
+            });
+            
+            return callups;
+        }
+
+        // UPDATED FUNCTION: Generate callups list with better date formatting
+        function generateCallupsList(callups) {
+            if (callups.length === 0) {
+                return '<div class="text-xs text-gray-500">Nessun dato disponibile</div>';
+            }
+            return callups.map(callup => {
+                const icon = callup.status === 'presente' ? '✅' : '⚪';
+                
+                // Format date for better visibility
+                let formattedDate = callup.date;
+                try {
+                    // Try to parse and format the date in Italian format
+                    const dateParts = callup.date.split('-');
+                    if (dateParts.length === 3) {
+                        const dateObj = new Date(dateParts[0], parseInt(dateParts[1]) - 1, dateParts[2]);
+                        formattedDate = dateObj.toLocaleDateString('it-IT', { 
+                            day: '2-digit', 
+                            month: '2-digit',
+                            year: 'numeric'
+                        });
+                    }
+                } catch (e) {
+                    // If parsing fails, use the original date
+                    formattedDate = callup.date;
+                }
+                
+                return `
+                    <div class="recent-callup ${callup.status}">
+                        <span>${icon}</span>
+                        <span><strong>${formattedDate}</strong> vs ${callup.opponent}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openPlayerModal(playerName, callups) {
+            modalPlayerName.textContent = playerName;
+            modalCallups.innerHTML = generateCallupsList(callups);
+            playerModal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePlayerModal() {
+            playerModal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        closeModalBtn.addEventListener('click', closePlayerModal);
+
+        // Test functions
+        function testPlayer1() {
+            // Player with 7 convocations - should show last 5
+            const callups = getRecentCallups('ROSSI MARIO');
+            console.log('ROSSI MARIO - Total convocations in history:', 
+                convocationHistory.filter(c => c.players.includes('ROSSI MARIO')).length);
+            console.log('ROSSI MARIO - Showing last 5:', callups);
+            openPlayerModal('ROSSI MARIO', callups);
+        }
+
+        function testPlayer2() {
+            // Player with exactly 5 convocations
+            const callups = getRecentCallups('VERDI GIUSEPPE');
+            console.log('VERDI GIUSEPPE - Total convocations in history:', 
+                convocationHistory.filter(c => c.players.includes('VERDI GIUSEPPE')).length);
+            console.log('VERDI GIUSEPPE - Showing all 5:', callups);
+            openPlayerModal('VERDI GIUSEPPE', callups);
+        }
+
+        function testPlayer3() {
+            // Player with 3 convocations
+            const callups = getRecentCallups('BIANCHI LUCA');
+            console.log('BIANCHI LUCA - Total convocations in history:', 
+                convocationHistory.filter(c => c.players.includes('BIANCHI LUCA')).length);
+            console.log('BIANCHI LUCA - Showing all 3:', callups);
+            openPlayerModal('BIANCHI LUCA', callups);
+        }
+
+        function testPlayer4() {
+            // Player with 1 convocation
+            const callups = getRecentCallups('NERI ANTONIO');
+            console.log('NERI ANTONIO - Total convocations in history:', 
+                convocationHistory.filter(c => c.players.includes('NERI ANTONIO')).length);
+            console.log('NERI ANTONIO - Showing only 1:', callups);
+            openPlayerModal('NERI ANTONIO', callups);
+        }
+    </script>
+</body>
+</html>
