@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- Version: V9.41 - Added animations and modal to Allenamenti report -->
-<!-- V9.41 Changes:
-     1. Added numeric + progress bar animations to % Pres. in Allenamenti report
-     2. Added TOP PLAYER badge to Allenamenti report (player with highest presences)
-     3. Made player names clickable in Allenamenti to open modal with training statistics
-     Previous: V9.40 - Added numeric counter animation to progress bars for % Disp. and % Conv. columns -->
+<!-- Version: V9.42 - Enhanced animations and unified player modals -->
+<!-- V9.42 Changes:
+     1. Fixed progress bar width animation: bars now animate from 0% to target width (not just number)
+     2. Unified player modals: both modals now show ALL statistics (convocazioni + allenamenti)
+     3. Added animation to Media Presenze Totale in Allenamenti page
+     Previous: V9.41 - Added animations and modal to Allenamenti report -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -1893,24 +1893,55 @@
                     </button>
                 </div>
 
-                <!-- Content Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Trend Section -->
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
-                        <h3 class="text-sm font-bold text-gray-800 mb-3">📈 Trend delle Convocazioni</h3>
-                        <div id="modal-trend"></div>
-                    </div>
+                <!-- Convocazioni Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">⚽ Convocazioni</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Stats Section -->
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h4>
+                            <div id="modal-conv-stats"></div>
+                        </div>
+                        
+                        <!-- Trend Section -->
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📈 Trend</h4>
+                            <div id="modal-trend"></div>
+                            <h4 class="text-sm font-bold text-gray-800 mb-3 mt-4">📊 Ultime 8 Partite</h4>
+                            <div class="mini-chart" id="modal-chart"></div>
+                        </div>
 
-                    <!-- Chart Section -->
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
-                        <h3 class="text-sm font-bold text-gray-800 mb-3">📊 Ultime 8 Partite</h3>
-                        <div class="mini-chart" id="modal-chart"></div>
+                        <!-- Recent Callups Section -->
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime 5 Convocazioni</h4>
+                            <div class="space-y-2" id="modal-callups"></div>
+                        </div>
                     </div>
+                </div>
 
-                    <!-- Recent Callups Section -->
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
-                        <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime 5 Convocazioni</h3>
-                        <div class="space-y-2" id="modal-callups"></div>
+                <!-- Allenamenti Section -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">🏃 Allenamenti</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Training Stats Section -->
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h4>
+                            <div id="modal-training-stats-in-player"></div>
+                        </div>
+
+                        <!-- Training Trend Section -->
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📈 Trend Presenze</h4>
+                            <div id="modal-training-trend-in-player"></div>
+                            <h4 class="text-sm font-bold text-gray-800 mb-3 mt-4">📊 Ultimi 8 Allenamenti</h4>
+                            <div class="mini-chart" id="modal-training-chart-in-player"></div>
+                        </div>
+
+                        <!-- Recent Training Sessions Section -->
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultimi 5 Allenamenti</h4>
+                            <div class="space-y-2" id="modal-training-sessions-in-player"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1931,26 +1962,55 @@
                     </button>
                 </div>
 
-                <!-- Content Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Stats Section -->
-                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
-                        <h3 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h3>
-                        <div id="modal-training-stats"></div>
-                    </div>
+                <!-- Allenamenti Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">🏃 Allenamenti</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Stats Section -->
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h4>
+                            <div id="modal-training-stats"></div>
+                        </div>
 
-                    <!-- Trend Section -->
-                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
-                        <h3 class="text-sm font-bold text-gray-800 mb-3">📈 Trend Presenze</h3>
-                        <div id="modal-training-trend"></div>
-                        <h3 class="text-sm font-bold text-gray-800 mb-3 mt-4">📊 Ultimi 8 Allenamenti</h3>
-                        <div class="mini-chart" id="modal-training-chart"></div>
-                    </div>
+                        <!-- Trend Section -->
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📈 Trend Presenze</h4>
+                            <div id="modal-training-trend"></div>
+                            <h4 class="text-sm font-bold text-gray-800 mb-3 mt-4">📊 Ultimi 8 Allenamenti</h4>
+                            <div class="mini-chart" id="modal-training-chart"></div>
+                        </div>
 
-                    <!-- Recent Sessions Section -->
-                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
-                        <h3 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultimi 5 Allenamenti</h3>
-                        <div class="space-y-2" id="modal-training-sessions"></div>
+                        <!-- Recent Sessions Section -->
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultimi 5 Allenamenti</h4>
+                            <div class="space-y-2" id="modal-training-sessions"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Convocazioni Section -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b border-gray-300 pb-2">⚽ Convocazioni</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Convocazioni Stats Section -->
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📊 Statistiche</h4>
+                            <div id="modal-conv-stats-in-training"></div>
+                        </div>
+                        
+                        <!-- Convocazioni Trend Section -->
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">📈 Trend</h4>
+                            <div id="modal-conv-trend-in-training"></div>
+                            <h4 class="text-sm font-bold text-gray-800 mb-3 mt-4">📊 Ultime 8 Partite</h4>
+                            <div class="mini-chart" id="modal-conv-chart-in-training"></div>
+                        </div>
+
+                        <!-- Recent Callups Section -->
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+                            <h4 class="text-sm font-bold text-gray-800 mb-3">🗓️ Ultime 5 Convocazioni</h4>
+                            <div class="space-y-2" id="modal-conv-callups-in-training"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4668,7 +4728,7 @@
             }
 
             // V9.28: Count-up animation function for total matches
-            function animateCountUp(element, targetValue, duration = 1500) {
+            function animateCountUp(element, targetValue, duration = 1500, suffix = '') {
                 if (!element) return;
                 
                 const startValue = 0;
@@ -4682,12 +4742,12 @@
                     const easeOutQuad = progress * (2 - progress);
                     const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOutQuad);
                     
-                    element.textContent = currentValue;
+                    element.textContent = currentValue + suffix;
                     
                     if (progress < 1) {
                         requestAnimationFrame(updateCount);
                     } else {
-                        element.textContent = targetValue;
+                        element.textContent = targetValue + suffix;
                     }
                 }
                 
@@ -4705,20 +4765,32 @@
                 
                 return `
                     <div class="progress-bar-container">
-                        <div class="progress-bar ${progressBarColor}" style="width: ${percentage}%">
+                        <div class="progress-bar ${progressBarColor}" style="width: 0%" data-target-width="${percentage}">
                             <span class="progress-bar-text" data-target="${percentage}">0</span>%
                         </div>
                     </div>
                 `;
             }
             
-            // V9.40: Animate all progress bar percentage texts
+            // V9.40: Animate all progress bar percentage texts and widths
             function animateProgressBarTexts() {
                 const progressBarTexts = document.querySelectorAll('.progress-bar-text');
                 progressBarTexts.forEach(textElement => {
                     const targetValue = parseInt(textElement.getAttribute('data-target'));
                     if (!isNaN(targetValue)) {
                         animateCountUp(textElement, targetValue, 1500);
+                    }
+                });
+                
+                // Animate progress bar widths
+                const progressBars = document.querySelectorAll('.progress-bar[data-target-width]');
+                progressBars.forEach(bar => {
+                    const targetWidth = parseInt(bar.getAttribute('data-target-width'));
+                    if (!isNaN(targetWidth)) {
+                        // Use requestAnimationFrame to ensure the initial 0% is rendered first
+                        requestAnimationFrame(() => {
+                            bar.style.width = targetWidth + '%';
+                        });
                     }
                 });
             }
@@ -4965,10 +5037,37 @@
             const modalTrainingChart = document.getElementById('modal-training-chart');
             const modalTrainingSessions = document.getElementById('modal-training-sessions');
             
+            // Helper function to generate convocazioni stats HTML
+            function generateConvocazioniStats(playerName) {
+                // Calculate convocazioni stats
+                const totalMatches = convocationHistory.length;
+                let playerConvocations = 0;
+                
+                convocationHistory.forEach(conv => {
+                    const players = conv.players || [];
+                    const isPresent = players.some(p => {
+                        const pName = typeof p === 'string' ? p : `${p.numero} ${p.nome}`;
+                        return pName.includes(playerName);
+                    });
+                    if (isPresent) playerConvocations++;
+                });
+                
+                const convPercentage = totalMatches > 0 ? Math.round((playerConvocations / totalMatches) * 100) : 0;
+                
+                return `
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-blue-600">${playerConvocations}/${totalMatches}</p>
+                        <p class="text-sm text-gray-600">Convocazioni Totali</p>
+                        <p class="text-2xl font-bold text-green-600 mt-2">${convPercentage}%</p>
+                        <p class="text-sm text-gray-600">Percentuale Convocazioni</p>
+                    </div>
+                `;
+            }
+            
             function openTrainingModal(playerName, trainingData) {
                 modalTrainingPlayerName.textContent = playerName;
                 
-                // Display stats
+                // Display training stats
                 modalTrainingStats.innerHTML = `
                     <div class="text-center">
                         <p class="text-3xl font-bold text-blue-600">${trainingData.presences}/${trainingData.totalSessions}</p>
@@ -4981,6 +5080,28 @@
                 modalTrainingTrend.innerHTML = getTrendBadge(trainingData.trend);
                 modalTrainingChart.innerHTML = generateMiniChart(trainingData.chartData);
                 modalTrainingSessions.innerHTML = generateTrainingList(trainingData.recentSessions);
+                
+                // Add convocazioni data to training modal
+                const modalConvStatsInTraining = document.getElementById('modal-conv-stats-in-training');
+                const modalConvTrendInTraining = document.getElementById('modal-conv-trend-in-training');
+                const modalConvChartInTraining = document.getElementById('modal-conv-chart-in-training');
+                const modalConvCallupsInTraining = document.getElementById('modal-conv-callups-in-training');
+                
+                if (modalConvStatsInTraining) {
+                    modalConvStatsInTraining.innerHTML = generateConvocazioniStats(playerName);
+                }
+                if (modalConvTrendInTraining) {
+                    const trend = getPlayerTrend(playerName);
+                    modalConvTrendInTraining.innerHTML = getTrendBadge(trend);
+                }
+                if (modalConvChartInTraining) {
+                    const chartData = getPlayerChartData(playerName);
+                    modalConvChartInTraining.innerHTML = generateMiniChart(chartData);
+                }
+                if (modalConvCallupsInTraining) {
+                    const recentCallups = getRecentCallups(playerName);
+                    modalConvCallupsInTraining.innerHTML = generateCallupsList(recentCallups);
+                }
                 
                 trainingModal.classList.add('show');
                 document.body.style.overflow = 'hidden';
@@ -5006,9 +5127,44 @@
             
             function openPlayerModal(playerName, trend, chartData, recentCallups) {
                 modalPlayerName.textContent = playerName;
+                
+                // Display convocazioni data
+                const modalConvStats = document.getElementById('modal-conv-stats');
+                if (modalConvStats) {
+                    modalConvStats.innerHTML = generateConvocazioniStats(playerName);
+                }
+                
                 modalTrend.innerHTML = getTrendBadge(trend);
                 modalChart.innerHTML = generateMiniChart(chartData);
                 modalCallups.innerHTML = generateCallupsList(recentCallups);
+                
+                // Add training data to player modal
+                const modalTrainingStatsInPlayer = document.getElementById('modal-training-stats-in-player');
+                const modalTrainingTrendInPlayer = document.getElementById('modal-training-trend-in-player');
+                const modalTrainingChartInPlayer = document.getElementById('modal-training-chart-in-player');
+                const modalTrainingSessionsInPlayer = document.getElementById('modal-training-sessions-in-player');
+                
+                if (modalTrainingStatsInPlayer) {
+                    const trainingData = getPlayerTrainingData(playerName);
+                    modalTrainingStatsInPlayer.innerHTML = `
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-blue-600">${trainingData.presences}/${trainingData.totalSessions}</p>
+                            <p class="text-sm text-gray-600">Presenze Totali</p>
+                            <p class="text-2xl font-bold text-green-600 mt-2">${trainingData.percentage}%</p>
+                            <p class="text-sm text-gray-600">Percentuale Presenza</p>
+                        </div>
+                    `;
+                    
+                    if (modalTrainingTrendInPlayer) {
+                        modalTrainingTrendInPlayer.innerHTML = getTrendBadge(trainingData.trend);
+                    }
+                    if (modalTrainingChartInPlayer) {
+                        modalTrainingChartInPlayer.innerHTML = generateMiniChart(trainingData.chartData);
+                    }
+                    if (modalTrainingSessionsInPlayer) {
+                        modalTrainingSessionsInPlayer.innerHTML = generateTrainingList(trainingData.recentSessions);
+                    }
+                }
                 
                 playerModal.classList.add('show');
                 document.body.style.overflow = 'hidden';
@@ -8142,7 +8298,8 @@
                 
                 const averageDisplay = document.getElementById('average-attendance-value');
                 if (averageDisplay) {
-                    averageDisplay.textContent = `${averagePercentage}%`;
+                    // Animate the average percentage value with % suffix
+                    animateCountUp(averageDisplay, averagePercentage, 1500, '%');
                 }
                 
                 // V9.41: Animate progress bar percentage texts in training report
