@@ -4778,6 +4778,12 @@
                 populateAttendanceTable(attendanceListCampionato, playersToShow, campionatoData, 'Campionato', null, null);
                 
                 console.log(`📊 [DIAGNOSTIC] Tabelle presenze filtrate aggiornate`);
+                
+                // Hide loading spinner and show content - Always hide spinner when tables are ready
+                const loadingElement = document.getElementById('attendance-totale-loading');
+                const contentElement = document.getElementById('attendance-totale-content');
+                if (loadingElement) loadingElement.classList.add('hidden');
+                if (contentElement) contentElement.classList.remove('hidden');
             }
 
             // Helper function to populate a specific attendance table
