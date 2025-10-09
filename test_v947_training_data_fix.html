@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.47 - Training Data Aggregation Fix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+        
+        .highlight-before {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 4px;
+        }
+        
+        .highlight-after {
+            background: #f0fdf4;
+            border-left: 4px solid #10b981;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 4px;
+        }
+        
+        .recent-callup {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            border-left: 3px solid;
+            margin: 4px 0;
+        }
+        
+        .recent-callup.presente {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        
+        .recent-callup.assente {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 16px 0;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <div class="test-card">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">🏃‍♂️ Test V9.47 - Training Data Aggregation Fix</h1>
+            <p class="text-gray-600 mb-2">
+                <strong>Issue Fixed:</strong> Training attendance count now correctly includes only sessions where the player is explicitly tracked.
+            </p>
+            <p class="text-gray-600">
+                <strong>Date:</strong> January 2025 | <strong>Version:</strong> V9.47
+            </p>
+        </div>
+
+        <!-- Problem Statement -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-red-600">❌ Problem (Before V9.47)</h2>
+            <div class="highlight-before">
+                <p class="font-semibold mb-2">Issue Description:</p>
+                <ul class="list-disc ml-6 space-y-2 text-gray-700">
+                    <li><strong>Incorrect Session Count:</strong> The function counted ALL training sessions in the system for a player, even sessions created before the player joined the team</li>
+                    <li><strong>Inflated Totals:</strong> If a player joined after 10 sessions were created, they would show "0/10" (0%) even if they attended all sessions since joining</li>
+                    <li><strong>Wrong Percentage:</strong> The percentage calculation was based on incorrect totals</li>
+                    <li><strong>Example:</strong> Player joined after 15 sessions, attended 8 out of 10 sessions since joining → showed "8/25" (32%) instead of "8/10" (80%)</li>
+                </ul>
+            </div>
+            
+            <div class="code-block">
+// ❌ BEFORE: Counted all sessions regardless of player tracking
+function getPlayerTrainingData(playerName) {
+    const playerSessions = [];
+    
+    trainingSessions.forEach(session => {
+        const attendance = session.attendance || {};
+        const isPresent = attendance[playerName] === true;
+        
+        // Problem: This adds EVERY session, even if player wasn't tracked
+        playerSessions.push({
+            date: session.date,
+            status: isPresent ? 'presente' : 'assente'
+        });
+    });
+    
+    // Result: Incorrect totals and percentages
+    const totalSessions = playerSessions.length; // TOO HIGH!
+    const presences = playerSessions.filter(s => s.status === 'presente').length;
+    const percentage = totalSessions > 0 ? Math.round((presences / totalSessions) * 100) : 0;
+    // ...
+}
+            </div>
+        </div>
+
+        <!-- Solution -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-green-600">✅ Solution (V9.47)</h2>
+            <div class="highlight-after">
+                <p class="font-semibold mb-2">Fix Implementation:</p>
+                <ul class="list-disc ml-6 space-y-2 text-gray-700">
+                    <li><strong>Filter Sessions:</strong> Only count sessions where the player is explicitly tracked in the attendance object</li>
+                    <li><strong>Check Existence:</strong> Use <code>playerName in attendance</code> to verify player was tracked</li>
+                    <li><strong>Accurate Counts:</strong> Total sessions now reflects only sessions the player was part of</li>
+                    <li><strong>Correct Percentage:</strong> Percentage now shows true attendance rate (e.g., 8/10 = 80%)</li>
+                    <li><strong>Improved Icons:</strong> Use explicit green ✓ and red ✗ with color styling</li>
+                </ul>
+            </div>
+            
+            <div class="code-block">
+// ✅ AFTER: Only counts sessions where player is tracked
+function getPlayerTrainingData(playerName) {
+    const playerSessions = [];
+    
+    trainingSessions.forEach(session => {
+        const attendance = session.attendance || {};
+        
+        // V9.47: Only count sessions where player is explicitly tracked
+        // Skip sessions where player wasn't part of the team yet
+        if (!(playerName in attendance)) {
+            return; // Player not tracked in this session
+        }
+        
+        const isPresent = attendance[playerName] === true;
+        
+        playerSessions.push({
+            date: session.date,
+            status: isPresent ? 'presente' : 'assente'
+        });
+    });
+    
+    // Result: Correct totals and percentages!
+    const totalSessions = playerSessions.length; // ACCURATE!
+    const presences = playerSessions.filter(s => s.status === 'presente').length;
+    const percentage = totalSessions > 0 ? Math.round((presences / totalSessions) * 100) : 0;
+    // ...
+}
+            </div>
+        </div>
+
+        <!-- Icon Improvements -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-indigo-600">🎨 Icon Display Improvements</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-semibold mb-3 text-gray-700">Before:</h3>
+                    <div class="space-y-2">
+                        <div class="p-3 bg-gray-100 rounded border">
+                            <span style="font-size: 1.5rem;">✅</span> Emoji checkmark (green by default)
+                        </div>
+                        <div class="p-3 bg-gray-100 rounded border">
+                            <span style="font-size: 1.5rem;">❌</span> Emoji cross mark (red by default)
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-3">
+                        Used emoji characters, which might display differently across devices/browsers
+                    </p>
+                </div>
+                <div>
+                    <h3 class="font-semibold mb-3 text-gray-700">After (V9.47):</h3>
+                    <div class="space-y-2">
+                        <div class="p-3 bg-gray-100 rounded border">
+                            <span style="color: #10b981; font-weight: bold; font-size: 1.5rem;">✓</span> Styled checkmark (explicit green)
+                        </div>
+                        <div class="p-3 bg-gray-100 rounded border">
+                            <span style="color: #ef4444; font-weight: bold; font-size: 1.5rem;">✗</span> Styled X mark (explicit red)
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-3">
+                        Uses Unicode characters with explicit color styling (#10b981 green, #ef4444 red) for consistency
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Example Scenario -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-purple-600">📊 Example Scenario</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Before -->
+                <div>
+                    <h3 class="font-bold text-red-600 mb-3">❌ Before Fix (Incorrect)</h3>
+                    <div class="stat-box" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                        <div class="stat-label">Presenze Totali</div>
+                        <div class="stat-number">8/25</div>
+                        <div class="stat-label">Percentuale Presenza</div>
+                        <div class="stat-number">32%</div>
+                    </div>
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mt-4">
+                        <p class="text-sm text-gray-700"><strong>Scenario:</strong></p>
+                        <ul class="text-xs text-gray-600 mt-2 space-y-1">
+                            <li>• Total sessions in system: 25</li>
+                            <li>• Player joined after session 15</li>
+                            <li>• Sessions player was tracked: 10</li>
+                            <li>• Player attended: 8</li>
+                            <li>• <strong class="text-red-600">Bug: Shows 8/25 (32%)</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- After -->
+                <div>
+                    <h3 class="font-bold text-green-600 mb-3">✅ After Fix (Correct)</h3>
+                    <div class="stat-box" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <div class="stat-label">Presenze Totali</div>
+                        <div class="stat-number">8/10</div>
+                        <div class="stat-label">Percentuale Presenza</div>
+                        <div class="stat-number">80%</div>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mt-4">
+                        <p class="text-sm text-gray-700"><strong>Scenario:</strong></p>
+                        <ul class="text-xs text-gray-600 mt-2 space-y-1">
+                            <li>• Total sessions in system: 25</li>
+                            <li>• Player joined after session 15</li>
+                            <li>• Sessions player was tracked: 10</li>
+                            <li>• Player attended: 8</li>
+                            <li>• <strong class="text-green-600">Fix: Shows 8/10 (80%)</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session List Display -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-blue-600">📋 Ultimi 5 Allenamenti Display</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Sample with both present and absent -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-gray-700">Example: Mixed Attendance</h3>
+                    <div class="bg-white border rounded-lg p-4">
+                        <div class="recent-callup presente">
+                            <span style="color: #10b981; font-weight: bold; font-size: 1.2rem;">✓</span>
+                            <div class="flex flex-col">
+                                <span><strong>08/01/2025</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">Presente</span>
+                            </div>
+                        </div>
+                        <div class="recent-callup presente">
+                            <span style="color: #10b981; font-weight: bold; font-size: 1.2rem;">✓</span>
+                            <div class="flex flex-col">
+                                <span><strong>06/01/2025</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">Presente</span>
+                            </div>
+                        </div>
+                        <div class="recent-callup assente">
+                            <span style="color: #ef4444; font-weight: bold; font-size: 1.2rem;">✗</span>
+                            <div class="flex flex-col">
+                                <span><strong>03/01/2025</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">Assente</span>
+                            </div>
+                        </div>
+                        <div class="recent-callup presente">
+                            <span style="color: #10b981; font-weight: bold; font-size: 1.2rem;">✓</span>
+                            <div class="flex flex-col">
+                                <span><strong>30/12/2024</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">Presente</span>
+                            </div>
+                        </div>
+                        <div class="recent-callup assente">
+                            <span style="color: #ef4444; font-weight: bold; font-size: 1.2rem;">✗</span>
+                            <div class="flex flex-col">
+                                <span><strong>27/12/2024</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">Assente</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-600 mt-3">
+                        ✅ Shows both presences (green ✓) and absences (red ✗) clearly
+                    </p>
+                </div>
+
+                <!-- Sample with all present -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-gray-700">Example: Perfect Attendance</h3>
+                    <div class="bg-white border rounded-lg p-4">
+                        <div class="recent-callup presente">
+                            <span style="color: #10b981; font-weight: bold; font-size: 1.2rem;">✓</span>
+                            <div class="flex flex-col">
+                                <span><strong>08/01/2025</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">Presente</span>
+                            </div>
+                        </div>
+                        <div class="recent-callup presente">
+                            <span style="color: #10b981; font-weight: bold; font-size: 1.2rem;">✓</span>
+                            <div class="flex flex-col">
+                                <span><strong>06/01/2025</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">Presente</span>
+                            </div>
+                        </div>
+                        <div class="recent-callup presente">
+                            <span style="color: #10b981; font-weight: bold; font-size: 1.2rem;">✓</span>
+                            <div class="flex flex-col">
+                                <span><strong>03/01/2025</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">Presente</span>
+                            </div>
+                        </div>
+                        <div class="recent-callup presente">
+                            <span style="color: #10b981; font-weight: bold; font-size: 1.2rem;">✓</span>
+                            <div class="flex flex-col">
+                                <span><strong>30/12/2024</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">Presente</span>
+                            </div>
+                        </div>
+                        <div class="recent-callup presente">
+                            <span style="color: #10b981; font-weight: bold; font-size: 1.2rem;">✓</span>
+                            <div class="flex flex-col">
+                                <span><strong>27/12/2024</strong></span>
+                                <span class="text-xs text-gray-600 mt-1">Presente</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-600 mt-3">
+                        ✅ All green checkmarks for perfect attendance
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">🔧 Technical Changes</h2>
+            <div class="space-y-4">
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <h3 class="font-bold text-blue-800 mb-2">1. Session Filtering</h3>
+                    <p class="text-sm text-gray-700 mb-2">
+                        Added check to verify player exists in attendance object before counting:
+                    </p>
+                    <div class="code-block">
+if (!(playerName in attendance)) {
+    return; // Player not tracked in this session
+}
+                    </div>
+                </div>
+
+                <div class="border-l-4 border-green-500 pl-4">
+                    <h3 class="font-bold text-green-800 mb-2">2. Icon Styling</h3>
+                    <p class="text-sm text-gray-700 mb-2">
+                        Changed from emoji to styled Unicode characters:
+                    </p>
+                    <div class="code-block">
+// Before: const icon = session.status === 'presente' ? '✅' : '❌';
+// After:
+const icon = session.status === 'presente' 
+    ? '<span style="color: #10b981; font-weight: bold;">✓</span>' 
+    : '<span style="color: #ef4444; font-weight: bold;">✗</span>';
+                    </div>
+                </div>
+
+                <div class="border-l-4 border-purple-500 pl-4">
+                    <h3 class="font-bold text-purple-800 mb-2">3. Version Update</h3>
+                    <p class="text-sm text-gray-700">
+                        Updated version header to V9.47 with changelog comment
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Checklist -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">✅ Testing Checklist</h2>
+            <div class="space-y-3">
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 1:</strong> Open player modal from any page
+                        <span class="block text-sm text-gray-600 ml-6">Verify "Presenze Totali" shows correct count (only sessions where player was tracked)</span>
+                    </label>
+                </div>
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 2:</strong> Check percentage calculation
+                        <span class="block text-sm text-gray-600 ml-6">Verify "Percentuale Presenza" is accurate (e.g., 8/10 = 80%)</span>
+                    </label>
+                </div>
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 3:</strong> View "Ultimi 5 Allenamenti" list
+                        <span class="block text-sm text-gray-600 ml-6">Verify both presences (green ✓) and absences (red ✗) are displayed</span>
+                    </label>
+                </div>
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 4:</strong> Test with new player
+                        <span class="block text-sm text-gray-600 ml-6">Add a player after several sessions exist, verify they show 0/0 or correct count</span>
+                    </label>
+                </div>
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 5:</strong> Test with veteran player
+                        <span class="block text-sm text-gray-600 ml-6">Check player who's been tracked in all sessions shows correct total</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="test-card bg-gradient-to-r from-green-50 to-blue-50">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">📝 Summary</h2>
+            <div class="space-y-2 text-gray-700">
+                <p>
+                    ✅ <strong>Fixed:</strong> Training session count now only includes sessions where player was explicitly tracked
+                </p>
+                <p>
+                    ✅ <strong>Fixed:</strong> Attendance percentage now shows accurate rate based on correct session count
+                </p>
+                <p>
+                    ✅ <strong>Improved:</strong> Icons now use explicit color styling for consistency across devices
+                </p>
+                <p>
+                    ✅ <strong>Result:</strong> Player statistics in modals now display real, accurate data
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🧪 Test page loaded - V9.47 Training Data Aggregation Fix');
+        console.log('✅ Fix 1: Filter sessions to only count where player is tracked');
+        console.log('✅ Fix 2: Updated icons to use styled Unicode characters');
+        console.log('✅ Result: Accurate attendance counts and percentages');
+    </script>
+</body>
+</html>
