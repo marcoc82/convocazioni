@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- Version: V9.44 - Refactored player statistics modals for complete data independence -->
-<!-- V9.44 Changes:
-     1. Refactored openPlayerModal: Now collects ALL statistics data internally on every call
-     2. Refactored openTrainingModal: Now collects ALL statistics data internally on every call
-     3. Modal functions are now independent of page context and always show fresh, complete data
-     4. Simplified all call sites to only pass playerName parameter
-     Previous: V9.43 - Fixed player modals to ensure all statistics always display -->
+<!-- Version: V9.45 - Fixed modal data loading and progress bar text sizing -->
+<!-- V9.45 Changes:
+     1. Bugfix: Added ensureTrainingSessionsLoaded() to load training data globally
+     2. Bugfix: openPlayerModal and openTrainingModal now ensure training sessions are loaded before displaying
+     3. UI fix: Reduced progress bar percentage text size from 0.75rem to 0.625rem (mobile) and 0.7rem (desktop)
+     4. Fixed issue where modal from Riepilogo Convocazioni showed only convocazioni stats without training data
+     Previous: V9.44 - Refactored player statistics modals for complete data independence -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -260,10 +260,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: 0.625rem; /* V9.45: Reduced from 0.75rem to 0.625rem (10px) for better fit */
             font-weight: 600;
             color: white;
             animation: progressFill 1.5s ease-out;
+        }
+        
+        /* V9.45: Responsive font size for progress bars */
+        @media (min-width: 640px) {
+            .progress-bar {
+                font-size: 0.7rem; /* Slightly larger on desktop (11.2px) but still fits */
+            }
         }
         
         @keyframes progressFill {
@@ -4342,6 +4349,58 @@
                 }
             }
 
+            // V9.45: Ensure training sessions are loaded for modal display
+            async function ensureTrainingSessionsLoaded() {
+                // If data is already loaded, return immediately
+                if (trainingSessions.length > 0) {
+                    console.log(`✅ trainingSessions già caricato (${trainingSessions.length} sessioni)`);
+                    return;
+                }
+                
+                console.log(`🔄 trainingSessions vuoto, caricamento esplicito dei dati...`);
+                
+                // Check if Firebase is available
+                if (!window.db || !window.collection || !window.getDocs) {
+                    console.log('⚠️ Firebase non disponibile, usando modalità demo');
+                    loadTrainingSessionsDemo();
+                    return;
+                }
+                
+                // Load data from Firestore
+                try {
+                    if (!currentCompanyDocumentId) {
+                        console.log('⚠️ Nessuna società selezionata, usando modalità demo');
+                        loadTrainingSessionsDemo();
+                        return;
+                    }
+                    
+                    const trainingsRef = window.collection(window.db, `societa/${currentCompanyDocumentId}/trainingSessions`);
+                    console.log(`📍 Caricamento esplicito da: societa/${currentCompanyDocumentId}/trainingSessions`);
+                    
+                    const querySnapshot = await window.getDocs(trainingsRef);
+                    
+                    trainingSessions = [];
+                    querySnapshot.forEach((doc) => {
+                        trainingSessions.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    // Sort by date/time (most recent first)
+                    trainingSessions.sort((a, b) => {
+                        const dateA = new Date(a.date + ' ' + a.time);
+                        const dateB = new Date(b.date + ' ' + b.time);
+                        return dateB - dateA;
+                    });
+                    
+                    console.log(`✅ Caricato ${trainingSessions.length} sessioni di allenamento`);
+                } catch (error) {
+                    console.error('❌ Errore durante il caricamento delle sessioni di allenamento:', error);
+                    trainingSessions = [];
+                }
+            }
+
             // Function to load and display history from Firestore
             function loadHistory(querySnapshot) {
                 convocationHistory = []; // reset convocation history data
@@ -5065,7 +5124,10 @@
                 `;
             }
             
-            function openTrainingModal(playerName) {
+            async function openTrainingModal(playerName) {
+                // V9.45: Ensure training sessions are loaded before displaying modal
+                await ensureTrainingSessionsLoaded();
+                
                 // V9.44: Collect ALL statistics data fresh at modal opening time
                 // This ensures data is always up-to-date and independent of page context
                 
@@ -5132,7 +5194,10 @@
             const modalChart = document.getElementById('modal-chart');
             const modalCallups = document.getElementById('modal-callups');
             
-            function openPlayerModal(playerName) {
+            async function openPlayerModal(playerName) {
+                // V9.45: Ensure training sessions are loaded before displaying modal
+                await ensureTrainingSessionsLoaded();
+                
                 // V9.44: Collect ALL statistics data fresh at modal opening time
                 // This ensures data is always up-to-date and independent of page context
                 
