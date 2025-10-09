@@ -2894,7 +2894,9 @@
                 }
                 unavailablePlayers.forEach((status, player) => {
                     const li = document.createElement('li');
-                    li.textContent = `${player}: ${status}`;
+                    // V9.50: Remove player number and add bullet point
+                    const playerNameOnly = player.replace(/^\d+\s+/, '').trim();
+                    li.textContent = `• ${playerNameOnly}: ${status}`;
                     li.className = 'font-medium';
                     unavailablePlayersList.appendChild(li);
                 });
