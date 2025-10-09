@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- Version: V9.50 - Removed dark mode, kept change password functionality and training checkboxes -->
-<!-- V9.50 Changes:
-     1. Removed dark/light theme toggle and all related dark mode styles
-     2. Kept "Cambia Password" button for Mister and Dirigente on password entry screen
-     3. Kept "Ricorda password" checkbox functionality for Mister and Dirigente
-     4. Training attendance checkboxes remain green (from V9.6)
-     Previous: V9.49 - Dark mode toggle, change password functionality, training checkboxes green -->
+<!-- Version: V9.51 - Reduced shadow intensity and added distinct colors for Allenamenti, Campionato, and Risultati buttons -->
+<!-- V9.51 Changes:
+     1. Reduced box-shadow intensity on all modern buttons for a more balanced appearance
+     2. Added distinct colors: Allenamenti (orange), Campionato (green), Risultati (purple)
+     3. Removed old dynamic color-changing logic for Campionato button (now uses consistent green gradient)
+     4. Maintained modern design with gradients, rounded corners, and hover animations
+     Previous: V9.50 - Removed dark mode, kept change password functionality and training checkboxes -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -634,7 +634,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.49</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.51</span>
             </div>
         </div>
 
@@ -2441,16 +2441,10 @@
                 // Show/hide campionato button for POLIS PIEVE 2010
                 if (isPolisPieveCompany) {
                     campionatoButton.classList.remove('hidden');
-                    // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
-                    // V9.7: Add text-black for better visibility on yellow background
-                    campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700', 'text-white');
-                    campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                    console.log('🎨 Campionato button color changed to yellow with black text for PIEVE2010');
+                    // V9.51: Campionato button now uses btn-campionato class (green gradient) for all companies
+                    console.log('🎨 Campionato button visible with green gradient for PIEVE2010');
                 } else {
                     campionatoButton.classList.add('hidden');
-                    // Reset to purple if not PIEVE2010
-                    campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                    campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700', 'text-white');
                 }
                 
                 // Risultati button is always visible to all users (no conditional logic needed)
@@ -7721,16 +7715,10 @@
                     // Show/hide campionato button for POLIS PIEVE 2010 (also for guests)
                     if (isPolisPieveCompany) {
                         campionatoButton.classList.remove('hidden');
-                        // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
-                        // V9.7: Add text-black for better visibility on yellow background
-                        campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700', 'text-white');
-                        campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                        console.log('🎨 Campionato button color changed to yellow with black text for PIEVE2010');
+                        // V9.51: Campionato button now uses btn-campionato class (green gradient) for all companies
+                        console.log('🎨 Campionato button visible with green gradient for PIEVE2010');
                     } else {
                         campionatoButton.classList.add('hidden');
-                        // Reset to purple if not PIEVE2010
-                        campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                        campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700', 'text-white');
                     }
                     
                     // Risultati button is always visible to all users including guests (no conditional logic needed)
@@ -7766,16 +7754,10 @@
                     // Show/hide campionato button for POLIS PIEVE 2010
                     if (isPolisPieveCompany) {
                         campionatoButton.classList.remove('hidden');
-                        // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
-                        // V9.7: Add text-black for better visibility on yellow background
-                        campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700', 'text-white');
-                        campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                        console.log('🎨 Campionato button color changed to yellow with black text for PIEVE2010');
+                        // V9.51: Campionato button now uses btn-campionato class (green gradient) for all companies
+                        console.log('🎨 Campionato button visible with green gradient for PIEVE2010');
                     } else {
                         campionatoButton.classList.add('hidden');
-                        // Reset to purple if not PIEVE2010
-                        campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                        campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700', 'text-white');
                     }
                     
                     console.log('🏢 Normal company login - full UI enabled');
