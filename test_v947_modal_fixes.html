@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.47 - Modal Statistics Bug Fixes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .code-block {
+            background: #f8f9fa;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .fix-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .fix-issue1 { background: #dbeafe; color: #1e40af; }
+        .fix-issue2 { background: #fce7f3; color: #9f1239; }
+        .icon-comparison {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px solid #e5e7eb;
+        }
+        .icon-old { background: #fee2e2; }
+        .icon-new { background: #d1fae5; }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-6xl mx-auto space-y-6">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">🔧 V9.47 - Modal Statistics Bug Fixes</h1>
+            <p class="text-gray-600">Bug fixes per le modali delle statistiche del giocatore</p>
+            <div class="mt-4 flex gap-2">
+                <span class="fix-badge fix-issue1">Issue #1: Data Consistency</span>
+                <span class="fix-badge fix-issue2">Issue #2: Icon Change</span>
+            </div>
+        </div>
+
+        <!-- Problem Statement -->
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-6">
+            <h2 class="text-xl font-bold text-orange-800 mb-3">📋 Problem Statement</h2>
+            <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                <li>
+                    <strong>Correggi il bug nella modale:</strong> Mostra sempre sia le statistiche degli allenamenti che delle convocazioni, 
+                    indipendentemente dalla pagina di origine (riepilogo convocazioni, allenamenti, gestione allenamenti).
+                </li>
+                <li>
+                    <strong>Cambia icona non-convocato:</strong> Nella visualizzazione delle statistiche del singolo giocatore, 
+                    quando il giocatore NON è convocato, invece del pallino bianco (⚪), mostra una X rossa (❌) come quella che 
+                    appare per assente all'allenamento.
+                </li>
+            </ol>
+        </div>
+
+        <!-- Issue 1: Data Consistency Fix -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                <span class="fix-badge fix-issue1 mr-2">Issue #1</span>
+                Data Consistency Bug Fix
+            </h2>
+            
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">🐛 Root Cause</h3>
+                <p class="text-gray-600 mb-2">
+                    Inconsistent element reference management between the two modal functions:
+                </p>
+                <ul class="list-disc list-inside space-y-1 text-gray-700 ml-4">
+                    <li><code>openPlayerModal()</code>: Used module-level references for convocazioni elements (no safety checks)</li>
+                    <li><code>openTrainingModal()</code>: Used module-level references for training elements (no safety checks)</li>
+                    <li>Both functions used <code>getElementById()</code> with <code>if</code> checks for the "other" section</li>
+                </ul>
+                <p class="text-red-600 mt-2 font-semibold">
+                    ⚠️ This inconsistency could cause elements to fail silently if DOM wasn't fully loaded at module initialization time.
+                </p>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">✅ Solution</h3>
+                <p class="text-gray-600 mb-2">
+                    Made both modal functions consistent by getting ALL element references inside the function with safety checks:
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">openPlayerModal()</h4>
+                        <div class="code-block text-xs">
+// Now gets ALL elements with safety checks:<br/>
+const modalConvStats = getElementById(...);<br/>
+const modalConvTrend = getElementById(...);<br/>
+const modalConvChart = getElementById(...);<br/>
+const modalConvCallups = getElementById(...);<br/>
+<br/>
+if (modalConvStats) { /* populate */ }<br/>
+if (modalConvTrend) { /* populate */ }<br/>
+if (modalConvChart) { /* populate */ }<br/>
+if (modalConvCallups) { /* populate */ }
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">openTrainingModal()</h4>
+                        <div class="code-block text-xs">
+// Now gets ALL elements with safety checks:<br/>
+const modalTrainingStatsEl = getElementById(...);<br/>
+const modalTrainingTrendEl = getElementById(...);<br/>
+const modalTrainingChartEl = getElementById(...);<br/>
+const modalTrainingSessionsEl = getElementById(...);<br/>
+<br/>
+if (modalTrainingStatsEl) { /* populate */ }<br/>
+if (modalTrainingTrendEl) { /* populate */ }<br/>
+if (modalTrainingChartEl) { /* populate */ }<br/>
+if (modalTrainingSessionsEl) { /* populate */ }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-green-800 mb-2">🎯 Benefits</h3>
+                <ul class="list-disc list-inside space-y-1 text-green-700">
+                    <li>Both modals now handle elements consistently</li>
+                    <li>Fresh element references on every modal opening (no stale references)</li>
+                    <li>Defensive programming with null checks prevents silent failures</li>
+                    <li>Data is ALWAYS collected and displayed from both sections, regardless of page origin</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Issue 2: Icon Change -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                <span class="fix-badge fix-issue2 mr-2">Issue #2</span>
+                Non-Convocato Icon Change
+            </h2>
+            
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">🎨 Visual Consistency</h3>
+                <p class="text-gray-600 mb-3">
+                    Changed the icon for "non-convocato" (not called up) status to match the training absence icon:
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="icon-comparison icon-old">
+                        <span class="text-2xl">⚪</span>
+                        <div>
+                            <div class="font-semibold text-gray-800">Before</div>
+                            <div class="text-sm text-gray-600">White Circle</div>
+                        </div>
+                    </div>
+                    <div class="icon-comparison icon-new">
+                        <span class="text-2xl">❌</span>
+                        <div>
+                            <div class="font-semibold text-gray-800">After</div>
+                            <div class="text-sm text-gray-600">Red X (matches training absence)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">📝 Code Change</h3>
+                <div class="code-block">
+                    <strong>Function:</strong> generateCallupsList(callups)<br/>
+                    <strong>Location:</strong> Line 4954<br/><br/>
+                    <span class="text-red-600">- const icon = callup.status === 'presente' ? '✅' : '⚪';</span><br/>
+                    <span class="text-green-600">+ const icon = callup.status === 'presente' ? '✅' : '❌';</span>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 class="text-lg font-semibold text-blue-800 mb-2">💡 Rationale</h3>
+                <ul class="list-disc list-inside space-y-1 text-blue-700">
+                    <li>Visual consistency: Both "absence" states now use the same red X icon</li>
+                    <li>Clearer meaning: Red X is more universally recognized as "not present/absent"</li>
+                    <li>Better user experience: Consistent iconography across different data types</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Files Modified -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">📁 Files Modified</h2>
+            <table class="w-full text-left">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="p-2 border">File</th>
+                        <th class="p-2 border">Lines Changed</th>
+                        <th class="p-2 border">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="p-2 border font-mono text-sm">index.html</td>
+                        <td class="p-2 border">~4954</td>
+                        <td class="p-2 border">Changed non-convocato icon from ⚪ to ❌</td>
+                    </tr>
+                    <tr>
+                        <td class="p-2 border font-mono text-sm">index.html</td>
+                        <td class="p-2 border">~5139-5166</td>
+                        <td class="p-2 border">openTrainingModal: Added safety checks for all training elements</td>
+                    </tr>
+                    <tr>
+                        <td class="p-2 border font-mono text-sm">index.html</td>
+                        <td class="p-2 border">~5221-5244</td>
+                        <td class="p-2 border">openPlayerModal: Added safety checks for all convocazioni elements</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Expected Results -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+            <h2 class="text-xl font-bold text-green-800 mb-3">✅ Expected Results</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">From ANY page (Riepilogo Convocazioni, Allenamenti, Gestione Allenamenti):</h3>
+                    <ul class="list-disc list-inside space-y-2 text-green-700">
+                        <li>Opening player modal shows BOTH convocazioni AND training statistics</li>
+                        <li>Opening training modal shows BOTH training AND convocazioni statistics</li>
+                        <li>All sections are populated with current data</li>
+                        <li>No missing sections or silent failures</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Visual Changes:</h3>
+                    <ul class="list-disc list-inside space-y-2 text-green-700">
+                        <li>Non-convocato players now show ❌ (red X) instead of ⚪ (white circle)</li>
+                        <li>Consistent iconography: ❌ for both training absence and non-convocation</li>
+                        <li>✅ (green check) for presente in both contexts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Version Info -->
+        <div class="bg-gray-800 text-white rounded-lg p-4 text-center">
+            <p class="font-semibold">Version: V9.47</p>
+            <p class="text-sm text-gray-300">Bug Fixes: Player Statistics Modal</p>
+        </div>
+    </div>
+</body>
+</html>

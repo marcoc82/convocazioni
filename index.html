@@ -4951,7 +4951,7 @@
                     return '<div class="text-xs text-gray-500">Nessun dato disponibile</div>';
                 }
                 return callups.map(callup => {
-                    const icon = callup.status === 'presente' ? '✅' : '⚪';
+                    const icon = callup.status === 'presente' ? '✅' : '❌';
                     
                     // Format date for better visibility
                     let formattedDate = callup.date;
@@ -5136,19 +5136,34 @@
                 // Collect fresh training data
                 const trainingData = getPlayerTrainingData(playerName);
                 
-                // Display training stats
-                modalTrainingStats.innerHTML = `
-                    <div class="text-center">
-                        <p class="text-3xl font-bold text-blue-600">${trainingData.presences}/${trainingData.totalSessions}</p>
-                        <p class="text-sm text-gray-600">Presenze Totali</p>
-                        <p class="text-2xl font-bold text-green-600 mt-2">${trainingData.percentage}%</p>
-                        <p class="text-sm text-gray-600">Percentuale Presenza</p>
-                    </div>
-                `;
+                // Display training stats - get fresh element references
+                const modalTrainingStatsEl = document.getElementById('modal-training-stats');
+                const modalTrainingTrendEl = document.getElementById('modal-training-trend');
+                const modalTrainingChartEl = document.getElementById('modal-training-chart');
+                const modalTrainingSessionsEl = document.getElementById('modal-training-sessions');
                 
-                modalTrainingTrend.innerHTML = getTrendBadge(trainingData.trend);
-                modalTrainingChart.innerHTML = generateMiniChart(trainingData.chartData);
-                modalTrainingSessions.innerHTML = generateTrainingList(trainingData.recentSessions);
+                if (modalTrainingStatsEl) {
+                    modalTrainingStatsEl.innerHTML = `
+                        <div class="text-center">
+                            <p class="text-3xl font-bold text-blue-600">${trainingData.presences}/${trainingData.totalSessions}</p>
+                            <p class="text-sm text-gray-600">Presenze Totali</p>
+                            <p class="text-2xl font-bold text-green-600 mt-2">${trainingData.percentage}%</p>
+                            <p class="text-sm text-gray-600">Percentuale Presenza</p>
+                        </div>
+                    `;
+                }
+                
+                if (modalTrainingTrendEl) {
+                    modalTrainingTrendEl.innerHTML = getTrendBadge(trainingData.trend);
+                }
+                
+                if (modalTrainingChartEl) {
+                    modalTrainingChartEl.innerHTML = generateMiniChart(trainingData.chartData);
+                }
+                
+                if (modalTrainingSessionsEl) {
+                    modalTrainingSessionsEl.innerHTML = generateTrainingList(trainingData.recentSessions);
+                }
                 
                 // Collect fresh convocazioni data for training modal
                 const modalConvStatsInTraining = document.getElementById('modal-conv-stats-in-training');
@@ -5205,17 +5220,28 @@
                 
                 // Collect fresh convocazioni data
                 const modalConvStats = document.getElementById('modal-conv-stats');
+                const modalConvTrend = document.getElementById('modal-trend');
+                const modalConvChart = document.getElementById('modal-chart');
+                const modalConvCallups = document.getElementById('modal-callups');
+                
                 if (modalConvStats) {
                     modalConvStats.innerHTML = generateConvocazioniStats(playerName);
                 }
                 
-                const convTrend = getPlayerTrend(playerName);
-                const convChartData = getPlayerChartData(playerName);
-                const recentCallups = getRecentCallups(playerName);
+                if (modalConvTrend) {
+                    const convTrend = getPlayerTrend(playerName);
+                    modalConvTrend.innerHTML = getTrendBadge(convTrend);
+                }
                 
-                modalTrend.innerHTML = getTrendBadge(convTrend);
-                modalChart.innerHTML = generateMiniChart(convChartData);
-                modalCallups.innerHTML = generateCallupsList(recentCallups);
+                if (modalConvChart) {
+                    const convChartData = getPlayerChartData(playerName);
+                    modalConvChart.innerHTML = generateMiniChart(convChartData);
+                }
+                
+                if (modalConvCallups) {
+                    const recentCallups = getRecentCallups(playerName);
+                    modalConvCallups.innerHTML = generateCallupsList(recentCallups);
+                }
                 
                 // Collect fresh training data for player modal
                 const modalTrainingStatsInPlayer = document.getElementById('modal-training-stats-in-player');
