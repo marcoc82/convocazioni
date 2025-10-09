@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<!-- Version: V9.43 - Fixed player modals to ensure all statistics always display -->
-<!-- V9.43 Changes:
-     1. Fixed openPlayerModal: Training data now always populates all modal elements independently
-     2. Resolved nested if-block issue that prevented training stats from showing in player modal
-     3. Both modals (from Convocazioni and Allenamenti pages) now correctly show ALL statistics
-     Previous: V9.42 - Enhanced animations and unified player modals -->
+<!-- Version: V9.44 - Refactored player statistics modals for complete data independence -->
+<!-- V9.44 Changes:
+     1. Refactored openPlayerModal: Now collects ALL statistics data internally on every call
+     2. Refactored openTrainingModal: Now collects ALL statistics data internally on every call
+     3. Modal functions are now independent of page context and always show fresh, complete data
+     4. Simplified all call sites to only pass playerName parameter
+     Previous: V9.43 - Fixed player modals to ensure all statistics always display -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -5064,8 +5065,14 @@
                 `;
             }
             
-            function openTrainingModal(playerName, trainingData) {
+            function openTrainingModal(playerName) {
+                // V9.44: Collect ALL statistics data fresh at modal opening time
+                // This ensures data is always up-to-date and independent of page context
+                
                 modalTrainingPlayerName.textContent = playerName;
+                
+                // Collect fresh training data
+                const trainingData = getPlayerTrainingData(playerName);
                 
                 // Display training stats
                 modalTrainingStats.innerHTML = `
@@ -5081,7 +5088,7 @@
                 modalTrainingChart.innerHTML = generateMiniChart(trainingData.chartData);
                 modalTrainingSessions.innerHTML = generateTrainingList(trainingData.recentSessions);
                 
-                // Add convocazioni data to training modal
+                // Collect fresh convocazioni data for training modal
                 const modalConvStatsInTraining = document.getElementById('modal-conv-stats-in-training');
                 const modalConvTrendInTraining = document.getElementById('modal-conv-trend-in-training');
                 const modalConvChartInTraining = document.getElementById('modal-conv-chart-in-training');
@@ -5091,12 +5098,12 @@
                     modalConvStatsInTraining.innerHTML = generateConvocazioniStats(playerName);
                 }
                 if (modalConvTrendInTraining) {
-                    const trend = getPlayerTrend(playerName);
-                    modalConvTrendInTraining.innerHTML = getTrendBadge(trend);
+                    const convTrend = getPlayerTrend(playerName);
+                    modalConvTrendInTraining.innerHTML = getTrendBadge(convTrend);
                 }
                 if (modalConvChartInTraining) {
-                    const chartData = getPlayerChartData(playerName);
-                    modalConvChartInTraining.innerHTML = generateMiniChart(chartData);
+                    const convChartData = getPlayerChartData(playerName);
+                    modalConvChartInTraining.innerHTML = generateMiniChart(convChartData);
                 }
                 if (modalConvCallupsInTraining) {
                     const recentCallups = getRecentCallups(playerName);
@@ -5125,20 +5132,27 @@
             const modalChart = document.getElementById('modal-chart');
             const modalCallups = document.getElementById('modal-callups');
             
-            function openPlayerModal(playerName, trend, chartData, recentCallups) {
+            function openPlayerModal(playerName) {
+                // V9.44: Collect ALL statistics data fresh at modal opening time
+                // This ensures data is always up-to-date and independent of page context
+                
                 modalPlayerName.textContent = playerName;
                 
-                // Display convocazioni data
+                // Collect fresh convocazioni data
                 const modalConvStats = document.getElementById('modal-conv-stats');
                 if (modalConvStats) {
                     modalConvStats.innerHTML = generateConvocazioniStats(playerName);
                 }
                 
-                modalTrend.innerHTML = getTrendBadge(trend);
-                modalChart.innerHTML = generateMiniChart(chartData);
+                const convTrend = getPlayerTrend(playerName);
+                const convChartData = getPlayerChartData(playerName);
+                const recentCallups = getRecentCallups(playerName);
+                
+                modalTrend.innerHTML = getTrendBadge(convTrend);
+                modalChart.innerHTML = generateMiniChart(convChartData);
                 modalCallups.innerHTML = generateCallupsList(recentCallups);
                 
-                // Add training data to player modal
+                // Collect fresh training data for player modal
                 const modalTrainingStatsInPlayer = document.getElementById('modal-training-stats-in-player');
                 const modalTrainingTrendInPlayer = document.getElementById('modal-training-trend-in-player');
                 const modalTrainingChartInPlayer = document.getElementById('modal-training-chart-in-player');
@@ -5460,11 +5474,6 @@
                         availabilityProgressBarHTML = createProgressBar(player.availabilityPercentage);
                     }
                     
-                    // V9.30: Get player data for modal
-                    const trend = getPlayerTrend(playerNameOnly);
-                    const chartData = getPlayerChartData(playerNameOnly);
-                    const recentCallups = getRecentCallups(playerNameOnly);
-                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -5477,12 +5486,12 @@
                     
                     attendanceList.appendChild(row);
                     
-                    // V9.30: Add click handler to open modal
+                    // V9.44: Add click handler to open modal with only playerName
                     const nameElement = row.querySelector('.player-name-clickable');
                     if (nameElement) {
                         nameElement.addEventListener('click', function(e) {
                             e.stopPropagation();
-                            openPlayerModal(playerNameOnly, trend, chartData, recentCallups);
+                            openPlayerModal(playerNameOnly);
                         });
                     }
                 });
@@ -5898,12 +5907,12 @@
                     
                     attendanceList.appendChild(row);
                     
-                    // V9.30: Add click handler to open modal
+                    // V9.44: Add click handler to open modal with only playerName
                     const nameElement = row.querySelector('.player-name-clickable');
                     if (nameElement) {
                         nameElement.addEventListener('click', function(e) {
                             e.stopPropagation();
-                            openPlayerModal(playerNameOnly, trend, chartData, recentCallups);
+                            openPlayerModal(playerNameOnly);
                         });
                     }
                 });
@@ -8262,9 +8271,6 @@
                     // V9.41: Create progress bar for percentage with animation
                     const progressBarHTML = createProgressBar(stat.percentage);
                     
-                    // V9.41: Get training data for modal
-                    const trainingData = getPlayerTrainingData(stat.player);
-                    
                     row.innerHTML = `
                         <td class="px-3 py-2 text-sm text-gray-900">
                             <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
@@ -8275,12 +8281,12 @@
                     `;
                     reportBody.appendChild(row);
                     
-                    // V9.41: Add click handler to open training modal
+                    // V9.44: Add click handler to open training modal with only playerName
                     const nameElement = row.querySelector('.player-name-clickable');
                     if (nameElement) {
                         nameElement.addEventListener('click', function(e) {
                             e.stopPropagation();
-                            openTrainingModal(playerNameOnly, trainingData);
+                            openTrainingModal(playerNameOnly);
                         });
                     }
                 });
