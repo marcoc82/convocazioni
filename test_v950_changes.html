@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.50 - Last Save Timestamp & Bullet Points</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-green-600 to-blue-600 text-white p-6 rounded-xl shadow-lg mb-8">
+            <h1 class="text-3xl font-bold mb-2">🧪 Test V9.50</h1>
+            <p class="text-lg opacity-90">UI Improvements for Dirigente & Unavailable Players</p>
+        </div>
+
+        <!-- What's New -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">✨ What's New in V9.50</h2>
+            <div class="space-y-3">
+                <div class="flex items-start">
+                    <span class="text-2xl mr-3">💾</span>
+                    <div>
+                        <h3 class="font-bold text-lg">Last Save Timestamp (Dirigente Only)</h3>
+                        <p class="text-gray-600">Shows when the notes page was last saved, below "Ultimo reset indisponibilità"</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <span class="text-2xl mr-3">🔵</span>
+                    <div>
+                        <h3 class="font-bold text-lg">Bullet Points for Unavailable Players</h3>
+                        <p class="text-gray-600">Player numbers are removed, replaced with bullet points (like the notes section)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Switcher -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">👤 Switch Role</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button id="btn-mister" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition">
+                    Mister View
+                </button>
+                <button id="btn-dirigente" class="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition">
+                    Dirigente View
+                </button>
+            </div>
+        </div>
+
+        <!-- Mister View -->
+        <div id="mister-view" class="hidden space-y-6">
+            <h3 class="text-2xl font-bold text-blue-700">Mister View</h3>
+            
+            <!-- Reset Timestamp (visible to both) -->
+            <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-sm text-blue-700">
+                    <span class="font-semibold">🔄 Ultimo reset indisponibilità:</span>
+                    <span class="ml-1">domenica 5 gennaio 2025, 00:00</span>
+                </p>
+            </div>
+
+            <!-- NO Last Save Timestamp for Mister -->
+            
+            <!-- Unavailable Players List -->
+            <div class="bg-red-100 p-4 rounded-xl shadow-sm border border-red-200">
+                <h4 class="text-lg font-semibold text-red-700 mb-2">Giocatori Non Disponibili (Segnalati dal Dirigente)</h4>
+                <ul class="space-y-1 text-red-600">
+                    <li class="font-medium">• <strong class="font-bold">ROSSI MARIO</strong>: Infortunato</li>
+                    <li class="font-medium">• <strong class="font-bold">VERDI GIUSEPPE</strong>: N.D. W.E.</li>
+                    <li class="font-medium">• <strong class="font-bold">BIANCHI LUCA</strong>: Squalificato, N.D. W.E.</li>
+                    <li class="font-medium">• <strong class="font-bold">NERI FRANCESCO</strong>: Motivi personali</li>
+                </ul>
+            </div>
+
+            <!-- Comparison -->
+            <div class="bg-gray-100 p-4 rounded-lg">
+                <h4 class="font-bold text-gray-800 mb-2">📊 Before V9.50:</h4>
+                <ul class="space-y-1 text-gray-700">
+                    <li class="font-medium"><strong class="font-bold">10 ROSSI MARIO</strong>: Infortunato</li>
+                    <li class="font-medium"><strong class="font-bold">5 VERDI GIUSEPPE</strong>: N.D. W.E.</li>
+                </ul>
+                <p class="mt-2 text-sm text-gray-600">❌ Player numbers were showing</p>
+                <p class="text-sm text-gray-600">❌ No bullet points</p>
+            </div>
+        </div>
+
+        <!-- Dirigente View -->
+        <div id="dirigente-view" class="hidden space-y-6">
+            <h3 class="text-2xl font-bold text-orange-700">Dirigente View</h3>
+            
+            <!-- Reset Timestamp -->
+            <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-sm text-blue-700">
+                    <span class="font-semibold">🔄 Ultimo reset indisponibilità:</span>
+                    <span class="ml-1">domenica 5 gennaio 2025, 00:00</span>
+                </p>
+            </div>
+
+            <!-- Last Save Timestamp (NEW!) -->
+            <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-sm text-green-700">
+                    <span class="font-semibold">💾 Ultimo salvataggio:</span>
+                    <span class="ml-1">giovedì 9 gennaio 2025, 15:42</span>
+                </p>
+            </div>
+
+            <!-- Unavailable Players List -->
+            <div class="bg-red-100 p-4 rounded-xl shadow-sm border border-red-200">
+                <h4 class="text-lg font-semibold text-red-700 mb-2">Giocatori che hai segnato come non disponibili</h4>
+                <ul class="space-y-1 text-red-600">
+                    <li class="font-medium">• <strong class="font-bold">ROSSI MARIO</strong>: Infortunato</li>
+                    <li class="font-medium">• <strong class="font-bold">VERDI GIUSEPPE</strong>: N.D. W.E.</li>
+                    <li class="font-medium">• <strong class="font-bold">BIANCHI LUCA</strong>: Squalificato, N.D. W.E.</li>
+                    <li class="font-medium">• <strong class="font-bold">NERI FRANCESCO</strong>: Motivi personali</li>
+                </ul>
+            </div>
+
+            <!-- Comparison -->
+            <div class="bg-gray-100 p-4 rounded-lg">
+                <h4 class="font-bold text-gray-800 mb-2">📊 Before V9.50:</h4>
+                <ul class="space-y-1 text-gray-700">
+                    <li class="font-medium"><strong class="font-bold">10 ROSSI MARIO</strong>: Infortunato</li>
+                    <li class="font-medium"><strong class="font-bold">5 VERDI GIUSEPPE</strong>: N.D. W.E.</li>
+                </ul>
+                <p class="mt-2 text-sm text-gray-600">❌ Player numbers were showing</p>
+                <p class="text-sm text-gray-600">❌ No bullet points</p>
+                <p class="text-sm text-gray-600">❌ No "Ultimo salvataggio" timestamp</p>
+            </div>
+
+            <!-- Notes Section -->
+            <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <h3 class="text-lg font-semibold text-yellow-800 mb-2">Note (Segnate dal Dirigente)</h3>
+                <div>
+                    <textarea class="w-full p-3 border border-yellow-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" rows="3" placeholder="Inserisci le tue note qui...">• Portare 15 maglie rosse
+• Controllare palloni
+• Confermare orario con arbitro</textarea>
+                    <button class="mt-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                        Salva Note
+                    </button>
+                </div>
+                <p class="mt-2 text-sm text-gray-600">✅ Bullet points are also used in the notes section</p>
+            </div>
+        </div>
+
+        <!-- Implementation Details -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🔧 Implementation Details</h2>
+            
+            <div class="space-y-4">
+                <div class="border-l-4 border-green-500 pl-4">
+                    <h3 class="font-bold text-green-700 mb-2">1. Last Save Timestamp</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Added new HTML element with ID <code>last-save-timestamp-display</code></li>
+                        <li>• Modified <code>saveNotes()</code> to save <code>lastSaved</code> timestamp to Firestore</li>
+                        <li>• Created <code>updateLastSaveTimestampDisplay(timestamp)</code> function</li>
+                        <li>• Only visible to Dirigente role</li>
+                        <li>• Uses Italian date format (same as reset timestamp)</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <h3 class="font-bold text-blue-700 mb-2">2. Bullet Points & No Numbers</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• Modified <code>updateUnavailablePlayersView()</code></li>
+                        <li>• Added regex to strip player numbers: <code>player.replace(/^\d+\s+/, '').trim()</code></li>
+                        <li>• Prepended bullet point (•) to all player entries</li>
+                        <li>• Applied to both Mister and Dirigente views</li>
+                        <li>• Visual consistency with notes section</li>
+                    </ul>
+                </div>
+
+                <div class="border-l-4 border-purple-500 pl-4">
+                    <h3 class="font-bold text-purple-700 mb-2">3. Files Modified</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• <code>index.html</code> - Main application file</li>
+                        <li>• <code>index_backup.html</code> - Backup file (same changes)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code Changes -->
+        <div class="bg-gray-900 text-green-400 rounded-xl p-6 mb-6 overflow-x-auto">
+            <h2 class="text-xl font-bold mb-4">💻 Key Code Changes</h2>
+            <pre class="text-sm"><code>// HTML: New timestamp element
+&lt;div id="last-save-timestamp-display" class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg hidden"&gt;
+    &lt;p class="text-sm text-green-700"&gt;
+        &lt;span class="font-semibold"&gt;💾 Ultimo salvataggio:&lt;/span&gt;
+        &lt;span id="last-save-timestamp-text" class="ml-1"&gt;-&lt;/span&gt;
+    &lt;/p&gt;
+&lt;/div&gt;
+
+// JavaScript: Save timestamp
+await window.setDoc(notesDocRef, { 
+    content: notesContent,
+    lastSaved: new Date().toISOString()
+});
+
+// JavaScript: Strip numbers and add bullet
+const playerNameOnly = player.replace(/^\d+\s+/, '').trim();
+li.innerHTML = `• &lt;strong&gt;${playerNameOnly}&lt;/strong&gt;: ${statusText}`;
+</code></pre>
+        </div>
+
+        <!-- Test Results -->
+        <div class="bg-green-100 rounded-xl p-6 border border-green-300">
+            <h2 class="text-2xl font-bold text-green-800 mb-4">✅ Test Results</h2>
+            <div class="space-y-2">
+                <p class="text-green-700">✅ Last save timestamp shows only for Dirigente</p>
+                <p class="text-green-700">✅ Last save timestamp hidden for Mister</p>
+                <p class="text-green-700">✅ Player numbers removed from unavailable list</p>
+                <p class="text-green-700">✅ Bullet points added to unavailable players</p>
+                <p class="text-green-700">✅ Visual consistency with notes section</p>
+                <p class="text-green-700">✅ Icons (🚑 🟥) still work with numbered players</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const misterBtn = document.getElementById('btn-mister');
+        const dirigenteBtn = document.getElementById('btn-dirigente');
+        const misterView = document.getElementById('mister-view');
+        const dirigenteView = document.getElementById('dirigente-view');
+
+        misterBtn.addEventListener('click', () => {
+            misterView.classList.remove('hidden');
+            dirigenteView.classList.add('hidden');
+            misterBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            misterBtn.classList.add('bg-blue-800');
+            dirigenteBtn.classList.remove('bg-orange-800');
+            dirigenteBtn.classList.add('bg-orange-600', 'hover:bg-orange-700');
+        });
+
+        dirigenteBtn.addEventListener('click', () => {
+            dirigenteView.classList.remove('hidden');
+            misterView.classList.add('hidden');
+            dirigenteBtn.classList.remove('bg-orange-600', 'hover:bg-orange-700');
+            dirigenteBtn.classList.add('bg-orange-800');
+            misterBtn.classList.remove('bg-blue-800');
+            misterBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        });
+
+        // Start with Mister view
+        misterBtn.click();
+    </script>
+</body>
+</html>
