@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.43 - Modal Statistics Fix Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 4px;
+        }
+        .status-fixed {
+            background: #10b981;
+            color: white;
+        }
+        .status-before {
+            background: #ef4444;
+            color: white;
+        }
+        .code-block {
+            background: #1f2937;
+            color: #10b981;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+        .section-divider {
+            border-top: 2px solid #e5e7eb;
+            margin: 24px 0;
+        }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-4">🔧 V9.43 - Modal Statistics Fix</h1>
+            <p class="text-xl text-white opacity-90">Verification of Complete Player Statistics in All Modals</p>
+        </div>
+
+        <!-- Problem Description -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">❌ Problem Identified</h2>
+            <p class="text-gray-700 mb-4">
+                The player statistics modals were not consistently showing ALL data when opened from different pages:
+            </p>
+            <ul class="list-disc list-inside text-gray-700 space-y-2 ml-4">
+                <li><strong>From Riepilogo Convocazioni:</strong> Player modal showed convocazioni stats but training stats were inconsistent</li>
+                <li><strong>From Allenamenti page:</strong> Training modal showed training stats but convocazioni stats were inconsistent</li>
+                <li><strong>Root cause:</strong> Nested if-blocks prevented proper data population</li>
+            </ul>
+        </div>
+
+        <!-- Technical Issue -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">🐛 Technical Issue (V9.42)</h2>
+            <p class="text-gray-700 mb-2"><strong>Before (Problematic Code):</strong></p>
+            <div class="code-block">
+if (modalTrainingStatsInPlayer) {
+    const trainingData = getPlayerTrainingData(playerName);
+    // Populate stats...
+    
+    if (modalTrainingTrendInPlayer) {
+        // This only runs if BOTH conditions are true!
+        modalTrainingTrendInPlayer.innerHTML = ...;
+    }
+    if (modalTrainingChartInPlayer) {
+        // This only runs if first condition is true!
+        modalTrainingChartInPlayer.innerHTML = ...;
+    }
+}
+            </div>
+            <p class="text-gray-700 mt-4 mb-2">
+                <strong>Issue:</strong> The nested structure meant that if <code>modalTrainingStatsInPlayer</code> was null or missing,
+                NONE of the other training elements (trend, chart, sessions) would be populated, even if they existed.
+            </p>
+        </div>
+
+        <!-- Solution -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">✅ Solution (V9.43)</h2>
+            <p class="text-gray-700 mb-2"><strong>After (Fixed Code):</strong></p>
+            <div class="code-block">
+// Get training data once for all elements
+const trainingData = getPlayerTrainingData(playerName);
+
+if (modalTrainingStatsInPlayer) {
+    modalTrainingStatsInPlayer.innerHTML = ...;
+}
+if (modalTrainingTrendInPlayer) {
+    // Independent check - runs regardless of other elements
+    modalTrainingTrendInPlayer.innerHTML = ...;
+}
+if (modalTrainingChartInPlayer) {
+    // Independent check - runs regardless of other elements
+    modalTrainingChartInPlayer.innerHTML = ...;
+}
+if (modalTrainingSessionsInPlayer) {
+    // Independent check - runs regardless of other elements
+    modalTrainingSessionsInPlayer.innerHTML = ...;
+}
+            </div>
+            <p class="text-gray-700 mt-4">
+                <strong>Fix:</strong> Each modal element is now checked independently. Data is fetched once,
+                then each element is populated only if it exists. This ensures maximum compatibility.
+            </p>
+        </div>
+
+        <!-- Changes Summary -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">📋 Changes Summary</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Modified Function:</h3>
+                    <p class="text-gray-700"><code class="bg-gray-100 px-2 py-1 rounded">openPlayerModal(playerName, trend, chartData, recentCallups)</code></p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Key Changes:</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-2 ml-4">
+                        <li>Moved <code>getPlayerTrainingData()</code> call outside the first if-block</li>
+                        <li>Made all modal element checks independent (no nesting)</li>
+                        <li>Ensured each element is populated if it exists</li>
+                        <li>Training data is fetched once and reused for all elements</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expected Behavior -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">✨ Expected Behavior After Fix</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="border-2 border-blue-300 rounded-lg p-4 bg-blue-50">
+                    <h3 class="font-bold text-blue-800 mb-2">📊 From Riepilogo Convocazioni</h3>
+                    <p class="text-sm text-blue-700">Modal shows:</p>
+                    <ul class="text-xs text-blue-700 mt-2 space-y-1">
+                        <li>✅ Convocazioni Stats</li>
+                        <li>✅ Convocazioni Trend</li>
+                        <li>✅ Convocazioni Chart</li>
+                        <li>✅ Recent Callups</li>
+                        <li>✅ Training Stats</li>
+                        <li>✅ Training Trend</li>
+                        <li>✅ Training Chart</li>
+                        <li>✅ Recent Sessions</li>
+                    </ul>
+                </div>
+                <div class="border-2 border-green-300 rounded-lg p-4 bg-green-50">
+                    <h3 class="font-bold text-green-800 mb-2">🏃 From Allenamenti Page</h3>
+                    <p class="text-sm text-green-700">Modal shows:</p>
+                    <ul class="text-xs text-green-700 mt-2 space-y-1">
+                        <li>✅ Training Stats</li>
+                        <li>✅ Training Trend</li>
+                        <li>✅ Training Chart</li>
+                        <li>✅ Recent Sessions</li>
+                        <li>✅ Convocazioni Stats</li>
+                        <li>✅ Convocazioni Trend</li>
+                        <li>✅ Convocazioni Chart</li>
+                        <li>✅ Recent Callups</li>
+                    </ul>
+                </div>
+                <div class="border-2 border-purple-300 rounded-lg p-4 bg-purple-50">
+                    <h3 class="font-bold text-purple-800 mb-2">⚙️ From Gestione Allenamenti</h3>
+                    <p class="text-sm text-purple-700">Modal shows:</p>
+                    <ul class="text-xs text-purple-700 mt-2 space-y-1">
+                        <li>✅ Training Stats</li>
+                        <li>✅ Training Trend</li>
+                        <li>✅ Training Chart</li>
+                        <li>✅ Recent Sessions</li>
+                        <li>✅ Convocazioni Stats</li>
+                        <li>✅ Convocazioni Trend</li>
+                        <li>✅ Convocazioni Chart</li>
+                        <li>✅ Recent Callups</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Checklist -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">🧪 Testing Checklist</h2>
+            <div class="space-y-3">
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 1:</strong> Open player modal from "Riepilogo Convocazioni" page
+                        <span class="block text-sm text-gray-600 ml-6">Verify both Convocazioni and Allenamenti sections are populated</span>
+                    </label>
+                </div>
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 2:</strong> Open training modal from "Allenamenti" page
+                        <span class="block text-sm text-gray-600 ml-6">Verify both Allenamenti and Convocazioni sections are populated</span>
+                    </label>
+                </div>
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 3:</strong> Open training modal from "Gestione Allenamenti" page
+                        <span class="block text-sm text-gray-600 ml-6">Verify both Allenamenti and Convocazioni sections are populated</span>
+                    </label>
+                </div>
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 4:</strong> Verify all statistics (count, percentage, trend, chart) are accurate
+                        <span class="block text-sm text-gray-600 ml-6">Cross-check numbers with actual data in the database</span>
+                    </label>
+                </div>
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 5:</strong> Test with players who have no training data
+                        <span class="block text-sm text-gray-600 ml-6">Verify modal still shows "0" or "Nessun dato" appropriately</span>
+                    </label>
+                </div>
+                <div class="flex items-start">
+                    <input type="checkbox" class="mt-1 mr-3">
+                    <label class="text-gray-700">
+                        <strong>Test 6:</strong> Test with players who have no convocazioni data
+                        <span class="block text-sm text-gray-600 ml-6">Verify modal still shows "0" or "Nessun dato" appropriately</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Version History -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">📚 Version History</h2>
+            <div class="space-y-2">
+                <div class="flex items-center">
+                    <span class="status-badge status-fixed">V9.43</span>
+                    <span class="text-gray-700 ml-3">Fixed nested if-blocks in openPlayerModal for complete data display</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="status-badge status-before">V9.42</span>
+                    <span class="text-gray-700 ml-3">Unified player modals with nested if-blocks (incomplete fix)</span>
+                </div>
+                <div class="flex items-center">
+                    <span class="status-badge status-before">V9.41</span>
+                    <span class="text-gray-700 ml-3">Added training modal with animations</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Code References -->
+        <div class="test-card">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">📖 Code References</h2>
+            <div class="space-y-2">
+                <p class="text-gray-700"><strong>File:</strong> <code class="bg-gray-100 px-2 py-1 rounded">index.html</code></p>
+                <p class="text-gray-700"><strong>Function:</strong> <code class="bg-gray-100 px-2 py-1 rounded">openPlayerModal()</code> (around line 5128)</p>
+                <p class="text-gray-700"><strong>Lines changed:</strong> ~5141-5168</p>
+                <p class="text-gray-700"><strong>Related function:</strong> <code class="bg-gray-100 px-2 py-1 rounded">openTrainingModal()</code> (line 5067) - Already correct</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-white">
+            <p class="text-sm opacity-75">V9.43 - Modal Statistics Fix | Test Page</p>
+        </div>
+    </div>
+</body>
+</html>
