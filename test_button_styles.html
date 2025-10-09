@@ -19,7 +19,7 @@
             font-weight: 600;
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
-            box-shadow: 0 0 12px 2px #4FD1C5, 0 5px 18px rgba(79, 140, 255, 0.14);
+            box-shadow: 0 0 8px 1px rgba(79, 209, 197, 0.3), 0 3px 12px rgba(79, 140, 255, 0.1);
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
@@ -28,10 +28,79 @@
         
         .btn-modern-gradient:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 16px 4px #4FD1C5, 0 8px 24px rgba(79, 140, 255, 0.2);
+            box-shadow: 0 0 10px 2px rgba(79, 209, 197, 0.4), 0 5px 16px rgba(79, 140, 255, 0.15);
         }
         
         .btn-modern-gradient:active {
+            transform: translateY(0);
+        }
+        
+        /* Risultati button - viola distinto (purple gradient) */
+        .btn-risultati {
+            background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 8px 1px rgba(147, 51, 234, 0.3), 0 3px 12px rgba(124, 58, 237, 0.1);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn-risultati:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px 2px rgba(147, 51, 234, 0.4), 0 5px 16px rgba(124, 58, 237, 0.15);
+        }
+        
+        .btn-risultati:active {
+            transform: translateY(0);
+        }
+        
+        /* Allenamenti button - arancio distinto (orange gradient) */
+        .btn-allenamenti {
+            background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 8px 1px rgba(249, 115, 22, 0.3), 0 3px 12px rgba(251, 146, 60, 0.1);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn-allenamenti:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px 2px rgba(249, 115, 22, 0.4), 0 5px 16px rgba(251, 146, 60, 0.15);
+        }
+        
+        .btn-allenamenti:active {
+            transform: translateY(0);
+        }
+        
+        /* Campionato button - verde distinto (green gradient) */
+        .btn-campionato {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 8px 1px rgba(5, 150, 105, 0.3), 0 3px 12px rgba(16, 185, 129, 0.1);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn-campionato:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px 2px rgba(5, 150, 105, 0.4), 0 5px 16px rgba(16, 185, 129, 0.15);
+        }
+        
+        .btn-campionato:active {
             transform: translateY(0);
         }
         
@@ -122,9 +191,9 @@
             <button class="btn-modern-gradient">Entra come Dirigente</button>
             <button class="btn-modern-gradient">Storico Convocazioni</button>
             <button class="btn-modern-gradient">Riepilogo Convocazioni</button>
-            <button class="btn-modern-gradient">🏃 Allenamenti</button>
-            <button class="btn-modern-gradient">⚽ Campionato</button>
-            <button class="btn-modern-gradient">⚽ Risultati</button>
+            <button class="btn-allenamenti">🏃 Allenamenti</button>
+            <button class="btn-campionato">⚽ Campionato</button>
+            <button class="btn-risultati">⚽ Risultati</button>
             <button class="btn-modern-gradient">Gestione Squadra</button>
             <button class="btn-modern-gradient">Logout</button>
         </div>
@@ -148,8 +217,15 @@
         <div class="note">
             <p style="margin: 0; font-weight: 600; color: #92400e;">📋 Caratteristiche del Nuovo Stile:</p>
             <ul style="margin-top: 0.5rem; color: #78350f;">
-                <li>Gradiente blu/turchese moderno (#4F8CFF → #4FD1C5)</li>
-                <li>Ombra Aurea luminosa con doppio effetto glow</li>
+                <li>Ombreggiatura ridotta e più equilibrata per un aspetto meno "pop"</li>
+                <li>Colori distinti per i bottoni principali:
+                    <ul style="margin-left: 1rem;">
+                        <li>🏃 <strong>Allenamenti</strong>: Gradiente arancio (#F97316 → #FB923C)</li>
+                        <li>⚽ <strong>Campionato</strong>: Gradiente verde (#059669 → #10B981)</li>
+                        <li>⚽ <strong>Risultati</strong>: Gradiente viola (#9333EA → #7C3AED)</li>
+                    </ul>
+                </li>
+                <li>Gradiente blu/turchese moderno per altri bottoni (#4F8CFF → #4FD1C5)</li>
                 <li>Arrotondamento elegante (0.5rem)</li>
                 <li>Effetto hover animato con sollevamento</li>
                 <li>Font leggibile e ben spaziato</li>
