@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<!-- Version: V9.42 - Enhanced animations and unified player modals -->
-<!-- V9.42 Changes:
-     1. Fixed progress bar width animation: bars now animate from 0% to target width (not just number)
-     2. Unified player modals: both modals now show ALL statistics (convocazioni + allenamenti)
-     3. Added animation to Media Presenze Totale in Allenamenti page
-     Previous: V9.41 - Added animations and modal to Allenamenti report -->
+<!-- Version: V9.43 - Fixed player modals to ensure all statistics always display -->
+<!-- V9.43 Changes:
+     1. Fixed openPlayerModal: Training data now always populates all modal elements independently
+     2. Resolved nested if-block issue that prevented training stats from showing in player modal
+     3. Both modals (from Convocazioni and Allenamenti pages) now correctly show ALL statistics
+     Previous: V9.42 - Enhanced animations and unified player modals -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -5144,8 +5144,10 @@
                 const modalTrainingChartInPlayer = document.getElementById('modal-training-chart-in-player');
                 const modalTrainingSessionsInPlayer = document.getElementById('modal-training-sessions-in-player');
                 
+                // Get training data once for all elements
+                const trainingData = getPlayerTrainingData(playerName);
+                
                 if (modalTrainingStatsInPlayer) {
-                    const trainingData = getPlayerTrainingData(playerName);
                     modalTrainingStatsInPlayer.innerHTML = `
                         <div class="text-center">
                             <p class="text-3xl font-bold text-blue-600">${trainingData.presences}/${trainingData.totalSessions}</p>
@@ -5154,16 +5156,15 @@
                             <p class="text-sm text-gray-600">Percentuale Presenza</p>
                         </div>
                     `;
-                    
-                    if (modalTrainingTrendInPlayer) {
-                        modalTrainingTrendInPlayer.innerHTML = getTrendBadge(trainingData.trend);
-                    }
-                    if (modalTrainingChartInPlayer) {
-                        modalTrainingChartInPlayer.innerHTML = generateMiniChart(trainingData.chartData);
-                    }
-                    if (modalTrainingSessionsInPlayer) {
-                        modalTrainingSessionsInPlayer.innerHTML = generateTrainingList(trainingData.recentSessions);
-                    }
+                }
+                if (modalTrainingTrendInPlayer) {
+                    modalTrainingTrendInPlayer.innerHTML = getTrendBadge(trainingData.trend);
+                }
+                if (modalTrainingChartInPlayer) {
+                    modalTrainingChartInPlayer.innerHTML = generateMiniChart(trainingData.chartData);
+                }
+                if (modalTrainingSessionsInPlayer) {
+                    modalTrainingSessionsInPlayer.innerHTML = generateTrainingList(trainingData.recentSessions);
                 }
                 
                 playerModal.classList.add('show');
