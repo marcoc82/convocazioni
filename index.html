@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.45 - Fixed modal data loading and progress bar text sizing -->
+<!-- Version: V9.47 - Fixed training data aggregation to only count sessions where player is tracked, improved icons display -->
 <!-- V9.45 Changes:
      1. Bugfix: Added ensureTrainingSessionsLoaded() to load training data globally
      2. Bugfix: openPlayerModal and openTrainingModal now ensure training sessions are loaded before displaying
@@ -5008,6 +5008,13 @@
                 
                 trainingSessions.forEach(session => {
                     const attendance = session.attendance || {};
+                    
+                    // V9.47: Only count sessions where player is explicitly tracked
+                    // Skip sessions where player wasn't part of the team yet
+                    if (!(playerName in attendance)) {
+                        return; // Player not tracked in this session
+                    }
+                    
                     const isPresent = attendance[playerName] === true;
                     
                     playerSessions.push({
@@ -5061,7 +5068,10 @@
                     return '<div class="text-xs text-gray-500">Nessun dato disponibile</div>';
                 }
                 return sessions.map(session => {
-                    const icon = session.status === 'presente' ? '✅' : '❌';
+                    // V9.47: Use explicit green checkmark for present, red X for absent
+                    const icon = session.status === 'presente' 
+                        ? '<span style="color: #10b981; font-weight: bold;">✓</span>' 
+                        : '<span style="color: #ef4444; font-weight: bold;">✗</span>';
                     
                     // Format date
                     let formattedDate = session.date;
@@ -5078,7 +5088,7 @@
                     
                     return `
                         <div class="recent-callup ${session.status}">
-                            <span>${icon}</span>
+                            ${icon}
                             <div class="flex flex-col">
                                 <span><strong>${formattedDate}</strong></span>
                                 <span class="text-xs text-gray-600 mt-1">${session.status === 'presente' ? 'Presente' : 'Assente'}</span>
