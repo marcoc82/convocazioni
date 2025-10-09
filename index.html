@@ -447,7 +447,93 @@
             border-color: #9ca3af;
         }
         
-        /* Modern gradient button style with Aurea shadow */
+        /* Modern gradient button styles with Aurea shadow - Base */
+        .btn-base {
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Primary button - blu-turchese (main actions, entry points) */
+        .btn-primary {
+            background: linear-gradient(135deg, #4F8CFF 0%, #4FD1C5 100%);
+            box-shadow: 0 0 12px 2px #4FD1C5, 0 5px 18px rgba(79, 140, 255, 0.14);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px 4px #4FD1C5, 0 8px 24px rgba(79, 140, 255, 0.2);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        /* Secondary button - viola-azzurro (view/read actions) */
+        .btn-secondary {
+            background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+            box-shadow: 0 0 12px 2px #8B5CF6, 0 5px 18px rgba(139, 92, 246, 0.14);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px 4px #8B5CF6, 0 8px 24px rgba(139, 92, 246, 0.2);
+        }
+        
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+        
+        /* Warning button - rosso-arancio (delete, logout, cancel) */
+        .btn-warning {
+            background: linear-gradient(135deg, #EF4444 0%, #F97316 100%);
+            box-shadow: 0 0 12px 2px #EF4444, 0 5px 18px rgba(239, 68, 68, 0.14);
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px 4px #EF4444, 0 8px 24px rgba(239, 68, 68, 0.2);
+        }
+        
+        .btn-warning:active {
+            transform: translateY(0);
+        }
+        
+        /* Success button - verde-lime (save, confirm, create) */
+        .btn-success {
+            background: linear-gradient(135deg, #10B981 0%, #84CC16 100%);
+            box-shadow: 0 0 12px 2px #10B981, 0 5px 18px rgba(16, 185, 129, 0.14);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px 4px #10B981, 0 8px 24px rgba(16, 185, 129, 0.2);
+        }
+        
+        .btn-success:active {
+            transform: translateY(0);
+        }
+        
+        /* Neutral button - grigio-blu (back, navigation, share, manage) */
+        .btn-neutral {
+            background: linear-gradient(135deg, #64748B 0%, #475569 100%);
+            box-shadow: 0 0 12px 2px #64748B, 0 5px 18px rgba(100, 116, 139, 0.14);
+        }
+        
+        .btn-neutral:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px 4px #64748B, 0 8px 24px rgba(100, 116, 139, 0.2);
+        }
+        
+        .btn-neutral:active {
+            transform: translateY(0);
+        }
+        
+        /* Legacy class for backward compatibility */
         .btn-modern-gradient {
             background: linear-gradient(135deg, #4F8CFF 0%, #4FD1C5 100%);
             color: white;
@@ -494,7 +580,7 @@
                         <input type="checkbox" id="remember-company" class="rounded text-blue-500 focus:ring-blue-500">
                         <label for="remember-company" class="text-gray-700">Ricorda codice</label>
                     </div>
-                    <button id="verify-company-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="verify-company-button" class="w-full btn-base btn-primary focus:outline-none focus:ring-2">
                         Verifica
                     </button>
                 </div>
@@ -522,48 +608,48 @@
                 </div>
                 <!-- Normal login buttons (hidden for guests) -->
                 <div id="normal-login-buttons" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="enter-mister-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="enter-mister-button" class="w-full btn-base btn-primary focus:outline-none focus:ring-2">
                         Entra come Mister
                     </button>
-                    <button id="enter-dirigente-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="enter-dirigente-button" class="w-full btn-base btn-primary focus:outline-none focus:ring-2">
                         Entra come Dirigente
                     </button>
                 </div>
                 <!-- Guest buttons (shown for both normal and guest users, but restricted for guests) -->
                 <div id="guest-allowed-buttons" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="view-history-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="view-history-button" class="w-full btn-base btn-secondary focus:outline-none focus:ring-2">
                         Storico Convocazioni
                     </button>
-                    <button id="welcome-attendance-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="welcome-attendance-button" class="w-full btn-base btn-secondary focus:outline-none focus:ring-2">
                         Riepilogo Convocazioni
                     </button>
                     <!-- V9.10: Removed "Presenze Allenamenti" button - no longer needed -->
                     <!-- <button id="training-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
                         Presenze Allenamenti
                     </button> -->
-                    <button id="allenamenti-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="allenamenti-button" class="w-full btn-base btn-secondary focus:outline-none focus:ring-2">
                         🏃 Allenamenti
                     </button>
                 </div>
                 <!-- Campionato button (shown for POLIS PIEVE 2010 regardless of login type) -->
                 <div id="campionato-container" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="campionato-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2 hidden">
+                    <button id="campionato-button" class="w-full btn-base btn-secondary focus:outline-none focus:ring-2 hidden">
                         ⚽ Campionato
                     </button>
                 </div>
                 <!-- Risultati button (always visible to all users, positioned after Campionato button) -->
                 <div id="area-polis2013-container" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="area-polis2013-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="area-polis2013-button" class="w-full btn-base btn-secondary focus:outline-none focus:ring-2">
                        ⚽ Risultati
                     </button>
                 </div>
                 <!-- Admin buttons (hidden for guests) -->
                 <div id="admin-buttons" class="grid grid-cols-1 gap-3">
-                    <button id="manage-players-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="manage-players-button" class="w-full btn-base btn-neutral focus:outline-none focus:ring-2">
                         Gestione Squadra
                     </button>
                 </div>
-                <button id="company-logout-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2 mt-3">
+                <button id="company-logout-button" class="w-full btn-base btn-warning focus:outline-none focus:ring-2 mt-3">
                     Logout
                 </button>
             </div>
@@ -577,7 +663,7 @@
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci la password</h2>
             <!-- Biometric Authentication Button (shown only for returning users with biometric enrolled) -->
             <div id="biometric-login-container" class="hidden mb-6">
-                <button type="button" id="biometric-login-button" class="w-full btn-modern-gradient py-4 focus:outline-none focus:ring-2 flex items-center justify-center gap-3">
+                <button type="button" id="biometric-login-button" class="w-full btn-base btn-primary py-4 focus:outline-none focus:ring-2 flex items-center justify-center gap-3">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
                     </svg>
@@ -595,14 +681,14 @@
                         <label for="remember-password" class="text-gray-600">Ricorda password</label>
                     </div>
                     <div class="flex gap-2">
-                        <button type="submit" id="confirm-password-button" class="flex-1 btn-modern-gradient focus:outline-none focus:ring-2">
+                        <button type="submit" id="confirm-password-button" class="flex-1 btn-base btn-success focus:outline-none focus:ring-2">
                             Conferma
                         </button>
-                        <button type="button" id="cancel-password-button" class="flex-1 btn-modern-gradient focus:outline-none focus:ring-2">
+                        <button type="button" id="cancel-password-button" class="flex-1 btn-base btn-warning focus:outline-none focus:ring-2">
                             Annulla
                         </button>
                     </div>
-                    <button type="button" id="change-password-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2 hidden">
+                    <button type="button" id="change-password-button" class="w-full btn-base btn-neutral focus:outline-none focus:ring-2 hidden">
                         🔑 Cambia Password
                     </button>
                 </div>
@@ -628,10 +714,10 @@
                         <input type="password" id="confirm-new-password-input" placeholder="Conferma nuova password" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500" required>
                     </div>
                     <div class="flex gap-2">
-                        <button type="submit" class="flex-1 btn-modern-gradient focus:outline-none focus:ring-2">
+                        <button type="submit" class="flex-1 btn-base btn-success focus:outline-none focus:ring-2">
                             Salva
                         </button>
-                        <button type="button" id="close-change-password-modal" class="flex-1 btn-modern-gradient focus:outline-none focus:ring-2">
+                        <button type="button" id="close-change-password-modal" class="flex-1 btn-base btn-warning focus:outline-none focus:ring-2">
                             Annulla
                         </button>
                     </div>
@@ -642,7 +728,7 @@
 
         <!-- Player Management Screen -->
         <div id="player-management-screen" class="hidden">
-            <button id="top-back-from-players-button" class="w-full mb-4 btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="top-back-from-players-button" class="w-full mb-4 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Gestione Squadra</h2>
@@ -681,7 +767,7 @@
                         <input type="text" id="company-partita-iva" placeholder="IT12345678901" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
                 </div>
-                <button id="save-company-info-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2 mb-4">
+                <button id="save-company-info-button" class="w-full btn-base btn-success focus:outline-none focus:ring-2 mb-4">
                     Salva Informazioni Società
                 </button>
                 <div id="save-company-message-area" class="mt-2 mb-4 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -715,7 +801,7 @@
                         <input type="text" id="player-matricola" placeholder="ABC123456" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
                 </div>
-                <button id="add-player-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2 mb-4">
+                <button id="add-player-button" class="w-full btn-base btn-success focus:outline-none focus:ring-2 mb-4">
                     Aggiungi Giocatore
                 </button>
                 <div id="company-players-list" class="space-y-2">
@@ -723,7 +809,7 @@
                 </div>
             </div>
             <div id="players-buttons-section" class="hidden mb-6">
-            <button id="save-players-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2 mb-4 disabled:bg-gray-400 disabled:cursor-not-allowed">
+            <button id="save-players-button" class="w-full btn-base btn-success focus:outline-none focus:ring-2 mb-4 disabled:bg-gray-400 disabled:cursor-not-allowed">
                 Salva Giocatori
             </button>
             <div id="save-players-message-area" class="mt-2 mb-4 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -742,14 +828,14 @@
                 <div class="flex flex-col gap-4 mb-4">
                     <input type="text" id="new-coach-input" placeholder="Nome mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <input type="text" id="new-coach-matricola-input" placeholder="Matricola mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
-                    <button id="add-coach-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="add-coach-button" class="w-full btn-base btn-success focus:outline-none focus:ring-2">
                         Aggiungi Mister
                     </button>
                 </div>
                 <div id="company-coaches-list" class="space-y-2 mb-4">
                     <!-- Company coaches will be loaded here -->
                 </div>
-                <button id="save-coaches-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                <button id="save-coaches-button" class="w-full btn-base btn-success focus:outline-none focus:ring-2 disabled:bg-gray-400 disabled:cursor-not-allowed">
                     Salva Mister
                 </button>
                 <div id="save-coaches-message-area" class="mt-2 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -769,20 +855,20 @@
                     <input type="text" id="new-director-name-input" placeholder="Nome dirigente" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <input type="text" id="new-director-surname-input" placeholder="Cognome dirigente" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <input type="text" id="new-director-matricola-input" placeholder="Matricola dirigente" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
-                    <button id="add-director-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="add-director-button" class="w-full btn-base btn-success focus:outline-none focus:ring-2">
                         Aggiungi Dirigente
                     </button>
                 </div>
                 <div id="company-directors-list" class="space-y-2 mb-4">
                     <!-- Company directors will be loaded here -->
                 </div>
-                <button id="save-directors-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                <button id="save-directors-button" class="w-full btn-base btn-success focus:outline-none focus:ring-2 disabled:bg-gray-400 disabled:cursor-not-allowed">
                     Salva Dirigenti
                 </button>
                 <div id="save-directors-message-area" class="mt-2 text-center text-sm font-medium text-gray-600 hidden"></div>
             </div>
             
-            <button id="back-from-players-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="back-from-players-button" class="w-full btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
         </div>
@@ -797,7 +883,7 @@
                         <input type="checkbox" id="remember-me" class="rounded text-blue-500 focus:ring-blue-500">
                         <label for="remember-me" class="text-gray-700">Ricordami</label>
                     </div>
-                    <button id="enter-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="enter-button" class="w-full btn-base btn-primary focus:outline-none focus:ring-2">
                         Entra
                     </button>
                 </div>
@@ -812,7 +898,7 @@
                 <p class="text-gray-600 mb-2">ID App attuale (il tuo ID):</p>
                 <div class="flex flex-col items-center">
                     <span id="app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
-                    <button id="create-team-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="create-team-button" class="w-full btn-base btn-success focus:outline-none focus:ring-2">
                         Entra
                     </button>
                 </div>
@@ -821,7 +907,7 @@
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">Partecipa a una squadra esistente</h3>
                 <div class="flex flex-col sm:flex-row gap-4">
                     <input type="text" id="join-app-id-input" placeholder="Incolla l'ID app qui" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
-                    <button id="join-team-button" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="join-team-button" class="w-full sm:w-auto btn-base btn-neutral focus:outline-none focus:ring-2">
                         Partecipa
                     </button>
                 </div>
@@ -830,7 +916,7 @@
                         <label for="remember-team-id" class="text-gray-700">Ricorda ID squadra</label>
                 </div>
             </div>
-            <button id="forget-data-button" class="w-full mt-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+            <button id="forget-data-button" class="w-full mt-4 btn-base btn-warning focus:outline-none focus:ring-2">
                 Dimentica i dati salvati
             </button>
             <div id="start-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -843,10 +929,10 @@
                 <p class="text-gray-600 mb-2">ID Squadra attuale:</p>
                 <div class="flex flex-col items-center">
                     <span id="current-app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
-                    <button id="change-team-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                    <button id="change-team-button" class="w-full btn-base btn-neutral focus:outline-none focus:ring-2">
                         Esci
                     </button>
-                    <button id="reset-selections-button" class="w-full mt-2 btn-modern-gradient focus:outline-none focus:ring-2 hidden">
+                    <button id="reset-selections-button" class="w-full mt-2 btn-base btn-warning focus:outline-none focus:ring-2 hidden">
                         RESET
                     </button>
                 </div>
@@ -874,7 +960,7 @@
                 </div>
                 <div id="notes-editable" class="hidden">
                     <textarea id="notes-textarea" placeholder="Inserisci le tue note qui..." class="w-full p-3 border border-yellow-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500" rows="3" style="min-height: 80px; overflow-y: hidden;"></textarea>
-                    <button id="save-notes-button" class="mt-2 btn-modern-gradient">
+                    <button id="save-notes-button" class="mt-2 btn-base btn-success">
                         Salva Note
                     </button>
                 </div>
@@ -949,7 +1035,7 @@
             <!-- Players List Section -->
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-lg font-semibold text-gray-700">Lista Giocatori</h2>
-                <button id="legend-button" class="hidden btn-modern-gradient text-sm px-3 py-1">
+                <button id="legend-button" class="hidden btn-base btn-neutral text-sm px-3 py-1">
                     🎨 Legenda Colori
                 </button>
             </div>
@@ -970,23 +1056,23 @@
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button id="save-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                <button id="save-button" class="w-full btn-base btn-success focus:outline-none focus:ring-2">
                     Salva
                 </button>
-                <button id="share-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
+                <button id="share-button" class="w-full btn-base btn-neutral focus:outline-none focus:ring-2">
                     Condividi le convocazioni
                 </button>
             </div>
-            <button id="modulo-button" class="w-full mt-4 btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="modulo-button" class="w-full mt-4 btn-base btn-secondary focus:outline-none focus:ring-2">
                 ⚽ Tattiche
             </button>
-            <button id="history-button" class="w-full mt-4 btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="history-button" class="w-full mt-4 btn-base btn-secondary focus:outline-none focus:ring-2">
                 Storico Convocazioni
             </button>
-            <button id="attendance-button" class="w-full mt-4 btn-modern-gradient focus:outline-none focus:ring-2 hidden">
+            <button id="attendance-button" class="w-full mt-4 btn-base btn-secondary focus:outline-none focus:ring-2 hidden">
                 Riepilogo Convocazioni
             </button>
-            <button id="esci-button" class="w-full mt-4 btn-modern-gradient focus:outline-none focus:ring-2 hidden">
+            <button id="esci-button" class="w-full mt-4 btn-base btn-warning focus:outline-none focus:ring-2 hidden">
                 ESCI
             </button>
             <div id="message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
@@ -1009,7 +1095,7 @@
 
         <!-- Convocations History View (using Firestore) -->
         <div id="history-view" class="hidden">
-            <button id="top-back-from-history-button" class="w-full mb-4 btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="top-back-from-history-button" class="w-full mb-4 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Storico Convocazioni</h2>
@@ -1031,14 +1117,14 @@
             <div id="history-list" class="space-y-4">
                 <!-- History items will be populated here -->
             </div>
-            <button id="back-from-history-button" class="w-full mt-6 btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="back-from-history-button" class="w-full mt-6 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
         </div>
 
         <!-- Attendance Summary View -->
         <div id="attendance-view" class="hidden">
-            <button id="top-back-from-attendance-button" class="w-full mb-4 btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="top-back-from-attendance-button" class="w-full mb-4 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h2>
@@ -1155,7 +1241,7 @@
             </div>
             </div>
 
-            <button id="back-from-attendance-button" class="w-full mt-6 btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="back-from-attendance-button" class="w-full mt-6 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
         </div>
@@ -1213,7 +1299,7 @@
 
         <!-- Allenamenti Management View (V8.11) -->
         <div id="allenamenti-view" class="hidden">
-            <button id="top-back-from-allenamenti-button" class="w-full mb-4 btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="top-back-from-allenamenti-button" class="w-full mb-4 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">🏃 Gestione Allenamenti</h2>
@@ -1238,7 +1324,7 @@
                             <option value="month">Mese corrente</option>
                             <option value="year" selected>Anno corrente</option>
                         </select>
-                        <button id="refresh-report-button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+                        <button id="refresh-report-button" class="btn-base btn-primary px-4 py-2 rounded-lg font-medium">
                             Aggiorna
                         </button>
                     </div>
@@ -1275,7 +1361,7 @@
                             <option value="month">Mese corrente</option>
                             <option value="year">Anno corrente</option>
                         </select>
-                        <button id="add-training-session-button" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium whitespace-nowrap">
+                        <button id="add-training-session-button" class="btn-base btn-success px-4 py-2 rounded-lg font-medium whitespace-nowrap">
                             + Nuovo
                         </button>
                     </div>
@@ -1298,7 +1384,7 @@
                 </div>
             </div>
             
-            <button id="back-from-allenamenti-button" class="w-full mt-6 btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="back-from-allenamenti-button" class="w-full mt-6 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
         </div>
@@ -1777,7 +1863,7 @@
                     </div>
                 </div>
             </div>
-            <button id="close-legend-modal" class="mt-6 w-full btn-modern-gradient focus:outline-none focus:ring-2">
+            <button id="close-legend-modal" class="mt-6 w-full btn-base btn-neutral focus:outline-none focus:ring-2">
                 Chiudi
             </button>
         </div>
