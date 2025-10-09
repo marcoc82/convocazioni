@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.44 Modal Refactoring - Test & Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .version-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .test-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .test-card h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .test-card h3 {
+            color: #764ba2;
+            font-size: 1.3rem;
+            margin: 20px 0 10px 0;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-box h4 {
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        
+        .feature-box p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .old-code {
+            background: #ffe6e6;
+            border-left: 4px solid #ff4444;
+        }
+        
+        .new-code {
+            background: #e6ffe6;
+            border-left: 4px solid #44ff44;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f8;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .checklist {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: start;
+            margin: 12px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .checklist-item input[type="checkbox"] {
+            margin-right: 15px;
+            margin-top: 3px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .checklist-item label {
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .checklist-item strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .benefit-badge {
+            display: inline-block;
+            background: #44ff44;
+            color: #006600;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin: 5px 5px 5px 0;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin: 5px 5px 5px 0;
+        }
+        
+        .status-completed {
+            background: #44ff44;
+            color: #006600;
+        }
+        
+        .status-unchanged {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .highlight-box h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            margin-left: 25px;
+            line-height: 1.8;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 30px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 V9.44 Modal Refactoring</h1>
+            <p>Test & Verification Guide</p>
+            <span class="version-badge">Version 9.44</span>
+        </div>
+
+        <!-- Problem Statement -->
+        <div class="test-card">
+            <h2>📋 Problem Statement</h2>
+            <p style="font-size: 1.1rem; line-height: 1.8; color: #333; margin: 15px 0;">
+                <strong>Italian:</strong> Refactor la funzione e la modale delle statistiche giocatore in modo che, da qualsiasi pagina 
+                (riepilogo convocazioni, allenamenti, gestione allenamenti), quando si clicca su un giocatore venga sempre mostrato 
+                nella modale TUTTE le sue statistiche (allenamenti + convocazioni: presenze, partite, media, percentuali, ecc.), 
+                senza dipendere dalla pagina di origine o da stato precedente. La raccolta dati deve essere sempre aggiornata e 
+                aggregata al momento dell'apertura della modale. La visualizzazione deve essere coerente e completa ovunque si apre la modale.
+            </p>
+            <p style="font-size: 1.1rem; line-height: 1.8; color: #333; margin: 15px 0;">
+                <strong>English:</strong> Refactor the player statistics modal function so that from any page, clicking on a player 
+                always shows ALL statistics (training + convocations) without depending on source page or previous state. 
+                Data collection must be fresh and aggregated at modal opening time. Display must be consistent and complete everywhere.
+            </p>
+        </div>
+
+        <!-- Key Changes -->
+        <div class="test-card">
+            <h2>🔄 Key Changes in V9.44</h2>
+            <div class="feature-grid">
+                <div class="feature-box">
+                    <h4>✅ Simplified API</h4>
+                    <p>Modal functions now accept only <code>playerName</code> parameter instead of multiple pre-calculated data objects</p>
+                </div>
+                <div class="feature-box">
+                    <h4>✅ Fresh Data</h4>
+                    <p>All statistics collected fresh inside modal functions at opening time</p>
+                </div>
+                <div class="feature-box">
+                    <h4>✅ Page Independent</h4>
+                    <p>Modal behavior identical regardless of source page (Riepilogo, Allenamenti, Gestione)</p>
+                </div>
+                <div class="feature-box">
+                    <h4>✅ Always Complete</h4>
+                    <p>Both Convocazioni AND Allenamenti sections always populated with current data</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Before/After Comparison -->
+        <div class="test-card">
+            <h2>⚖️ Before vs After Comparison</h2>
+            
+            <h3>Function Signatures</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Function</th>
+                        <th class="old-code">V9.43 (Before)</th>
+                        <th class="new-code">V9.44 (After)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>openPlayerModal</code></td>
+                        <td class="old-code"><code>(playerName, trend, chartData, recentCallups)</code></td>
+                        <td class="new-code"><code>(playerName)</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>openTrainingModal</code></td>
+                        <td class="old-code"><code>(playerName, trainingData)</code></td>
+                        <td class="new-code"><code>(playerName)</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Call Sites</h3>
+            <div style="margin: 20px 0;">
+                <h4>Before (V9.43):</h4>
+                <pre>// Riepilogo Convocazioni page
+const trend = getPlayerTrend(playerNameOnly);
+const chartData = getPlayerChartData(playerNameOnly);
+const recentCallups = getRecentCallups(playerNameOnly);
+// ... later ...
+openPlayerModal(playerNameOnly, trend, chartData, recentCallups);
+
+// Allenamenti page
+const trainingData = getPlayerTrainingData(stat.player);
+// ... later ...
+openTrainingModal(playerNameOnly, trainingData);</pre>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h4>After (V9.44):</h4>
+                <pre>// From ANY page - simple and consistent
+openPlayerModal(playerNameOnly);
+// or
+openTrainingModal(playerNameOnly);</pre>
+            </div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="test-card">
+            <h2>🎁 Benefits of This Refactoring</h2>
+            <div class="highlight-box">
+                <h3>1. Data Independence</h3>
+                <p>Modal functions don't rely on caller's data preparation. Each opening triggers fresh data collection, eliminating risk of stale or incomplete data.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>2. Simplified API</h3>
+                <p>Only one parameter needed. Easier to call from anywhere, with less chance of errors from missing or incorrect parameters.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>3. Consistency Guaranteed</h3>
+                <p>Same data collection logic regardless of source page. Complete statistics every time, predictable behavior everywhere.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>4. Better Performance</h3>
+                <p>Loops no longer pre-calculate unused data. Data collected only when modal actually opens. Net positive for performance.</p>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>5. Future-Proof Design</h3>
+                <p>Adding new statistics requires changes only in modal functions. New call sites need only pass playerName. Easy to extend and maintain.</p>
+            </div>
+        </div>
+
+        <!-- Testing Checklist -->
+        <div class="test-card">
+            <h2>🧪 Testing Checklist</h2>
+            
+            <h3>Test 1: Modal from Riepilogo Convocazioni</h3>
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="test1-1">
+                    <label for="test1-1">
+                        <strong>Open Riepilogo Convocazioni page</strong>
+                        Navigate to the convocations summary section
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test1-2">
+                    <label for="test1-2">
+                        <strong>Click on a player name</strong>
+                        Player name should be clickable (cursor: pointer)
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test1-3">
+                    <label for="test1-3">
+                        <strong>Verify Convocazioni section appears</strong>
+                        Check: stats, trend badge, chart (8 bars), recent callups list (5 items)
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test1-4">
+                    <label for="test1-4">
+                        <strong>Verify Allenamenti section appears</strong>
+                        Check: stats, trend badge, chart (8 bars), recent sessions list (5 items)
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test1-5">
+                    <label for="test1-5">
+                        <strong>Test with different players</strong>
+                        Close modal, click another player, verify data changes appropriately
+                    </label>
+                </div>
+            </div>
+
+            <h3>Test 2: Modal from Allenamenti Page</h3>
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="test2-1">
+                    <label for="test2-1">
+                        <strong>Open Presenze Allenamenti page</strong>
+                        Navigate to the training attendance section
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test2-2">
+                    <label for="test2-2">
+                        <strong>Click on a player name</strong>
+                        Player name should open the training modal
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test2-3">
+                    <label for="test2-3">
+                        <strong>Verify Allenamenti section appears</strong>
+                        Check: stats, trend badge, chart (8 bars), recent sessions list (5 items)
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test2-4">
+                    <label for="test2-4">
+                        <strong>Verify Convocazioni section appears</strong>
+                        Check: stats, trend badge, chart (8 bars), recent callups list (5 items)
+                    </label>
+                </div>
+            </div>
+
+            <h3>Test 3: Data Freshness</h3>
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="test3-1">
+                    <label for="test3-1">
+                        <strong>Add new training session</strong>
+                        Go to Gestione Allenamenti and create a new session with attendance
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test3-2">
+                    <label for="test3-2">
+                        <strong>Immediately open player modal</strong>
+                        Click on a player who attended the new session
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test3-3">
+                    <label for="test3-3">
+                        <strong>Verify new session appears</strong>
+                        The new session should be in the statistics and recent sessions list
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test3-4">
+                    <label for="test3-4">
+                        <strong>Verify percentages updated</strong>
+                        Training percentage should reflect the new session
+                    </label>
+                </div>
+            </div>
+
+            <h3>Test 4: Cross-Page Consistency</h3>
+            <div class="checklist">
+                <div class="checklist-item">
+                    <input type="checkbox" id="test4-1">
+                    <label for="test4-1">
+                        <strong>Open modal from Riepilogo for Player A</strong>
+                        Note down: convocations count, training count, percentages
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test4-2">
+                    <label for="test4-2">
+                        <strong>Close modal and navigate to Allenamenti</strong>
+                        Find Player A in the training list
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test4-3">
+                    <label for="test4-3">
+                        <strong>Open modal from Allenamenti for Player A</strong>
+                        Verify statistics match exactly with previous modal
+                    </label>
+                </div>
+                <div class="checklist-item">
+                    <input type="checkbox" id="test4-4">
+                    <label for="test4-4">
+                        <strong>Verify both sections present in both modals</strong>
+                        Both modals should show identical data, just different section order
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Details -->
+        <div class="test-card">
+            <h2>🔧 Implementation Details</h2>
+            
+            <h3>Files Modified</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>File</th>
+                        <th>Lines</th>
+                        <th>Changes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>index.html</td>
+                        <td>1-7</td>
+                        <td>Updated version header to V9.44</td>
+                    </tr>
+                    <tr>
+                        <td>index.html</td>
+                        <td>~5067-5108</td>
+                        <td>Refactored <code>openTrainingModal()</code></td>
+                    </tr>
+                    <tr>
+                        <td>index.html</td>
+                        <td>~5128-5172</td>
+                        <td>Refactored <code>openPlayerModal()</code></td>
+                    </tr>
+                    <tr>
+                        <td>index.html</td>
+                        <td>~5461-5497</td>
+                        <td>Updated call site (Riepilogo - real data)</td>
+                    </tr>
+                    <tr>
+                        <td>index.html</td>
+                        <td>~5900-5918</td>
+                        <td>Updated call site (Riepilogo - demo data)</td>
+                    </tr>
+                    <tr>
+                        <td>index.html</td>
+                        <td>~8265-8295</td>
+                        <td>Updated call site (Allenamenti page)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>What Was NOT Changed</h3>
+            <div style="margin: 20px 0;">
+                <span class="status-badge status-unchanged">Modal HTML structures</span>
+                <span class="status-badge status-unchanged">Helper functions</span>
+                <span class="status-badge status-unchanged">CSS styles</span>
+                <span class="status-badge status-unchanged">Database operations</span>
+                <span class="status-badge status-unchanged">Navigation logic</span>
+            </div>
+        </div>
+
+        <!-- Expected Behavior -->
+        <div class="test-card">
+            <h2>✨ Expected Behavior</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Source Page</th>
+                        <th>Modal Function</th>
+                        <th>Data Collected</th>
+                        <th>When Collected</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Riepilogo Convocazioni</td>
+                        <td><code>openPlayerModal()</code></td>
+                        <td>Convocazioni + Training (ALL)</td>
+                        <td>At modal open time ✅</td>
+                    </tr>
+                    <tr>
+                        <td>Allenamenti</td>
+                        <td><code>openTrainingModal()</code></td>
+                        <td>Training + Convocazioni (ALL)</td>
+                        <td>At modal open time ✅</td>
+                    </tr>
+                    <tr>
+                        <td>Gestione Allenamenti</td>
+                        <td><code>openTrainingModal()</code></td>
+                        <td>Training + Convocazioni (ALL)</td>
+                        <td>At modal open time ✅</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Modal Content Structure</h3>
+            <p>Both modals always display:</p>
+            <ul>
+                <li><strong>⚽ Convocazioni Section:</strong>
+                    <ul>
+                        <li>📊 Statistics (count, percentage)</li>
+                        <li>📈 Trend badge (positive/neutral/negative)</li>
+                        <li>📊 Last 8 matches chart</li>
+                        <li>🗓️ Last 5 convocazioni list</li>
+                    </ul>
+                </li>
+                <li><strong>🏃 Allenamenti Section:</strong>
+                    <ul>
+                        <li>📊 Statistics (count, percentage)</li>
+                        <li>📈 Trend badge (positive/neutral/negative)</li>
+                        <li>📊 Last 8 trainings chart</li>
+                        <li>🗓️ Last 5 sessions list</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Requirements Verification -->
+        <div class="test-card">
+            <h2>✅ Requirements Verification</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Requirement</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Modal from any page shows ALL statistics</td>
+                        <td><span class="status-badge status-completed">✅ Fixed</span></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Data collection happens at modal opening</td>
+                        <td><span class="status-badge status-completed">✅ Implemented</span></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>No dependency on source page</td>
+                        <td><span class="status-badge status-completed">✅ Implemented</span></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>No dependency on previous state</td>
+                        <td><span class="status-badge status-completed">✅ Implemented</span></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Always fresh and aggregated data</td>
+                        <td><span class="status-badge status-completed">✅ Implemented</span></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Consistent display from all pages</td>
+                        <td><span class="status-badge status-completed">✅ Implemented</span></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Complete convocazioni + training data</td>
+                        <td><span class="status-badge status-completed">✅ Implemented</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p style="font-size: 1.2rem; margin-bottom: 10px;">
+                <strong>V9.44 - Modal Refactoring Complete</strong>
+            </p>
+            <p style="opacity: 0.8;">
+                Data-independent, page-agnostic player statistics modals
+            </p>
+        </div>
+    </div>
+</body>
+</html>
