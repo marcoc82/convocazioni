@@ -5007,13 +5007,35 @@
                 trainingSessions.forEach(session => {
                     const attendance = session.attendance || {};
                     
-                    // V9.47: Only count sessions where player is explicitly tracked
-                    // Skip sessions where player wasn't part of the team yet
-                    if (!(playerName in attendance)) {
-                        return; // Player not tracked in this session
+                    // V9.48: Fix player name matching - handle both full name with jersey number and name-only
+                    // Try exact match first
+                    let matchedKey = null;
+                    let isPresent = false;
+                    
+                    if (playerName in attendance) {
+                        // Exact match found
+                        matchedKey = playerName;
+                        isPresent = attendance[playerName] === true;
+                    } else {
+                        // Try to find by matching name without jersey number
+                        // Normalize the input playerName (remove jersey number if present)
+                        const normalizedInputName = playerName.replace(/^\d+\s*/, '').trim().toLowerCase();
+                        
+                        // Search through attendance keys
+                        for (const key in attendance) {
+                            const normalizedKey = key.replace(/^\d+\s*/, '').trim().toLowerCase();
+                            if (normalizedKey === normalizedInputName) {
+                                matchedKey = key;
+                                isPresent = attendance[key] === true;
+                                break;
+                            }
+                        }
                     }
                     
-                    const isPresent = attendance[playerName] === true;
+                    // V9.48: Only count sessions where player was tracked (matchedKey found)
+                    if (!matchedKey) {
+                        return; // Player not tracked in this session
+                    }
                     
                     playerSessions.push({
                         date: session.date,
