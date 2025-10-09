@@ -483,6 +483,91 @@
         body.dark-mode input::placeholder {
             color: #9ca3af !important;
         }
+        /* Dark mode for specific sections */
+        body.dark-mode .bg-red-100 {
+            background-color: #7f1d1d !important;
+        }
+        body.dark-mode .bg-red-200 {
+            background-color: #991b1b !important;
+        }
+        body.dark-mode .text-red-700 {
+            color: #fca5a5 !important;
+        }
+        body.dark-mode .text-red-600 {
+            color: #fecaca !important;
+        }
+        body.dark-mode .border-red-200 {
+            border-color: #991b1b !important;
+        }
+        body.dark-mode .bg-yellow-100 {
+            background-color: #78350f !important;
+        }
+        body.dark-mode .text-yellow-700 {
+            color: #fde047 !important;
+        }
+        body.dark-mode .text-yellow-800 {
+            color: #fef08a !important;
+        }
+        body.dark-mode .border-yellow-300 {
+            border-color: #92400e !important;
+        }
+        body.dark-mode .bg-blue-50 {
+            background-color: #1e3a8a !important;
+        }
+        body.dark-mode .bg-blue-100 {
+            background-color: #1e40af !important;
+        }
+        body.dark-mode .text-blue-800 {
+            color: #93c5fd !important;
+        }
+        body.dark-mode .text-blue-600 {
+            color: #bfdbfe !important;
+        }
+        body.dark-mode .border-blue-200 {
+            border-color: #1e40af !important;
+        }
+        /* Make player items light gray in dark mode for better visibility */
+        body.dark-mode .player-item {
+            background-color: #d1d5db !important;
+            color: #1f2937 !important;
+        }
+        /* Ensure selected player states remain visible in dark mode */
+        body.dark-mode .player-item.selected-mister {
+            background-color: #93c5fd !important;
+            color: #1e3a8a !important;
+        }
+        body.dark-mode .player-item.selected-marco {
+            background-color: #fca5a5 !important;
+            color: #7f1d1d !important;
+        }
+        body.dark-mode .player-item.selected-marco-orange {
+            background-color: #fdba74 !important;
+            color: #7c2d12 !important;
+        }
+        body.dark-mode .player-item.selected-marco-black {
+            background-color: #1f2937 !important;
+            color: #ffffff !important;
+        }
+        body.dark-mode .player-item.selected-marco-purple {
+            background-color: #a78bfa !important;
+            color: #4c1d95 !important;
+        }
+        body.dark-mode .player-item.selected-marco-blue-dark {
+            background-color: #3b82f6 !important;
+            color: #ffffff !important;
+        }
+        body.dark-mode .player-item.selected-marco-red {
+            background-color: #ef4444 !important;
+            color: #ffffff !important;
+        }
+        body.dark-mode .player-item.selected-marco-white {
+            background-color: #f3f4f6 !important;
+            color: #1f2937 !important;
+        }
+        body.dark-mode .player-item.selected-marco-yellow {
+            background-color: #fbbf24 !important;
+            color: #78350f !important;
+        }
         #theme-toggle-button {
             position: absolute;
             top: 20px;
@@ -623,6 +708,10 @@
                     <p id="role-prompt" class="text-center text-gray-600"></p>
                     <input type="text" id="username-input" autocomplete="username" style="display: none;" aria-hidden="true">
                     <input type="password" id="password-input" placeholder="Password" autocomplete="current-password" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="remember-password" class="rounded text-blue-500 focus:ring-blue-500">
+                        <label for="remember-password" class="text-gray-600">Ricorda password</label>
+                    </div>
                     <div class="flex gap-2">
                         <button type="submit" id="confirm-password-button" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
                             Conferma
@@ -906,7 +995,7 @@
             </div>
 
             <!-- View of unavailable players (visible to both Mister and Marco) -->
-            <div id="unavailable-players-view" class="bg-red-100 p-4 rounded-xl mb-6 shadow-sm border border-red-200 hidden">
+            <div id="unavailable-players-view" class="mt-6 bg-red-100 p-4 rounded-xl mb-6 shadow-sm border border-red-200 hidden">
                 <h2 id="unavailable-players-title" class="text-lg font-semibold text-red-700 mb-2">Giocatori Non Disponibili (Segnalati dal Dirigente)</h2>
                 <ul id="unavailable-players-list" class="space-y-1 text-red-600">
                     <!-- Non-available players will be listed here -->
@@ -2406,7 +2495,24 @@
                 hideAllScreens();
                 pendingRole = role;
                 rolePrompt.textContent = `Inserisci la password per ${role === 'mister' ? 'Mister' : 'Dirigente'}:`;
-                passwordInput.value = '';
+                
+                // Check if password is saved
+                const storageKey = `saved_password_${currentCompanyCode}_${role}`;
+                const savedPassword = localStorage.getItem(storageKey);
+                const rememberPasswordCheckbox = document.getElementById('remember-password');
+                
+                if (savedPassword) {
+                    passwordInput.value = savedPassword;
+                    if (rememberPasswordCheckbox) {
+                        rememberPasswordCheckbox.checked = true;
+                    }
+                } else {
+                    passwordInput.value = '';
+                    if (rememberPasswordCheckbox) {
+                        rememberPasswordCheckbox.checked = false;
+                    }
+                }
+                
                 passwordEntryScreen.classList.remove('hidden');
                 
                 // Show change password button for mister and dirigente roles
@@ -2502,6 +2608,8 @@
             // Common password validation function for demo mode
             async function handlePasswordSubmissionDemo() {
                 const password = passwordInput.value.trim();
+                const rememberPassword = document.getElementById('remember-password')?.checked || false;
+                
                 if (!password) {
                     showMessage(passwordEntryMessageArea, "Inserisci la password.");
                     return;
@@ -2517,6 +2625,17 @@
                 
                 if (isValid) {
                     showMessage(passwordEntryMessageArea, "Accesso effettuato! (Demo mode)", false);
+                    
+                    // Save password if remember is checked
+                    if (rememberPassword) {
+                        const storageKey = `saved_password_${currentCompanyCode}_${pendingRole}`;
+                        localStorage.setItem(storageKey, password);
+                        console.log('🔐 Password saved for', pendingRole);
+                    } else {
+                        // Remove saved password if remember is unchecked
+                        const storageKey = `saved_password_${currentCompanyCode}_${pendingRole}`;
+                        localStorage.removeItem(storageKey);
+                    }
                     
                     // Register biometric authentication if not already enrolled (demo mode)
                     if (isBiometricSupported() && !hasBiometricEnrolled(currentCompanyCode, pendingRole)) {
@@ -7590,7 +7709,24 @@
                 hideAllScreens();
                 pendingRole = role;
                 rolePrompt.textContent = `Inserisci la password per ${role === 'mister' ? 'Mister' : 'Dirigente'}:`;
-                passwordInput.value = '';
+                
+                // Check if password is saved
+                const storageKey = `saved_password_${currentCompanyCode}_${role}`;
+                const savedPassword = localStorage.getItem(storageKey);
+                const rememberPasswordCheckbox = document.getElementById('remember-password');
+                
+                if (savedPassword) {
+                    passwordInput.value = savedPassword;
+                    if (rememberPasswordCheckbox) {
+                        rememberPasswordCheckbox.checked = true;
+                    }
+                } else {
+                    passwordInput.value = '';
+                    if (rememberPasswordCheckbox) {
+                        rememberPasswordCheckbox.checked = false;
+                    }
+                }
+                
                 passwordEntryScreen.classList.remove('hidden');
                 
                 // Show change password button for mister and dirigente roles
@@ -10658,6 +10794,8 @@
             // Common password validation function for main script
             async function handlePasswordSubmissionMain() {
                 const password = passwordInput.value.trim();
+                const rememberPassword = document.getElementById('remember-password')?.checked || false;
+                
                 if (!password) {
                     passwordEntryMessageArea.textContent = "Inserisci la password.";
                     passwordEntryMessageArea.classList.remove('hidden');
@@ -10670,6 +10808,17 @@
                 if (isValid) {
                     userRole = pendingRole;
                     localStorage.setItem('userRole', userRole);
+                    
+                    // Save password if remember is checked
+                    if (rememberPassword) {
+                        const storageKey = `saved_password_${currentCompanyCode}_${pendingRole}`;
+                        localStorage.setItem(storageKey, password);
+                        console.log('🔐 Password saved for', pendingRole);
+                    } else {
+                        // Remove saved password if remember is unchecked
+                        const storageKey = `saved_password_${currentCompanyCode}_${pendingRole}`;
+                        localStorage.removeItem(storageKey);
+                    }
                     
                     // 🔍 DIAGNOSTIC LOG: Login as mister/dirigente with company info
                     console.log(`🔑 [DIAGNOSTIC] Login come ${userRole}:`);
