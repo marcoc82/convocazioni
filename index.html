@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<!-- Version: V9.47 - Fixed training data aggregation to only count sessions where player is tracked, improved icons display -->
-<!-- V9.45 Changes:
-     1. Bugfix: Added ensureTrainingSessionsLoaded() to load training data globally
-     2. Bugfix: openPlayerModal and openTrainingModal now ensure training sessions are loaded before displaying
-     3. UI fix: Reduced progress bar percentage text size from 0.75rem to 0.625rem (mobile) and 0.7rem (desktop)
-     4. Fixed issue where modal from Riepilogo Convocazioni showed only convocazioni stats without training data
-     Previous: V9.44 - Refactored player statistics modals for complete data independence -->
+<!-- Version: V9.48 - Load convocations on Allenamenti page; Conditional Girone/Giornata for Distinta -->
+<!-- V9.48 Changes:
+     1. Enhancement: loadAllenamentiData() now loads convocation history in addition to training sessions
+     2. Enhancement: Girone and Giornata modal only shown for "Campionato" matches, skipped for "Torneo" and "Amichevole"
+     Previous: V9.47 - Fixed training data aggregation to only count sessions where player is tracked, improved icons display -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -479,7 +477,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.40</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.48</span>
             </div>
         </div>
 
@@ -7634,9 +7632,12 @@
             // Load allenamenti data (sessions and report) - V8.11
             async function loadAllenamentiData() {
                 console.log('🏃 Loading Allenamenti data... (V8.11)');
+                // V9.47: Load both training sessions, report, and convocation history
+                // This ensures modal data is complete when opened from allenamenti page
                 await Promise.all([
                     loadTrainingSessions(),
-                    loadAllenamentiReport()
+                    loadAllenamentiReport(),
+                    ensureConvocationHistoryLoaded()
                 ]);
                 
                 // V8.11: Handle guest read-only mode
@@ -9494,8 +9495,21 @@
                 console.log('🚪 DISTINTA FLOW: Hiding dirigenti modal...');
                 hideDistintaDirigentiModal();
                 
-                console.log('📝 DISTINTA FLOW: About to show match info modal for Girone and Giornata...');
-                showDistintaMatchInfoModal();
+                // V9.47: Check match type to determine if girone/giornata modal is needed
+                const matchTipo = window.currentDistintaData?.details?.tipo;
+                console.log('🎯 Match tipo:', matchTipo);
+                
+                // Show girone/giornata modal only for "Campionato"
+                if (matchTipo === 'Campionato') {
+                    console.log('⚽ Match is Campionato - showing girone/giornata modal...');
+                    showDistintaMatchInfoModal();
+                } else {
+                    console.log(`🏆 Match is ${matchTipo} - skipping girone/giornata modal, proceeding directly to distinta generation...`);
+                    // Clear girone and giornata for non-Campionato matches
+                    selectedGirone = '';
+                    selectedGiornata = '';
+                    generateDistinta();
+                }
             }
 
             function confirmMatchInfo() {
