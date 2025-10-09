@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- Version: V9.50 - Removed dark mode, kept change password functionality and training checkboxes -->
-<!-- V9.50 Changes:
-     1. Removed dark/light theme toggle and all related dark mode styles
-     2. Kept "Cambia Password" button for Mister and Dirigente on password entry screen
-     3. Kept "Ricorda password" checkbox functionality for Mister and Dirigente
-     4. Training attendance checkboxes remain green (from V9.6)
-     Previous: V9.49 - Dark mode toggle, change password functionality, training checkboxes green -->
+<!-- Version: V9.51 - Reduced shadow intensity and added distinct colors for Allenamenti, Campionato, and Risultati buttons -->
+<!-- V9.51 Changes:
+     1. Reduced box-shadow intensity on all modern buttons for a more balanced appearance
+     2. Added distinct colors: Allenamenti (orange), Campionato (green), Risultati (purple)
+     3. Removed old dynamic color-changing logic for Campionato button (now uses consistent green gradient)
+     4. Maintained modern design with gradients, rounded corners, and hover animations
+     Previous: V9.50 - Removed dark mode, kept change password functionality and training checkboxes -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -461,12 +461,12 @@
         /* Primary button - blu-turchese (main actions, entry points) */
         .btn-primary {
             background: linear-gradient(135deg, #4F8CFF 0%, #4FD1C5 100%);
-            box-shadow: 0 0 12px 2px #4FD1C5, 0 5px 18px rgba(79, 140, 255, 0.14);
+            box-shadow: 0 0 8px 1px rgba(79, 209, 197, 0.3), 0 3px 12px rgba(79, 140, 255, 0.1);
         }
         
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 16px 4px #4FD1C5, 0 8px 24px rgba(79, 140, 255, 0.2);
+            box-shadow: 0 0 10px 2px rgba(79, 209, 197, 0.4), 0 5px 16px rgba(79, 140, 255, 0.15);
         }
         
         .btn-primary:active {
@@ -476,12 +476,12 @@
         /* Secondary button - viola-azzurro (view/read actions) */
         .btn-secondary {
             background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
-            box-shadow: 0 0 12px 2px #8B5CF6, 0 5px 18px rgba(139, 92, 246, 0.14);
+            box-shadow: 0 0 8px 1px rgba(139, 92, 246, 0.3), 0 3px 12px rgba(59, 130, 246, 0.1);
         }
         
         .btn-secondary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 16px 4px #8B5CF6, 0 8px 24px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 10px 2px rgba(139, 92, 246, 0.4), 0 5px 16px rgba(59, 130, 246, 0.15);
         }
         
         .btn-secondary:active {
@@ -491,12 +491,12 @@
         /* Warning button - rosso-arancio (delete, logout, cancel) */
         .btn-warning {
             background: linear-gradient(135deg, #EF4444 0%, #F97316 100%);
-            box-shadow: 0 0 12px 2px #EF4444, 0 5px 18px rgba(239, 68, 68, 0.14);
+            box-shadow: 0 0 8px 1px rgba(239, 68, 68, 0.3), 0 3px 12px rgba(249, 115, 22, 0.1);
         }
         
         .btn-warning:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 16px 4px #EF4444, 0 8px 24px rgba(239, 68, 68, 0.2);
+            box-shadow: 0 0 10px 2px rgba(239, 68, 68, 0.4), 0 5px 16px rgba(249, 115, 22, 0.15);
         }
         
         .btn-warning:active {
@@ -506,12 +506,12 @@
         /* Success button - verde-lime (save, confirm, create) */
         .btn-success {
             background: linear-gradient(135deg, #10B981 0%, #84CC16 100%);
-            box-shadow: 0 0 12px 2px #10B981, 0 5px 18px rgba(16, 185, 129, 0.14);
+            box-shadow: 0 0 8px 1px rgba(16, 185, 129, 0.3), 0 3px 12px rgba(132, 204, 22, 0.1);
         }
         
         .btn-success:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 16px 4px #10B981, 0 8px 24px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 10px 2px rgba(16, 185, 129, 0.4), 0 5px 16px rgba(132, 204, 22, 0.15);
         }
         
         .btn-success:active {
@@ -521,15 +521,60 @@
         /* Neutral button - grigio-blu (back, navigation, share, manage) */
         .btn-neutral {
             background: linear-gradient(135deg, #64748B 0%, #475569 100%);
-            box-shadow: 0 0 12px 2px #64748B, 0 5px 18px rgba(100, 116, 139, 0.14);
+            box-shadow: 0 0 8px 1px rgba(100, 116, 139, 0.3), 0 3px 12px rgba(71, 85, 105, 0.1);
         }
         
         .btn-neutral:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 16px 4px #64748B, 0 8px 24px rgba(100, 116, 139, 0.2);
+            box-shadow: 0 0 10px 2px rgba(100, 116, 139, 0.4), 0 5px 16px rgba(71, 85, 105, 0.15);
         }
         
         .btn-neutral:active {
+            transform: translateY(0);
+        }
+        
+        /* Risultati button - viola distinto (purple gradient) */
+        .btn-risultati {
+            background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%);
+            box-shadow: 0 0 8px 1px rgba(147, 51, 234, 0.3), 0 3px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .btn-risultati:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px 2px rgba(147, 51, 234, 0.4), 0 5px 16px rgba(124, 58, 237, 0.15);
+        }
+        
+        .btn-risultati:active {
+            transform: translateY(0);
+        }
+        
+        /* Allenamenti button - arancio distinto (orange gradient) */
+        .btn-allenamenti {
+            background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+            box-shadow: 0 0 8px 1px rgba(249, 115, 22, 0.3), 0 3px 12px rgba(251, 146, 60, 0.1);
+        }
+        
+        .btn-allenamenti:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px 2px rgba(249, 115, 22, 0.4), 0 5px 16px rgba(251, 146, 60, 0.15);
+        }
+        
+        .btn-allenamenti:active {
+            transform: translateY(0);
+        }
+        
+        /* Campionato button - verde distinto (green gradient) */
+        .btn-campionato {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            box-shadow: 0 0 8px 1px rgba(5, 150, 105, 0.3), 0 3px 12px rgba(16, 185, 129, 0.1);
+        }
+        
+        .btn-campionato:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px 2px rgba(5, 150, 105, 0.4), 0 5px 16px rgba(16, 185, 129, 0.15);
+        }
+        
+        .btn-campionato:active {
             transform: translateY(0);
         }
         
@@ -540,7 +585,7 @@
             font-weight: 600;
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
-            box-shadow: 0 0 12px 2px #4FD1C5, 0 5px 18px rgba(79, 140, 255, 0.14);
+            box-shadow: 0 0 8px 1px rgba(79, 209, 197, 0.3), 0 3px 12px rgba(79, 140, 255, 0.1);
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
@@ -548,7 +593,7 @@
         
         .btn-modern-gradient:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 16px 4px #4FD1C5, 0 8px 24px rgba(79, 140, 255, 0.2);
+            box-shadow: 0 0 10px 2px rgba(79, 209, 197, 0.4), 0 5px 16px rgba(79, 140, 255, 0.15);
         }
         
         .btn-modern-gradient:active {
@@ -589,7 +634,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.49</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.51</span>
             </div>
         </div>
 
@@ -627,19 +672,19 @@
                     <!-- <button id="training-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
                         Presenze Allenamenti
                     </button> -->
-                    <button id="allenamenti-button" class="w-full btn-base btn-secondary focus:outline-none focus:ring-2">
+                    <button id="allenamenti-button" class="w-full btn-base btn-allenamenti focus:outline-none focus:ring-2">
                         🏃 Allenamenti
                     </button>
                 </div>
                 <!-- Campionato button (shown for POLIS PIEVE 2010 regardless of login type) -->
                 <div id="campionato-container" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="campionato-button" class="w-full btn-base btn-secondary focus:outline-none focus:ring-2 hidden">
+                    <button id="campionato-button" class="w-full btn-base btn-campionato focus:outline-none focus:ring-2 hidden">
                         ⚽ Campionato
                     </button>
                 </div>
                 <!-- Risultati button (always visible to all users, positioned after Campionato button) -->
                 <div id="area-polis2013-container" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="area-polis2013-button" class="w-full btn-base btn-secondary focus:outline-none focus:ring-2">
+                    <button id="area-polis2013-button" class="w-full btn-base btn-risultati focus:outline-none focus:ring-2">
                        ⚽ Risultati
                     </button>
                 </div>
@@ -2396,16 +2441,10 @@
                 // Show/hide campionato button for POLIS PIEVE 2010
                 if (isPolisPieveCompany) {
                     campionatoButton.classList.remove('hidden');
-                    // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
-                    // V9.7: Add text-black for better visibility on yellow background
-                    campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700', 'text-white');
-                    campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                    console.log('🎨 Campionato button color changed to yellow with black text for PIEVE2010');
+                    // V9.51: Campionato button now uses btn-campionato class (green gradient) for all companies
+                    console.log('🎨 Campionato button visible with green gradient for PIEVE2010');
                 } else {
                     campionatoButton.classList.add('hidden');
-                    // Reset to purple if not PIEVE2010
-                    campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                    campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700', 'text-white');
                 }
                 
                 // Risultati button is always visible to all users (no conditional logic needed)
@@ -7676,16 +7715,10 @@
                     // Show/hide campionato button for POLIS PIEVE 2010 (also for guests)
                     if (isPolisPieveCompany) {
                         campionatoButton.classList.remove('hidden');
-                        // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
-                        // V9.7: Add text-black for better visibility on yellow background
-                        campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700', 'text-white');
-                        campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                        console.log('🎨 Campionato button color changed to yellow with black text for PIEVE2010');
+                        // V9.51: Campionato button now uses btn-campionato class (green gradient) for all companies
+                        console.log('🎨 Campionato button visible with green gradient for PIEVE2010');
                     } else {
                         campionatoButton.classList.add('hidden');
-                        // Reset to purple if not PIEVE2010
-                        campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                        campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700', 'text-white');
                     }
                     
                     // Risultati button is always visible to all users including guests (no conditional logic needed)
@@ -7721,16 +7754,10 @@
                     // Show/hide campionato button for POLIS PIEVE 2010
                     if (isPolisPieveCompany) {
                         campionatoButton.classList.remove('hidden');
-                        // V8.11: Change Campionato button color to yellow (same as Risultati) for PIEVE2010
-                        // V9.7: Add text-black for better visibility on yellow background
-                        campionatoButton.classList.remove('bg-purple-600', 'hover:bg-red-700', 'text-white');
-                        campionatoButton.classList.add('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                        console.log('🎨 Campionato button color changed to yellow with black text for PIEVE2010');
+                        // V9.51: Campionato button now uses btn-campionato class (green gradient) for all companies
+                        console.log('🎨 Campionato button visible with green gradient for PIEVE2010');
                     } else {
                         campionatoButton.classList.add('hidden');
-                        // Reset to purple if not PIEVE2010
-                        campionatoButton.classList.remove('bg-yellow-400', 'hover:bg-yellow-500', 'text-black');
-                        campionatoButton.classList.add('bg-purple-600', 'hover:bg-red-700', 'text-white');
                     }
                     
                     console.log('🏢 Normal company login - full UI enabled');
