@@ -447,6 +447,28 @@
             border-color: #9ca3af;
         }
         
+        /* Modern gradient button style with Aurea shadow */
+        .btn-modern-gradient {
+            background: linear-gradient(135deg, #4F8CFF 0%, #4FD1C5 100%);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 12px 2px #4FD1C5, 0 5px 18px rgba(79, 140, 255, 0.14);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-modern-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px 4px #4FD1C5, 0 8px 24px rgba(79, 140, 255, 0.2);
+        }
+        
+        .btn-modern-gradient:active {
+            transform: translateY(0);
+        }
+        
         
     </style>
 </head>
@@ -472,7 +494,7 @@
                         <input type="checkbox" id="remember-company" class="rounded text-blue-500 focus:ring-blue-500">
                         <label for="remember-company" class="text-gray-700">Ricorda codice</label>
                     </div>
-                    <button id="verify-company-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="verify-company-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
                         Verifica
                     </button>
                 </div>
@@ -500,48 +522,48 @@
                 </div>
                 <!-- Normal login buttons (hidden for guests) -->
                 <div id="normal-login-buttons" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="enter-mister-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="enter-mister-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
                         Entra come Mister
                     </button>
-                    <button id="enter-dirigente-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="enter-dirigente-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
                         Entra come Dirigente
                     </button>
                 </div>
                 <!-- Guest buttons (shown for both normal and guest users, but restricted for guests) -->
                 <div id="guest-allowed-buttons" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="view-history-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="view-history-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
                         Storico Convocazioni
                     </button>
-                    <button id="welcome-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="welcome-attendance-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
                         Riepilogo Convocazioni
                     </button>
                     <!-- V9.10: Removed "Presenze Allenamenti" button - no longer needed -->
                     <!-- <button id="training-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
                         Presenze Allenamenti
                     </button> -->
-                    <button id="allenamenti-button" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="allenamenti-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
                         🏃 Allenamenti
                     </button>
                 </div>
                 <!-- Campionato button (shown for POLIS PIEVE 2010 regardless of login type) -->
                 <div id="campionato-container" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="campionato-button" class="w-full bg-purple-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
+                    <button id="campionato-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2 hidden">
                         ⚽ Campionato
                     </button>
                 </div>
                 <!-- Risultati button (always visible to all users, positioned after Campionato button) -->
                 <div id="area-polis2013-container" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="area-polis2013-button" class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="area-polis2013-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
                        ⚽ Risultati
                     </button>
                 </div>
                 <!-- Admin buttons (hidden for guests) -->
                 <div id="admin-buttons" class="grid grid-cols-1 gap-3">
-                    <button id="manage-players-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                    <button id="manage-players-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
                         Gestione Squadra
                     </button>
                 </div>
-                <button id="company-logout-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 mt-3">
+                <button id="company-logout-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2 mt-3">
                     Logout
                 </button>
             </div>
@@ -555,7 +577,7 @@
             <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Inserisci la password</h2>
             <!-- Biometric Authentication Button (shown only for returning users with biometric enrolled) -->
             <div id="biometric-login-container" class="hidden mb-6">
-                <button type="button" id="biometric-login-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 flex items-center justify-center gap-3">
+                <button type="button" id="biometric-login-button" class="w-full btn-modern-gradient py-4 focus:outline-none focus:ring-2 flex items-center justify-center gap-3">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
                     </svg>
@@ -948,17 +970,17 @@
 
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button id="save-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                <button id="save-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
                     Salva
                 </button>
-                <button id="share-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+                <button id="share-button" class="w-full btn-modern-gradient focus:outline-none focus:ring-2">
                     Condividi le convocazioni
                 </button>
             </div>
-            <button id="modulo-button" class="w-full mt-4 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+            <button id="modulo-button" class="w-full mt-4 btn-modern-gradient focus:outline-none focus:ring-2">
                 ⚽ Tattiche
             </button>
-            <button id="history-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2">
+            <button id="history-button" class="w-full mt-4 btn-modern-gradient focus:outline-none focus:ring-2">
                 Storico Convocazioni
             </button>
             <button id="attendance-button" class="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">

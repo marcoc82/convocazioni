@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Button Styles - Modern Gradient</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        html, body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            padding: 20px;
+        }
+        
+        /* Modern gradient button style with Aurea shadow */
+        .btn-modern-gradient {
+            background: linear-gradient(135deg, #4F8CFF 0%, #4FD1C5 100%);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 12px 2px #4FD1C5, 0 5px 18px rgba(79, 140, 255, 0.14);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn-modern-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 16px 4px #4FD1C5, 0 8px 24px rgba(79, 140, 255, 0.2);
+        }
+        
+        .btn-modern-gradient:active {
+            transform: translateY(0);
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 2rem;
+        }
+        
+        h2 {
+            color: #4b5563;
+            font-size: 1.25rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .button-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .note {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin-top: 2rem;
+            border-radius: 0.5rem;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .old-style {
+            background: #7c3aed;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .old-style:hover {
+            background: #6d28d9;
+        }
+        
+        @media (max-width: 640px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Test Stile Bottoni Moderno</h1>
+        
+        <h2>✨ Confronto Prima/Dopo</h2>
+        <div class="comparison">
+            <div>
+                <p style="text-align: center; font-weight: 600; margin-bottom: 0.5rem;">❌ Prima (Old Style)</p>
+                <button class="old-style">Storico Convocazioni</button>
+            </div>
+            <div>
+                <p style="text-align: center; font-weight: 600; margin-bottom: 0.5rem;">✅ Dopo (New Gradient)</p>
+                <button class="btn-modern-gradient">Storico Convocazioni</button>
+            </div>
+        </div>
+        
+        <h2>📱 Bottoni Schermata di Benvenuto</h2>
+        <div class="button-grid">
+            <button class="btn-modern-gradient">Entra come Mister</button>
+            <button class="btn-modern-gradient">Entra come Dirigente</button>
+            <button class="btn-modern-gradient">Storico Convocazioni</button>
+            <button class="btn-modern-gradient">Riepilogo Convocazioni</button>
+            <button class="btn-modern-gradient">🏃 Allenamenti</button>
+            <button class="btn-modern-gradient">⚽ Campionato</button>
+            <button class="btn-modern-gradient">⚽ Risultati</button>
+            <button class="btn-modern-gradient">Gestione Squadra</button>
+            <button class="btn-modern-gradient">Logout</button>
+        </div>
+        
+        <h2>💾 Bottoni Azioni Principali</h2>
+        <div class="button-grid">
+            <button class="btn-modern-gradient">Salva</button>
+            <button class="btn-modern-gradient">Condividi le convocazioni</button>
+            <button class="btn-modern-gradient">⚽ Tattiche</button>
+            <button class="btn-modern-gradient">Verifica</button>
+            <button class="btn-modern-gradient">
+                <span style="display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                    <svg style="width: 1.5rem; height: 1.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                    </svg>
+                    <span>Accedi con impronta digitale</span>
+                </span>
+            </button>
+        </div>
+        
+        <div class="note">
+            <p style="margin: 0; font-weight: 600; color: #92400e;">📋 Caratteristiche del Nuovo Stile:</p>
+            <ul style="margin-top: 0.5rem; color: #78350f;">
+                <li>Gradiente blu/turchese moderno (#4F8CFF → #4FD1C5)</li>
+                <li>Ombra Aurea luminosa con doppio effetto glow</li>
+                <li>Arrotondamento elegante (0.5rem)</li>
+                <li>Effetto hover animato con sollevamento</li>
+                <li>Font leggibile e ben spaziato</li>
+                <li>Supporto per icone opzionali</li>
+                <li>Responsive su desktop e mobile</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
