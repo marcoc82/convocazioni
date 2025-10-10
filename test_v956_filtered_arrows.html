@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.56 - Ranking Arrows in Filtered Tables</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">🧪 Test V9.56 - Ranking Arrows in Filtered Convocazioni Tables</h1>
+        
+        <!-- Description -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-blue-800 mb-3">📋 Test Description</h2>
+            <p class="text-blue-800 mb-2">This test verifies that ranking arrows (🔼, 🔽, =) are correctly displayed in the filtered convocazioni tables:</p>
+            <ul class="list-disc list-inside text-blue-800 space-y-1">
+                <li><strong>Amichevoli:</strong> Friendly matches table</li>
+                <li><strong>Tornei:</strong> Tournament matches table</li>
+                <li><strong>Campionato:</strong> Championship matches table</li>
+            </ul>
+        </div>
+
+        <!-- Expected Behavior -->
+        <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-green-800 mb-3">✅ Expected Behavior</h2>
+            <ul class="list-disc list-inside text-green-800 space-y-2">
+                <li><strong>🔼 Green Up Arrow:</strong> Player moved up in ranking (improved position)</li>
+                <li><strong>🔽 Red Down Arrow:</strong> Player moved down in ranking (worsened position)</li>
+                <li><strong>= Gray Equal Sign:</strong> Player maintained same ranking position</li>
+                <li><strong>No Symbol:</strong> No previous week data available (first time)</li>
+                <li><strong>Separate Tracking:</strong> Each table type (Amichevoli, Tornei, Campionato) has its own independent ranking history</li>
+                <li><strong>Company-Specific:</strong> Rankings are stored separately for each company</li>
+                <li><strong>Weekly Updates:</strong> Rankings update every Monday (or on first load)</li>
+            </ul>
+        </div>
+
+        <!-- Implementation Details -->
+        <div class="bg-purple-50 border border-purple-200 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-purple-800 mb-3">🔧 Implementation Details</h2>
+            <div class="text-purple-800">
+                <h3 class="font-bold mb-2">Changes Made:</h3>
+                <ol class="list-decimal list-inside space-y-2 mb-4">
+                    <li><strong>Modified populateAttendanceTable() function</strong> to include ranking calculation logic</li>
+                    <li><strong>Ranking Calculation:</strong> Players with same convocazioni count share the same rank</li>
+                    <li><strong>localStorage Keys:</strong>
+                        <ul class="ml-6 mt-1 space-y-1">
+                            <li><code>lastWeekRankingAmichevoli_${companyKey}</code></li>
+                            <li><code>lastWeekRankingTornei_${companyKey}</code></li>
+                            <li><code>lastWeekRankingCampionato_${companyKey}</code></li>
+                            <li><code>lastRankingUpdateAmichevoli_${companyKey}</code></li>
+                            <li><code>lastRankingUpdateTornei_${companyKey}</code></li>
+                            <li><code>lastRankingUpdateCampionato_${companyKey}</code></li>
+                        </ul>
+                    </li>
+                    <li><strong>Arrow Display:</strong> Uses same styling as main table and training report</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Test Scenarios -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 Test Scenarios</h2>
+            
+            <div class="space-y-6">
+                <!-- Scenario 1: First Load -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">Scenario 1: First Load (No Previous Data)</h3>
+                    <div class="mb-3">
+                        <p class="text-gray-700"><strong>Setup:</strong> Clear localStorage for the company</p>
+                        <p class="text-gray-700"><strong>Expected Result:</strong> No arrows displayed (no previous week data)</p>
+                        <p class="text-gray-700"><strong>localStorage:</strong> New ranking is saved for next week comparison</p>
+                    </div>
+                    <div class="bg-gray-100 p-3 rounded">
+                        <code class="text-sm">localStorage.removeItem('lastWeekRankingAmichevoli_POLIS');</code><br>
+                        <code class="text-sm">localStorage.removeItem('lastWeekRankingTornei_POLIS');</code><br>
+                        <code class="text-sm">localStorage.removeItem('lastWeekRankingCampionato_POLIS');</code>
+                    </div>
+                </div>
+
+                <!-- Scenario 2: Player Improves -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">Scenario 2: Player Moves Up 🔼</h3>
+                    <div class="mb-3">
+                        <p class="text-gray-700"><strong>Example:</strong> ROSSI had 3 convocazioni (rank 3), now has 5 (rank 1)</p>
+                        <p class="text-gray-700"><strong>Expected Result:</strong> Green up arrow 🔼 next to convocazioni count</p>
+                        <p class="text-gray-700"><strong>Calculation:</strong> lastRank (3) - currentRank (1) = +2 → 🔼</p>
+                    </div>
+                </div>
+
+                <!-- Scenario 3: Player Declines -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">Scenario 3: Player Moves Down 🔽</h3>
+                    <div class="mb-3">
+                        <p class="text-gray-700"><strong>Example:</strong> BIANCHI had 5 convocazioni (rank 1), now has 3 (rank 3)</p>
+                        <p class="text-gray-700"><strong>Expected Result:</strong> Red down arrow 🔽 next to convocazioni count</p>
+                        <p class="text-gray-700"><strong>Calculation:</strong> lastRank (1) - currentRank (3) = -2 → 🔽</p>
+                    </div>
+                </div>
+
+                <!-- Scenario 4: Player Stays Same -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">Scenario 4: Player Maintains Position =</h3>
+                    <div class="mb-3">
+                        <p class="text-gray-700"><strong>Example:</strong> VERDI had 4 convocazioni (rank 2), still has 4 (rank 2)</p>
+                        <p class="text-gray-700"><strong>Expected Result:</strong> Gray equal sign = next to convocazioni count</p>
+                        <p class="text-gray-700"><strong>Calculation:</strong> lastRank (2) - currentRank (2) = 0 → =</p>
+                    </div>
+                </div>
+
+                <!-- Scenario 5: Tied Rankings -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">Scenario 5: Tied Rankings</h3>
+                    <div class="mb-3">
+                        <p class="text-gray-700"><strong>Example:</strong> GIALLI and NERI both have 3 convocazioni</p>
+                        <p class="text-gray-700"><strong>Expected Result:</strong> Both players share rank 2 (if one player has more above them)</p>
+                        <p class="text-gray-700"><strong>Note:</strong> Next player after tie gets rank 4 (not 3)</p>
+                    </div>
+                </div>
+
+                <!-- Scenario 6: Independent Tracking -->
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold text-lg mb-2 text-gray-800">Scenario 6: Independent Table Tracking</h3>
+                    <div class="mb-3">
+                        <p class="text-gray-700"><strong>Example:</strong> ROSSI moves up in Amichevoli but down in Tornei</p>
+                        <p class="text-gray-700"><strong>Expected Result:</strong></p>
+                        <ul class="list-disc list-inside ml-4 text-gray-700">
+                            <li>Amichevoli table: Shows 🔼 for ROSSI</li>
+                            <li>Tornei table: Shows 🔽 for ROSSI</li>
+                            <li>Each table has independent ranking history</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Arrow Styling Reference -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-yellow-800 mb-3">🎨 Arrow Styling Reference</h2>
+            <div class="space-y-2 text-yellow-800">
+                <div class="flex items-center gap-2">
+                    <span style="color: #22c55e;">🔼</span>
+                    <code class="bg-white px-2 py-1 rounded">color: #22c55e</code>
+                    <span>(Green - Improvement)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span style="color: #ef4444;">🔽</span>
+                    <code class="bg-white px-2 py-1 rounded">color: #ef4444</code>
+                    <span>(Red - Decline)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span style="color: #6b7280;">=</span>
+                    <code class="bg-white px-2 py-1 rounded">color: #6b7280</code>
+                    <span>(Gray - Unchanged)</span>
+                </div>
+                <p class="mt-2"><strong>margin-left:</strong> 4px (consistent with existing arrows)</p>
+            </div>
+        </div>
+
+        <!-- Manual Testing Steps -->
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-bold text-orange-800 mb-3">✋ Manual Testing Steps</h2>
+            <ol class="list-decimal list-inside text-orange-800 space-y-2">
+                <li>Open the main application (index.html)</li>
+                <li>Log in to a company account</li>
+                <li>Navigate to "Riepilogo Convocazioni"</li>
+                <li>Scroll down to see the filtered tables:
+                    <ul class="ml-6 mt-1 space-y-1">
+                        <li>🤝 Riepilogo Presenze Amichevoli</li>
+                        <li>🏆 Riepilogo Presenze Tornei</li>
+                        <li>⚽️ Riepilogo Presenze Campionato</li>
+                    </ul>
+                </li>
+                <li><strong>First Load:</strong> Verify no arrows are shown (no previous data)</li>
+                <li><strong>Simulate Week Change:</strong> Use browser DevTools to:
+                    <ul class="ml-6 mt-1 space-y-1">
+                        <li>Inspect current localStorage data</li>
+                        <li>Modify ranking data to simulate changes</li>
+                        <li>Reload page and verify arrows appear</li>
+                    </ul>
+                </li>
+                <li><strong>Add New Convocazioni:</strong> Create a few new convocazioni with different players</li>
+                <li><strong>Wait for Monday:</strong> Or manually clear update timestamp to trigger new snapshot</li>
+                <li><strong>Verify Arrows:</strong> Check that arrows reflect actual ranking changes</li>
+            </ol>
+        </div>
+
+        <!-- Verification Checklist -->
+        <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-6">
+            <h2 class="text-xl font-bold text-indigo-800 mb-3">✓ Verification Checklist</h2>
+            <div class="space-y-2 text-indigo-800">
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>Arrows appear in Amichevoli table</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>Arrows appear in Tornei table</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>Arrows appear in Campionato table</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>🔼 Green arrow for improved ranking</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>🔽 Red arrow for declined ranking</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>= Gray for unchanged ranking</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>No arrow on first load (no previous data)</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>Rankings for tied players are the same</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>Each table type has independent ranking history</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>Rankings are company-specific (don't mix between companies)</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>Rankings update weekly (Monday) or on first load</span>
+                </label>
+                <label class="flex items-center gap-2">
+                    <input type="checkbox" class="w-4 h-4">
+                    <span>localStorage contains correct keys for each table type</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🧪 V9.56 Test Page Loaded');
+        console.log('📊 Expected localStorage keys:');
+        console.log('  - lastWeekRankingAmichevoli_${companyKey}');
+        console.log('  - lastWeekRankingTornei_${companyKey}');
+        console.log('  - lastWeekRankingCampionato_${companyKey}');
+        console.log('  - lastRankingUpdateAmichevoli_${companyKey}');
+        console.log('  - lastRankingUpdateTornei_${companyKey}');
+        console.log('  - lastRankingUpdateCampionato_${companyKey}');
+        
+        // Display current localStorage data related to rankings
+        console.log('\n📦 Current localStorage ranking data:');
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.includes('Ranking') || key.includes('Update')) {
+                const value = localStorage.getItem(key);
+                console.log(`  ${key}: ${value.substring(0, 100)}${value.length > 100 ? '...' : ''}`);
+            }
+        }
+    </script>
+</body>
+</html>
