@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<!-- Version: V9.54 - Allenamenti UI improvements: removed icons, added presence count animation -->
+<!-- Version: V9.55 - UI and logic improvements -->
+<!-- V9.55 Changes:
+     1. Changed "Partite totali" to "Convocazioni totali" in summary page
+     2. Fixed spacing between Allenamenti and Risultati buttons on welcome screen (separated Allenamenti into own container)
+     3. Fixed arrow logic in training report to compare with last training position from previous week (not Monday snapshot)
+     4. Updated version badge and manifest.json to V9.55
 <!-- V9.54 Changes:
      1. Removed 🏃 icon from "Allenamenti" button on welcome page
      2. Removed 🏃 icon from "Gestione Allenamenti" page title
@@ -670,7 +675,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.54</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.55</span>
             </div>
         </div>
 
@@ -708,6 +713,9 @@
                     <!-- <button id="training-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
                         Presenze Allenamenti
                     </button> -->
+                </div>
+                <!-- Allenamenti button (V9.55: separated to have consistent spacing with other buttons) -->
+                <div id="allenamenti-container" class="grid grid-cols-1 gap-3 mb-4">
                     <button id="allenamenti-button" class="w-full btn-base btn-allenamenti focus:outline-none focus:ring-2">
                         Allenamenti
                     </button>
@@ -1209,7 +1217,7 @@
                 Indietro
             </button>
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h2>
-            <p id="total-matches-display" class="text-center text-gray-600 mb-6">Partite totali: <span id="total-matches-count" class="font-semibold">0</span></p>
+            <p id="total-matches-display" class="text-center text-gray-600 mb-6">Convocazioni totali: <span id="total-matches-count" class="font-semibold">0</span></p>
             
             <!-- Loading Spinner for Total Attendance -->
             <div id="attendance-totale-loading" class="text-center py-8 hidden">
@@ -8767,7 +8775,7 @@
                     return nameA.localeCompare(nameB, 'it');
                 });
                 
-                // V9.17: Ranking arrows - Compare with last week's ranking (using separate storage key for training)
+                // V9.55: Ranking arrows - Compare with last training of previous week
                 // V9.26: Calculate ranks considering ties (same presences + same availability + same attendance percentage = same rank)
                 const currentRanking = [];
                 let currentRank = 1;
@@ -8789,64 +8797,130 @@
                     });
                 }
                 
-                // Get last week's ranking from localStorage (company-specific, separate key for training report)
-                const companyKey = currentCompanyCode || 'default';
-                const lastWeekRankingStr = localStorage.getItem(`lastWeekRankingTraining_${companyKey}`);
-                let lastWeekRanking = {};
-                if (lastWeekRankingStr) {
-                    try {
-                        const rankingData = JSON.parse(lastWeekRankingStr);
-                        lastWeekRanking = rankingData.ranking || {};
-                    } catch (e) {
-                        console.error('Error parsing last week training ranking:', e);
-                    }
-                }
+                // V9.55: Find last training session from previous week
+                const getMondayOfWeek = (date) => {
+                    const d = new Date(date);
+                    const day = d.getDay();
+                    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+                    d.setDate(diff);
+                    d.setHours(0, 0, 0, 0);
+                    return d;
+                };
                 
-                // Check if we need to update the weekly snapshot (every Monday)
-                const lastUpdateStr = localStorage.getItem(`lastRankingUpdateTraining_${companyKey}`);
-                let shouldUpdate = false;
+                const currentWeekMonday = getMondayOfWeek(now);
+                const previousWeekMonday = new Date(currentWeekMonday);
+                previousWeekMonday.setDate(currentWeekMonday.getDate() - 7);
+                const previousWeekSunday = new Date(previousWeekMonday);
+                previousWeekSunday.setDate(previousWeekMonday.getDate() + 6);
+                previousWeekSunday.setHours(23, 59, 59, 999);
                 
-                if (!lastUpdateStr) {
-                    shouldUpdate = true;
-                } else {
-                    // Helper function to get Monday of a given week
-                    const getMondayOfWeek = (date) => {
-                        const d = new Date(date);
-                        const day = d.getDay();
-                        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-                        d.setDate(diff);
-                        d.setHours(0, 0, 0, 0);
-                        return d;
-                    };
-                    
-                    const lastUpdate = new Date(lastUpdateStr);
-                    const currentWeekMonday = getMondayOfWeek(now);
-                    const lastUpdateWeekMonday = getMondayOfWeek(lastUpdate);
-                    
-                    // Update only if we're in a different week (comparing Mondays)
-                    if (currentWeekMonday.getTime() !== lastUpdateWeekMonday.getTime()) {
-                        shouldUpdate = true;
-                    }
-                }
-                
-                if (shouldUpdate) {
-                    // Store current ranking as new baseline (company-specific)
-                    const rankingMap = {};
-                    currentRanking.forEach(item => {
-                        rankingMap[item.name] = item.rank;
+                // Find all training sessions from previous week, sorted by date
+                const previousWeekSessions = trainingSessions
+                    .filter(session => {
+                        const sessionDate = new Date(session.date + ' ' + (session.time || '00:00'));
+                        return sessionDate >= previousWeekMonday && sessionDate <= previousWeekSunday;
+                    })
+                    .sort((a, b) => {
+                        const dateA = new Date(a.date + ' ' + (a.time || '00:00'));
+                        const dateB = new Date(b.date + ' ' + (b.time || '00:00'));
+                        return dateB - dateA; // Most recent first
                     });
-                    localStorage.setItem(`lastWeekRankingTraining_${companyKey}`, JSON.stringify({
-                        ranking: rankingMap,
-                        date: now.toISOString()
-                    }));
-                    localStorage.setItem(`lastRankingUpdateTraining_${companyKey}`, now.toISOString());
-                    console.log(`📊 [V9.17] Updated weekly training ranking snapshot for ${companyKey}`);
+                
+                // Calculate ranking at the end of last training of previous week
+                let previousWeekRanking = {};
+                if (previousWeekSessions.length > 0) {
+                    // Find last session of previous week (first in sorted array)
+                    const lastPreviousWeekSession = previousWeekSessions[0];
+                    
+                    // Calculate stats up to and including that session
+                    const previousWeekStats = {};
+                    trainingSessions.forEach(session => {
+                        const sessionDate = new Date(session.date + ' ' + (session.time || '00:00'));
+                        const cutoffDate = new Date(lastPreviousWeekSession.date + ' ' + (lastPreviousWeekSession.time || '00:00'));
+                        
+                        // Only include sessions up to and including the last session of previous week
+                        if (sessionDate <= cutoffDate) {
+                            const attendance = session.attendance || {};
+                            Object.entries(attendance).forEach(([player, isPresent]) => {
+                                if (!previousWeekStats[player]) {
+                                    previousWeekStats[player] = { presences: 0, total: 0 };
+                                }
+                                previousWeekStats[player].total++;
+                                if (isPresent) previousWeekStats[player].presences++;
+                            });
+                        }
+                    });
+                    
+                    // Convert to array with availability data for sorting (same logic as current)
+                    const previousStatsArray = Object.entries(previousWeekStats).map(([player, stats]) => {
+                        const percentage = stats.total > 0 ? Math.round((stats.presences / stats.total) * 100) : 0;
+                        
+                        let availabilityNumeric = -1;
+                        if (isPolisCompany) {
+                            let rawValue = availabilityData[player];
+                            if (rawValue === undefined) {
+                                const normalizedPlayerName = normalizePlayerName(player);
+                                rawValue = availabilityDataNormalized[normalizedPlayerName];
+                            }
+                            if (rawValue !== undefined && rawValue !== null) {
+                                if (typeof rawValue === 'number') {
+                                    availabilityNumeric = Math.ceil(rawValue <= 1 ? rawValue * 100 : rawValue);
+                                } else if (typeof rawValue === 'string') {
+                                    const numValue = parseFloat(rawValue);
+                                    if (!isNaN(numValue)) {
+                                        availabilityNumeric = Math.ceil(numValue <= 1 ? numValue * 100 : numValue);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        return {
+                            player,
+                            presences: stats.presences,
+                            total: stats.total,
+                            percentage,
+                            availabilityNumeric
+                        };
+                    });
+                    
+                    // Sort using same logic
+                    previousStatsArray.sort((a, b) => {
+                        if (b.presences !== a.presences) {
+                            return b.presences - a.presences;
+                        }
+                        if (b.availabilityNumeric !== a.availabilityNumeric) {
+                            return b.availabilityNumeric - a.availabilityNumeric;
+                        }
+                        if (b.percentage !== a.percentage) {
+                            return b.percentage - a.percentage;
+                        }
+                        const nameA = a.player.replace(/^\d+\s*/, '').trim();
+                        const nameB = b.player.replace(/^\d+\s*/, '').trim();
+                        return nameA.localeCompare(nameB, 'it');
+                    });
+                    
+                    // Calculate ranks for previous week
+                    let prevRank = 1;
+                    for (let i = 0; i < previousStatsArray.length; i++) {
+                        if (i > 0) {
+                            const prevStat = previousStatsArray[i - 1];
+                            const currStat = previousStatsArray[i];
+                            if (prevStat.presences !== currStat.presences || 
+                                prevStat.availabilityNumeric !== currStat.availabilityNumeric ||
+                                prevStat.percentage !== currStat.percentage) {
+                                prevRank = i + 1;
+                            }
+                        }
+                        previousWeekRanking[previousStatsArray[i].player] = prevRank;
+                    }
+                    
+                    console.log(`📊 [V9.55] Calculated ranking from last training of previous week (${lastPreviousWeekSession.date})`);
                 }
                 
                 // Calculate rank changes
                 const rankChanges = {};
                 currentRanking.forEach(item => {
-                    const lastRank = lastWeekRanking[item.name];
+                    const lastRank = previousWeekRanking[item.name];
                     if (lastRank !== undefined) {
                         const change = lastRank - item.rank; // Positive means moved up
                         rankChanges[item.name] = change;

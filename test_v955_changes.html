@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.55 Changes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .comparison-box {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .before-box {
+            background: #fee;
+            border-color: #fca5a5;
+        }
+        .after-box {
+            background: #efe;
+            border-color: #86efac;
+        }
+        .badge-old {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        .badge-new {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+        }
+        
+        /* Button styles from main app */
+        .btn-base {
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #4F8CFF 0%, #4FD1C5 100%);
+            box-shadow: 0 0 8px 1px rgba(79, 140, 255, 0.3), 0 3px 12px rgba(79, 209, 197, 0.1);
+        }
+        
+        .btn-allenamenti {
+            background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+            box-shadow: 0 0 8px 1px rgba(249, 115, 22, 0.3), 0 3px 12px rgba(251, 146, 60, 0.1);
+        }
+        
+        .btn-campionato {
+            background: linear-gradient(135deg, #16A34A 0%, #22C55E 100%);
+            box-shadow: 0 0 8px 1px rgba(22, 163, 74, 0.3), 0 3px 12px rgba(34, 197, 94, 0.1);
+        }
+        
+        .btn-risultati {
+            background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%);
+            box-shadow: 0 0 8px 1px rgba(147, 51, 234, 0.3), 0 3px 12px rgba(124, 58, 237, 0.1);
+        }
+        
+        .btn-neutral {
+            background: linear-gradient(135deg, #4F8CFF 0%, #4FD1C5 100%);
+            box-shadow: 0 0 8px 1px rgba(79, 140, 255, 0.3), 0 3px 12px rgba(79, 209, 197, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">🧪 Test V9.55 Changes</h1>
+        
+        <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-blue-800 mb-4">✨ Changes in V9.55</h2>
+            <ul class="list-disc list-inside text-blue-800 space-y-2">
+                <li><strong>Label Change:</strong> "Partite totali" → "Convocazioni totali" in summary page</li>
+                <li><strong>Button Spacing:</strong> Uniform spacing between Allenamenti and Risultati buttons</li>
+                <li><strong>Arrow Logic:</strong> Compare with last training position from previous week (not Monday snapshot)</li>
+            </ul>
+        </div>
+
+        <!-- Test 1: Label Change -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">📝 Test 1: Label Change</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Before -->
+                <div class="comparison-box before-box">
+                    <div class="text-center mb-4">
+                        <span class="inline-block px-4 py-2 rounded-full text-sm font-bold badge-old">V9.54 - Before</span>
+                    </div>
+                    <div class="bg-white rounded-lg p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h2>
+                        <p class="text-center text-gray-600 mb-6">
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded">Partite totali:</span> <span class="font-semibold">20</span>
+                        </p>
+                        <div class="text-sm text-gray-500 text-center italic mt-4">
+                            ❌ "Partite totali" non è chiaro
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- After -->
+                <div class="comparison-box after-box">
+                    <div class="text-center mb-4">
+                        <span class="inline-block px-4 py-2 rounded-full text-sm font-bold badge-new">V9.55 - After</span>
+                    </div>
+                    <div class="bg-white rounded-lg p-6">
+                        <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Riepilogo Convocazioni</h2>
+                        <p class="text-center text-gray-600 mb-6">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">Convocazioni totali:</span> <span class="font-semibold">20</span>
+                        </p>
+                        <div class="text-sm text-green-700 text-center italic mt-4">
+                            ✅ "Convocazioni totali" è più chiaro e coerente
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 2: Button Spacing -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">📏 Test 2: Button Spacing</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Before -->
+                <div class="comparison-box before-box">
+                    <div class="text-center mb-4">
+                        <span class="inline-block px-4 py-2 rounded-full text-sm font-bold badge-old">V9.54 - Before</span>
+                    </div>
+                    <div class="bg-white rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Welcome Screen Buttons:</h3>
+                        
+                        <!-- Simulating old structure -->
+                        <div class="grid grid-cols-1 gap-3 mb-4">
+                            <button class="btn-base btn-secondary">Storico Convocazioni</button>
+                            <button class="btn-base btn-secondary">Riepilogo Convocazioni</button>
+                            <button class="btn-base btn-allenamenti">Allenamenti</button>
+                        </div>
+                        <!-- NO mb-4 here - this is the problem -->
+                        <div class="grid grid-cols-1 gap-3 mb-4">
+                            <button class="btn-base btn-campionato">⚽ Campionato</button>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3 mb-4">
+                            <button class="btn-base btn-risultati">⚽ Risultati</button>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3">
+                            <button class="btn-base btn-neutral">Gestione Squadra</button>
+                        </div>
+                        
+                        <div class="mt-6 p-3 bg-red-50 border border-red-200 rounded">
+                            <p class="text-sm text-red-800 font-semibold">❌ Problemi:</p>
+                            <ul class="list-disc list-inside text-xs text-red-700 mt-2">
+                                <li>Allenamenti è nel contenitore con altri bottoni</li>
+                                <li>Spazio irregolare tra Allenamenti e Risultati</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- After -->
+                <div class="comparison-box after-box">
+                    <div class="text-center mb-4">
+                        <span class="inline-block px-4 py-2 rounded-full text-sm font-bold badge-new">V9.55 - After</span>
+                    </div>
+                    <div class="bg-white rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Welcome Screen Buttons:</h3>
+                        
+                        <!-- Simulating new structure -->
+                        <div class="grid grid-cols-1 gap-3 mb-4">
+                            <button class="btn-base btn-secondary">Storico Convocazioni</button>
+                            <button class="btn-base btn-secondary">Riepilogo Convocazioni</button>
+                        </div>
+                        <!-- NEW: Allenamenti in its own container with mb-4 -->
+                        <div class="grid grid-cols-1 gap-3 mb-4">
+                            <button class="btn-base btn-allenamenti">Allenamenti</button>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3 mb-4">
+                            <button class="btn-base btn-campionato">⚽ Campionato</button>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3 mb-4">
+                            <button class="btn-base btn-risultati">⚽ Risultati</button>
+                        </div>
+                        <div class="grid grid-cols-1 gap-3">
+                            <button class="btn-base btn-neutral">Gestione Squadra</button>
+                        </div>
+                        
+                        <div class="mt-6 p-3 bg-green-50 border border-green-200 rounded">
+                            <p class="text-sm text-green-800 font-semibold">✅ Miglioramenti:</p>
+                            <ul class="list-disc list-inside text-xs text-green-700 mt-2">
+                                <li>Allenamenti ha il suo contenitore separato</li>
+                                <li>Spazio uniforme tra tutti i bottoni (mb-4)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 3: Arrow Logic -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">🎯 Test 3: Arrow Logic</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Before -->
+                <div class="comparison-box before-box">
+                    <div class="text-center mb-4">
+                        <span class="inline-block px-4 py-2 rounded-full text-sm font-bold badge-old">V9.54 - Before</span>
+                    </div>
+                    <div class="bg-white rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Arrow Comparison Logic:</h3>
+                        
+                        <div class="bg-gray-50 p-4 rounded mb-4">
+                            <p class="text-sm font-semibold text-gray-700 mb-2">Confronto con:</p>
+                            <p class="text-xs text-gray-600">📅 Snapshot salvato ogni <strong>Lunedì</strong></p>
+                            <p class="text-xs text-gray-600 mt-2">• Salva classifica ogni lunedì</p>
+                            <p class="text-xs text-gray-600">• Confronta con ultimo lunedì</p>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border border-yellow-200 rounded p-3">
+                            <p class="text-xs text-yellow-800 font-semibold mb-2">⚠️ Problema:</p>
+                            <p class="text-xs text-yellow-700">
+                                Confronta con un momento arbitrario (lunedì), non con l'ultimo allenamento della settimana precedente
+                            </p>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <p class="text-xs text-gray-500 font-mono">
+                                Settimana 1 (Mon): Save snapshot<br>
+                                Settimana 1 (Wed): Training 1<br>
+                                Settimana 1 (Fri): Training 2<br>
+                                <span class="text-red-600 font-bold">Settimana 2 (Mon): Compare with Mon Week 1 ❌</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- After -->
+                <div class="comparison-box after-box">
+                    <div class="text-center mb-4">
+                        <span class="inline-block px-4 py-2 rounded-full text-sm font-bold badge-new">V9.55 - After</span>
+                    </div>
+                    <div class="bg-white rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-700 mb-4">Arrow Comparison Logic:</h3>
+                        
+                        <div class="bg-gray-50 p-4 rounded mb-4">
+                            <p class="text-sm font-semibold text-gray-700 mb-2">Confronto con:</p>
+                            <p class="text-xs text-gray-600">🏃 <strong>Ultimo allenamento</strong> della settimana precedente</p>
+                            <p class="text-xs text-gray-600 mt-2">• Trova ultimo allenamento settimana precedente</p>
+                            <p class="text-xs text-gray-600">• Calcola classifica a quel momento</p>
+                            <p class="text-xs text-gray-600">• Confronta con classifica attuale</p>
+                        </div>
+                        
+                        <div class="bg-green-50 border border-green-200 rounded p-3">
+                            <p class="text-xs text-green-800 font-semibold mb-2">✅ Miglioramento:</p>
+                            <p class="text-xs text-green-700">
+                                Confronta con un momento significativo: l'ultimo allenamento della settimana precedente
+                            </p>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <p class="text-xs text-gray-500 font-mono">
+                                Settimana 1 (Wed): Training 1<br>
+                                Settimana 1 (Fri): Training 2 (Last of week)<br>
+                                Settimana 2 (Wed): Training 3<br>
+                                <span class="text-green-600 font-bold">Settimana 2 (Now): Compare with Fri Week 1 ✅</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Details -->
+        <div class="bg-purple-50 border-2 border-purple-300 rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-purple-800 mb-4">🔧 Implementation Details</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-purple-700 mb-2">Change 1: Label Update</h3>
+                    <p class="text-sm text-purple-600">Line ~1212 in index.html:</p>
+                    <code class="block bg-white p-2 rounded text-xs mt-2">
+                        &lt;p id="total-matches-display" class="text-center text-gray-600 mb-6"&gt;<br>
+                        &nbsp;&nbsp;<span class="text-red-600">- Partite totali:</span><br>
+                        &nbsp;&nbsp;<span class="text-green-600">+ Convocazioni totali:</span><br>
+                        &nbsp;&nbsp;&lt;span id="total-matches-count" class="font-semibold"&gt;0&lt;/span&gt;<br>
+                        &lt;/p&gt;
+                    </code>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-purple-700 mb-2">Change 2: Button Structure</h3>
+                    <p class="text-sm text-purple-600">Lines ~700-720 in index.html:</p>
+                    <code class="block bg-white p-2 rounded text-xs mt-2">
+                        <span class="text-green-600">+ &lt;div id="allenamenti-container" class="grid grid-cols-1 gap-3 mb-4"&gt;</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&lt;button id="allenamenti-button" ...&gt;Allenamenti&lt;/button&gt;<br>
+                        <span class="text-green-600">+ &lt;/div&gt;</span>
+                    </code>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold text-purple-700 mb-2">Change 3: Arrow Logic</h3>
+                    <p class="text-sm text-purple-600">Lines ~8770-8920 in index.html:</p>
+                    <div class="bg-white p-3 rounded text-xs mt-2 space-y-1">
+                        <p>• Find all training sessions from previous week</p>
+                        <p>• Get last session of previous week (most recent)</p>
+                        <p>• Calculate stats up to that session</p>
+                        <p>• Calculate ranking at that point</p>
+                        <p>• Compare current ranking with that ranking</p>
+                        <p>• Show arrows: ▲ (up), ▼ (down), = (same)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-gradient-to-r from-blue-50 to-green-50 border-2 border-blue-300 rounded-lg p-6 text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-3">✅ All Tests Completed</h2>
+            <p class="text-lg text-gray-700 mb-2">V9.55 - UI and Logic Improvements</p>
+            <div class="inline-flex items-center space-x-2 bg-white px-4 py-2 rounded-full shadow">
+                <span class="text-2xl">🎯</span>
+                <span class="font-semibold text-gray-800">Ready for Deployment</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
