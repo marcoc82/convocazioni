@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Animazione Contatore Presenze</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .top-player-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #78350f;
+            box-shadow: 0 2px 4px rgba(251, 191, 36, 0.4);
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-8 rounded-xl shadow-lg mb-8">
+            <h1 class="text-3xl font-bold mb-2">🎬 Test Animazione Contatore Presenze</h1>
+            <p class="text-blue-100">Verifica dell'animazione per i numeri di presenza nella pagina Riepilogo Convocazioni</p>
+            <span class="inline-block mt-4 text-sm font-semibold text-gray-100 bg-white bg-opacity-20 px-3 py-1 rounded-full">Test Implementation</span>
+        </div>
+
+        <!-- Description -->
+        <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-8 rounded-lg">
+            <h2 class="text-xl font-semibold text-blue-800 mb-4">📋 Descrizione</h2>
+            <p class="text-blue-700 mb-2">
+                Questa pagina testa l'implementazione dell'animazione di incremento numerico (counter) 
+                applicata al numero di presenze di ogni singolo giocatore nella pagina "Riepilogo Convocazioni".
+            </p>
+            <p class="text-blue-700">
+                L'animazione è fluida e coerente con quella già presente per le convocazioni totali.
+            </p>
+        </div>
+
+        <!-- Changes Summary -->
+        <div class="bg-green-50 border-l-4 border-green-400 p-6 mb-8 rounded-lg">
+            <h2 class="text-xl font-semibold text-green-800 mb-4">✅ Modifiche Implementate</h2>
+            <ul class="list-disc ml-6 space-y-2 text-green-700">
+                <li>Wrappato il numero delle presenze in <code class="bg-green-100 px-2 py-1 rounded">&lt;span class="presence-count" data-target="..."&gt;0&lt;/span&gt;</code></li>
+                <li>Utilizzata la funzione <code class="bg-green-100 px-2 py-1 rounded">animateCountUp()</code> già presente nel codice</li>
+                <li>Durata animazione: 1500ms (identica alla media presenze totali)</li>
+                <li>L'animazione parte da 0 e conta fino al valore target</li>
+                <li>Applicata a tutte le tabelle: Riepilogo Totale, Amichevoli, Tornei, Campionato</li>
+            </ul>
+        </div>
+
+        <!-- Demo Section -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 Demo - Riepilogo Convocazioni</h2>
+            <p class="text-gray-600 mb-6">Convocazioni totali: <span class="font-semibold">25</span></p>
+            
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200 mb-6 overflow-x-auto">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">📊 Riepilogo Totale</h3>
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giocatore</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Pres.</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Note</th>
+                        </tr>
+                    </thead>
+                    <tbody id="demo-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-center">
+                <button id="animate-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-colors">
+                    🎬 Avvia Animazione
+                </button>
+            </div>
+        </div>
+
+        <!-- Technical Details -->
+        <div class="bg-purple-50 border-l-4 border-purple-400 p-6 mb-8 rounded-lg">
+            <h2 class="text-xl font-semibold text-purple-800 mb-4">🔧 Dettagli Tecnici</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-semibold text-purple-700 mb-2">1. HTML Modificato</h3>
+                    <pre class="bg-purple-100 p-4 rounded-lg overflow-x-auto text-sm"><code>&lt;!-- Prima --&gt;
+&lt;td&gt;${player.count}${arrowIcon}&lt;/td&gt;
+
+&lt;!-- Dopo --&gt;
+&lt;td&gt;&lt;span class="presence-count" data-target="${player.count}"&gt;0&lt;/span&gt;${arrowIcon}&lt;/td&gt;</code></pre>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-purple-700 mb-2">2. JavaScript Aggiunto</h3>
+                    <pre class="bg-purple-100 p-4 rounded-lg overflow-x-auto text-sm"><code>// Animate presence count numbers
+setTimeout(() => {
+    const presenceCounts = document.querySelectorAll('.presence-count');
+    presenceCounts.forEach(element => {
+        const targetValue = parseInt(element.getAttribute('data-target'));
+        animateCountUp(element, targetValue, 1500);
+    });
+}, 100);</code></pre>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-purple-700 mb-2">3. Funzioni Modificate</h3>
+                    <ul class="list-disc ml-6 space-y-1 text-purple-700">
+                        <li><code>loadAttendance()</code> - Tabella principale convocazioni</li>
+                        <li><code>populateAttendanceTable()</code> - Tabelle filtrate (Amichevoli, Tornei, Campionato)</li>
+                        <li><code>loadAttendanceDemo()</code> - Modalità demo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expected Behavior -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+            <h2 class="text-xl font-semibold text-yellow-800 mb-4">✨ Comportamento Atteso</h2>
+            <ul class="list-disc ml-6 space-y-2 text-yellow-700">
+                <li>Quando la tabella viene caricata, i numeri delle presenze iniziano da 0</li>
+                <li>Nel corso di 1.5 secondi, i numeri contano fino al valore finale</li>
+                <li>L'animazione utilizza un "easing" fluido (easeOutQuad)</li>
+                <li>Il conteggio è sincronizzato con l'animazione delle percentuali già esistente</li>
+                <li>Le frecce (↑/↓/=) rimangono visibili accanto ai numeri durante l'animazione</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Demo data
+        const demoData = [
+            { name: 'Marco Rossi', presences: 23, arrow: '🔼' },
+            { name: 'Luca Bianchi', presences: 21, arrow: '=' },
+            { name: 'Paolo Verdi', presences: 19, arrow: '🔽' },
+            { name: 'Andrea Neri', presences: 18, arrow: '🔼' },
+            { name: 'Giovanni Gialli', presences: 15, arrow: '🔽' }
+        ];
+
+        // animateCountUp function (from main application)
+        function animateCountUp(element, targetValue, duration = 1500, suffix = '') {
+            if (!element) return;
+            
+            const startValue = 0;
+            const startTime = performance.now();
+            
+            function updateCount(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function for smooth animation
+                const easeOutQuad = progress * (2 - progress);
+                const currentValue = Math.floor(startValue + (targetValue - startValue) * easeOutQuad);
+                
+                element.textContent = currentValue + suffix;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCount);
+                } else {
+                    element.textContent = targetValue + suffix;
+                }
+            }
+            
+            requestAnimationFrame(updateCount);
+        }
+
+        // Populate demo table
+        function populateTable() {
+            const tbody = document.getElementById('demo-table-body');
+            tbody.innerHTML = '';
+            
+            demoData.forEach((player, index) => {
+                const isTopPlayer = index === 0;
+                const topPlayerBadge = isTopPlayer ? '<span class="top-player-badge">🏆 Top Player</span>' : '';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ${player.name}${topPlayerBadge}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <span class="presence-count" data-target="${player.presences}">0</span>
+                        <span style="margin-left: 4px;">${player.arrow}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        ${index === 0 ? 'Con animazione fluida' : 'Animazione attiva'}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Animate all presence counters
+        function animatePresenceCounts() {
+            setTimeout(() => {
+                const presenceCounts = document.querySelectorAll('.presence-count');
+                presenceCounts.forEach(element => {
+                    const targetValue = parseInt(element.getAttribute('data-target'));
+                    animateCountUp(element, targetValue, 1500);
+                });
+            }, 100);
+        }
+
+        // Initialize
+        populateTable();
+        animatePresenceCounts();
+
+        // Button to restart animation
+        document.getElementById('animate-btn').addEventListener('click', function() {
+            populateTable();
+            animatePresenceCounts();
+        });
+    </script>
+</body>
+</html>
