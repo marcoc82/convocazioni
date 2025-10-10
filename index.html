@@ -6012,7 +6012,7 @@
                         <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
                         </td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count}${arrowIcon}</td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"><span class="presence-count" data-target="${player.count}">0</span>${arrowIcon}</td>
                         <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
                         ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.availabilityPercentage !== 'N/D' ? availabilityProgressBarHTML : 'N/D'}</td>` : ''}
                     `;
@@ -6040,6 +6040,15 @@
                 // V9.40: Animate progress bar percentage texts
                 setTimeout(() => {
                     animateProgressBarTexts();
+                }, 100);
+                
+                // Animate presence count numbers in Riepilogo Convocazioni
+                setTimeout(() => {
+                    const presenceCounts = document.querySelectorAll('.presence-count');
+                    presenceCounts.forEach(element => {
+                        const targetValue = parseInt(element.getAttribute('data-target'));
+                        animateCountUp(element, targetValue, 1500);
+                    });
                 }, 100);
             }
 
@@ -6351,7 +6360,7 @@
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td class="${cellPadding} whitespace-nowrap text-sm font-medium text-gray-900">${playerNameOnly}</td>
-                            <td class="${cellPadding} whitespace-nowrap text-sm text-gray-500 text-center">${player.count}${arrowIcon}</td>
+                            <td class="${cellPadding} whitespace-nowrap text-sm text-gray-500 text-center"><span class="presence-count" data-target="${player.count}">0</span>${arrowIcon}</td>
                             ${availabilityCell}
                         `;
                         tableElement.appendChild(row);
@@ -6361,6 +6370,15 @@
                 // V9.40: Animate progress bar percentage texts in filtered tables
                 setTimeout(() => {
                     animateProgressBarTexts();
+                }, 100);
+                
+                // Animate presence count numbers in filtered tables
+                setTimeout(() => {
+                    const presenceCounts = document.querySelectorAll('.presence-count');
+                    presenceCounts.forEach(element => {
+                        const targetValue = parseInt(element.getAttribute('data-target'));
+                        animateCountUp(element, targetValue, 1500);
+                    });
                 }, 100);
             }
 
@@ -6534,7 +6552,7 @@
                         <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                             <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
                         </td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.count} <span class="text-xs text-blue-600">(Demo)</span></td>
+                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"><span class="presence-count" data-target="${player.count}">0</span> <span class="text-xs text-blue-600">(Demo)</span></td>
                         <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
                         ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">N/D</td>` : ''}
                     `;
@@ -6560,6 +6578,15 @@
                 // V9.40: Animate progress bar percentage texts
                 setTimeout(() => {
                     animateProgressBarTexts();
+                }, 100);
+                
+                // Animate presence count numbers in Demo mode
+                setTimeout(() => {
+                    const presenceCounts = document.querySelectorAll('.presence-count');
+                    presenceCounts.forEach(element => {
+                        const targetValue = parseInt(element.getAttribute('data-target'));
+                        animateCountUp(element, targetValue, 1500);
+                    });
                 }, 100);
                 
                 // Re-render players to apply already-called-today styling
