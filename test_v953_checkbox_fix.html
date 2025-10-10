@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.53 - Checkbox Color Fix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Training attendance checkbox styles - red for saved absences */
+        .training-attendance-checkbox.absent-saved {
+            accent-color: #dc2626;
+        }
+        
+        .training-attendance-checkbox.absent-saved:not(:checked) {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #dc2626;
+            border-radius: 0.25rem;
+            background-color: #ffffff;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .training-attendance-checkbox.absent-saved:not(:checked):hover {
+            background-color: #fee2e2;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h1 class="text-3xl font-bold mb-6 text-center text-blue-700">
+                🧪 Test V9.53 - Checkbox Color Fix per Allenamenti
+            </h1>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+                <h2 class="text-lg font-semibold mb-2 text-blue-800">📋 Requisiti Implementati</h2>
+                <ul class="space-y-2 text-sm">
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span><strong>Check di presenza:</strong> Verde (text-green-600) su tutte le piattaforme</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span><strong>Check di assenza:</strong> Rosso (text-red-600) dopo il salvataggio</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span><strong>Nome giocatore assente:</strong> Rosso e grassetto (text-red-600 font-semibold)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span><strong>Modalità ospite:</strong> Checkbox disabilitati (non cliccabili)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-green-600 font-bold mr-2">✓</span>
+                        <span><strong>Rimossi:</strong> Condizioni blu/grigio dai checkbox allenamento</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+                <h2 class="text-lg font-semibold mb-2 text-yellow-800">🔄 Cosa è cambiato in V9.53</h2>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <p class="font-semibold mb-1">Prima (V9.52):</p>
+                        <code class="bg-white p-2 block rounded text-xs">
+                            const checkboxClass = isAbsentSaved 
+                                ? 'training-attendance-checkbox absent-saved w-5 h-5 text-green-600 ...'
+                                : 'training-attendance-checkbox w-5 h-5 text-green-600 ...';
+                        </code>
+                        <p class="text-red-600 mt-1">❌ Problema: Checkbox assenti avevano text-green-600 (conflitto con stile rosso CSS)</p>
+                    </div>
+                    <div>
+                        <p class="font-semibold mb-1">Ora (V9.53):</p>
+                        <code class="bg-white p-2 block rounded text-xs">
+                            const checkboxClass = isAbsentSaved 
+                                ? 'training-attendance-checkbox absent-saved w-5 h-5 text-red-600 ...'
+                                : 'training-attendance-checkbox w-5 h-5 text-green-600 ...';
+                        </code>
+                        <p class="text-green-600 mt-1">✅ Soluzione: Checkbox assenti ora hanno text-red-600 e focus:ring-red-500</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Cases -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Caso 1: Presente (Checked - Verde) -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4 text-green-700">✅ Caso 1: Giocatore Presente</h3>
+                <p class="text-sm text-gray-600 mb-3">Checkbox checked con classe: <code class="bg-gray-100 px-2 py-1 rounded text-xs">text-green-600</code></p>
+                <div class="space-y-2">
+                    <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border border-green-200 bg-green-50">
+                        <span class="text-sm text-gray-700">10 ROSSI MARIO</span>
+                        <input type="checkbox" 
+                               class="training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500" 
+                               checked>
+                    </label>
+                    <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border border-green-200 bg-green-50">
+                        <span class="text-sm text-gray-700">5 VERDI LUCA</span>
+                        <input type="checkbox" 
+                               class="training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500" 
+                               checked>
+                    </label>
+                </div>
+                <p class="text-xs text-gray-500 mt-3">✓ Stato: Presente (attendance[player] === true)</p>
+            </div>
+
+            <!-- Caso 2: Assente Salvato (Unchecked - Rosso) -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-lg font-semibold mb-4 text-red-700">❌ Caso 2: Giocatore Assente (Salvato)</h3>
+                <p class="text-sm text-gray-600 mb-3">Checkbox unchecked con classe: <code class="bg-gray-100 px-2 py-1 rounded text-xs">text-red-600 absent-saved</code></p>
+                <div class="space-y-2">
+                    <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border border-red-200 bg-red-50">
+                        <span class="text-sm text-red-600 font-semibold">7 BIANCHI LUIGI</span>
+                        <input type="checkbox" 
+                               class="training-attendance-checkbox absent-saved w-5 h-5 text-red-600 rounded focus:ring-red-500">
+                    </label>
+                    <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border border-red-200 bg-red-50">
+                        <span class="text-sm text-red-600 font-semibold">3 NERI ANTONIO</span>
+                        <input type="checkbox" 
+                               class="training-attendance-checkbox absent-saved w-5 h-5 text-red-600 rounded focus:ring-red-500">
+                    </label>
+                </div>
+                <p class="text-xs text-gray-500 mt-3">✓ Stato: Assente salvato (attendance[player] === false)</p>
+                <p class="text-xs text-red-600 mt-1">✓ Nome in rosso grassetto + checkbox rosso</p>
+            </div>
+        </div>
+
+        <!-- Caso 3: Non ancora salvato -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-700">⚪ Caso 3: Giocatore Non Ancora Salvato</h3>
+            <p class="text-sm text-gray-600 mb-3">Checkbox unchecked SENZA classe absent-saved: <code class="bg-gray-100 px-2 py-1 rounded text-xs">text-green-600</code></p>
+            <div class="space-y-2">
+                <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border border-gray-200">
+                    <span class="text-sm text-gray-700">4 GIALLI MARCO</span>
+                    <input type="checkbox" 
+                           class="training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                </label>
+                <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border border-gray-200">
+                    <span class="text-sm text-gray-700">8 AZZURRI PAOLO</span>
+                    <input type="checkbox" 
+                           class="training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                </label>
+            </div>
+            <p class="text-xs text-gray-500 mt-3">✓ Stato: Non salvato (attendance[player] === undefined)</p>
+            <p class="text-xs text-gray-500 mt-1">✓ Mantiene colore standard del browser (grigio/blu)</p>
+        </div>
+
+        <!-- Caso 4: Modalità Ospite -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h3 class="text-lg font-semibold mb-4 text-blue-700">👤 Caso 4: Modalità Ospite (Read-Only)</h3>
+            <p class="text-sm text-gray-600 mb-3">Checkbox disabilitati mantengono i colori ma non sono cliccabili</p>
+            <div class="space-y-2 opacity-75">
+                <label class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
+                    <span class="text-sm text-gray-700">10 ROSSI MARIO</span>
+                    <input type="checkbox" 
+                           class="training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500" 
+                           disabled
+                           checked>
+                </label>
+                <label class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
+                    <span class="text-sm text-red-600 font-semibold">7 BIANCHI LUIGI</span>
+                    <input type="checkbox" 
+                           class="training-attendance-checkbox absent-saved w-5 h-5 text-red-600 rounded focus:ring-red-500"
+                           disabled>
+                </label>
+                <label class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
+                    <span class="text-sm text-gray-700">5 VERDI LUCA</span>
+                    <input type="checkbox" 
+                           class="training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500" 
+                           disabled
+                           checked>
+                </label>
+            </div>
+            <p class="text-xs text-gray-500 mt-3">✓ Checkbox disabilitati con <code>checkbox.disabled = true</code></p>
+            <p class="text-xs text-gray-500 mt-1">✓ Pulsanti di azione nascosti (<code>display: none</code>)</p>
+        </div>
+
+        <!-- Test Interattivo -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-lg font-semibold mb-4 text-purple-700">🔄 Test Interattivo</h3>
+            <p class="text-sm text-gray-600 mb-4">Clicca sui checkbox per vedere il comportamento. I checkbox verdi (presenti) possono essere deselezionati, i rossi (assenti) possono essere selezionati.</p>
+            
+            <div class="space-y-2 mb-4">
+                <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border border-gray-200">
+                    <span class="text-sm text-gray-700" id="player1-name">11 INTERATTIVO UNO</span>
+                    <input type="checkbox" 
+                           id="player1-checkbox"
+                           class="training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500" 
+                           checked>
+                </label>
+                <label class="flex items-center justify-between p-3 hover:bg-gray-50 rounded cursor-pointer border border-gray-200">
+                    <span class="text-sm text-red-600 font-semibold" id="player2-name">9 INTERATTIVO DUE</span>
+                    <input type="checkbox" 
+                           id="player2-checkbox"
+                           class="training-attendance-checkbox absent-saved w-5 h-5 text-red-600 rounded focus:ring-red-500">
+                </label>
+            </div>
+
+            <div class="bg-gray-50 p-3 rounded">
+                <p class="text-xs text-gray-600 font-semibold mb-2">📊 Log Eventi:</p>
+                <div id="event-log" class="text-xs font-mono space-y-1"></div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4 text-green-700">✅ Riepilogo V9.53</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-semibold text-sm mb-2 text-green-600">✓ Implementato Correttamente</h4>
+                    <ul class="text-xs space-y-1">
+                        <li>✅ Check presenza: text-green-600</li>
+                        <li>✅ Check assenza: text-red-600</li>
+                        <li>✅ Focus ring verde per presenti</li>
+                        <li>✅ Focus ring rosso per assenti</li>
+                        <li>✅ Nome rosso grassetto per assenti</li>
+                        <li>✅ Modalità ospite: checkbox disabilitati</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-sm mb-2 text-red-600">✗ Rimosso/Corretto</h4>
+                    <ul class="text-xs space-y-1">
+                        <li>❌ text-green-600 da checkbox assenti</li>
+                        <li>❌ Condizioni blu/grigio esplicite</li>
+                        <li>❌ Conflitti tra classi CSS e Tailwind</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const player1Checkbox = document.getElementById('player1-checkbox');
+        const player1Name = document.getElementById('player1-name');
+        const player2Checkbox = document.getElementById('player2-checkbox');
+        const player2Name = document.getElementById('player2-name');
+        const eventLog = document.getElementById('event-log');
+
+        function logEvent(message) {
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            eventLog.insertBefore(logEntry, eventLog.firstChild);
+            if (eventLog.children.length > 5) {
+                eventLog.removeChild(eventLog.lastChild);
+            }
+        }
+
+        player1Checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                player1Name.className = 'text-sm text-gray-700';
+                this.className = 'training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500';
+                logEvent('✅ Player 1: Marcato come PRESENTE (verde)');
+            } else {
+                player1Name.className = 'text-sm text-red-600 font-semibold';
+                this.className = 'training-attendance-checkbox absent-saved w-5 h-5 text-red-600 rounded focus:ring-red-500';
+                logEvent('❌ Player 1: Marcato come ASSENTE (rosso)');
+            }
+        });
+
+        player2Checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                player2Name.className = 'text-sm text-gray-700';
+                this.className = 'training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500';
+                logEvent('✅ Player 2: Marcato come PRESENTE (verde)');
+            } else {
+                player2Name.className = 'text-sm text-red-600 font-semibold';
+                this.className = 'training-attendance-checkbox absent-saved w-5 h-5 text-red-600 rounded focus:ring-red-500';
+                logEvent('❌ Player 2: Marcato come ASSENTE (rosso)');
+            }
+        });
+
+        // Log initial state
+        logEvent('🧪 Test page loaded - V9.53 Checkbox Color Fix');
+        logEvent('ℹ️ Player 1: Presente (checked, verde)');
+        logEvent('ℹ️ Player 2: Assente salvato (unchecked, rosso)');
+    </script>
+</body>
+</html>
