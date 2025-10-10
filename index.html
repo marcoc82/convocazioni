@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<!-- Version: V9.55 - UI and logic improvements -->
+<!-- Version: V9.56 - Added ranking arrows to filtered convocazioni tables -->
+<!-- V9.56 Changes:
+     1. Added ranking arrows logic to Amichevoli, Tornei, and Campionato tables
+     2. Arrows show position change compared to last week (🔼 green up, 🔽 red down, = gray unchanged)
+     3. Each table type has its own localStorage ranking storage (company-specific)
+-->
 <!-- V9.55 Changes:
      1. Changed "Partite totali" to "Convocazioni totali" in summary page
      2. Fixed spacing between Allenamenti and Risultati buttons on welcome screen (separated Allenamenti into own container)
@@ -6162,6 +6167,7 @@
 
             // Helper function to populate a specific attendance table
             // V7.9: Added availabilityData and availabilityDataNormalized parameters for Tornei table (uses global normalizePlayerName)
+            // V9.56: Added ranking arrows logic for filtered tables
             function populateAttendanceTable(tableElement, players, attendanceData, tableType, availabilityData, availabilityDataNormalized) {
                 const sortedPlayers = players.map(p => {
                     // Handle both old string format and new object format
@@ -6182,6 +6188,92 @@
                     };
                 }).sort((a, b) => b.count - a.count);
 
+                // V9.56: Calculate rankings considering ties (same count = same rank)
+                const currentRanking = [];
+                let currentRank = 1;
+                for (let i = 0; i < sortedPlayers.length; i++) {
+                    if (i > 0) {
+                        const prevPlayer = sortedPlayers[i - 1];
+                        const currPlayer = sortedPlayers[i];
+                        // Check if tied (same count)
+                        if (prevPlayer.count !== currPlayer.count) {
+                            currentRank = i + 1; // Move to next rank if not tied
+                        }
+                        // Otherwise keep same rank (tied)
+                    }
+                    currentRanking.push({
+                        name: sortedPlayers[i].name,
+                        rank: currentRank
+                    });
+                }
+
+                // V9.56: Get last week's ranking from localStorage (company-specific and table-specific)
+                const companyKey = currentCompanyCode || 'default';
+                const storageKey = `lastWeekRanking${tableType}_${companyKey}`;
+                const lastWeekRankingStr = localStorage.getItem(storageKey);
+                let lastWeekRanking = {};
+                if (lastWeekRankingStr) {
+                    try {
+                        const rankingData = JSON.parse(lastWeekRankingStr);
+                        lastWeekRanking = rankingData.ranking || {};
+                    } catch (e) {
+                        console.error(`Error parsing last week ranking for ${tableType}:`, e);
+                    }
+                }
+
+                // V9.56: Check if we need to update the weekly snapshot (every Monday)
+                const now = new Date();
+                const updateStorageKey = `lastRankingUpdate${tableType}_${companyKey}`;
+                const lastUpdateStr = localStorage.getItem(updateStorageKey);
+                let shouldUpdate = false;
+
+                if (!lastUpdateStr) {
+                    shouldUpdate = true;
+                } else {
+                    // Helper function to get Monday of a given week
+                    const getMondayOfWeek = (date) => {
+                        const d = new Date(date);
+                        const day = d.getDay();
+                        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+                        d.setDate(diff);
+                        d.setHours(0, 0, 0, 0);
+                        return d;
+                    };
+
+                    const lastUpdate = new Date(lastUpdateStr);
+                    const currentWeekMonday = getMondayOfWeek(now);
+                    const lastUpdateWeekMonday = getMondayOfWeek(lastUpdate);
+
+                    // Update only if we're in a different week (comparing Mondays)
+                    if (currentWeekMonday.getTime() !== lastUpdateWeekMonday.getTime()) {
+                        shouldUpdate = true;
+                    }
+                }
+
+                if (shouldUpdate) {
+                    // Store current ranking as new baseline (company-specific and table-specific)
+                    const rankingMap = {};
+                    currentRanking.forEach(item => {
+                        rankingMap[item.name] = item.rank;
+                    });
+                    localStorage.setItem(storageKey, JSON.stringify({
+                        ranking: rankingMap,
+                        date: now.toISOString()
+                    }));
+                    localStorage.setItem(updateStorageKey, now.toISOString());
+                    console.log(`📊 [V9.56] Updated weekly ranking snapshot for ${tableType} - ${companyKey}`);
+                }
+
+                // V9.56: Calculate rank changes
+                const rankChanges = {};
+                currentRanking.forEach(item => {
+                    const lastRank = lastWeekRanking[item.name];
+                    if (lastRank !== undefined) {
+                        const change = lastRank - item.rank; // Positive means moved up
+                        rankChanges[item.name] = change;
+                    }
+                });
+
                 const hasAvailabilityData = availabilityData !== null && availabilityData !== undefined;
                 const colSpan = hasAvailabilityData ? 3 : 2;
                 
@@ -6201,6 +6293,20 @@
                 } else {
                     // Show ALL players including those with 0 attendance
                     sortedPlayers.forEach(player => {
+                        // V9.56: Calculate arrow icon based on rank change
+                        const rankChange = rankChanges[player.name];
+                        let arrowIcon = '';
+                        if (rankChange !== undefined) {
+                            if (rankChange > 0) {
+                                arrowIcon = '<span style="color: #22c55e; margin-left: 4px;">🔼</span>';
+                            } else if (rankChange < 0) {
+                                arrowIcon = '<span style="color: #ef4444; margin-left: 4px;">🔽</span>';
+                            } else {
+                                // rankChange === 0: same position
+                                arrowIcon = '<span style="color: #6b7280; margin-left: 4px;">=</span>';
+                            }
+                        }
+                        
                         let availabilityCell = '';
                         
                         // V7.9: Add availability percentage for Tornei table if data is available (uses global normalizePlayerName)
@@ -6245,7 +6351,7 @@
                         const row = document.createElement('tr');
                         row.innerHTML = `
                             <td class="${cellPadding} whitespace-nowrap text-sm font-medium text-gray-900">${playerNameOnly}</td>
-                            <td class="${cellPadding} whitespace-nowrap text-sm text-gray-500 text-center">${player.count}</td>
+                            <td class="${cellPadding} whitespace-nowrap text-sm text-gray-500 text-center">${player.count}${arrowIcon}</td>
                             ${availabilityCell}
                         `;
                         tableElement.appendChild(row);
