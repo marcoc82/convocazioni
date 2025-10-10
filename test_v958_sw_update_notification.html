@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.58 - PWA Update Notification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl shadow-lg p-8 mb-8">
+            <h1 class="text-4xl font-bold mb-2">✅ Test V9.58</h1>
+            <h2 class="text-2xl font-semibold opacity-90">PWA Service Worker Update Notification</h2>
+            <p class="mt-4 text-blue-100">Implementazione notifica aggiornamento PWA con banner visibile</p>
+        </div>
+
+        <!-- Overview -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 Panoramica Implementazione</h2>
+            
+            <div class="space-y-4">
+                <div class="border-l-4 border-blue-500 pl-4 py-2 bg-blue-50">
+                    <h3 class="font-semibold text-gray-800 mb-1">🎯 Obiettivo</h3>
+                    <p class="text-gray-700">Quando l'app viene aperta e c'è un aggiornamento disponibile del service worker, mostrare una notifica chiara e visibile all'utente con la possibilità di aggiornare immediatamente.</p>
+                </div>
+
+                <div class="border-l-4 border-green-500 pl-4 py-2 bg-green-50">
+                    <h3 class="font-semibold text-gray-800 mb-1">✅ Funzionalità Implementate</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-1">
+                        <li>Banner di notifica fisso in alto</li>
+                        <li>Rilevamento automatico aggiornamenti service worker</li>
+                        <li>Bottone "Aggiorna Ora" per applicare l'update immediatamente</li>
+                        <li>Controllo periodico aggiornamenti (ogni ora)</li>
+                        <li>Animazione slide-down per l'apparizione del banner</li>
+                        <li>Design responsive (mobile e desktop)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Demo -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🎨 Anteprima Banner di Notifica</h2>
+            
+            <div class="space-y-6">
+                <!-- Desktop View -->
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        Vista Desktop
+                    </h3>
+                    <div class="border-2 border-gray-300 rounded-lg overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
+                            <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+                                <div class="flex items-center gap-3 flex-1">
+                                    <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    <div class="flex-1">
+                                        <p class="font-semibold">È disponibile un aggiornamento!</p>
+                                        <p class="text-sm opacity-90">Chiudi e riapri l'app per vedere le novità.</p>
+                                    </div>
+                                </div>
+                                <button class="ml-3 bg-white text-blue-600 hover:bg-blue-50 font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                                    Aggiorna Ora
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bg-gray-100 p-4 text-center text-gray-500 text-sm">
+                            App content below...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile View -->
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        Vista Mobile
+                    </h3>
+                    <div class="max-w-sm mx-auto border-4 border-gray-800 rounded-3xl overflow-hidden shadow-2xl">
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
+                            <div class="px-3 py-2 flex items-center justify-between">
+                                <div class="flex items-center gap-2 flex-1 min-w-0">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-semibold text-sm">È disponibile un aggiornamento!</p>
+                                        <p class="text-xs opacity-90 truncate">Chiudi e riapri l'app per vedere le novità.</p>
+                                    </div>
+                                </div>
+                                <button class="ml-2 bg-white text-blue-600 font-semibold py-1.5 px-3 rounded-lg text-sm flex-shrink-0">
+                                    Aggiorna
+                                </button>
+                            </div>
+                        </div>
+                        <div class="bg-gray-100 p-6 text-center text-gray-500 text-sm">
+                            App content...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Details -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🔧 Dettagli Tecnici</h2>
+            
+            <div class="space-y-6">
+                <!-- index.html Changes -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-bold text-lg text-gray-800 mb-3">📄 index.html</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-3 rounded">
+                            <h4 class="font-semibold text-sm text-gray-700 mb-2">1. Banner HTML (dopo body tag)</h4>
+                            <pre class="text-xs bg-gray-800 text-green-400 p-3 rounded overflow-x-auto"><code>&lt;div id="update-notification" class="fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg z-50 hidden"&gt;
+    &lt;div class="container mx-auto px-4 py-3 flex items-center justify-between"&gt;
+        &lt;!-- Icon + Text --&gt;
+        &lt;button id="update-reload-button"&gt;Aggiorna Ora&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded">
+                            <h4 class="font-semibold text-sm text-gray-700 mb-2">2. CSS Animation (nello style tag)</h4>
+                            <pre class="text-xs bg-gray-800 text-blue-400 p-3 rounded overflow-x-auto"><code>@keyframes slideDown {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}</code></pre>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded">
+                            <h4 class="font-semibold text-sm text-gray-700 mb-2">3. JavaScript Logic</h4>
+                            <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                                <li><code class="bg-gray-200 px-1">showUpdateNotification()</code> - Mostra il banner</li>
+                                <li><code class="bg-gray-200 px-1">registration.update()</code> - Controllo periodico ogni ora</li>
+                                <li><code class="bg-gray-200 px-1">postMessage('SKIP_WAITING')</code> - Forza l'aggiornamento</li>
+                                <li><code class="bg-gray-200 px-1">controllerchange</code> event - Reload automatico</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- service-worker.js Changes -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-bold text-lg text-gray-800 mb-3">⚙️ service-worker.js</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-3 rounded">
+                            <h4 class="font-semibold text-sm text-gray-700 mb-2">1. Install Event</h4>
+                            <pre class="text-xs bg-gray-800 text-yellow-400 p-3 rounded overflow-x-auto"><code>self.addEventListener('install', event => {
+    // ... cache logic ...
+    self.skipWaiting(); // ← Force immediate activation
+});</code></pre>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded">
+                            <h4 class="font-semibold text-sm text-gray-700 mb-2">2. Message Listener</h4>
+                            <pre class="text-xs bg-gray-800 text-yellow-400 p-3 rounded overflow-x-auto"><code>self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});</code></pre>
+                        </div>
+
+                        <div class="bg-gray-50 p-3 rounded">
+                            <h4 class="font-semibold text-sm text-gray-700 mb-2">3. Activate Event</h4>
+                            <pre class="text-xs bg-gray-800 text-yellow-400 p-3 rounded overflow-x-auto"><code>self.addEventListener('activate', event => {
+    // ... cleanup old caches ...
+    return self.clients.claim(); // ← Take control immediately
+});</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Version Updates -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h3 class="font-bold text-lg text-gray-800 mb-3">🔢 Aggiornamenti Versione</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-green-50 p-3 rounded border border-green-200">
+                            <p class="font-semibold text-sm text-green-800">service-worker.js</p>
+                            <p class="text-xs text-green-700 mt-1">CACHE_NAME: 'polis-convocazioni-v9.58'</p>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded border border-green-200">
+                            <p class="font-semibold text-sm text-green-800">manifest.json</p>
+                            <p class="text-xs text-green-700 mt-1">version: "V9.58"</p>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded border border-green-200">
+                            <p class="font-semibold text-sm text-green-800">index.html</p>
+                            <p class="text-xs text-green-700 mt-1">Comment + Badge: V9.58</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Instructions -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🧪 Istruzioni per il Test</h2>
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                    <h3 class="font-semibold text-blue-900 mb-2">📱 Test su Android/Mobile</h3>
+                    <ol class="text-sm text-blue-800 space-y-2 list-decimal list-inside">
+                        <li>Apri l'app PWA già installata</li>
+                        <li>Modifica il codice (es: incrementa versione cache)</li>
+                        <li>Deploy le modifiche</li>
+                        <li>Chiudi completamente l'app (swipe via)</li>
+                        <li>Riapri l'app → Dovresti vedere il banner blu in alto</li>
+                        <li>Clicca "Aggiorna Ora" → L'app si ricarica con la nuova versione</li>
+                    </ol>
+                </div>
+
+                <div class="bg-purple-50 border-l-4 border-purple-500 p-4">
+                    <h3 class="font-semibold text-purple-900 mb-2">💻 Test su Desktop (Chrome)</h3>
+                    <ol class="text-sm text-purple-800 space-y-2 list-decimal list-inside">
+                        <li>Apri Chrome DevTools (F12) → Tab "Application"</li>
+                        <li>Vai su "Service Workers"</li>
+                        <li>Spunta "Update on reload"</li>
+                        <li>Modifica service-worker.js (cambia CACHE_NAME)</li>
+                        <li>Ricarica la pagina (F5)</li>
+                        <li>Deseleziona "Update on reload"</li>
+                        <li>Ricarica di nuovo → Dovresti vedere il banner</li>
+                        <li>Clicca "Aggiorna Ora" per applicare l'update</li>
+                    </ol>
+                </div>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                    <h3 class="font-semibold text-yellow-900 mb-2">🔍 Verifica nel DevTools</h3>
+                    <ul class="text-sm text-yellow-800 space-y-1 list-disc list-inside">
+                        <li><strong>Console:</strong> Controlla i log "🔄 Nuova versione disponibile!"</li>
+                        <li><strong>Application → Service Workers:</strong> Verifica la versione cache attiva</li>
+                        <li><strong>Elements:</strong> Ispeziona il banner con id="update-notification"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Demo -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🎮 Demo Interattiva</h2>
+            
+            <div class="space-y-4">
+                <p class="text-gray-700">Clicca il bottone per simulare l'apparizione del banner di aggiornamento:</p>
+                
+                <button id="demo-button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                    🔄 Simula Aggiornamento Disponibile
+                </button>
+
+                <div id="demo-notification" class="hidden bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg rounded-lg slide-down">
+                    <div class="px-4 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-3 flex-1">
+                            <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="font-semibold">È disponibile un aggiornamento!</p>
+                                <p class="text-sm opacity-90">Chiudi e riapri l'app per vedere le novità.</p>
+                            </div>
+                        </div>
+                        <button id="demo-reload-button" class="ml-3 bg-white text-blue-600 hover:bg-blue-50 font-semibold py-2 px-4 rounded-lg transition-colors duration-200">
+                            Aggiorna Ora
+                        </button>
+                    </div>
+                </div>
+
+                <div id="demo-result" class="hidden p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p class="text-green-800 font-semibold">✅ L'app si ricaricherebbe ora con la nuova versione!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">✅ Riepilogo Implementazione</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-green-700 mb-2">✅ Completato</h3>
+                    <ul class="text-sm text-gray-700 space-y-1 list-disc list-inside">
+                        <li>Banner notifica visibile</li>
+                        <li>Rilevamento automatico aggiornamenti</li>
+                        <li>Bottone "Aggiorna Ora" funzionante</li>
+                        <li>Supporto Android e Desktop</li>
+                        <li>Animazione slide-down</li>
+                        <li>Design responsive</li>
+                        <li>Controllo periodico (ogni ora)</li>
+                        <li>Skip waiting implementato</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-blue-700 mb-2">📝 File Modificati</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li><strong>index.html:</strong></li>
+                        <li class="ml-4">• Banner HTML aggiunto</li>
+                        <li class="ml-4">• CSS animation aggiunta</li>
+                        <li class="ml-4">• JavaScript logic aggiornato</li>
+                        <li class="ml-4">• Versione → V9.58</li>
+                        <li class="mt-2"><strong>service-worker.js:</strong></li>
+                        <li class="ml-4">• skipWaiting() in install</li>
+                        <li class="ml-4">• message listener aggiunto</li>
+                        <li class="ml-4">• clients.claim() in activate</li>
+                        <li class="ml-4">• Cache → v9.58</li>
+                        <li class="mt-2"><strong>manifest.json:</strong></li>
+                        <li class="ml-4">• version → V9.58</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-sm text-gray-500">
+            <p>✅ Test Page V9.58 - PWA Update Notification</p>
+            <p class="mt-1">Rosterkick Convocazioni - {{ new Date().toLocaleDateString('it-IT') }}</p>
+        </div>
+    </div>
+
+    <script>
+        // Interactive demo
+        document.getElementById('demo-button').addEventListener('click', () => {
+            const notification = document.getElementById('demo-notification');
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideDown 0.3s ease-out';
+            }, 10);
+        });
+
+        document.getElementById('demo-reload-button').addEventListener('click', () => {
+            const result = document.getElementById('demo-result');
+            result.classList.remove('hidden');
+            
+            setTimeout(() => {
+                result.classList.add('hidden');
+                document.getElementById('demo-notification').classList.add('hidden');
+            }, 3000);
+        });
+
+        // Console info
+        console.log('✅ Test Page V9.58 loaded');
+        console.log('📱 PWA Update Notification implementation test');
+        console.log('Files modified:');
+        console.log('  - index.html (banner HTML, CSS, JavaScript)');
+        console.log('  - service-worker.js (skipWaiting, message listener, clients.claim)');
+        console.log('  - manifest.json (version)');
+    </script>
+</body>
+</html>
