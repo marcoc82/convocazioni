@@ -123,6 +123,7 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         html, body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
@@ -647,6 +648,106 @@
             transform: translateY(0);
         }
         
+        /* Welcome screen circular buttons grid */
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 640px) {
+            .welcome-buttons-grid {
+                gap: 1rem;
+                padding: 0.5rem;
+            }
+        }
+        
+        /* Circular button base style */
+        .btn-circular {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .btn-circular:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+        }
+        
+        .btn-circular:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        .btn-circular-label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            text-align: center;
+            margin-top: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+        
+        @media (max-width: 640px) {
+            .btn-circular {
+                padding: 1rem;
+            }
+            .btn-circular-label {
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Role-specific gradients for welcome buttons */
+        .btn-mister {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        }
+        
+        .btn-dirigente {
+            background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+        }
+        
+        .btn-storico {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        }
+        
+        .btn-riepilogo {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .btn-allenamenti-circular {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        
+        .btn-risultati-circular {
+            background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);
+        }
+        
+        .btn-gestione {
+            background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+        }
+        
+        .btn-esci {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+        
+        /* Campionato button with circular style */
+        .btn-campionato-circular {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+        }
+        
         /* Training attendance checkbox styles - red for saved absences */
         .training-attendance-checkbox.absent-saved {
             accent-color: #dc2626;
@@ -785,55 +886,55 @@
                     <div>ID: <span id="company-document-id" class="font-mono bg-blue-100 px-2 py-1 rounded"></span></div>
                     <div>Codice: <span id="company-code-display" class="font-mono bg-blue-100 px-2 py-1 rounded"></span></div>
                 </div>
-                <!-- Normal login buttons (hidden for guests) -->
-                <div id="normal-login-buttons" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="enter-mister-button" class="w-full btn-base btn-primary focus:outline-none focus:ring-2">
-                        Entra come Mister
+                <!-- New 2x4 Circular Buttons Grid Layout -->
+                <div class="welcome-buttons-grid">
+                    <!-- Row 1: Mister and Dirigente (hidden for guests) -->
+                    <button id="enter-mister-button" class="btn-circular btn-mister" aria-label="Entra come Mister">
+                        <span class="btn-circular-label">Mister</span>
                     </button>
-                    <button id="enter-dirigente-button" class="w-full btn-base btn-primary focus:outline-none focus:ring-2">
-                        Entra come Dirigente
+                    <button id="enter-dirigente-button" class="btn-circular btn-dirigente" aria-label="Entra come Dirigente">
+                        <span class="btn-circular-label">Dirigente</span>
+                    </button>
+                    
+                    <!-- Row 2: Storico and Riepilogo -->
+                    <button id="view-history-button" class="btn-circular btn-storico" aria-label="Storico Convocazioni">
+                        <span class="btn-circular-label">Storico convocazioni</span>
+                    </button>
+                    <button id="welcome-attendance-button" class="btn-circular btn-riepilogo" aria-label="Riepilogo Convocazioni">
+                        <span class="btn-circular-label">Riepilogo convocazioni</span>
+                    </button>
+                    
+                    <!-- Row 3: Allenamenti and Risultati -->
+                    <button id="allenamenti-button" class="btn-circular btn-allenamenti-circular" aria-label="Allenamenti">
+                        <span class="btn-circular-label">Allenamenti</span>
+                    </button>
+                    <button id="area-polis2013-button" class="btn-circular btn-risultati-circular" aria-label="Risultati">
+                        <span class="btn-circular-label">Risultati</span>
+                    </button>
+                    
+                    <!-- Row 4: Gestione Squadra and Esci -->
+                    <button id="manage-players-button" class="btn-circular btn-gestione" aria-label="Gestione Squadra">
+                        <span class="btn-circular-label">Gestione squadra</span>
+                    </button>
+                    <button id="company-logout-button" class="btn-circular btn-esci" aria-label="Esci">
+                        <span class="btn-circular-label">Esci</span>
                     </button>
                 </div>
-                <!-- Guest buttons (shown for both normal and guest users, but restricted for guests) -->
-                <div id="guest-allowed-buttons" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="view-history-button" class="w-full btn-base btn-secondary focus:outline-none focus:ring-2">
-                        Storico Convocazioni
-                    </button>
-                    <button id="welcome-attendance-button" class="w-full btn-base btn-secondary focus:outline-none focus:ring-2">
-                        Riepilogo Convocazioni
-                    </button>
-                    <!-- V9.10: Removed "Presenze Allenamenti" button - no longer needed -->
-                    <!-- <button id="training-attendance-button" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 hidden">
-                        Presenze Allenamenti
-                    </button> -->
-                </div>
-                <!-- Allenamenti button (V9.55: separated to have consistent spacing with other buttons) -->
-                <div id="allenamenti-container" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="allenamenti-button" class="w-full btn-base btn-allenamenti focus:outline-none focus:ring-2">
-                        Allenamenti
-                    </button>
-                </div>
+                
+                <!-- Hidden wrapper divs for JavaScript visibility control -->
+                <div id="normal-login-buttons" style="display: none;"></div>
+                <div id="guest-allowed-buttons" style="display: none;"></div>
+                <div id="admin-buttons" style="display: none;"></div>
+                <div id="allenamenti-container" style="display: none;"></div>
+                <div id="area-polis2013-container" style="display: none;"></div>
+                
                 <!-- Campionato button (shown for POLIS PIEVE 2010 regardless of login type) -->
-                <div id="campionato-container" class="grid grid-cols-1 gap-3 mb-4">
+                <!-- Positioned separately as it's conditionally shown -->
+                <div id="campionato-container" class="mt-4 px-4">
                     <button id="campionato-button" class="w-full btn-base btn-campionato focus:outline-none focus:ring-2 hidden">
                         ⚽ Campionato
                     </button>
                 </div>
-                <!-- Risultati button (always visible to all users, positioned after Campionato button) -->
-                <div id="area-polis2013-container" class="grid grid-cols-1 gap-3 mb-4">
-                    <button id="area-polis2013-button" class="w-full btn-base btn-risultati focus:outline-none focus:ring-2">
-                       ⚽ Risultati
-                    </button>
-                </div>
-                <!-- Admin buttons (hidden for guests) -->
-                <div id="admin-buttons" class="grid grid-cols-1 gap-3">
-                    <button id="manage-players-button" class="w-full btn-base btn-neutral focus:outline-none focus:ring-2">
-                        Gestione Squadra
-                    </button>
-                </div>
-                <button id="company-logout-button" class="w-full btn-base btn-warning focus:outline-none focus:ring-2 mt-3">
-                    Logout
-                </button>
             </div>
         </div>
 
@@ -7945,22 +8046,23 @@
                 
                 // Show/hide elements based on guest login status
                 const guestRoleIndicator = document.getElementById('guest-role-indicator');
-                const normalLoginButtons = document.getElementById('normal-login-buttons');
-                const guestAllowedButtons = document.getElementById('guest-allowed-buttons');
-                const adminButtons = document.getElementById('admin-buttons');
+                // Get individual buttons for new circular layout
+                const enterMisterBtn = document.getElementById('enter-mister-button');
+                const enterDirigenteBtn = document.getElementById('enter-dirigente-button');
+                const managePlayersBtn = document.getElementById('manage-players-button');
                 
                 if (currentCompanyData.isGuestLogin) {
                     // Guest login: show indicator and hide admin functions
                     guestRoleIndicator.classList.remove('hidden');
-                    normalLoginButtons.classList.add('hidden');
-                    adminButtons.classList.add('hidden');
+                    // Hide Mister and Dirigente buttons for guests
+                    if (enterMisterBtn) enterMisterBtn.classList.add('hidden');
+                    if (enterDirigenteBtn) enterDirigenteBtn.classList.add('hidden');
+                    // Hide Gestione Squadra button for guests
+                    if (managePlayersBtn) managePlayersBtn.classList.add('hidden');
                     
                     // Set guest user state
                     isGuestUser = true;
                     userRole = 'guest';
-                    
-                    // Show only guest-allowed buttons for guest users
-                    guestAllowedButtons.classList.remove('hidden');
                     
                     // V9.10: Training attendance button - COMMENTED OUT - Feature removed
                     // Hide training attendance button for guests by default
@@ -7994,9 +8096,11 @@
                 } else {
                     // Normal login: hide guest indicator and show all options
                     guestRoleIndicator.classList.add('hidden');
-                    normalLoginButtons.classList.remove('hidden');
-                    adminButtons.classList.remove('hidden');
-                    guestAllowedButtons.classList.remove('hidden');
+                    // Show Mister and Dirigente buttons for normal users
+                    if (enterMisterBtn) enterMisterBtn.classList.remove('hidden');
+                    if (enterDirigenteBtn) enterDirigenteBtn.classList.remove('hidden');
+                    // Show Gestione Squadra button for normal users
+                    if (managePlayersBtn) managePlayersBtn.classList.remove('hidden');
                     
                     // Reset guest state
                     isGuestUser = false;
