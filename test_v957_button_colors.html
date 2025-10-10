@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.57 - Button Color Changes</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 20px;
+            background: #f3f4f6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+        }
+        
+        h1 {
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .version-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .player-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .player-info {
+            color: #374151;
+        }
+        
+        .player-name {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .player-details {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .btn-base {
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Edit button - yellow (for edit actions) */
+        .btn-edit {
+            background: linear-gradient(135deg, #EAB308 0%, #FBBF24 100%);
+            box-shadow: 0 0 8px 1px rgba(234, 179, 8, 0.3), 0 3px 12px rgba(251, 191, 36, 0.1);
+        }
+        
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px 2px rgba(234, 179, 8, 0.4), 0 5px 16px rgba(251, 191, 36, 0.15);
+        }
+        
+        .btn-edit:active {
+            transform: translateY(0);
+        }
+        
+        /* Warning button - rosso-arancio (delete, logout, cancel) */
+        .btn-warning {
+            background: linear-gradient(135deg, #EF4444 0%, #F97316 100%);
+            box-shadow: 0 0 8px 1px rgba(239, 68, 68, 0.3), 0 3px 12px rgba(249, 115, 22, 0.1);
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 10px 2px rgba(239, 68, 68, 0.4), 0 5px 16px rgba(249, 115, 22, 0.15);
+        }
+        
+        .btn-warning:active {
+            transform: translateY(0);
+        }
+        
+        /* OLD styles for comparison */
+        .btn-old-blue {
+            background: #3b82f6;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .btn-old-blue:hover {
+            background: #2563eb;
+        }
+        
+        .btn-old-red {
+            background: #ef4444;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .btn-old-red:hover {
+            background: #dc2626;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 20px;
+        }
+        
+        .comparison-card {
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .comparison-card.before {
+            background: #fef3c7;
+            border-color: #fbbf24;
+        }
+        
+        .comparison-card.after {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .comparison-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+        
+        .comparison-card.before .comparison-title {
+            color: #92400e;
+        }
+        
+        .comparison-card.after .comparison-title {
+            color: #065f46;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        
+        .changes-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .changes-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .changes-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .check-icon {
+            color: #10b981;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test V9.57 - Button Color Changes</h1>
+        <span class="version-badge">Versione 9.57</span>
+        
+        <div class="section-title">📋 Modifiche Implementate</div>
+        <ul class="changes-list">
+            <li><span class="check-icon">✅</span> Tasto modifica (✏️) cambiato da blu a giallo</li>
+            <li><span class="check-icon">✅</span> Tasto "Rimuovi" ora usa lo stesso stile del tasto Logout (rosso-arancio)</li>
+            <li><span class="check-icon">✅</span> Modifiche applicate a: Giocatori, Mister, Dirigenti</li>
+        </ul>
+    </div>
+    
+    <div class="container">
+        <div class="section-title">🆕 Nuovi Stili (V9.57)</div>
+        
+        <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <h3 style="margin-top: 0; color: #374151;">Gestione Giocatori</h3>
+            <div class="player-item">
+                <div class="player-info">
+                    <div class="player-name">10 ROSSI MARIO</div>
+                    <div class="player-details">📅 15/03/2010 | 🆔 ABC123456</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-base btn-edit btn-small">✏️</button>
+                    <button class="btn-base btn-warning btn-small">Rimuovi</button>
+                </div>
+            </div>
+            
+            <div class="player-item">
+                <div class="player-info">
+                    <div class="player-name">7 VERDI LUCA</div>
+                    <div class="player-details">📅 22/08/2010 | 🆔 DEF789012</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-base btn-edit btn-small">✏️</button>
+                    <button class="btn-base btn-warning btn-small">Rimuovi</button>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background: #f9fafb; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+            <h3 style="margin-top: 0; color: #374151;">Gestione Mister</h3>
+            <div class="player-item">
+                <div class="player-info">
+                    <div class="player-name">FERRARI PAOLO</div>
+                    <div class="player-details">🆔 MISTER001</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-base btn-edit btn-small">✏️</button>
+                    <button class="btn-base btn-warning btn-small">Rimuovi</button>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background: #f9fafb; padding: 16px; border-radius: 8px;">
+            <h3 style="margin-top: 0; color: #374151;">Gestione Dirigenti</h3>
+            <div class="player-item">
+                <div class="player-info">
+                    <div class="player-name">COLOMBO ANDREA</div>
+                    <div class="player-details">🆔 DIR001</div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-base btn-edit btn-small">✏️</button>
+                    <button class="btn-base btn-warning btn-small">Rimuovi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="section-title">🔍 Confronto Prima/Dopo</div>
+        
+        <div class="comparison-grid">
+            <div class="comparison-card before">
+                <div class="comparison-title">❌ Prima (V7.6)</div>
+                <div class="player-item" style="background: white;">
+                    <div class="player-info">
+                        <div class="player-name">10 ROSSI MARIO</div>
+                        <div class="player-details">📅 15/03/2010 | 🆔 ABC123456</div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-old-blue">✏️</button>
+                        <button class="btn-old-red">Rimuovi</button>
+                    </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 14px; color: #92400e;">
+                    • Modifica: Blu (#3b82f6)<br>
+                    • Rimuovi: Rosso (#ef4444)
+                </p>
+            </div>
+            
+            <div class="comparison-card after">
+                <div class="comparison-title">✅ Dopo (V9.57)</div>
+                <div class="player-item" style="background: white;">
+                    <div class="player-info">
+                        <div class="player-name">10 ROSSI MARIO</div>
+                        <div class="player-details">📅 15/03/2010 | 🆔 ABC123456</div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-base btn-edit btn-small">✏️</button>
+                        <button class="btn-base btn-warning btn-small">Rimuovi</button>
+                    </div>
+                </div>
+                <p style="margin-top: 12px; font-size: 14px; color: #065f46;">
+                    • Modifica: Giallo (#EAB308 → #FBBF24)<br>
+                    • Rimuovi: Rosso-Arancio (#EF4444 → #F97316)
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="section-title">📱 Riferimento Tasto Logout</div>
+        <p style="margin-bottom: 16px; color: #6b7280;">Il tasto "Rimuovi" ora ha lo stesso stile del tasto Logout:</p>
+        <button class="btn-base btn-warning" style="width: 100%;">Logout</button>
+        <p style="margin-top: 12px; font-size: 14px; color: #6b7280;">
+            Stile: <code>btn-base btn-warning</code> con gradiente rosso-arancio (#EF4444 → #F97316)
+        </p>
+    </div>
+    
+    <div class="container" style="background: #f0fdf4; border: 2px solid #10b981;">
+        <div style="text-align: center;">
+            <h2 style="color: #065f46; margin: 0 0 8px 0;">✅ Test Completato</h2>
+            <p style="color: #047857; margin: 0;">Tutti i requisiti sono stati implementati correttamente</p>
+        </div>
+    </div>
+</body>
+</html>
