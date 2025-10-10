@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Guest Button Visibility - Verifica Implementazione</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .test-section h2 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .requirement-item {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .requirement-item.success {
+            border-left-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .requirement-item.error {
+            border-left-color: #ef4444;
+            background: #fee2e2;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-left: 0.5rem;
+        }
+
+        .status-badge.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-badge.error {
+            background: #ef4444;
+            color: white;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            white-space: pre;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .check-icon {
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        .cross-icon {
+            color: #ef4444;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: transform 0.2s;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .demo-button:active {
+            transform: translateY(0);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Demo buttons grid */
+        .buttons-demo {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .btn-circular {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-circular:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-mister {
+            background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%);
+        }
+
+        .btn-dirigente {
+            background: linear-gradient(135deg, #FDBA74 0%, #FB923C 100%);
+        }
+
+        .btn-gestione {
+            background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%);
+        }
+
+        .btn-circular-label {
+            display: block;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Test: Visibilità Tasti per Utenti Ospiti</h1>
+            <p>Verifica completa dell'implementazione dei requisiti per la visibilità dei bottoni nella pagina di benvenuto</p>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Requisiti da Verificare</h2>
+            <ul style="list-style: none; padding: 1rem 0;">
+                <li>✅ Usa id riconoscibili per i bottoni: btn-mister, btn-dirigente, btn-gestione-squadra</li>
+                <li>✅ Nel JS, aggiungi una funzione che nasconde questi bottoni se isGuestLogin è true, chiamata DOPO il render</li>
+                <li>✅ Assicurati che la scritta sia "Gestione Squadra"</li>
+                <li>✅ Aggiorna il markup dei bottoni in index.html per usare gli id corretti</li>
+                <li>✅ Nel CSS, la classe .hidden deve avere display: none !important</li>
+                <li>✅ Mantieni tutte le altre regole di stile e funzionalità</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Test 1: Verifica ID dei Bottoni</h2>
+            <p style="margin-bottom: 1rem;">Verifica che i bottoni abbiano gli ID corretti:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tasto</th>
+                        <th>ID Richiesto</th>
+                        <th>ID Implementato</th>
+                        <th>Stato</th>
+                    </tr>
+                </thead>
+                <tbody id="button-ids-test">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="test-section">
+            <h2>🎨 Test 2: Verifica Classe CSS .hidden</h2>
+            <p style="margin-bottom: 1rem;">Verifica che la classe .hidden sia definita con display: none !important:</p>
+            <div id="css-hidden-test"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📝 Test 3: Verifica Testo "Gestione Squadra"</h2>
+            <p style="margin-bottom: 1rem;">Verifica che il testo del bottone sia "Gestione Squadra":</p>
+            <div id="label-text-test"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>⚙️ Test 4: Verifica Funzione hideButtonsForGuests()</h2>
+            <p style="margin-bottom: 1rem;">Verifica che la funzione hideButtonsForGuests() esista e sia chiamata dopo il render:</p>
+            <div id="function-test"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎭 Test 5: Demo Interattiva</h2>
+            <p style="margin-bottom: 1rem;">Simula il comportamento per utente ospite e normale:</p>
+            
+            <div style="margin: 2rem 0;">
+                <button class="demo-button" onclick="simulateGuestLogin()">🔒 Simula Login Ospite</button>
+                <button class="demo-button" onclick="simulateNormalLogin()">👤 Simula Login Normale</button>
+                <button class="demo-button" onclick="resetDemo()">🔄 Reset Demo</button>
+            </div>
+
+            <div class="buttons-demo">
+                <button id="demo-btn-mister" class="btn-circular btn-mister">
+                    <span class="btn-circular-label">Mister</span>
+                </button>
+                <button id="demo-btn-dirigente" class="btn-circular btn-dirigente">
+                    <span class="btn-circular-label">Dirigente</span>
+                </button>
+                <button id="demo-btn-gestione-squadra" class="btn-circular btn-gestione">
+                    <span class="btn-circular-label">Gestione<br>Squadra</span>
+                </button>
+            </div>
+
+            <div id="demo-status" style="padding: 1rem; background: #f3f4f6; border-radius: 0.5rem; margin-top: 1rem;">
+                <strong>Stato attuale:</strong> <span id="demo-status-text">Nessuna simulazione</span>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Riepilogo Test</h2>
+            <div id="test-summary"></div>
+        </div>
+    </div>
+
+    <script>
+        // Test 1: Verifica ID dei Bottoni
+        function testButtonIds() {
+            const tests = [
+                { name: 'Mister', required: 'btn-mister', selector: '#btn-mister' },
+                { name: 'Dirigente', required: 'btn-dirigente', selector: '#btn-dirigente' },
+                { name: 'Gestione Squadra', required: 'btn-gestione-squadra', selector: '#btn-gestione-squadra' }
+            ];
+
+            const tbody = document.getElementById('button-ids-test');
+            let allPassed = true;
+
+            // Fetch and parse index.html
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    tests.forEach(test => {
+                        const regex = new RegExp(`id="${test.required}"`);
+                        const found = regex.test(html);
+                        const implemented = found ? test.required : 'Non trovato';
+                        const passed = found;
+                        
+                        if (!passed) allPassed = false;
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${test.name}</td>
+                            <td><code>${test.required}</code></td>
+                            <td><code>${implemented}</code></td>
+                            <td>${passed ? '<span class="check-icon">✓</span>' : '<span class="cross-icon">✗</span>'}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+
+                    updateSummary('buttonIds', allPassed);
+                })
+                .catch(error => {
+                    console.error('Error fetching index.html:', error);
+                    tbody.innerHTML = '<tr><td colspan="4">Errore nel caricamento del file index.html</td></tr>';
+                    updateSummary('buttonIds', false);
+                });
+        }
+
+        // Test 2: Verifica Classe CSS .hidden
+        function testCssHidden() {
+            const testDiv = document.getElementById('css-hidden-test');
+            
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    // Check if .hidden class is defined with display: none !important
+                    const hasHiddenClass = /\.hidden\s*{[^}]*display:\s*none\s*!important/i.test(html);
+                    
+                    const passed = hasHiddenClass;
+                    
+                    testDiv.innerHTML = `
+                        <div class="requirement-item ${passed ? 'success' : 'error'}">
+                            <strong>${passed ? '✓' : '✗'} Classe .hidden</strong>
+                            <div class="code-block">.hidden {
+    display: none !important;
+}</div>
+                            <p>${passed ? 'La classe .hidden è correttamente definita con display: none !important' : 'La classe .hidden non è definita correttamente'}</p>
+                        </div>
+                    `;
+                    
+                    updateSummary('cssHidden', passed);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    testDiv.innerHTML = '<div class="requirement-item error">Errore nel test</div>';
+                    updateSummary('cssHidden', false);
+                });
+        }
+
+        // Test 3: Verifica Testo "Gestione Squadra"
+        function testLabelText() {
+            const testDiv = document.getElementById('label-text-test');
+            
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    // Check for "Gestione<br>Squadra" or "Gestione Squadra"
+                    const hasCorrectLabel = /Gestione<br>Squadra|Gestione\s+Squadra/i.test(html);
+                    const hasCorrectId = /id="btn-gestione-squadra"/.test(html);
+                    
+                    const passed = hasCorrectLabel && hasCorrectId;
+                    
+                    testDiv.innerHTML = `
+                        <div class="requirement-item ${passed ? 'success' : 'error'}">
+                            <strong>${passed ? '✓' : '✗'} Testo del Bottone</strong>
+                            <p>${passed ? 'Il testo "Gestione Squadra" è corretto (entrambe le parole con maiuscola)' : 'Il testo non è corretto'}</p>
+                            <div class="code-block">&lt;button id="btn-gestione-squadra"&gt;
+    &lt;span class="btn-circular-label"&gt;Gestione&lt;br&gt;Squadra&lt;/span&gt;
+&lt;/button&gt;</div>
+                        </div>
+                    `;
+                    
+                    updateSummary('labelText', passed);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    testDiv.innerHTML = '<div class="requirement-item error">Errore nel test</div>';
+                    updateSummary('labelText', false);
+                });
+        }
+
+        // Test 4: Verifica Funzione hideButtonsForGuests()
+        function testFunction() {
+            const testDiv = document.getElementById('function-test');
+            
+            fetch('index.html')
+                .then(response => response.text())
+                .then(html => {
+                    // Check if function exists
+                    const hasFunctionDeclaration = /function\s+hideButtonsForGuests\s*\(\s*\)/.test(html);
+                    
+                    // Check if function is called after render
+                    const isFunctionCalled = /hideButtonsForGuests\s*\(\s*\);/.test(html);
+                    
+                    // Check if function hides the correct buttons
+                    const hidesCorrectButtons = /getElementById\s*\(\s*['"]btn-mister['"]\s*\)/.test(html) &&
+                                               /getElementById\s*\(\s*['"]btn-dirigente['"]\s*\)/.test(html) &&
+                                               /getElementById\s*\(\s*['"]btn-gestione-squadra['"]\s*\)/.test(html);
+                    
+                    // Check if function checks isGuestLogin
+                    const checksGuestLogin = /currentCompanyData\.isGuestLogin/.test(html);
+                    
+                    const allPassed = hasFunctionDeclaration && isFunctionCalled && hidesCorrectButtons && checksGuestLogin;
+                    
+                    testDiv.innerHTML = `
+                        <div class="requirement-item ${hasFunctionDeclaration ? 'success' : 'error'}">
+                            <strong>${hasFunctionDeclaration ? '✓' : '✗'} Funzione hideButtonsForGuests() dichiarata</strong>
+                        </div>
+                        <div class="requirement-item ${isFunctionCalled ? 'success' : 'error'}">
+                            <strong>${isFunctionCalled ? '✓' : '✗'} Funzione chiamata dopo il render</strong>
+                        </div>
+                        <div class="requirement-item ${hidesCorrectButtons ? 'success' : 'error'}">
+                            <strong>${hidesCorrectButtons ? '✓' : '✗'} Funzione usa gli ID corretti</strong>
+                        </div>
+                        <div class="requirement-item ${checksGuestLogin ? 'success' : 'error'}">
+                            <strong>${checksGuestLogin ? '✓' : '✗'} Funzione verifica isGuestLogin</strong>
+                        </div>
+                        <div class="code-block">function hideButtonsForGuests() {
+    const enterMisterBtn = document.getElementById('btn-mister');
+    const enterDirigenteBtn = document.getElementById('btn-dirigente');
+    const managePlayersBtn = document.getElementById('btn-gestione-squadra');
+    
+    if (currentCompanyData.isGuestLogin) {
+        if (enterMisterBtn) enterMisterBtn.classList.add('hidden');
+        if (enterDirigenteBtn) enterDirigenteBtn.classList.add('hidden');
+        if (managePlayersBtn) managePlayersBtn.classList.add('hidden');
+    }
+}</div>
+                    `;
+                    
+                    updateSummary('function', allPassed);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    testDiv.innerHTML = '<div class="requirement-item error">Errore nel test</div>';
+                    updateSummary('function', false);
+                });
+        }
+
+        // Demo functions
+        function simulateGuestLogin() {
+            const mister = document.getElementById('demo-btn-mister');
+            const dirigente = document.getElementById('demo-btn-dirigente');
+            const gestione = document.getElementById('demo-btn-gestione-squadra');
+            
+            mister.classList.add('hidden');
+            dirigente.classList.add('hidden');
+            gestione.classList.add('hidden');
+            
+            document.getElementById('demo-status-text').innerHTML = '🔒 <strong>Utente Ospite</strong> - I bottoni Mister, Dirigente e Gestione Squadra sono nascosti';
+        }
+
+        function simulateNormalLogin() {
+            const mister = document.getElementById('demo-btn-mister');
+            const dirigente = document.getElementById('demo-btn-dirigente');
+            const gestione = document.getElementById('demo-btn-gestione-squadra');
+            
+            mister.classList.remove('hidden');
+            dirigente.classList.remove('hidden');
+            gestione.classList.remove('hidden');
+            
+            document.getElementById('demo-status-text').innerHTML = '👤 <strong>Utente Normale</strong> - Tutti i bottoni sono visibili';
+        }
+
+        function resetDemo() {
+            simulateNormalLogin();
+            document.getElementById('demo-status-text').innerHTML = '🔄 <strong>Reset</strong> - Tutti i bottoni sono visibili';
+        }
+
+        // Summary tracking
+        const testResults = {};
+
+        function updateSummary(testName, passed) {
+            testResults[testName] = passed;
+            
+            // Check if all tests have results
+            const allTestsDone = Object.keys(testResults).length >= 4;
+            
+            if (allTestsDone) {
+                const allPassed = Object.values(testResults).every(result => result);
+                const passedCount = Object.values(testResults).filter(result => result).length;
+                const totalCount = Object.keys(testResults).length;
+                
+                const summaryDiv = document.getElementById('test-summary');
+                summaryDiv.innerHTML = `
+                    <div class="requirement-item ${allPassed ? 'success' : 'error'}">
+                        <h3>${allPassed ? '✅ Tutti i test sono passati!' : '⚠️ Alcuni test non sono passati'}</h3>
+                        <p><strong>Risultato:</strong> ${passedCount}/${totalCount} test passati</p>
+                        ${allPassed ? 
+                            '<p>✓ L\'implementazione rispetta tutti i requisiti richiesti</p>' : 
+                            '<p>✗ Alcuni requisiti non sono ancora implementati correttamente</p>'
+                        }
+                    </div>
+                `;
+            }
+        }
+
+        // Run all tests when page loads
+        window.addEventListener('load', () => {
+            testButtonIds();
+            testCssHidden();
+            testLabelText();
+            testFunction();
+        });
+    </script>
+</body>
+</html>
