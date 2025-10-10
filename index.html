@@ -1,5 +1,11 @@
 <!DOCTYPE html>
-<!-- Version: V9.52 - Training attendance improvements: red player names for absences and green checkboxes -->
+<!-- Version: V9.53 - Training attendance checkbox style fixes: removed blue/gray conditions, enforced green for presence and red for absence -->
+<!-- V9.53 Changes:
+     1. Fixed absence checkbox styling by removing text-green-600 and adding text-red-600 for absent-saved state
+     2. Ensured presence checkboxes are green (text-green-600) on all platforms
+     3. Ensured absence checkboxes are red (text-red-600) after saving on all platforms
+     4. Verified checkboxes are not clickable in guest mode (already implemented)
+     5. Player names for absences remain red (text-red-600 font-semibold) - from V9.52
 <!-- V9.52 Changes:
      1. Player names now show in red (text-red-600 font-semibold) when marked as absent after saving
      2. Verified green checkbox color (text-green-600) is consistent on all platforms including guest mode
@@ -8363,8 +8369,9 @@
                 players.forEach(player => {
                     const isChecked = attendance[player] === true;
                     const isAbsentSaved = attendance[player] === false;
+                    // V9.53: Remove text-green-600 from absent-saved checkboxes to ensure red color
                     const checkboxClass = isAbsentSaved 
-                        ? 'training-attendance-checkbox absent-saved w-5 h-5 text-green-600 rounded focus:ring-green-500'
+                        ? 'training-attendance-checkbox absent-saved w-5 h-5 text-red-600 rounded focus:ring-red-500'
                         : 'training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500';
                     // V9.52: Add red color to player name when absent
                     const playerNameClass = isAbsentSaved ? 'text-sm text-red-600 font-semibold' : 'text-sm text-gray-700';
