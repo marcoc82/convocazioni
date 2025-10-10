@@ -1,5 +1,12 @@
 <!DOCTYPE html>
-<!-- Version: V9.58 - Added PWA service worker update notification with visible banner -->
+<!-- Version: V9.59 - Improved PWA update notification: better styling, no auto-reload, user-controlled updates -->
+<!-- V9.58 Changes:
+     1. Added PWA service worker update notification with visible banner
+     2. Fixed automatic reload issue - now only reloads when user clicks "Aggiorna Ora"
+     3. Improved banner design with better animations and responsive layout
+     4. Added emoji and spinning icon for better visibility
+     5. Enhanced button styling with pulse animation and hover effects
+-->
 <!-- V9.56 Changes:
      1. Added ranking arrows logic to Amichevoli, Tornei, and Campionato tables
      2. Arrows show position change compared to last week (🔼 green up, 🔽 red down, = gray unchanged)
@@ -663,6 +670,7 @@
         }
         
         /* PWA Update Notification Animation */
+        /* PWA Update Notification Animations */
         @keyframes slideDown {
             from {
                 transform: translateY(-100%);
@@ -674,8 +682,36 @@
             }
         }
         
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+        
         #update-notification {
-            animation: slideDown 0.3s ease-out;
+            animation: slideDown 0.4s ease-out;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        #update-notification.show {
+            display: block !important;
+        }
+        
+        #update-reload-button {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        #update-reload-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        #update-reload-button:active {
+            transform: translateY(0);
         }
         
     </style>
@@ -683,20 +719,23 @@
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
     
     <!-- PWA Update Notification Banner -->
-    <div id="update-notification" class="fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg z-50 hidden" style="animation: slideDown 0.3s ease-out;">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between max-w-4xl">
-            <div class="flex items-center gap-3 flex-1">
-                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                <div class="flex-1">
-                    <p class="font-semibold text-sm md:text-base">È disponibile un aggiornamento!</p>
-                    <p class="text-xs md:text-sm opacity-90">Chiudi e riapri l'app per vedere le novità.</p>
+    <div id="update-notification" class="fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg z-50 hidden">
+        <div class="container mx-auto px-3 py-3 md:px-4 md:py-4">
+            <div class="flex items-center justify-between gap-3 max-w-4xl mx-auto">
+                <div class="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                    <!-- Icon with animation -->
+                    <svg class="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 animate-spin" style="animation-duration: 3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-sm md:text-base leading-tight">🎉 Nuova versione disponibile!</p>
+                        <p class="text-xs md:text-sm opacity-90 leading-tight mt-0.5">Clicca per aggiornare e scoprire le novità</p>
+                    </div>
                 </div>
+                <button id="update-reload-button" class="bg-white text-blue-700 hover:bg-blue-50 active:bg-blue-100 font-bold py-2 px-3 md:py-2.5 md:px-5 rounded-lg transition-all duration-200 text-xs md:text-sm flex-shrink-0 whitespace-nowrap">
+                    Aggiorna Ora
+                </button>
             </div>
-            <button id="update-reload-button" class="ml-3 bg-white text-blue-600 hover:bg-blue-50 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-sm md:text-base flex-shrink-0">
-                Aggiorna Ora
-            </button>
         </div>
     </div>
     
@@ -13368,35 +13407,35 @@
         }
         
         // Show update notification banner
+        let updateNotificationShown = false;
         function showUpdateNotification() {
+            // Prevent showing notification multiple times
+            if (updateNotificationShown) return;
+            updateNotificationShown = true;
+            
             const notification = document.getElementById('update-notification');
             const reloadButton = document.getElementById('update-reload-button');
             
             if (notification) {
                 notification.classList.remove('hidden');
                 
-                // Handle reload button click
-                if (reloadButton) {
+                // Handle reload button click (only add listener once)
+                if (reloadButton && !reloadButton.hasAttribute('data-listener-added')) {
+                    reloadButton.setAttribute('data-listener-added', 'true');
                     reloadButton.addEventListener('click', () => {
                         // Tell the service worker to skip waiting
                         if (navigator.serviceWorker.controller) {
                             navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
                         }
                         
-                        // Reload the page
-                        window.location.reload();
+                        // Reload the page after a short delay to allow service worker to activate
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 100);
                     });
                 }
             }
         }
-        
-        // Listen for the service worker to take control
-        let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-            if (refreshing) return;
-            refreshing = true;
-            window.location.reload();
-        });
         
         // PWA Install Prompt
         let deferredPrompt;
