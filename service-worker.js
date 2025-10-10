@@ -1,5 +1,5 @@
 // Nome della cache
-const CACHE_NAME = 'polis-convocazioni-v9.57';
+const CACHE_NAME = 'polis-convocazioni-v9.58';
 // File da mettere in cache
 const urlsToCache = [
   './index.html',
@@ -29,6 +29,15 @@ self.addEventListener('install', event => {
         console.error('Errore nella cache:', error);
       })
   );
+  // Force the waiting service worker to become the active service worker
+  self.skipWaiting();
+});
+
+// Listen for SKIP_WAITING message from client
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 // Evento di fetch: serve i file dalla cache
@@ -63,6 +72,9 @@ self.addEventListener('activate', event => {
           }
         })
       );
+    }).then(() => {
+      // Take control of all clients immediately
+      return self.clients.claim();
     })
   );
 });

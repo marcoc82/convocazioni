@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.57 - Added ranking arrows to filtered convocazioni tables -->
+<!-- Version: V9.58 - Added PWA service worker update notification with visible banner -->
 <!-- V9.56 Changes:
      1. Added ranking arrows logic to Amichevoli, Tornei, and Campionato tables
      2. Arrows show position change compared to last week (🔼 green up, 🔽 red down, = gray unchanged)
@@ -662,9 +662,43 @@
             background-color: #fee2e2;
         }
         
+        /* PWA Update Notification Animation */
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        #update-notification {
+            animation: slideDown 0.3s ease-out;
+        }
+        
     </style>
 </head>
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
+    
+    <!-- PWA Update Notification Banner -->
+    <div id="update-notification" class="fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg z-50 hidden" style="animation: slideDown 0.3s ease-out;">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between max-w-4xl">
+            <div class="flex items-center gap-3 flex-1">
+                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                <div class="flex-1">
+                    <p class="font-semibold text-sm md:text-base">È disponibile un aggiornamento!</p>
+                    <p class="text-xs md:text-sm opacity-90">Chiudi e riapri l'app per vedere le novità.</p>
+                </div>
+            </div>
+            <button id="update-reload-button" class="ml-3 bg-white text-blue-600 hover:bg-blue-50 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-sm md:text-base flex-shrink-0">
+                Aggiorna Ora
+            </button>
+        </div>
+    </div>
     
     <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-2xl">
         
@@ -695,7 +729,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.57</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.58</span>
             </div>
         </div>
 
@@ -13315,16 +13349,54 @@
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                                     console.log('🔄 Nuova versione disponibile! Ricarica la pagina per aggiornare.');
-                                    // Optional: Show a notification to the user about the update
+                                    
+                                    // Show update notification banner
+                                    showUpdateNotification();
                                 }
                             });
                         });
+                        
+                        // Check for updates periodically (every hour)
+                        setInterval(() => {
+                            registration.update();
+                        }, 60 * 60 * 1000);
                     })
                     .catch(error => {
                         console.error('❌ Errore nella registrazione del Service Worker:', error);
                     });
             });
         }
+        
+        // Show update notification banner
+        function showUpdateNotification() {
+            const notification = document.getElementById('update-notification');
+            const reloadButton = document.getElementById('update-reload-button');
+            
+            if (notification) {
+                notification.classList.remove('hidden');
+                
+                // Handle reload button click
+                if (reloadButton) {
+                    reloadButton.addEventListener('click', () => {
+                        // Tell the service worker to skip waiting
+                        if (navigator.serviceWorker.controller) {
+                            navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+                        }
+                        
+                        // Reload the page
+                        window.location.reload();
+                    });
+                }
+            }
+        }
+        
+        // Listen for the service worker to take control
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            window.location.reload();
+        });
         
         // PWA Install Prompt
         let deferredPrompt;
