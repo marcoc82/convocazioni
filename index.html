@@ -1,5 +1,10 @@
 <!DOCTYPE html>
-<!-- Version: V9.53 - Training attendance checkbox style fixes: removed blue/gray conditions, enforced green for presence and red for absence -->
+<!-- Version: V9.54 - Allenamenti UI improvements: removed icons, added presence count animation -->
+<!-- V9.54 Changes:
+     1. Removed 🏃 icon from "Allenamenti" button on welcome page
+     2. Removed 🏃 icon from "Gestione Allenamenti" page title
+     3. Added animation to presence count numbers in Allenamenti report table (same as average attendance animation)
+     4. Updated version badge and manifest.json to V9.54
 <!-- V9.53 Changes:
      1. Fixed absence checkbox styling by removing text-green-600 and adding text-red-600 for absent-saved state
      2. Ensured presence checkboxes are green (text-green-600) on all platforms
@@ -665,7 +670,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.51</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.54</span>
             </div>
         </div>
 
@@ -704,7 +709,7 @@
                         Presenze Allenamenti
                     </button> -->
                     <button id="allenamenti-button" class="w-full btn-base btn-allenamenti focus:outline-none focus:ring-2">
-                        🏃 Allenamenti
+                        Allenamenti
                     </button>
                 </div>
                 <!-- Campionato button (shown for POLIS PIEVE 2010 regardless of login type) -->
@@ -1378,7 +1383,7 @@
             <button id="top-back-from-allenamenti-button" class="w-full mb-4 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
-            <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">🏃 Gestione Allenamenti</h2>
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Gestione Allenamenti</h2>
             
             <!-- V8.11: Average Attendance Display -->
             <div id="average-attendance-display" class="mb-4 text-center p-3 bg-blue-50 rounded-lg border border-blue-200">
@@ -8887,7 +8892,7 @@
                             <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
                         </td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center">${totalSessions}</td>
-                        <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${ambulanceIcon}${stat.presences}${arrowIcon}</td>
+                        <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${ambulanceIcon}<span class="presence-count" data-target="${stat.presences}">0</span>${arrowIcon}</td>
                         <td class="px-3 py-2 text-sm text-gray-900 text-center font-semibold">${progressBarHTML}</td>
                     `;
                     reportBody.appendChild(row);
@@ -8923,6 +8928,15 @@
                 // V9.41: Animate progress bar percentage texts in training report
                 setTimeout(() => {
                     animateProgressBarTexts();
+                }, 100);
+                
+                // V9.54: Animate presence count numbers in training report
+                setTimeout(() => {
+                    const presenceCounts = document.querySelectorAll('.presence-count');
+                    presenceCounts.forEach(element => {
+                        const targetValue = parseInt(element.getAttribute('data-target'));
+                        animateCountUp(element, targetValue, 1500);
+                    });
                 }, 100);
                 
                 console.log(`✅ [V9.17] Report loaded: ${statsArray.length} players, ${totalSessions} sessions, ${averagePercentage}% average attendance`);
