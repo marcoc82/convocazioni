@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Buttons - Updated Shadows</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        html, body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 3rem;
+        }
+        
+        .demo-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 640px) {
+            .welcome-buttons-grid {
+                gap: 1rem;
+                padding: 0.5rem;
+            }
+        }
+        
+        /* Circular button base style - UPDATED WITH DEEPER SHADOW */
+        .btn-circular {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 18px 70px rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .btn-circular:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5), 0 25px 90px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-circular:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        .btn-circular-label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            text-align: center;
+            margin-top: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+        
+        @media (max-width: 640px) {
+            .btn-circular {
+                padding: 1rem;
+            }
+            .btn-circular-label {
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Role-specific gradients for welcome buttons */
+        .btn-mister {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        }
+        
+        .btn-dirigente {
+            background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+        }
+        
+        .btn-storico {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        }
+        
+        .btn-riepilogo {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .btn-allenamenti-circular {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        
+        .btn-risultati-circular {
+            background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);
+        }
+        
+        .btn-gestione {
+            background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+        }
+        
+        .btn-esci {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+        
+        .info-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0.5rem;
+        }
+        
+        .info-box h3 {
+            margin-top: 0;
+            color: #1e40af;
+        }
+        
+        .info-box ul {
+            color: #1e3a8a;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Welcome Buttons - Enhanced Shadow</h1>
+        <p class="subtitle">Ombre più profonde per un effetto rilievo ancora più visibile</p>
+        
+        <div class="demo-section">
+            <div class="welcome-buttons-grid">
+                <!-- Row 1: Mister and Dirigente -->
+                <button class="btn-circular btn-mister" aria-label="Entra come Mister">
+                    <span class="btn-circular-label">Mister</span>
+                </button>
+                <button class="btn-circular btn-dirigente" aria-label="Entra come Dirigente">
+                    <span class="btn-circular-label">Dirigente</span>
+                </button>
+                
+                <!-- Row 2: Storico and Riepilogo -->
+                <button class="btn-circular btn-storico" aria-label="Storico Convocazioni">
+                    <span class="btn-circular-label">Storico convocazioni</span>
+                </button>
+                <button class="btn-circular btn-riepilogo" aria-label="Riepilogo Convocazioni">
+                    <span class="btn-circular-label">Riepilogo convocazioni</span>
+                </button>
+                
+                <!-- Row 3: Allenamenti and Risultati -->
+                <button class="btn-circular btn-allenamenti-circular" aria-label="Allenamenti">
+                    <span class="btn-circular-label">Allenamenti</span>
+                </button>
+                <button class="btn-circular btn-risultati-circular" aria-label="Risultati">
+                    <span class="btn-circular-label">Risultati</span>
+                </button>
+                
+                <!-- Row 4: Gestione Squadra and Esci -->
+                <button class="btn-circular btn-gestione" aria-label="Gestione Squadra">
+                    <span class="btn-circular-label">Gestione squadra</span>
+                </button>
+                <button class="btn-circular btn-esci" aria-label="Esci">
+                    <span class="btn-circular-label">Esci</span>
+                </button>
+            </div>
+            
+            <div class="info-box">
+                <h3>📋 Modifiche Applicate</h3>
+                <ul>
+                    <li>✅ <strong>Ombra più profonda:</strong> da 20px/40px a 35px/70px</li>
+                    <li>✅ <strong>Opacità aumentata:</strong> da 0.25/0.15 a 0.4/0.3</li>
+                    <li>✅ <strong>Offset aumentato:</strong> da 6px/10px a 12px/18px</li>
+                    <li>✅ <strong>Effetto rilievo molto più visibile</strong></li>
+                    <li>✅ Gradients mantenuti invariati</li>
+                    <li>✅ Layout 2x4 mantenuto invariato</li>
+                    <li>✅ Font Poppins mantenuto invariato</li>
+                    <li>✅ Etichette e funzioni JS mantenute invariate</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
