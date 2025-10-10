@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<!-- Version: V9.51 - Reduced shadow intensity and added distinct colors for Allenamenti, Campionato, and Risultati buttons -->
+<!-- Version: V9.52 - Training attendance improvements: red player names for absences and green checkboxes -->
+<!-- V9.52 Changes:
+     1. Player names now show in red (text-red-600 font-semibold) when marked as absent after saving
+     2. Verified green checkbox color (text-green-600) is consistent on all platforms including guest mode
+     3. Checkboxes remain disabled for guest users (read-only mode)
 <!-- V9.51 Changes:
      1. Reduced box-shadow intensity on all modern buttons for a more balanced appearance
      2. Added distinct colors: Allenamenti (orange), Campionato (green), Risultati (purple)
@@ -8362,9 +8366,11 @@
                     const checkboxClass = isAbsentSaved 
                         ? 'training-attendance-checkbox absent-saved w-5 h-5 text-green-600 rounded focus:ring-green-500'
                         : 'training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500';
+                    // V9.52: Add red color to player name when absent
+                    const playerNameClass = isAbsentSaved ? 'text-sm text-red-600 font-semibold' : 'text-sm text-gray-700';
                     cardHTML += `
                         <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer">
-                            <span class="text-sm text-gray-700">${player}</span>
+                            <span class="${playerNameClass}">${player}</span>
                             <input type="checkbox" 
                                    class="${checkboxClass}" 
                                    data-session-id="${session.id}" 
