@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Before/After Shadow Comparison</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin: 3rem 0;
+        }
+        
+        .section {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .section h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .before h2 {
+            color: #dc2626;
+        }
+        
+        .after h2 {
+            color: #059669;
+        }
+        
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+        
+        .btn-circular {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .btn-circular-label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: white;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+        
+        /* BEFORE - Previous shadow */
+        .btn-circular-before {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-circular-before:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 15px 50px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* AFTER - New enhanced shadow */
+        .btn-circular-after {
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 18px 70px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-circular-after:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5), 0 25px 90px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Gradients */
+        .btn-mister {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        }
+        
+        .btn-dirigente {
+            background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+        }
+        
+        .btn-storico {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        }
+        
+        .btn-riepilogo {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .info-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.95);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .info-box h3 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .info-box ul {
+            color: #374151;
+            line-height: 1.8;
+        }
+        
+        .highlight {
+            background: #fef3c7;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Shadow Update Comparison</h1>
+        <p class="subtitle">Confronto tra l'ombra precedente e la nuova ombra più profonda e intensa</p>
+        
+        <div class="comparison">
+            <div class="section before">
+                <h2>❌ PRIMA</h2>
+                <div class="welcome-buttons-grid">
+                    <button class="btn-circular btn-circular-before btn-mister">
+                        <span class="btn-circular-label">Mister</span>
+                    </button>
+                    <button class="btn-circular btn-circular-before btn-dirigente">
+                        <span class="btn-circular-label">Dirigente</span>
+                    </button>
+                    <button class="btn-circular btn-circular-before btn-storico">
+                        <span class="btn-circular-label">Storico</span>
+                    </button>
+                    <button class="btn-circular btn-circular-before btn-riepilogo">
+                        <span class="btn-circular-label">Riepilogo</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="section after">
+                <h2>✅ DOPO</h2>
+                <div class="welcome-buttons-grid">
+                    <button class="btn-circular btn-circular-after btn-mister">
+                        <span class="btn-circular-label">Mister</span>
+                    </button>
+                    <button class="btn-circular btn-circular-after btn-dirigente">
+                        <span class="btn-circular-label">Dirigente</span>
+                    </button>
+                    <button class="btn-circular btn-circular-after btn-storico">
+                        <span class="btn-circular-label">Storico</span>
+                    </button>
+                    <button class="btn-circular btn-circular-after btn-riepilogo">
+                        <span class="btn-circular-label">Riepilogo</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>📊 Modifiche Tecniche</h3>
+            <ul>
+                <li><strong>PRIMA:</strong> <span class="highlight">box-shadow: 0 6px 20px rgba(0,0,0,0.25), 0 10px 40px rgba(0,0,0,0.15)</span></li>
+                <li><strong>DOPO:</strong> <span class="highlight">box-shadow: 0 12px 35px rgba(0,0,0,0.4), 0 18px 70px rgba(0,0,0,0.3)</span></li>
+                <li><strong>Miglioramenti:</strong>
+                    <ul>
+                        <li>✅ Ombra più profonda: da 20px/40px a 35px/70px</li>
+                        <li>✅ Opacità aumentata: da 0.25/0.15 a 0.4/0.3</li>
+                        <li>✅ Offset verticale aumentato: da 6px/10px a 12px/18px</li>
+                        <li>✅ Effetto rilievo molto più visibile e immediato</li>
+                        <li>✅ Gradients mantenuti invariati</li>
+                        <li>✅ Layout 2x4 mantenuto invariato</li>
+                        <li>✅ Font Poppins mantenuto invariato</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
