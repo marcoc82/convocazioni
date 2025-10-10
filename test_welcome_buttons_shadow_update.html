@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Welcome Buttons - Shadow Update</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        html, body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .section {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .before h2 {
+            color: #dc2626;
+        }
+        
+        .after h2 {
+            color: #059669;
+        }
+        
+        .info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+        }
+        
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        /* OLD STYLE - Before */
+        .btn-circular-old {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .btn-circular-old:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* NEW STYLE - After (Deep Shadow) */
+        .btn-circular-new {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), 0 10px 40px rgba(0, 0, 0, 0.15);
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .btn-circular-new:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 15px 50px rgba(0, 0, 0, 0.25);
+        }
+        
+        .btn-circular-label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            text-align: center;
+            margin-top: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+        
+        /* Role-specific gradients */
+        .btn-mister {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        }
+        
+        .btn-dirigente {
+            background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+        }
+        
+        .btn-storico {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        }
+        
+        .btn-riepilogo {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .btn-allenamenti-circular {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        
+        .btn-risultati-circular {
+            background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);
+        }
+        
+        .btn-gestione {
+            background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+        }
+        
+        .btn-esci {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+        
+        .note {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            margin-top: 2rem;
+            border-radius: 0.5rem;
+        }
+        
+        .note h3 {
+            margin-top: 0;
+            color: #92400e;
+        }
+        
+        .note ul {
+            color: #78350f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Test Welcome Buttons - Shadow Update</h1>
+        
+        <div class="info">
+            <p style="margin: 0; font-weight: 600; color: #1e40af;">✨ Shadow Update Comparison:</p>
+            <ul style="margin: 0.5rem 0 0 1rem; color: #1e3a8a;">
+                <li><strong>Before:</strong> Standard shadow (0 4px 15px rgba(0,0,0,0.15))</li>
+                <li><strong>After:</strong> Deep shadow with relief effect (multi-layer)</li>
+                <li>Gradients remain unchanged ✓</li>
+                <li>2x4 Grid layout unchanged ✓</li>
+                <li>Poppins font unchanged ✓</li>
+                <li>Labels and JS functions unchanged ✓</li>
+            </ul>
+        </div>
+        
+        <div class="comparison">
+            <div class="section before">
+                <h2>❌ PRIMA (Old Shadow)</h2>
+                <div class="welcome-buttons-grid">
+                    <button class="btn-circular-old btn-mister">
+                        <span class="btn-circular-label">Mister</span>
+                    </button>
+                    <button class="btn-circular-old btn-dirigente">
+                        <span class="btn-circular-label">Dirigente</span>
+                    </button>
+                    <button class="btn-circular-old btn-storico">
+                        <span class="btn-circular-label">Storico convocazioni</span>
+                    </button>
+                    <button class="btn-circular-old btn-riepilogo">
+                        <span class="btn-circular-label">Riepilogo convocazioni</span>
+                    </button>
+                    <button class="btn-circular-old btn-allenamenti-circular">
+                        <span class="btn-circular-label">Allenamenti</span>
+                    </button>
+                    <button class="btn-circular-old btn-risultati-circular">
+                        <span class="btn-circular-label">Risultati</span>
+                    </button>
+                    <button class="btn-circular-old btn-gestione">
+                        <span class="btn-circular-label">Gestione squadra</span>
+                    </button>
+                    <button class="btn-circular-old btn-esci">
+                        <span class="btn-circular-label">Esci</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="section after">
+                <h2>✅ DOPO (Deep Shadow)</h2>
+                <div class="welcome-buttons-grid">
+                    <button class="btn-circular-new btn-mister">
+                        <span class="btn-circular-label">Mister</span>
+                    </button>
+                    <button class="btn-circular-new btn-dirigente">
+                        <span class="btn-circular-label">Dirigente</span>
+                    </button>
+                    <button class="btn-circular-new btn-storico">
+                        <span class="btn-circular-label">Storico convocazioni</span>
+                    </button>
+                    <button class="btn-circular-new btn-riepilogo">
+                        <span class="btn-circular-label">Riepilogo convocazioni</span>
+                    </button>
+                    <button class="btn-circular-new btn-allenamenti-circular">
+                        <span class="btn-circular-label">Allenamenti</span>
+                    </button>
+                    <button class="btn-circular-new btn-risultati-circular">
+                        <span class="btn-circular-label">Risultati</span>
+                    </button>
+                    <button class="btn-circular-new btn-gestione">
+                        <span class="btn-circular-label">Gestione squadra</span>
+                    </button>
+                    <button class="btn-circular-new btn-esci">
+                        <span class="btn-circular-label">Esci</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="note">
+            <h3>📋 Technical Changes:</h3>
+            <ul>
+                <li><strong>Old Shadow:</strong> Single layer <code>box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);</code></li>
+                <li><strong>New Shadow:</strong> Multi-layer for depth <code>box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25), 0 10px 40px rgba(0, 0, 0, 0.15);</code></li>
+                <li><strong>Hover Old:</strong> <code>box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);</code></li>
+                <li><strong>Hover New:</strong> <code>box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 15px 50px rgba(0, 0, 0, 0.25);</code></li>
+                <li><strong>Effect:</strong> Creates a deeper, more visible relief effect (effetto rilievo) as requested</li>
+            </ul>
+        </div>
+        
+        <div class="info" style="margin-top: 2rem;">
+            <p style="margin: 0; font-weight: 600; color: #059669;">
+                ✅ Hover over the buttons to see the enhanced shadow effect!
+            </p>
+        </div>
+    </div>
+</body>
+</html>
