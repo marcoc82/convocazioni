@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Welcome Buttons UI Update</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .header ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .header li {
+            padding: 0.5rem 0;
+            color: #4b5563;
+        }
+
+        .header li.done::before {
+            content: "✅ ";
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .test-section h2 {
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .mode-selector {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .mode-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            transform: scale(1.05);
+        }
+
+        .mode-btn.normal {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .mode-btn.guest {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 640px) {
+            .welcome-buttons-grid {
+                gap: 1rem;
+                padding: 0.5rem;
+            }
+        }
+
+        .btn-circular {
+            aspect-ratio: 1;
+            border-radius: 1.75rem;
+            border: 3px solid #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 18px 70px rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .btn-circular:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5), 0 25px 90px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-circular:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .btn-circular-label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: white;
+            text-align: center;
+            margin-top: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+
+        @media (max-width: 640px) {
+            .btn-circular {
+                padding: 1rem;
+            }
+            .btn-circular-label {
+                font-size: 0.9rem;
+            }
+        }
+
+        .btn-mister {
+            background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%);
+        }
+
+        .btn-dirigente {
+            background: linear-gradient(135deg, #FDBA74 0%, #FB923C 100%);
+        }
+
+        .btn-storico {
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+        }
+
+        .btn-riepilogo {
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+        }
+
+        .btn-allenamenti-circular {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+
+        .btn-risultati-circular {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+
+        .btn-gestione {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+        }
+
+        .btn-esci {
+            background: linear-gradient(135deg, #DC2626 0%, #F97316 100%);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .status-indicator {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .status-indicator.guest {
+            background: #fef3c7;
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+
+        .status-indicator.normal {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+
+        .vibration-indicator {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #e0f2fe;
+            border: 2px solid #0284c7;
+            border-radius: 0.5rem;
+            color: #0c4a6e;
+            font-weight: 600;
+            display: none;
+        }
+
+        .vibration-indicator.active {
+            display: block;
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Test Welcome Buttons UI Update</h1>
+            <h3>Requisiti:</h3>
+            <ul>
+                <li class="done">Correggi "Gestione squadra" in "Gestione Squadra" (maiuscola su entrambe le parole)</li>
+                <li class="done">Nascondi "Mister", "Dirigente" e "Gestione Squadra" per gli utenti ospiti</li>
+                <li class="done">Mantieni invariato: stile, gradient verde per "Gestione Squadra"</li>
+                <li class="done">Rettangolari con angoli stondati, bordo bianco, shadow deep</li>
+                <li class="done">Font Poppins, etichette grandi</li>
+                <li class="done">Gradient grigio per storico/riepilogo convocazioni</li>
+                <li class="done">Esci rosso-arancio, vibrazione su click</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🎭 Seleziona Modalità di Visualizzazione</h2>
+            <div class="mode-selector">
+                <button class="mode-btn normal active" onclick="setMode('normal')">👤 Utente Normale</button>
+                <button class="mode-btn guest" onclick="setMode('guest')">🎫 Utente Ospite</button>
+            </div>
+
+            <div id="status-indicator" class="status-indicator normal">
+                ✅ Modalità: Utente Normale - Tutti i tasti visibili
+            </div>
+
+            <div class="welcome-buttons-grid">
+                <!-- Row 1: Mister and Dirigente (hidden for guests) -->
+                <button id="enter-mister-button" class="btn-circular btn-mister" onclick="handleClick('Mister')" aria-label="Entra come Mister">
+                    <span class="btn-circular-label">Mister</span>
+                </button>
+                <button id="enter-dirigente-button" class="btn-circular btn-dirigente" onclick="handleClick('Dirigente')" aria-label="Entra come Dirigente">
+                    <span class="btn-circular-label">Dirigente</span>
+                </button>
+                
+                <!-- Row 2: Storico and Riepilogo -->
+                <button id="view-history-button" class="btn-circular btn-storico" onclick="handleClick('Storico convocazioni')" aria-label="Storico Convocazioni">
+                    <span class="btn-circular-label">Storico convocazioni</span>
+                </button>
+                <button id="welcome-attendance-button" class="btn-circular btn-riepilogo" onclick="handleClick('Riepilogo convocazioni')" aria-label="Riepilogo Convocazioni">
+                    <span class="btn-circular-label">Riepilogo convocazioni</span>
+                </button>
+                
+                <!-- Row 3: Allenamenti and Risultati -->
+                <button id="allenamenti-button" class="btn-circular btn-allenamenti-circular" onclick="handleClick('Allenamenti')" aria-label="Allenamenti">
+                    <span class="btn-circular-label">Allenamenti</span>
+                </button>
+                <button id="area-polis2013-button" class="btn-circular btn-risultati-circular" onclick="handleClick('Risultati')" aria-label="Risultati">
+                    <span class="btn-circular-label">Risultati</span>
+                </button>
+                
+                <!-- Row 4: Gestione Squadra and Esci (NOTE: Squadra with capital S) -->
+                <button id="manage-players-button" class="btn-circular btn-gestione" onclick="handleClick('Gestione Squadra')" aria-label="Gestione Squadra">
+                    <span class="btn-circular-label">Gestione<br>Squadra</span>
+                </button>
+                <button id="company-logout-button" class="btn-circular btn-esci" onclick="handleClick('Esci')" aria-label="Esci">
+                    <span class="btn-circular-label">Esci</span>
+                </button>
+            </div>
+
+            <div id="vibration-indicator" class="vibration-indicator">
+                📳 Vibrazione attivata! (50ms)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'normal';
+
+        function setMode(mode) {
+            currentMode = mode;
+            const statusIndicator = document.getElementById('status-indicator');
+            const normalBtn = document.querySelector('.mode-btn.normal');
+            const guestBtn = document.querySelector('.mode-btn.guest');
+            
+            // Update button styles
+            if (mode === 'normal') {
+                normalBtn.classList.add('active');
+                guestBtn.classList.remove('active');
+                statusIndicator.className = 'status-indicator normal';
+                statusIndicator.textContent = '✅ Modalità: Utente Normale - Tutti i tasti visibili';
+                showAllButtons();
+            } else {
+                guestBtn.classList.add('active');
+                normalBtn.classList.remove('active');
+                statusIndicator.className = 'status-indicator guest';
+                statusIndicator.textContent = '🎫 Modalità: Utente Ospite - Tasti "Mister", "Dirigente" e "Gestione Squadra" nascosti';
+                hideAdminButtons();
+            }
+        }
+
+        function showAllButtons() {
+            document.getElementById('enter-mister-button').classList.remove('hidden');
+            document.getElementById('enter-dirigente-button').classList.remove('hidden');
+            document.getElementById('manage-players-button').classList.remove('hidden');
+        }
+
+        function hideAdminButtons() {
+            document.getElementById('enter-mister-button').classList.add('hidden');
+            document.getElementById('enter-dirigente-button').classList.add('hidden');
+            document.getElementById('manage-players-button').classList.add('hidden');
+        }
+
+        function handleClick(buttonName) {
+            // Vibrate if supported
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
+            // Show vibration indicator
+            const indicator = document.getElementById('vibration-indicator');
+            indicator.classList.add('active');
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 500);
+            
+            console.log(`✅ Clicked: ${buttonName}`);
+        }
+
+        // Initialize with normal mode
+        setMode('normal');
+    </script>
+</body>
+</html>
