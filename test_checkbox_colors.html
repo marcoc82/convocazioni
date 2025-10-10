@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Checkbox Colors - Training Attendance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Training attendance checkbox styles - red for saved absences */
+        .training-attendance-checkbox.absent-saved {
+            accent-color: #dc2626;
+        }
+        
+        .training-attendance-checkbox.absent-saved:not(:checked) {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #dc2626;
+            border-radius: 0.25rem;
+            background-color: #ffffff;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .training-attendance-checkbox.absent-saved:not(:checked):hover {
+            background-color: #fee2e2;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-6 text-center">🧪 Test Checkbox Colors - Presenze Allenamento</h1>
+        
+        <!-- Test Case 1: Checked - Present (Green) -->
+        <div class="mb-8 p-4 bg-green-50 rounded-lg border border-green-200">
+            <h2 class="text-lg font-semibold mb-3 text-green-800">✅ Caso 1: Presente (Checked - Verde)</h2>
+            <p class="text-sm text-gray-600 mb-3">Giocatore presente - checkbox checked deve essere verde</p>
+            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer bg-white">
+                <span class="text-sm text-gray-700">10 ROSSI MARIO</span>
+                <input type="checkbox" 
+                       class="training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500" 
+                       checked>
+            </label>
+            <p class="text-xs text-gray-500 mt-2">✓ Classe: <code>text-green-600</code></p>
+        </div>
+        
+        <!-- Test Case 2: Unchecked - Absent Saved (Red) -->
+        <div class="mb-8 p-4 bg-red-50 rounded-lg border border-red-200">
+            <h2 class="text-lg font-semibold mb-3 text-red-800">❌ Caso 2: Assente Salvato (Unchecked - Rosso)</h2>
+            <p class="text-sm text-gray-600 mb-3">Giocatore assente dopo salvataggio - checkbox unchecked deve essere rosso</p>
+            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer bg-white">
+                <span class="text-sm text-gray-700">7 BIANCHI LUIGI</span>
+                <input type="checkbox" 
+                       class="training-attendance-checkbox absent-saved w-5 h-5 text-green-600 rounded focus:ring-green-500">
+            </label>
+            <p class="text-xs text-gray-500 mt-2">✓ Classe: <code>absent-saved</code> con <code>accent-color: #dc2626</code></p>
+        </div>
+        
+        <!-- Test Case 3: Unchecked - Not Yet Saved (Default Gray/Blue) -->
+        <div class="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <h2 class="text-lg font-semibold mb-3 text-gray-800">⚪ Caso 3: Non Ancora Salvato (Unchecked - Default)</h2>
+            <p class="text-sm text-gray-600 mb-3">Giocatore non ancora salvato - checkbox unchecked default del browser</p>
+            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer bg-white">
+                <span class="text-sm text-gray-700">23 VERDI GIUSEPPE</span>
+                <input type="checkbox" 
+                       class="training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500">
+            </label>
+            <p class="text-xs text-gray-500 mt-2">✓ Nessuna classe aggiuntiva - colore default del browser</p>
+        </div>
+        
+        <!-- Interactive Test -->
+        <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h2 class="text-lg font-semibold mb-3 text-blue-800">🔄 Test Interattivo</h2>
+            <p class="text-sm text-gray-600 mb-3">Clicca sui checkbox per vedere il comportamento:</p>
+            
+            <div class="space-y-2 mb-4">
+                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer bg-white">
+                    <span class="text-sm text-gray-700">4 NERI ANTONIO (Presente)</span>
+                    <input type="checkbox" 
+                           class="training-attendance-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500" 
+                           checked>
+                </label>
+                
+                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer bg-white">
+                    <span class="text-sm text-gray-700">18 AZZURRI MARCO (Assente Salvato)</span>
+                    <input type="checkbox" 
+                           class="training-attendance-checkbox absent-saved w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                </label>
+                
+                <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded cursor-pointer bg-white">
+                    <span class="text-sm text-gray-700">9 GIALLI FRANCESCO (Assente Salvato)</span>
+                    <input type="checkbox" 
+                           class="training-attendance-checkbox absent-saved w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                </label>
+            </div>
+            
+            <p class="text-xs text-gray-600">
+                💡 <strong>Nota:</strong> Quando un checkbox con classe <code>absent-saved</code> viene checked, 
+                diventa verde grazie a <code>text-green-600</code>. Quando viene unchecked, appare rosso grazie 
+                a <code>accent-color: #dc2626</code>.
+            </p>
+        </div>
+        
+        <!-- Summary -->
+        <div class="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+            <h3 class="font-semibold text-purple-800 mb-2">📋 Riepilogo Comportamento</h3>
+            <ul class="space-y-1 text-sm text-gray-700">
+                <li>✅ <strong>Verde</strong>: Checkbox checked (presente) - usa <code>text-green-600</code></li>
+                <li>❌ <strong>Rosso</strong>: Checkbox unchecked con classe <code>absent-saved</code> (assente dopo salvataggio)</li>
+                <li>⚪ <strong>Default</strong>: Checkbox unchecked senza <code>absent-saved</code> (non ancora salvato)</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
