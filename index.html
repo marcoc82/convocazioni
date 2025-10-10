@@ -889,10 +889,10 @@
                 <!-- New 2x4 Circular Buttons Grid Layout -->
                 <div class="welcome-buttons-grid">
                     <!-- Row 1: Mister and Dirigente (hidden for guests) -->
-                    <button id="enter-mister-button" class="btn-circular btn-mister" aria-label="Entra come Mister">
+                    <button id="btn-mister" class="btn-circular btn-mister" aria-label="Entra come Mister">
                         <span class="btn-circular-label">Mister</span>
                     </button>
-                    <button id="enter-dirigente-button" class="btn-circular btn-dirigente" aria-label="Entra come Dirigente">
+                    <button id="btn-dirigente" class="btn-circular btn-dirigente" aria-label="Entra come Dirigente">
                         <span class="btn-circular-label">Dirigente</span>
                     </button>
                     
@@ -913,7 +913,7 @@
                     </button>
                     
                     <!-- Row 4: Gestione Squadra and Esci -->
-                    <button id="manage-players-button" class="btn-circular btn-gestione" aria-label="Gestione Squadra">
+                    <button id="btn-gestione-squadra" class="btn-circular btn-gestione" aria-label="Gestione Squadra">
                         <span class="btn-circular-label">Gestione<br>Squadra</span>
                     </button>
                     <button id="company-logout-button" class="btn-circular btn-esci" aria-label="Esci">
@@ -2531,8 +2531,8 @@
             
             const companyWelcomeScreen = document.getElementById('company-welcome-screen');
             const companyNameDisplay = document.getElementById('company-name-display');
-            const enterMisterButton = document.getElementById('enter-mister-button');
-            const enterDirigenteButton = document.getElementById('enter-dirigente-button');
+            const enterMisterButton = document.getElementById('btn-mister');
+            const enterDirigenteButton = document.getElementById('btn-dirigente');
             // V9.10: Training attendance button - COMMENTED OUT - Feature removed
             // const trainingAttendanceButton = document.getElementById('training-attendance-button');
             const campionatoButton = document.getElementById('campionato-button');
@@ -3038,15 +3038,15 @@
             
             const companyWelcomeScreen = document.getElementById('company-welcome-screen');
             const companyNameDisplay = document.getElementById('company-name-display');
-            const enterMisterButton = document.getElementById('enter-mister-button');
-            const enterDirigenteButton = document.getElementById('enter-dirigente-button');
+            const enterMisterButton = document.getElementById('btn-mister');
+            const enterDirigenteButton = document.getElementById('btn-dirigente');
             const viewHistoryButton = document.getElementById('view-history-button');
             const welcomeAttendanceButton = document.getElementById('welcome-attendance-button');
             // V9.10: Training attendance button - COMMENTED OUT - Feature removed
             // const trainingAttendanceButton = document.getElementById('training-attendance-button');
             const allenamentiButton = document.getElementById('allenamenti-button');
             const campionatoButton = document.getElementById('campionato-button');
-            const managePlayersButton = document.getElementById('manage-players-button');
+            const managePlayersButton = document.getElementById('btn-gestione-squadra');
             const areaPolis2013Button = document.getElementById('area-polis2013-button');
             const companyLogoutButton = document.getElementById('company-logout-button');
             
@@ -8049,9 +8049,9 @@
                 // Show/hide elements based on guest login status
                 const guestRoleIndicator = document.getElementById('guest-role-indicator');
                 // Get individual buttons for new circular layout
-                const enterMisterBtn = document.getElementById('enter-mister-button');
-                const enterDirigenteBtn = document.getElementById('enter-dirigente-button');
-                const managePlayersBtn = document.getElementById('manage-players-button');
+                const enterMisterBtn = document.getElementById('btn-mister');
+                const enterDirigenteBtn = document.getElementById('btn-dirigente');
+                const managePlayersBtn = document.getElementById('btn-gestione-squadra');
                 
                 if (currentCompanyData.isGuestLogin) {
                     // Guest login: show indicator and hide admin functions
