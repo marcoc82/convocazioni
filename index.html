@@ -720,11 +720,11 @@
         }
         
         .btn-storico {
-            background: linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%);
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
         }
         
         .btn-riepilogo {
-            background: linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%);
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
         }
         
         .btn-allenamenti-circular {
@@ -740,7 +740,7 @@
         }
         
         .btn-esci {
-            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            background: linear-gradient(135deg, #DC2626 0%, #F97316 100%);
         }
         
         /* Campionato button with circular style */
@@ -2815,10 +2815,12 @@
             });
 
             enterMisterButton.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(50);
                 showPasswordEntry('mister');
             });
 
             enterDirigenteButton.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(50);
                 showPasswordEntry('dirigente');
             });
 
@@ -11166,14 +11168,17 @@
             });
 
             enterMisterButton.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(50);
                 showPasswordEntry('mister');
             });
 
             enterDirigenteButton.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(50);
                 showPasswordEntry('dirigente');
             });
 
             viewHistoryButton.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(50);
                 // Use document ID as app ID (fallback to company code for demo mode)
                 const companyAppId = currentCompanyDocumentId || currentCompanyCode;
                 currentAppId = companyAppId;
@@ -11185,6 +11190,7 @@
             });
 
             welcomeAttendanceButton.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(50);
                 // 🔍 DIAGNOSTIC LOG: Opening Riepilogo Presenze with company info from welcome screen
                 console.log(`📊 [DIAGNOSTIC] Apertura Riepilogo Presenze da schermata benvenuto:`);
                 console.log(`   🏢 Società corrente - Codice: ${currentCompanyCode}`);
@@ -11239,6 +11245,7 @@
             // });
 
             allenamentiButton.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(50);
                 console.log('🏃 Opening Allenamenti Management View... (V8.11)');
                 hideAllScreens();
                 allenamentiView.classList.remove('hidden');
@@ -11266,12 +11273,14 @@
             });
 
             managePlayersButton.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(50);
                 showPlayerManagement();
             });
 
             // Risultati button handler - Opens Polis2013 site in new tab (no pre-filled code)
             // This button is ALWAYS visible to ALL users regardless of company
             areaPolis2013Button.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(50);
                 console.log('🔗 Opening Risultati (Polis2013 page)...');
                 
                 // Open main page in new tab (without pre-filled code)
@@ -11282,6 +11291,7 @@
             });
 
             companyLogoutButton.addEventListener('click', () => {
+                if (navigator.vibrate) navigator.vibrate(50);
                 // Always remove session-specific data
                 localStorage.removeItem('userRole');
                 localStorage.removeItem('convocazioniAppId');

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Welcome Buttons - Updated UI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .info {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .info h2 {
+            color: #0369a1;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .info ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info li {
+            padding: 0.25rem 0;
+            color: #075985;
+        }
+
+        .info li::before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 640px) {
+            .welcome-buttons-grid {
+                gap: 1rem;
+            }
+        }
+
+        .btn-circular {
+            aspect-ratio: 1;
+            border-radius: 1.75rem;
+            border: 3px solid #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 18px 70px rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .btn-circular:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5), 0 25px 90px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-circular:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        .btn-circular-label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: white;
+            text-align: center;
+            margin-top: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+        
+        @media (max-width: 640px) {
+            .btn-circular {
+                padding: 1rem;
+            }
+            .btn-circular-label {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Role-specific gradients for welcome buttons */
+        .btn-mister {
+            background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%);
+        }
+        
+        .btn-dirigente {
+            background: linear-gradient(135deg, #FDBA74 0%, #FB923C 100%);
+        }
+        
+        .btn-storico {
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+        }
+        
+        .btn-riepilogo {
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+        }
+        
+        .btn-allenamenti-circular {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+        
+        .btn-risultati-circular {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+        
+        .btn-gestione {
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+        }
+        
+        .btn-esci {
+            background: linear-gradient(135deg, #DC2626 0%, #F97316 100%);
+        }
+
+        .changes {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        .changes h2 {
+            color: #92400e;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .changes ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .changes li {
+            padding: 0.25rem 0;
+            color: #78350f;
+        }
+
+        .changes li::before {
+            content: "🔄 ";
+            font-weight: bold;
+        }
+
+        .vibration-indicator {
+            text-align: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            border-radius: 0.5rem;
+            color: #065f46;
+            font-weight: 600;
+            display: none;
+        }
+
+        .vibration-indicator.active {
+            display: block;
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Test Aggiornamento UI Welcome Buttons</h1>
+
+        <div class="info">
+            <h2>📋 Modifiche Implementate</h2>
+            <ul>
+                <li><strong>Storico convocazioni</strong>: Gradient grigio chiaro (uguale a Gestione squadra)</li>
+                <li><strong>Riepilogo convocazioni</strong>: Gradient grigio chiaro (uguale a Gestione squadra)</li>
+                <li><strong>Esci</strong>: Gradient rosso → arancione</li>
+                <li><strong>Vibrazione</strong>: Aggiunta a tutti i tasti (50ms)</li>
+                <li><strong>Invariato</strong>: Forma rettangolare con angoli stondati, bordo bianco, shadow deep, font Poppins, etichette grandi</li>
+            </ul>
+        </div>
+
+        <div class="welcome-buttons-grid">
+            <!-- Row 1: Mister and Dirigente -->
+            <button class="btn-circular btn-mister" onclick="handleClick('Mister')">
+                <span class="btn-circular-label">Mister</span>
+            </button>
+            <button class="btn-circular btn-dirigente" onclick="handleClick('Dirigente')">
+                <span class="btn-circular-label">Dirigente</span>
+            </button>
+            
+            <!-- Row 2: Storico and Riepilogo (NEW: same grey gradient) -->
+            <button class="btn-circular btn-storico" onclick="handleClick('Storico convocazioni')">
+                <span class="btn-circular-label">Storico convocazioni</span>
+            </button>
+            <button class="btn-circular btn-riepilogo" onclick="handleClick('Riepilogo convocazioni')">
+                <span class="btn-circular-label">Riepilogo convocazioni</span>
+            </button>
+            
+            <!-- Row 3: Allenamenti and Risultati -->
+            <button class="btn-circular btn-allenamenti-circular" onclick="handleClick('Allenamenti')">
+                <span class="btn-circular-label">Allenamenti</span>
+            </button>
+            <button class="btn-circular btn-risultati-circular" onclick="handleClick('Risultati')">
+                <span class="btn-circular-label">Risultati</span>
+            </button>
+            
+            <!-- Row 4: Gestione Squadra and Esci (NEW: red to orange gradient) -->
+            <button class="btn-circular btn-gestione" onclick="handleClick('Gestione squadra')">
+                <span class="btn-circular-label">Gestione<br>squadra</span>
+            </button>
+            <button class="btn-circular btn-esci" onclick="handleClick('Esci')">
+                <span class="btn-circular-label">Esci</span>
+            </button>
+        </div>
+
+        <div class="vibration-indicator" id="vibrationIndicator">
+            📳 Vibrazione attivata!
+        </div>
+
+        <div class="changes">
+            <h2>🔄 Dettagli Modifiche CSS</h2>
+            <ul>
+                <li><code>.btn-storico</code>: <strong>linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%)</strong> (era viola #C4B5FD → #A78BFA)</li>
+                <li><code>.btn-riepilogo</code>: <strong>linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%)</strong> (era viola #C4B5FD → #A78BFA)</li>
+                <li><code>.btn-esci</code>: <strong>linear-gradient(135deg, #DC2626 0%, #F97316 100%)</strong> (era rosso #EF4444 → #DC2626)</li>
+                <li><strong>JavaScript</strong>: Aggiunto <code>if (navigator.vibrate) navigator.vibrate(50);</code> a tutti i listener</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function handleClick(buttonName) {
+            // Vibrate if supported
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+
+            // Show vibration indicator
+            const indicator = document.getElementById('vibrationIndicator');
+            indicator.classList.add('active');
+            setTimeout(() => {
+                indicator.classList.remove('active');
+            }, 500);
+
+            console.log(`Button clicked: ${buttonName}`);
+        }
+    </script>
+</body>
+</html>
