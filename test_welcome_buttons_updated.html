@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Buttons - Aggiornamento UI Finale</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 2rem;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+        
+        .section {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 2rem;
+        }
+        
+        .section h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        
+        .info {
+            background: #dcfce7;
+            border-left: 4px solid #16a34a;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+        }
+        
+        .info h3 {
+            margin-top: 0;
+            color: #15803d;
+        }
+        
+        .info ul {
+            color: #166534;
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .info li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Welcome screen circular buttons grid */
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 640px) {
+            .welcome-buttons-grid {
+                gap: 1rem;
+                padding: 0.5rem;
+            }
+        }
+        
+        /* UPDATED STYLE - Rounded rectangular buttons */
+        .btn-circular {
+            aspect-ratio: 1;
+            border-radius: 1.75rem;
+            border: 3px solid #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 18px 70px rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .btn-circular:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5), 0 25px 90px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-circular:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        .btn-circular-label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: white;
+            text-align: center;
+            margin-top: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+        
+        @media (max-width: 640px) {
+            .btn-circular {
+                padding: 1rem;
+            }
+            .btn-circular-label {
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Role-specific gradients */
+        .btn-mister {
+            background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%);
+        }
+        
+        .btn-dirigente {
+            background: linear-gradient(135deg, #FDBA74 0%, #FB923C 100%);
+        }
+        
+        .btn-storico {
+            background: linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%);
+        }
+        
+        .btn-riepilogo {
+            background: linear-gradient(135deg, #C4B5FD 0%, #A78BFA 100%);
+        }
+        
+        .btn-allenamenti {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+        
+        .btn-risultati {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+        
+        .btn-gestione {
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+        }
+        
+        .btn-esci {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+        
+        .highlight {
+            background: #fef3c7;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✅ Welcome Buttons - UI Aggiornata</h1>
+        
+        <div class="info">
+            <h3>📋 Modifiche Implementate:</h3>
+            <ul>
+                <li>✅ <strong>Forma bottoni:</strong> Rettangolari con angoli stondati (<span class="highlight">border-radius: 1.75rem</span>)</li>
+                <li>✅ <strong>Font size etichette:</strong> Leggermente più grande (<span class="highlight">1.15rem</span> desktop, <span class="highlight">0.9rem</span> mobile)</li>
+                <li>✅ <strong>Tasto Esci:</strong> Rosso più intenso (<span class="highlight">#EF4444 → #DC2626</span>)</li>
+                <li>✅ <strong>Elementi invariati:</strong> Bordo bianco 3px, gradients soft, shadow profonda, griglia 2x4, etichette su due righe</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h2>🎨 Bottoni Aggiornati</h2>
+            <div class="welcome-buttons-grid">
+                <!-- Row 1: Mister and Dirigente -->
+                <button class="btn-circular btn-mister" aria-label="Entra come Mister">
+                    <span class="btn-circular-label">Mister</span>
+                </button>
+                <button class="btn-circular btn-dirigente" aria-label="Entra come Dirigente">
+                    <span class="btn-circular-label">Dirigente</span>
+                </button>
+                
+                <!-- Row 2: Storico and Riepilogo (stesso gradient viola) -->
+                <button class="btn-circular btn-storico" aria-label="Storico Convocazioni">
+                    <span class="btn-circular-label">Storico convocazioni</span>
+                </button>
+                <button class="btn-circular btn-riepilogo" aria-label="Riepilogo Convocazioni">
+                    <span class="btn-circular-label">Riepilogo convocazioni</span>
+                </button>
+                
+                <!-- Row 3: Allenamenti and Risultati (entrambi gialli) -->
+                <button class="btn-circular btn-allenamenti" aria-label="Allenamenti">
+                    <span class="btn-circular-label">Allenamenti</span>
+                </button>
+                <button class="btn-circular btn-risultati" aria-label="Risultati">
+                    <span class="btn-circular-label">Risultati</span>
+                </button>
+                
+                <!-- Row 4: Gestione Squadra (grigio) and Esci (rosso intenso) -->
+                <button class="btn-circular btn-gestione" aria-label="Gestione Squadra">
+                    <span class="btn-circular-label">Gestione<br>squadra</span>
+                </button>
+                <button class="btn-circular btn-esci" aria-label="Esci">
+                    <span class="btn-circular-label">Esci</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

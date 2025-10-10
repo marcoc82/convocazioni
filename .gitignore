@@ -1,32 +1,14 @@
-# Temporary files
-*.tmp
-*.temp
-*~
-
-# Operating system files
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Node modules (if any)
+# Dependencies
 node_modules/
 
-# Build outputs
+# Build artifacts
 dist/
 build/
 
-# IDE files
+# Test files (temporary)
+/tmp/
+
+# IDE
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# Screenshots and images (temporary)
-*.png
-# But allow test screenshots for documentation
-!test_*.png
-!favicon*.png
-!logo*.png
-!icon-512.png
