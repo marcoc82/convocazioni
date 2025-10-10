@@ -1,10 +1,11 @@
 // Nome della cache
-const CACHE_NAME = 'polis-convocazioni-v9.51';
+const CACHE_NAME = 'polis-convocazioni-v9.52';
 // File da mettere in cache
 const urlsToCache = [
   './index.html',
   './manifest.json',
   './tailwind.min.css',
+  './firebase-messaging-sw.js',
   './logo Rosterkick.jpg',
   './logo Rosterkick.png',
   './favicon.ico',

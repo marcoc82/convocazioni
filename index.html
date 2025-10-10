@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<!-- Version: V9.51 - Reduced shadow intensity and added distinct colors for Allenamenti, Campionato, and Risultati buttons -->
-<!-- V9.51 Changes:
-     1. Reduced box-shadow intensity on all modern buttons for a more balanced appearance
-     2. Added distinct colors: Allenamenti (orange), Campionato (green), Risultati (purple)
-     3. Removed old dynamic color-changing logic for Campionato button (now uses consistent green gradient)
-     4. Maintained modern design with gradients, rounded corners, and hover animations
-     Previous: V9.50 - Removed dark mode, kept change password functionality and training checkboxes -->
+<!-- Version: V9.52 - Added Firebase Cloud Messaging for Push Notifications -->
+<!-- V9.52 Changes:
+     1. Added firebase-messaging-sw.js for background notification handling
+     2. Integrated Firebase Messaging SDK in index.html
+     3. Added notification permission request and FCM token management
+     4. Prepared backend integration points for Cloud Function/API
+     5. Added foreground notification handling
+     Previous: V9.51 - Reduced shadow intensity and added distinct colors for buttons -->
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -55,6 +56,7 @@
         import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc, getDocs, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-messaging.js";
 
         // Espone le funzioni Firebase Auth globalmente per evitare ReferenceError
         window.signInAnonymously = signInAnonymously;
@@ -85,6 +87,17 @@
             window.deleteDoc = deleteDoc;
             window.arrayUnion = arrayUnion;
             window.getDocs = getDocs;
+            
+            // Initialize Firebase Cloud Messaging
+            try {
+                const messaging = getMessaging(app);
+                window.messaging = messaging;
+                window.getToken = getToken;
+                window.onMessage = onMessage;
+                console.log('✅ Firebase Cloud Messaging initialized');
+            } catch (error) {
+                console.warn('⚠️ Firebase Cloud Messaging not available:', error);
+            }
         } else {
             console.error("Firebase configuration not available. Some features will not work.");
         }
@@ -13136,6 +13149,174 @@
         if (isPWA()) {
             console.log('🚀 App in esecuzione come PWA');
         }
+    </script>
+
+    <!-- Firebase Cloud Messaging - Push Notifications -->
+    <script>
+        // FCM Configuration and Token Management
+        let fcmToken = null;
+        
+        // Request notification permission and get FCM token
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                console.warn('⚠️ Le notifiche non sono supportate da questo browser');
+                return null;
+            }
+
+            if (!window.messaging) {
+                console.warn('⚠️ Firebase Messaging non è disponibile');
+                return null;
+            }
+
+            try {
+                // Check current permission status
+                if (Notification.permission === 'granted') {
+                    console.log('✅ Permesso notifiche già concesso');
+                    return await getFCMToken();
+                } else if (Notification.permission === 'denied') {
+                    console.warn('❌ Permesso notifiche negato dall\'utente');
+                    return null;
+                } else {
+                    // Request permission
+                    console.log('📬 Richiesta permesso notifiche...');
+                    const permission = await Notification.requestPermission();
+                    
+                    if (permission === 'granted') {
+                        console.log('✅ Permesso notifiche concesso');
+                        return await getFCMToken();
+                    } else {
+                        console.warn('❌ Permesso notifiche rifiutato');
+                        return null;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Errore nella richiesta permesso notifiche:', error);
+                return null;
+            }
+        }
+
+        // Get FCM token
+        async function getFCMToken() {
+            if (!window.messaging) {
+                console.warn('⚠️ Firebase Messaging non disponibile');
+                return null;
+            }
+
+            try {
+                // Register firebase-messaging-sw.js
+                const registration = await navigator.serviceWorker.register('./firebase-messaging-sw.js', {
+                    scope: '/convocazioni/'
+                });
+                console.log('✅ Firebase Messaging Service Worker registrato');
+
+                // Get FCM token
+                const token = await window.getToken(window.messaging, {
+                    vapidKey: 'YOUR_VAPID_KEY_HERE', // TODO: Sostituire con la chiave VAPID reale dal Firebase Console
+                    serviceWorkerRegistration: registration
+                });
+
+                if (token) {
+                    console.log('✅ FCM Token ottenuto:', token);
+                    fcmToken = token;
+                    
+                    // TODO: Invia il token al backend per salvarlo nel database
+                    // await saveFCMTokenToDatabase(token);
+                    
+                    return token;
+                } else {
+                    console.warn('⚠️ Nessun token FCM disponibile. Richiedi il permesso di notifica.');
+                    return null;
+                }
+            } catch (error) {
+                console.error('❌ Errore nell\'ottenere il token FCM:', error);
+                return null;
+            }
+        }
+
+        // Save FCM token to Firestore (to be implemented with backend)
+        async function saveFCMTokenToDatabase(token) {
+            if (!window.db || !window.auth?.currentUser) {
+                console.warn('⚠️ Database o utente non disponibile per salvare il token');
+                return;
+            }
+
+            try {
+                // Get current user ID or device ID
+                const userId = window.auth.currentUser.uid;
+                const companyCode = localStorage.getItem('companyCode');
+                
+                // Save token to Firestore
+                // Structure: fcm_tokens/{companyCode}/tokens/{userId}
+                if (companyCode) {
+                    const tokenRef = window.doc(window.db, 'fcm_tokens', companyCode, 'tokens', userId);
+                    await window.setDoc(tokenRef, {
+                        token: token,
+                        timestamp: new Date(),
+                        userAgent: navigator.userAgent,
+                        companyCode: companyCode
+                    }, { merge: true });
+                    
+                    console.log('✅ Token FCM salvato nel database');
+                }
+            } catch (error) {
+                console.error('❌ Errore nel salvataggio del token FCM:', error);
+            }
+        }
+
+        // Handle foreground messages
+        if (window.messaging && window.onMessage) {
+            window.onMessage(window.messaging, (payload) => {
+                console.log('📬 Notifica ricevuta in foreground:', payload);
+                
+                // Show notification even when app is in foreground
+                if (Notification.permission === 'granted') {
+                    const notificationTitle = payload.notification?.title || 'Nuova Convocazione';
+                    const notificationOptions = {
+                        body: payload.notification?.body || 'È stata creata una nuova convocazione',
+                        icon: '/convocazioni/icon-512.png',
+                        badge: '/convocazioni/favicon-96x96.png',
+                        tag: 'convocazione-notification',
+                        data: payload.data
+                    };
+                    
+                    new Notification(notificationTitle, notificationOptions);
+                }
+            });
+        }
+
+        // Auto-request notification permission after login (when user is authenticated)
+        // This will be called after successful login to the app
+        async function initializePushNotifications() {
+            // Wait a bit after login to not overwhelm the user
+            setTimeout(async () => {
+                const token = await requestNotificationPermission();
+                if (token) {
+                    console.log('🔔 Notifiche push abilitate');
+                }
+            }, 2000);
+        }
+
+        // Expose function globally for use after login
+        window.requestNotificationPermission = requestNotificationPermission;
+        window.initializePushNotifications = initializePushNotifications;
+        window.getFCMToken = getFCMToken;
+
+        // Test notification function (for development/testing)
+        async function testNotification() {
+            if (Notification.permission === 'granted') {
+                new Notification('Test Notifica Rosterkick', {
+                    body: 'Questa è una notifica di test',
+                    icon: '/convocazioni/icon-512.png',
+                    badge: '/convocazioni/favicon-96x96.png'
+                });
+                console.log('✅ Notifica di test inviata');
+            } else {
+                console.warn('⚠️ Permesso notifiche non concesso');
+            }
+        }
+        window.testNotification = testNotification;
+
+        console.log('✅ Firebase Cloud Messaging script caricato');
     </script>
 </body>
 </html>

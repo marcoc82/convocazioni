@@ -390,6 +390,330 @@ Prima di ogni deploy, verifica:
 - [ ] Test su mobile reale iOS
 - [ ] Test su desktop Chrome/Edge
 - [ ] Documentazione aggiornata
+- [ ] Push notifications permission testato
+- [ ] FCM token generato correttamente
+
+---
+
+## 🔔 Notifiche Push (V9.52)
+
+### Panoramica
+A partire dalla versione V9.52, Rosterkick supporta le notifiche push tramite Firebase Cloud Messaging (FCM). Quando viene creata una nuova convocazione, gli utenti riceveranno una notifica push sul loro dispositivo.
+
+### File FCM
+
+#### 1. firebase-messaging-sw.js
+Service Worker dedicato per la gestione delle notifiche in background.
+
+**Funzionalità:**
+- Gestisce le notifiche quando l'app è chiusa o in background
+- Mostra notifiche con titolo, corpo e icona personalizzati
+- Gestisce il click sulle notifiche per aprire l'app
+- Supporta azioni sulle notifiche (Apri, Chiudi)
+
+**Configurazione:**
+```javascript
+const firebaseConfig = {
+    apiKey: "AIzaSyD87fLjZfQO1gDOzqJZAdvlqSthBYN3XSU",
+    authDomain: "polis-2013.firebaseapp.com",
+    projectId: "polis-2013",
+    storageBucket: "polis-2013.appspot.com",
+    messagingSenderId: "607738543737",
+    appId: "1:607738543737:web:9b108502b8f1b61ef4dea8",
+    measurementId: "G-94FT2YQNBM"
+};
+```
+
+#### 2. Integrazione in index.html
+Script FCM integrato alla fine del file per gestire:
+- Richiesta permessi notifiche
+- Generazione token FCM
+- Gestione notifiche in foreground
+- Salvataggio token nel database
+
+### Come Funziona
+
+#### 1. Richiesta Permessi
+Quando l'utente fa il login, l'app richiede automaticamente il permesso per le notifiche:
+
+```javascript
+// Chiamata dopo il login
+await initializePushNotifications();
+```
+
+**Stati dei Permessi:**
+- **default**: L'utente non ha ancora risposto → verrà richiesto
+- **granted**: Permesso concesso → le notifiche funzionano
+- **denied**: Permesso negato → le notifiche non funzionano
+
+#### 2. Generazione Token FCM
+Una volta concesso il permesso, viene generato un token FCM univoco per il dispositivo:
+
+```javascript
+const token = await getFCMToken();
+// Token viene salvato nel database Firestore
+```
+
+**Struttura Database:**
+```
+fcm_tokens/
+  {companyCode}/
+    tokens/
+      {userId}: {
+        token: "fcm-token-string",
+        timestamp: Date,
+        userAgent: "browser-info",
+        companyCode: "company-code"
+      }
+```
+
+#### 3. Invio Notifiche (Backend)
+Il backend (Cloud Function o API) invia notifiche quando viene creata una convocazione:
+
+**Cloud Function Example:**
+```javascript
+const admin = require('firebase-admin');
+
+async function sendConvocationNotification(companyCode, convocationData) {
+    // Recupera tutti i token FCM per la società
+    const tokensSnapshot = await admin.firestore()
+        .collection('fcm_tokens')
+        .doc(companyCode)
+        .collection('tokens')
+        .get();
+    
+    const tokens = tokensSnapshot.docs.map(doc => doc.data().token);
+    
+    // Crea il messaggio
+    const message = {
+        notification: {
+            title: 'Nuova Convocazione',
+            body: `${convocationData.matchType} - ${convocationData.date}`,
+        },
+        data: {
+            convocationId: convocationData.id,
+            type: 'new_convocation'
+        },
+        tokens: tokens
+    };
+    
+    // Invia la notifica
+    const response = await admin.messaging().sendMulticast(message);
+    console.log(`Notifiche inviate: ${response.successCount}/${tokens.length}`);
+}
+```
+
+**REST API Example:**
+```bash
+curl -X POST https://fcm.googleapis.com/v1/projects/polis-2013/messages:send \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": {
+      "token": "FCM_TOKEN",
+      "notification": {
+        "title": "Nuova Convocazione",
+        "body": "Campionato - Domenica 15/01"
+      },
+      "data": {
+        "convocationId": "conv123",
+        "type": "new_convocation"
+      }
+    }
+  }'
+```
+
+### Setup Backend
+
+#### 1. Ottenere la Chiave VAPID
+1. Vai su [Firebase Console](https://console.firebase.google.com/)
+2. Seleziona il progetto "polis-2013"
+3. Vai su **Impostazioni Progetto** → **Cloud Messaging**
+4. Nella sezione **Web Push certificates**, genera o copia la chiave VAPID
+5. Sostituisci `YOUR_VAPID_KEY_HERE` in index.html con la chiave ottenuta
+
+**File da modificare:** `index.html` linea ~13115
+```javascript
+const token = await window.getToken(window.messaging, {
+    vapidKey: 'BPx...YOUR_ACTUAL_VAPID_KEY...xyz', // Sostituisci qui
+    serviceWorkerRegistration: registration
+});
+```
+
+#### 2. Configurare Cloud Function
+Crea una Cloud Function che si attiva quando viene creata una convocazione:
+
+**functions/index.js:**
+```javascript
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
+
+exports.sendConvocationNotification = functions.firestore
+    .document('convocations_history/{convocationId}')
+    .onCreate(async (snap, context) => {
+        const convocation = snap.data();
+        const companyCode = convocation.companyCode;
+        
+        // Recupera i token FCM
+        const tokensSnapshot = await admin.firestore()
+            .collection('fcm_tokens')
+            .doc(companyCode)
+            .collection('tokens')
+            .get();
+        
+        if (tokensSnapshot.empty) {
+            console.log('Nessun token FCM trovato');
+            return;
+        }
+        
+        const tokens = tokensSnapshot.docs.map(doc => doc.data().token);
+        
+        // Crea il messaggio
+        const message = {
+            notification: {
+                title: 'Nuova Convocazione Rosterkick',
+                body: `${convocation.matchType} - ${convocation.formattedDate}`,
+            },
+            data: {
+                convocationId: context.params.convocationId,
+                companyCode: companyCode,
+                type: 'new_convocation'
+            }
+        };
+        
+        // Invia a tutti i dispositivi
+        const response = await admin.messaging().sendMulticast({
+            ...message,
+            tokens: tokens
+        });
+        
+        console.log(`Notifiche inviate: ${response.successCount}/${tokens.length}`);
+        
+        // Rimuovi token non validi
+        const tokensToRemove = [];
+        response.responses.forEach((resp, idx) => {
+            if (!resp.success) {
+                tokensToRemove.push(tokens[idx]);
+            }
+        });
+        
+        // Cleanup token non validi
+        if (tokensToRemove.length > 0) {
+            const batch = admin.firestore().batch();
+            tokensToRemove.forEach(token => {
+                const tokenDoc = tokensSnapshot.docs.find(doc => doc.data().token === token);
+                if (tokenDoc) {
+                    batch.delete(tokenDoc.ref);
+                }
+            });
+            await batch.commit();
+        }
+        
+        return response;
+    });
+```
+
+**Deploy:**
+```bash
+firebase deploy --only functions
+```
+
+### Test e Debug
+
+#### Test Notification Permission
+```javascript
+// Nella console del browser
+await window.requestNotificationPermission();
+```
+
+#### Test Notification Locale
+```javascript
+// Nella console del browser
+window.testNotification();
+```
+
+#### Verificare Token FCM
+```javascript
+// Nella console del browser
+const token = await window.getFCMToken();
+console.log('FCM Token:', token);
+```
+
+#### Debug Service Worker
+1. Apri DevTools (F12)
+2. Vai su **Application** → **Service Workers**
+3. Verifica che `firebase-messaging-sw.js` sia registrato
+4. Controlla eventuali errori nella console
+
+#### Test Notifica Background
+1. Chiudi o minimizza l'app
+2. Invia una notifica tramite Firebase Console:
+   - Vai su **Cloud Messaging**
+   - Clicca **Send your first message**
+   - Inserisci titolo e testo
+   - Clicca **Send test message**
+   - Incolla il token FCM
+   - Clicca **Test**
+
+### Browser Support
+
+| Browser | Desktop | Mobile | Note |
+|---------|---------|--------|------|
+| Chrome | ✅ | ✅ | Pieno supporto |
+| Firefox | ✅ | ✅ | Pieno supporto |
+| Edge | ✅ | ✅ | Pieno supporto |
+| Safari | ⚠️ | ❌ | Supporto limitato desktop, nessun supporto mobile |
+| Opera | ✅ | ✅ | Pieno supporto |
+
+**Note Safari:**
+- Safari su macOS: Supporto parziale (richiede macOS 13+)
+- Safari su iOS: Non supporta Web Push API
+- Alternativa iOS: considerare notifiche in-app o wrapper nativo
+
+### Troubleshooting
+
+#### Notifiche non arrivano
+1. **Verifica permessi:** `Notification.permission` deve essere `"granted"`
+2. **Verifica token:** Controlla che il token FCM sia stato generato
+3. **Verifica service worker:** `firebase-messaging-sw.js` deve essere registrato
+4. **Verifica VAPID key:** La chiave VAPID deve essere corretta
+5. **Controlla console:** Cerca errori nella console del browser
+
+#### Token non viene generato
+1. **VAPID key mancante:** Sostituisci `YOUR_VAPID_KEY_HERE` con la chiave reale
+2. **Service worker non registrato:** Controlla in DevTools → Application
+3. **HTTPS richiesto:** Le notifiche funzionano solo su HTTPS (o localhost)
+4. **Browser non supportato:** Verifica compatibilità browser
+
+#### Service worker conflicts
+Se hai già un service worker (`service-worker.js`), `firebase-messaging-sw.js` viene registrato separatamente con scope `/convocazioni/`. Questo evita conflitti.
+
+### Sicurezza
+
+#### Token FCM
+- **Non pubblico:** I token FCM non devono essere condivisi pubblicamente
+- **Validità:** I token possono scadere e devono essere rigenerati
+- **Cleanup:** Rimuovi token non validi dal database
+
+#### Chiave VAPID
+- **Non committare:** Non committare la chiave VAPID nel codice
+- **Environment variables:** Usa variabili d'ambiente per produzione
+- **Firebase Console:** Genera nuove chiavi se compromesse
+
+#### Server Key
+- **Backend only:** La Server Key deve essere usata solo lato backend
+- **Non esporre:** Mai esporre la Server Key nel codice client
+
+### Best Practices
+
+1. **Richiedi permessi al momento giusto:** Non chiedere permessi all'avvio, ma dopo il login
+2. **Spiega il valore:** Mostra all'utente perché le notifiche sono utili
+3. **Rispetta le preferenze:** Permetti all'utente di disabilitare le notifiche
+4. **Test regolari:** Testa le notifiche su diversi dispositivi e browser
+5. **Cleanup token:** Rimuovi token non validi dal database
+6. **Rate limiting:** Limita il numero di notifiche per evitare spam
+7. **Personalizzazione:** Personalizza le notifiche per tipo di convocazione
 
 ---
 
@@ -403,7 +727,7 @@ Per problemi o domande su PWA:
 
 ---
 
-**Versione Documentazione:** V9.36  
-**Data:** 2024  
+**Versione Documentazione:** V9.52  
+**Data:** 2025  
 **Autore:** GitHub Copilot Agent  
-**Status:** ✅ Production Ready
+**Status:** ✅ Production Ready con Push Notifications
