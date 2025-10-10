@@ -815,6 +815,11 @@
             transform: translateY(0);
         }
         
+        /* Utility class to hide elements - override any other styles */
+        .hidden {
+            display: none !important;
+        }
+        
     </style>
 </head>
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
@@ -8027,6 +8032,24 @@
                 return isMatch;
             }
 
+            // --- Function to hide buttons for guest users ---
+            function hideButtonsForGuests() {
+                const enterMisterBtn = document.getElementById('btn-mister');
+                const enterDirigenteBtn = document.getElementById('btn-dirigente');
+                const managePlayersBtn = document.getElementById('btn-gestione-squadra');
+                
+                if (currentCompanyData.isGuestLogin) {
+                    // Hide Mister button for guests
+                    if (enterMisterBtn) enterMisterBtn.classList.add('hidden');
+                    // Hide Dirigente button for guests
+                    if (enterDirigenteBtn) enterDirigenteBtn.classList.add('hidden');
+                    // Hide Gestione Squadra button for guests
+                    if (managePlayersBtn) managePlayersBtn.classList.add('hidden');
+                    
+                    console.log('🔒 Guest user - Mister, Dirigente, and Gestione Squadra buttons hidden');
+                }
+            }
+
             // --- Company Navigation Functions ---
             function showCompanyWelcome() {
                 hideAllScreens();
@@ -8136,6 +8159,9 @@
                 
                 companyWelcomeScreen.classList.remove('hidden');
                 pushNavigationState('company-welcome');
+                
+                // Call function to hide buttons for guest users AFTER render
+                hideButtonsForGuests();
             }
 
             function showPasswordEntry(role) {
