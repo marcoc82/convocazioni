@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Welcome Page Buttons - New Circular Layout</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        html, body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        .info {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+        }
+        
+        .welcome-screen {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .company-info {
+            padding: 1.5rem;
+            background: #eff6ff;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #dbeafe;
+            text-align: center;
+        }
+        
+        .company-name {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Welcome screen circular buttons grid */
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 640px) {
+            .welcome-buttons-grid {
+                gap: 1rem;
+                padding: 0.5rem;
+            }
+        }
+        
+        /* Circular button base style */
+        .btn-circular {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .btn-circular:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+        }
+        
+        .btn-circular:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+        
+        .btn-circular-label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            text-align: center;
+            margin-top: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+        
+        @media (max-width: 640px) {
+            .btn-circular {
+                padding: 1rem;
+            }
+            .btn-circular-label {
+                font-size: 0.8rem;
+            }
+        }
+        
+        /* Role-specific gradients for welcome buttons */
+        .btn-mister {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+        }
+        
+        .btn-dirigente {
+            background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+        }
+        
+        .btn-storico {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+        }
+        
+        .btn-riepilogo {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        }
+        
+        .btn-allenamenti-circular {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+        }
+        
+        .btn-risultati-circular {
+            background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);
+        }
+        
+        .btn-gestione {
+            background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+        }
+        
+        .btn-esci {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+        }
+        
+        .test-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            border-radius: 0.5rem;
+        }
+        
+        .test-section h3 {
+            margin-top: 0;
+            color: #92400e;
+        }
+        
+        .test-section ul {
+            color: #78350f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Test Welcome Page - New Circular Button Layout</h1>
+        
+        <div class="info">
+            <p style="margin: 0; font-weight: 600; color: #1e40af;">✨ New Design Features:</p>
+            <ul style="margin: 0.5rem 0 0 1rem; color: #1e3a8a;">
+                <li>2x4 Responsive Grid Layout</li>
+                <li>Circular Buttons with Role-Specific Gradients</li>
+                <li>Poppins Font for All Labels</li>
+                <li>Smooth Shadows and Hover Transitions</li>
+                <li>Italian Labels: Mister, Dirigente, Storico convocazioni, etc.</li>
+            </ul>
+        </div>
+        
+        <div class="welcome-screen">
+            <div class="welcome-header">
+                <h2 style="font-size: 1.25rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">Benvenuto</h2>
+            </div>
+            
+            <div class="company-info">
+                <h3 class="company-name">SOCIETÀ DI ESEMPIO</h3>
+            </div>
+            
+            <div class="welcome-buttons-grid">
+                <!-- Row 1: Mister and Dirigente -->
+                <button class="btn-circular btn-mister" onclick="alert('Entra come Mister clicked!')">
+                    <span class="btn-circular-label">Mister</span>
+                </button>
+                <button class="btn-circular btn-dirigente" onclick="alert('Entra come Dirigente clicked!')">
+                    <span class="btn-circular-label">Dirigente</span>
+                </button>
+                
+                <!-- Row 2: Storico and Riepilogo -->
+                <button class="btn-circular btn-storico" onclick="alert('Storico Convocazioni clicked!')">
+                    <span class="btn-circular-label">Storico convocazioni</span>
+                </button>
+                <button class="btn-circular btn-riepilogo" onclick="alert('Riepilogo Convocazioni clicked!')">
+                    <span class="btn-circular-label">Riepilogo convocazioni</span>
+                </button>
+                
+                <!-- Row 3: Allenamenti and Risultati -->
+                <button class="btn-circular btn-allenamenti-circular" onclick="alert('Allenamenti clicked!')">
+                    <span class="btn-circular-label">Allenamenti</span>
+                </button>
+                <button class="btn-circular btn-risultati-circular" onclick="alert('Risultati clicked!')">
+                    <span class="btn-circular-label">Risultati</span>
+                </button>
+                
+                <!-- Row 4: Gestione Squadra and Esci -->
+                <button class="btn-circular btn-gestione" onclick="alert('Gestione Squadra clicked!')">
+                    <span class="btn-circular-label">Gestione squadra</span>
+                </button>
+                <button class="btn-circular btn-esci" onclick="alert('Esci/Logout clicked!')">
+                    <span class="btn-circular-label">Esci</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📋 Button Gradients & Colors</h3>
+            <ul>
+                <li><strong>Mister</strong>: Blue gradient (#3B82F6 → #1D4ED8)</li>
+                <li><strong>Dirigente</strong>: Orange gradient (#F97316 → #EA580C)</li>
+                <li><strong>Storico convocazioni</strong>: Purple gradient (#8B5CF6 → #6D28D9)</li>
+                <li><strong>Riepilogo convocazioni</strong>: Green gradient (#10B981 → #059669)</li>
+                <li><strong>Allenamenti</strong>: Yellow/Orange gradient (#F59E0B → #D97706)</li>
+                <li><strong>Risultati</strong>: Pink gradient (#EC4899 → #BE185D)</li>
+                <li><strong>Gestione squadra</strong>: Cyan gradient (#06B6D4 → #0891B2)</li>
+                <li><strong>Esci</strong>: Red gradient (#EF4444 → #DC2626)</li>
+            </ul>
+            <p style="margin-top: 1rem; font-weight: 600;">
+                💡 Try clicking the buttons to test functionality preservation!<br>
+                📱 Resize the browser window to test responsive behavior!
+            </p>
+        </div>
+    </div>
+</body>
+</html>
