@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.60 - Welcome Page Improvements</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .comparison-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .comparison-box {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .comparison-box h2 {
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .version-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .version-before {
+            background: #fecaca;
+            color: #991b1b;
+        }
+        
+        .version-after {
+            background: #bbf7d0;
+            color: #166534;
+        }
+        
+        /* Company Name Styles */
+        .company-section {
+            background: #dbeafe;
+            border: 2px solid #93c5fd;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .company-name-before {
+            font-size: 1.125rem; /* text-lg */
+            line-height: 1.75rem;
+            font-weight: 700;
+            color: #1e40af;
+        }
+        
+        .company-name-after {
+            font-size: 1.5rem; /* text-2xl */
+            line-height: 2rem;
+            font-weight: 700;
+            color: #1e40af;
+        }
+        
+        /* Button Styles */
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .btn-circular {
+            background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%);
+            border: 3px solid #ffffff;
+            border-radius: 1.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 1.5rem;
+            position: relative;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 18px 70px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-circular:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5), 0 25px 90px rgba(0, 0, 0, 0.4);
+        }
+        
+        .btn-circular-label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: white;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        /* BEFORE - V9.59 Shadow */
+        .button-label-shadow-before {
+            background: rgba(0, 0, 0, 0.35);
+            padding: 0.4rem 0.8rem;
+            border-radius: 1rem;
+            display: inline-block;
+            box-shadow: 0 2px 14px 4px rgba(0, 0, 0, 0.30);
+        }
+        
+        /* AFTER - V9.60 Shadow (softer and more diffuse) */
+        .button-label-shadow-after {
+            background: rgba(0, 0, 0, 0.35);
+            padding: 0.4rem 0.8rem;
+            border-radius: 1rem;
+            display: inline-block;
+            box-shadow: 0 4px 24px 8px rgba(0, 0, 0, 0.20);
+        }
+        
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0.5rem;
+        }
+        
+        .info-box h3 {
+            color: #1e40af;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .info-box ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .info-box li {
+            margin: 0.5rem 0;
+            color: #1e3a8a;
+        }
+        
+        .code {
+            background: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #dc2626;
+        }
+        
+        @media (max-width: 1024px) {
+            .comparison-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 V9.60 - Miglioramenti Pagina di Benvenuto</h1>
+        
+        <div class="info-box">
+            <h3>🎯 Modifiche Implementate</h3>
+            <ul>
+                <li><strong>Ombra più sfumata e morbida:</strong> 
+                    <code>box-shadow: 0 2px 14px 4px rgba(0, 0, 0, 0.30)</code> → 
+                    <code>box-shadow: 0 4px 24px 8px rgba(0, 0, 0, 0.20)</code>
+                    <ul style="margin-top: 0.5rem;">
+                        <li>Blur aumentato: 14px → 24px</li>
+                        <li>Spread aumentato: 4px → 8px</li>
+                        <li>Opacità ridotta: 0.30 → 0.20 (più trasparente)</li>
+                    </ul>
+                </li>
+                <li><strong>Nome società più grande:</strong> 
+                    <code>text-lg (1.125rem)</code> → 
+                    <code>text-2xl (1.5rem)</code> - Aumento del 33%
+                </li>
+                <li><strong>Versioni aggiornate:</strong> V9.59 → V9.60 in index.html e manifest.json</li>
+            </ul>
+        </div>
+        
+        <!-- Company Name Comparison -->
+        <div class="comparison-wrapper">
+            <div class="comparison-box">
+                <div class="version-badge version-before">PRIMA - V9.59</div>
+                <h2>Nome Società</h2>
+                <div class="company-section">
+                    <div class="company-name-before">SOCIETÀ DI ESEMPIO</div>
+                    <p style="margin-top: 1rem; font-size: 0.875rem; color: #64748b;">
+                        Font-size: <code>text-lg</code> (1.125rem)
+                    </p>
+                </div>
+            </div>
+            
+            <div class="comparison-box">
+                <div class="version-badge version-after">DOPO - V9.60 ✨</div>
+                <h2>Nome Società</h2>
+                <div class="company-section">
+                    <div class="company-name-after">SOCIETÀ DI ESEMPIO</div>
+                    <p style="margin-top: 1rem; font-size: 0.875rem; color: #64748b;">
+                        Font-size: <code>text-2xl</code> (1.5rem)
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Button Shadow Comparison -->
+        <div class="comparison-wrapper">
+            <div class="comparison-box">
+                <div class="version-badge version-before">PRIMA - V9.59</div>
+                <h2>Ombra Tasti</h2>
+                <div class="welcome-buttons-grid">
+                    <button class="btn-circular">
+                        <span class="btn-circular-label">
+                            <span class="button-label-shadow-before">Mister</span>
+                        </span>
+                    </button>
+                    <button class="btn-circular" style="background: linear-gradient(135deg, #FDBA74 0%, #FB923C 100%);">
+                        <span class="btn-circular-label">
+                            <span class="button-label-shadow-before">Dirigente</span>
+                        </span>
+                    </button>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.875rem; color: #64748b; text-align: center;">
+                    Box-shadow: 0 2px 14px 4px rgba(0, 0, 0, 0.30)
+                </p>
+            </div>
+            
+            <div class="comparison-box">
+                <div class="version-badge version-after">DOPO - V9.60 ✨</div>
+                <h2>Ombra Tasti</h2>
+                <div class="welcome-buttons-grid">
+                    <button class="btn-circular">
+                        <span class="btn-circular-label">
+                            <span class="button-label-shadow-after">Mister</span>
+                        </span>
+                    </button>
+                    <button class="btn-circular" style="background: linear-gradient(135deg, #FDBA74 0%, #FB923C 100%);">
+                        <span class="btn-circular-label">
+                            <span class="button-label-shadow-after">Dirigente</span>
+                        </span>
+                    </button>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.875rem; color: #64748b; text-align: center;">
+                    Box-shadow: 0 4px 24px 8px rgba(0, 0, 0, 0.20)
+                </p>
+            </div>
+        </div>
+        
+        <div class="info-box" style="background: #dcfce7; border-left-color: #16a34a;">
+            <h3 style="color: #166534;">✅ Verifica Modifiche</h3>
+            <ul style="color: #166534;">
+                <li><strong>File modificati:</strong>
+                    <ul style="margin-top: 0.5rem;">
+                        <li><code>index.html</code> - Linea 2: Commento versione → V9.60</li>
+                        <li><code>index.html</code> - Linea 709: Box-shadow più sfumato</li>
+                        <li><code>index.html</code> - Linea 885: Badge versione → V 9.60</li>
+                        <li><code>index.html</code> - Linea 897: Font-size → text-2xl</li>
+                        <li><code>manifest.json</code> - Linea 4: Version → V9.60</li>
+                    </ul>
+                </li>
+                <li><strong>Modifiche totali:</strong> 5 linee modificate in 2 file</li>
+                <li><strong>Impatto:</strong> Minimo, chirurgico, preserva tutto il resto</li>
+            </ul>
+        </div>
+        
+        <div class="info-box" style="background: #fef3c7; border-left-color: #f59e0b;">
+            <h3 style="color: #92400e;">💡 Note Tecniche</h3>
+            <ul style="color: #78350f;">
+                <li><strong>Box-shadow più sfumato:</strong> L'aumento del blur (14px→24px) e dello spread (4px→8px) con riduzione dell'opacità (0.30→0.20) crea un'ombra più morbida e naturale</li>
+                <li><strong>Nome società più visibile:</strong> L'aumento da text-lg a text-2xl rende il nome della società molto più prominente e leggibile</li>
+                <li><strong>Compatibilità:</strong> Tutte le modifiche sono CSS-only, nessun cambiamento JavaScript richiesto</li>
+                <li><strong>Responsive:</strong> Le modifiche funzionano su tutti i dispositivi</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
