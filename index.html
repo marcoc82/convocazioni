@@ -697,13 +697,16 @@
             color: white;
             text-align: center;
             margin-top: 0.5rem;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             line-height: 1.2;
-            /* Semi-transparent pill-shaped background for better readability */
+        }
+        
+        /* Pill-shaped background with soft diffuse shadow */
+        .button-label-shadow {
             background: rgba(0, 0, 0, 0.35);
             padding: 0.4rem 0.8rem;
             border-radius: 1rem;
             display: inline-block;
+            box-shadow: 0 2px 14px 4px rgba(0, 0, 0, 0.30);
         }
         
         @media (max-width: 640px) {
@@ -900,34 +903,34 @@
                 <div class="welcome-buttons-grid">
                     <!-- Row 1: Mister and Dirigente (hidden for guests) -->
                     <button id="btn-mister" class="btn-circular btn-mister" aria-label="Entra come Mister">
-                        <span class="btn-circular-label">Mister</span>
+                        <span class="btn-circular-label"><span class="button-label-shadow">Mister</span></span>
                     </button>
                     <button id="btn-dirigente" class="btn-circular btn-dirigente" aria-label="Entra come Dirigente">
-                        <span class="btn-circular-label">Dirigente</span>
+                        <span class="btn-circular-label"><span class="button-label-shadow">Dirigente</span></span>
                     </button>
                     
                     <!-- Row 2: Storico and Riepilogo -->
                     <button id="view-history-button" class="btn-circular btn-storico" aria-label="Storico Convocazioni">
-                        <span class="btn-circular-label">Storico convocazioni</span>
+                        <span class="btn-circular-label"><span class="button-label-shadow">Storico convocazioni</span></span>
                     </button>
                     <button id="welcome-attendance-button" class="btn-circular btn-riepilogo" aria-label="Riepilogo Convocazioni">
-                        <span class="btn-circular-label">Riepilogo convocazioni</span>
+                        <span class="btn-circular-label"><span class="button-label-shadow">Riepilogo convocazioni</span></span>
                     </button>
                     
                     <!-- Row 3: Allenamenti and Risultati -->
                     <button id="allenamenti-button" class="btn-circular btn-allenamenti-circular" aria-label="Allenamenti">
-                        <span class="btn-circular-label">Allenamenti</span>
+                        <span class="btn-circular-label"><span class="button-label-shadow">Allenamenti</span></span>
                     </button>
                     <button id="area-polis2013-button" class="btn-circular btn-risultati-circular" aria-label="Risultati">
-                        <span class="btn-circular-label">Risultati</span>
+                        <span class="btn-circular-label"><span class="button-label-shadow">Risultati</span></span>
                     </button>
                     
                     <!-- Row 4: Gestione Squadra and Esci -->
                     <button id="btn-gestione-squadra" class="btn-circular btn-gestione" aria-label="Gestione Squadra">
-                        <span class="btn-circular-label">Gestione<br>Squadra</span>
+                        <span class="btn-circular-label"><span class="button-label-shadow">Gestione<br>Squadra</span></span>
                     </button>
                     <button id="company-logout-button" class="btn-circular btn-esci" aria-label="Esci">
-                        <span class="btn-circular-label">Esci</span>
+                        <span class="btn-circular-label"><span class="button-label-shadow">Esci</span></span>
                     </button>
                 </div>
                 

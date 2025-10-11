@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Box-Shadow Implementation - Confronto Prima/Dopo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .comparison-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .section h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .section.before h2 {
+            color: #dc2626;
+        }
+        
+        .section.after h2 {
+            color: #059669;
+        }
+        
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .btn-circular {
+            aspect-ratio: 1;
+            border-radius: 1.75rem;
+            border: 3px solid #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 18px 70px rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+        }
+        
+        .btn-circular:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5), 0 25px 90px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* BEFORE - Old implementation with text-shadow */
+        .btn-circular-label-old {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: white;
+            text-align: center;
+            line-height: 1.2;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            background: rgba(0, 0, 0, 0.35);
+            padding: 0.4rem 0.8rem;
+            border-radius: 1rem;
+            display: inline-block;
+        }
+        
+        /* AFTER - New implementation with box-shadow */
+        .btn-circular-label-new {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: white;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .button-label-shadow {
+            background: rgba(0, 0, 0, 0.35);
+            padding: 0.4rem 0.8rem;
+            border-radius: 1rem;
+            display: inline-block;
+            box-shadow: 0 2px 14px 4px rgba(0, 0, 0, 0.30);
+        }
+        
+        /* Button gradients */
+        .btn-mister {
+            background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%);
+        }
+        
+        .btn-dirigente {
+            background: linear-gradient(135deg, #FDBA74 0%, #FB923C 100%);
+        }
+        
+        .btn-storico {
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+        }
+        
+        .btn-riepilogo {
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+        }
+        
+        .btn-allenamenti {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+        
+        .btn-risultati {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+        
+        .btn-gestione {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+        }
+        
+        .btn-esci {
+            background: linear-gradient(135deg, #DC2626 0%, #F97316 100%);
+        }
+        
+        .info-box {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .info-box h3 {
+            color: #0369a1;
+            margin-bottom: 1rem;
+        }
+        
+        .info-box ul {
+            color: #075985;
+            line-height: 1.8;
+        }
+        
+        .info-box li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box code {
+            background: rgba(255, 255, 255, 0.6);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison-wrapper {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-circular-label-old,
+            .btn-circular-label-new {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Confronto: text-shadow vs box-shadow</h1>
+        
+        <div class="comparison-wrapper">
+            <!-- BEFORE -->
+            <div class="section before">
+                <h2>❌ PRIMA (text-shadow)</h2>
+                <p style="text-align: center; margin-bottom: 1rem; color: #6b7280;">
+                    Ombra applicata direttamente al testo
+                </p>
+                <div class="welcome-buttons-grid">
+                    <button class="btn-circular btn-mister">
+                        <span class="btn-circular-label-old">Mister</span>
+                    </button>
+                    <button class="btn-circular btn-dirigente">
+                        <span class="btn-circular-label-old">Dirigente</span>
+                    </button>
+                    <button class="btn-circular btn-storico">
+                        <span class="btn-circular-label-old">Storico convocazioni</span>
+                    </button>
+                    <button class="btn-circular btn-riepilogo">
+                        <span class="btn-circular-label-old">Riepilogo convocazioni</span>
+                    </button>
+                    <button class="btn-circular btn-allenamenti">
+                        <span class="btn-circular-label-old">Allenamenti</span>
+                    </button>
+                    <button class="btn-circular btn-risultati">
+                        <span class="btn-circular-label-old">Risultati</span>
+                    </button>
+                    <button class="btn-circular btn-gestione">
+                        <span class="btn-circular-label-old">Gestione<br>Squadra</span>
+                    </button>
+                    <button class="btn-circular btn-esci">
+                        <span class="btn-circular-label-old">Esci</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- AFTER -->
+            <div class="section after">
+                <h2>✅ DOPO (box-shadow)</h2>
+                <p style="text-align: center; margin-bottom: 1rem; color: #6b7280;">
+                    Ombra morbida e diffusa sulla capsula
+                </p>
+                <div class="welcome-buttons-grid">
+                    <button class="btn-circular btn-mister">
+                        <span class="btn-circular-label-new">
+                            <span class="button-label-shadow">Mister</span>
+                        </span>
+                    </button>
+                    <button class="btn-circular btn-dirigente">
+                        <span class="btn-circular-label-new">
+                            <span class="button-label-shadow">Dirigente</span>
+                        </span>
+                    </button>
+                    <button class="btn-circular btn-storico">
+                        <span class="btn-circular-label-new">
+                            <span class="button-label-shadow">Storico convocazioni</span>
+                        </span>
+                    </button>
+                    <button class="btn-circular btn-riepilogo">
+                        <span class="btn-circular-label-new">
+                            <span class="button-label-shadow">Riepilogo convocazioni</span>
+                        </span>
+                    </button>
+                    <button class="btn-circular btn-allenamenti">
+                        <span class="btn-circular-label-new">
+                            <span class="button-label-shadow">Allenamenti</span>
+                        </span>
+                    </button>
+                    <button class="btn-circular btn-risultati">
+                        <span class="btn-circular-label-new">
+                            <span class="button-label-shadow">Risultati</span>
+                        </span>
+                    </button>
+                    <button class="btn-circular btn-gestione">
+                        <span class="btn-circular-label-new">
+                            <span class="button-label-shadow">Gestione<br>Squadra</span>
+                        </span>
+                    </button>
+                    <button class="btn-circular btn-esci">
+                        <span class="btn-circular-label-new">
+                            <span class="button-label-shadow">Esci</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h3>📋 Modifiche Implementate</h3>
+            <ul>
+                <li><strong>Markup HTML:</strong> Aggiunto elemento <code>&lt;span class="button-label-shadow"&gt;</code> attorno al testo</li>
+                <li><strong>CSS - Prima:</strong> <code>text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15)</code> applicato a <code>.btn-circular-label</code></li>
+                <li><strong>CSS - Dopo:</strong> <code>box-shadow: 0 2px 14px 4px rgba(0, 0, 0, 0.30)</code> applicato a <code>.button-label-shadow</code></li>
+                <li><strong>Effetto:</strong> Ombra più ampia, diffusa e morbida sulla capsula semitrasparente</li>
+                <li><strong>Sfondo pill:</strong> Mantenuto invariato con <code>rgba(0, 0, 0, 0.35)</code></li>
+                <li><strong>Altri stili:</strong> Font, colori, padding, border-radius tutti preservati</li>
+            </ul>
+        </div>
+        
+        <div class="info-box" style="background: #fef3c7; border-color: #f59e0b;">
+            <h3 style="color: #92400e;">🎯 Differenza Visiva</h3>
+            <ul style="color: #78350f;">
+                <li><strong>Text-shadow:</strong> Ombra sottile che segue il contorno del testo</li>
+                <li><strong>Box-shadow:</strong> Ombra più ampia e diffusa che circonda l'intera capsula</li>
+                <li><strong>Blur maggiore:</strong> 14px invece di 8px per un effetto più morbido</li>
+                <li><strong>Spread:</strong> 4px di diffusione aggiuntiva per ampliare l'ombra</li>
+                <li><strong>Opacità aumentata:</strong> 0.30 invece di 0.15 per maggiore profondità</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
