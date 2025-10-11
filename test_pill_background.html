@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Pill Background for Button Labels</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            text-align: center;
+        }
+
+        .section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #666;
+        }
+
+        .welcome-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Base button style */
+        .btn-circular {
+            aspect-ratio: 1;
+            border-radius: 1.75rem;
+            border: 3px solid #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4), 0 18px 70px rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .btn-circular:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5), 0 25px 90px rgba(0, 0, 0, 0.4);
+        }
+
+        /* BEFORE - Original label style without background */
+        .btn-circular-label-before {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: white;
+            text-align: center;
+            margin-top: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+
+        /* AFTER - New label style WITH semi-transparent pill background */
+        .btn-circular-label-after {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: white;
+            text-align: center;
+            margin-top: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+            /* New pill-shaped background */
+            background: rgba(0, 0, 0, 0.35);
+            padding: 0.4rem 0.8rem;
+            border-radius: 1rem;
+            display: inline-block;
+        }
+
+        @media (max-width: 640px) {
+            .btn-circular {
+                padding: 1rem;
+            }
+            .btn-circular-label-before,
+            .btn-circular-label-after {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Button color gradients */
+        .btn-mister {
+            background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%);
+        }
+
+        .btn-dirigente {
+            background: linear-gradient(135deg, #FDBA74 0%, #FB923C 100%);
+        }
+
+        .btn-storico {
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+        }
+
+        .btn-riepilogo {
+            background: linear-gradient(135deg, #D1D5DB 0%, #9CA3AF 100%);
+        }
+
+        .btn-allenamenti-circular {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+
+        .btn-risultati-circular {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+
+        .btn-gestione {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+        }
+
+        .btn-esci {
+            background: linear-gradient(135deg, #DC2626 0%, #F97316 100%);
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        .info-box h3 {
+            color: #0369a1;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .info-box li {
+            padding: 0.25rem 0;
+            color: #075985;
+        }
+
+        .info-box li::before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Test: Sfondo Semitrasparente Pill sui Tasti</h1>
+        
+        <div class="comparison">
+            <!-- BEFORE -->
+            <div class="section">
+                <h2>❌ PRIMA (senza sfondo)</h2>
+                <div class="welcome-buttons-grid">
+                    <button class="btn-circular btn-mister">
+                        <span class="btn-circular-label-before">Mister</span>
+                    </button>
+                    <button class="btn-circular btn-dirigente">
+                        <span class="btn-circular-label-before">Dirigente</span>
+                    </button>
+                    <button class="btn-circular btn-storico">
+                        <span class="btn-circular-label-before">Storico convocazioni</span>
+                    </button>
+                    <button class="btn-circular btn-riepilogo">
+                        <span class="btn-circular-label-before">Riepilogo convocazioni</span>
+                    </button>
+                    <button class="btn-circular btn-allenamenti-circular">
+                        <span class="btn-circular-label-before">Allenamenti</span>
+                    </button>
+                    <button class="btn-circular btn-risultati-circular">
+                        <span class="btn-circular-label-before">Risultati</span>
+                    </button>
+                    <button class="btn-circular btn-gestione">
+                        <span class="btn-circular-label-before">Gestione<br>Squadra</span>
+                    </button>
+                    <button class="btn-circular btn-esci">
+                        <span class="btn-circular-label-before">Esci</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- AFTER -->
+            <div class="section">
+                <h2>✅ DOPO (con sfondo pill)</h2>
+                <div class="welcome-buttons-grid">
+                    <button class="btn-circular btn-mister">
+                        <span class="btn-circular-label-after">Mister</span>
+                    </button>
+                    <button class="btn-circular btn-dirigente">
+                        <span class="btn-circular-label-after">Dirigente</span>
+                    </button>
+                    <button class="btn-circular btn-storico">
+                        <span class="btn-circular-label-after">Storico convocazioni</span>
+                    </button>
+                    <button class="btn-circular btn-riepilogo">
+                        <span class="btn-circular-label-after">Riepilogo convocazioni</span>
+                    </button>
+                    <button class="btn-circular btn-allenamenti-circular">
+                        <span class="btn-circular-label-after">Allenamenti</span>
+                    </button>
+                    <button class="btn-circular btn-risultati-circular">
+                        <span class="btn-circular-label-after">Risultati</span>
+                    </button>
+                    <button class="btn-circular btn-gestione">
+                        <span class="btn-circular-label-after">Gestione<br>Squadra</span>
+                    </button>
+                    <button class="btn-circular btn-esci">
+                        <span class="btn-circular-label-after">Esci</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>📋 Modifiche Applicate:</h3>
+            <ul>
+                <li><strong>Sfondo semitrasparente scuro:</strong> <code>background: rgba(0, 0, 0, 0.35)</code></li>
+                <li><strong>Padding:</strong> <code>0.4rem 0.8rem</code> per creare l'effetto "pill"</li>
+                <li><strong>Border radius:</strong> <code>1rem</code> per angoli arrotondati tipo capsula</li>
+                <li><strong>Display:</strong> <code>inline-block</code> per adattarsi al contenuto</li>
+                <li><strong>Tutte le altre regole mantenute:</strong> font, colore, shadow, line-height, ecc.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
