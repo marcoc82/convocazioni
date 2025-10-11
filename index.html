@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.60 - Welcome page improvements: softer button shadows, larger company name font, version sync -->
+<!-- Version: V9.61 - Welcome page: removed shadow and semi-transparent background, dark grey text for better readability -->
 <!-- V9.58 Changes:
      1. Added PWA service worker update notification with visible banner
      2. Fixed automatic reload issue - now only reloads when user clicks "Aggiorna Ora"
@@ -700,13 +700,12 @@
             line-height: 1.2;
         }
         
-        /* Pill-shaped background with soft diffuse shadow */
+        /* Button label styling - dark grey text for readability on gradients */
         .button-label-shadow {
-            background: rgba(0, 0, 0, 0.35);
+            color: #222;
             padding: 0.4rem 0.8rem;
             border-radius: 1rem;
             display: inline-block;
-            box-shadow: 0 4px 24px 8px rgba(0, 0, 0, 0.20);
         }
         
         @media (max-width: 640px) {
@@ -882,7 +881,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.60</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.61</span>
             </div>
         </div>
 
