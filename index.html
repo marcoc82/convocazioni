@@ -12712,15 +12712,17 @@
                     
                     // V9.19: Fix text color for gradients containing both white and dark colors
                     // If gradient has white + dark blue (common case: "Solo 2 allenamenti" + "Non disponibile Domenica")
-                    // use dark text with white shadow for blue section, making it readable on both parts
+                    // or white + black (common case: "Solo 2 allenamenti" + "Infortunato")
+                    // use dark text with white shadow for dark section, making it readable on both parts
                     const hasWhite = colors.includes('#ffffff');
                     const hasDarkBlue = colors.includes('#1e3a8a');
+                    const hasBlack = colors.includes('#1f2937');
                     
-                    if (hasWhite && hasDarkBlue) {
-                        // Special case: blue-white gradient needs contrasting text on each half
-                        // Use dark text with white text-shadow to make it readable on blue part
+                    if (hasWhite && (hasDarkBlue || hasBlack)) {
+                        // Special case: dark-white gradient needs contrasting text on each half
+                        // Use dark text with white text-shadow to make it readable on dark part
                         playerItem.style.color = '#1f2937'; // dark text for white section
-                        playerItem.style.textShadow = '1px 1px 2px rgba(255, 255, 255, 0.8), -1px -1px 2px rgba(255, 255, 255, 0.8)'; // white shadow for blue section
+                        playerItem.style.textShadow = '1px 1px 2px rgba(255, 255, 255, 0.8), -1px -1px 2px rgba(255, 255, 255, 0.8)'; // white shadow for dark section
                     } else if (hasWhite) {
                         // Other gradients with white: use dark text
                         playerItem.style.color = '#1f2937'; // dark text
