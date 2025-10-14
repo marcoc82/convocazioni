@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.63 - Updated PWA update notification to centered dark popup; Changed "Risultati" button gradient to yellow-green -->
+<!-- Version: V9.66 - Updated access log to show only user type and date/time (removed company code and user code) -->
 <!-- V9.62 Changes: Added "Gol Fatti" field in player statistics modal (visible only for POLIS) -->
 <!-- V9.61 Changes:
      1. Welcome page: removed shadow and semi-transparent background
@@ -5568,21 +5568,9 @@
                         }
                         
                         item.innerHTML = `
-                            <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center justify-between">
                                 <span class="px-3 py-1 rounded-full text-sm font-semibold ${roleBadgeClass}">${roleLabel}</span>
                                 <span class="text-sm text-gray-600">${dateStr} - ${timeStr}</span>
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 text-sm mt-3">
-                                <div>
-                                    <span class="font-semibold text-gray-700">Codice Società:</span>
-                                    <span class="text-gray-900 ml-1">${log.codiceSocieta}</span>
-                                </div>
-                                ${log.userCode && log.userCode !== 'N/A' ? `
-                                <div>
-                                    <span class="font-semibold text-gray-700">Codice Utente:</span>
-                                    <span class="text-gray-900 ml-1">${log.userCode}</span>
-                                </div>
-                                ` : ''}
                             </div>
                         `;
                         
