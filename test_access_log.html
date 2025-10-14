@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Storico Accessi - Feature Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Test Storico Accessi</h1>
+        
+        <!-- Feature Overview -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+            <h2 class="text-lg font-semibold text-blue-800 mb-2">✨ Nuova Funzionalità</h2>
+            <ul class="list-disc list-inside space-y-1 text-sm text-blue-900">
+                <li><strong>Per Dirigenti:</strong> Cliccare sul nome della società (sopra al tasto "Esci") per vedere lo storico accessi</li>
+                <li><strong>Dati visualizzati:</strong> Codice società, tipo utente (Mister/Dirigente/Ospite), codice utente, data e ora</li>
+                <li><strong>Ordinamento:</strong> Accessi più recenti in cima alla lista</li>
+                <li><strong>Design:</strong> Layout chiaro con badge colorati per tipo utente</li>
+            </ul>
+        </div>
+
+        <!-- Mock Welcome Screen -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <div class="bg-blue-50 rounded-xl p-6 mb-6 shadow-sm border border-blue-200 text-center">
+                <h3 id="company-name" class="text-2xl font-bold text-blue-800 mb-2 cursor-pointer hover:text-blue-900" 
+                    title="Clicca per vedere lo storico accessi"
+                    onclick="showAccessLog()">
+                    AC MILAN ⬇️
+                </h3>
+                <p class="text-sm text-gray-600 mb-4">⬆️ Clicca sul nome della società per vedere lo storico accessi</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button class="bg-orange-500 text-white px-4 py-2 rounded">Dirigente</button>
+                    <button class="bg-gray-400 text-white px-4 py-2 rounded">Esci</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Access Log View (initially hidden) -->
+        <div id="access-log-view" class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hidden">
+            <button onclick="hideAccessLog()" class="w-full mb-4 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                Indietro
+            </button>
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Storico Accessi</h2>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800 mb-4">
+                <strong>ℹ️ Info:</strong> Ultimi accessi di dirigenti, mister e ospiti alla società
+            </div>
+            
+            <div id="access-log-list" class="space-y-4">
+                <!-- Sample access log items -->
+                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold bg-orange-100 text-orange-800">Dirigente</span>
+                        <span class="text-sm text-gray-600">14/10/2025 - 12:20</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm mt-3">
+                        <div>
+                            <span class="font-semibold text-gray-700">Codice Società:</span>
+                            <span class="text-gray-900 ml-1">ACM2024</span>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-gray-700">Codice Utente:</span>
+                            <span class="text-gray-900 ml-1">DIR001</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">Mister</span>
+                        <span class="text-sm text-gray-600">14/10/2025 - 10:15</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm mt-3">
+                        <div>
+                            <span class="font-semibold text-gray-700">Codice Società:</span>
+                            <span class="text-gray-900 ml-1">ACM2024</span>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-gray-700">Codice Utente:</span>
+                            <span class="text-gray-900 ml-1">MST001</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800">Ospite</span>
+                        <span class="text-sm text-gray-600">13/10/2025 - 18:45</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm mt-3">
+                        <div>
+                            <span class="font-semibold text-gray-700">Codice Società:</span>
+                            <span class="text-gray-900 ml-1">ACM2024</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800">Mister</span>
+                        <span class="text-sm text-gray-600">13/10/2025 - 09:30</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm mt-3">
+                        <div>
+                            <span class="font-semibold text-gray-700">Codice Società:</span>
+                            <span class="text-gray-900 ml-1">ACM2024</span>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-gray-700">Codice Utente:</span>
+                            <span class="text-gray-900 ml-1">MST001</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-md border border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold bg-orange-100 text-orange-800">Dirigente</span>
+                        <span class="text-sm text-gray-600">12/10/2025 - 15:00</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm mt-3">
+                        <div>
+                            <span class="font-semibold text-gray-700">Codice Società:</span>
+                            <span class="text-gray-900 ml-1">ACM2024</span>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-gray-700">Codice Utente:</span>
+                            <span class="text-gray-900 ml-1">DIR001</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="hideAccessLog()" class="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                Indietro
+            </button>
+        </div>
+
+        <!-- Test Instructions -->
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 mt-6">
+            <h2 class="text-lg font-semibold text-green-800 mb-2">📝 Come Testare</h2>
+            <ol class="list-decimal list-inside space-y-1 text-sm text-green-900">
+                <li>Cliccare sul nome "AC MILAN" nel box sopra</li>
+                <li>Verrà visualizzata la pagina dello storico accessi</li>
+                <li>La lista mostra gli accessi più recenti in cima</li>
+                <li>Ogni accesso mostra: tipo utente (con badge colorato), data, ora, codice società e codice utente</li>
+                <li>Cliccare "Indietro" per tornare alla schermata di benvenuto</li>
+            </ol>
+        </div>
+
+        <!-- Implementation Details -->
+        <div class="bg-purple-50 border-l-4 border-purple-500 p-4 mt-6">
+            <h2 class="text-lg font-semibold text-purple-800 mb-2">🔧 Dettagli Implementazione</h2>
+            <ul class="list-disc list-inside space-y-1 text-sm text-purple-900">
+                <li><strong>View aggiunta:</strong> "access-log-view" dopo "history-view"</li>
+                <li><strong>Funzioni:</strong> logAccess(), loadAccessLog(), showAccessLogView()</li>
+                <li><strong>Firestore path:</strong> societa/{documentId}/access_log</li>
+                <li><strong>Dati salvati:</strong> codiceSocieta, role, userCode, timestamp, societaDocumentId</li>
+                <li><strong>Log automatico:</strong> Ogni login (mister, dirigente, ospite) registra un accesso</li>
+                <li><strong>Visibilità:</strong> Solo dirigenti vedono il nome società come link cliccabile</li>
+                <li><strong>Badge colorati:</strong> Arancione (Dirigente), Verde (Mister), Giallo (Ospite)</li>
+            </ul>
+        </div>
+
+        <!-- Before/After Comparison -->
+        <div class="bg-gray-50 border-l-4 border-gray-500 p-4 mt-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">📊 Prima/Dopo</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">❌ Prima</h3>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                        <li>Nome società non cliccabile</li>
+                        <li>Nessuno storico accessi</li>
+                        <li>Impossibile sapere ultimo accesso utenti</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-2">✅ Dopo</h3>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                        <li>Nome società cliccabile per dirigenti</li>
+                        <li>Storico accessi disponibile</li>
+                        <li>Lista completa con data/ora/ruolo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showAccessLog() {
+            document.getElementById('access-log-view').classList.remove('hidden');
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function hideAccessLog() {
+            document.getElementById('access-log-view').classList.add('hidden');
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
