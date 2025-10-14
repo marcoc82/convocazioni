@@ -1227,7 +1227,7 @@
         <div id="main-view" class="hidden">
             <!-- App Info Section -->
             <div class="bg-gray-50 p-4 rounded-xl mb-6 shadow-sm border border-gray-200">
-                <p class="text-gray-600 mb-2">ID Squadra attuale:</p>
+                <p class="text-gray-600 mb-2"><span id="id-label-clickable">ID</span> Squadra attuale:</p>
                 <div class="flex flex-col items-center">
                     <span id="current-app-id-display" class="font-bold text-lg text-blue-600 mb-4 cursor-pointer" onclick="copyAppId()"></span>
                     <button id="change-team-button" class="w-full btn-base btn-neutral focus:outline-none focus:ring-2">
@@ -3079,6 +3079,7 @@
             
             const companyWelcomeScreen = document.getElementById('company-welcome-screen');
             const companyNameDisplay = document.getElementById('company-name-display');
+            const idLabelClickable = document.getElementById('id-label-clickable');
             const enterMisterButton = document.getElementById('btn-mister');
             const enterDirigenteButton = document.getElementById('btn-dirigente');
             const viewHistoryButton = document.getElementById('view-history-button');
@@ -7838,6 +7839,13 @@
                     // Show ESCI button for Mister
                     esciButton.classList.remove('hidden');
                     
+                    // Remove ID label click handler for mister (not allowed)
+                    if (idLabelClickable) {
+                        idLabelClickable.style.cursor = 'default';
+                        idLabelClickable.style.textDecoration = 'none';
+                        idLabelClickable.title = '';
+                    }
+                    
                     // Restore normal grid layout for mister (in case it was changed for dirigente)
                     const actionButtonsContainer = saveButton.parentElement;
                     if (!actionButtonsContainer.classList.contains('grid')) {
@@ -7890,6 +7898,20 @@
                     // Show ESCI button for Dirigente
                     esciButton.classList.remove('hidden');
                     
+                    // Setup ID label click handler for dirigente to access log
+                    if (idLabelClickable) {
+                        idLabelClickable.style.cursor = 'pointer';
+                        idLabelClickable.style.textDecoration = 'underline';
+                        idLabelClickable.title = 'Clicca per vedere lo storico accessi';
+                        if (!idLabelClickable.hasAccessLogListener) {
+                            idLabelClickable.addEventListener('click', () => {
+                                console.log('📊 Opening access log view');
+                                showAccessLogView();
+                            });
+                            idLabelClickable.hasAccessLogListener = true;
+                        }
+                    }
+                    
                     // Make SALVA INDISPONIBILITA button same width as STORICO CONVOCAZIONI for dirigente
                     // Change from grid layout to full width for save button
                     const actionButtonsContainer = saveButton.parentElement;
@@ -7927,6 +7949,13 @@
                     // Hide mister selection dropdowns for guest
                     document.getElementById('mister-selection-1').classList.add('hidden');
                     document.getElementById('mister-selection-2').classList.add('hidden');
+                    
+                    // Remove ID label click handler for guest (not allowed)
+                    if (idLabelClickable) {
+                        idLabelClickable.style.cursor = 'default';
+                        idLabelClickable.style.textDecoration = 'none';
+                        idLabelClickable.title = '';
+                    }
                     
                     console.log('👤 Guest UI updated - limited functionality enabled');
                 }
@@ -8426,21 +8455,23 @@
                     console.log('🏢 Normal company login - full UI enabled');
                 }
                 
-                // Setup company name click handler for dirigente users
+                // Setup ID label click handler for dirigente users (instead of company name)
                 if (isDirigente()) {
-                    companyNameDisplay.style.cursor = 'pointer';
-                    companyNameDisplay.title = 'Clicca per vedere lo storico accessi';
+                    idLabelClickable.style.cursor = 'pointer';
+                    idLabelClickable.style.textDecoration = 'underline';
+                    idLabelClickable.title = 'Clicca per vedere lo storico accessi';
                     // Remove existing listener if any (using a flag)
-                    if (!companyNameDisplay.hasAccessLogListener) {
-                        companyNameDisplay.addEventListener('click', () => {
+                    if (!idLabelClickable.hasAccessLogListener) {
+                        idLabelClickable.addEventListener('click', () => {
                             console.log('📊 Opening access log view');
                             showAccessLogView();
                         });
-                        companyNameDisplay.hasAccessLogListener = true;
+                        idLabelClickable.hasAccessLogListener = true;
                     }
                 } else {
-                    companyNameDisplay.style.cursor = 'default';
-                    companyNameDisplay.title = '';
+                    idLabelClickable.style.cursor = 'default';
+                    idLabelClickable.style.textDecoration = 'none';
+                    idLabelClickable.title = '';
                 }
                 
                 companyWelcomeScreen.classList.remove('hidden');
