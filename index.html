@@ -1421,6 +1421,25 @@
             </button>
         </div>
 
+        <!-- Access Log View (Storico Accessi) -->
+        <div id="access-log-view" class="hidden">
+            <button id="top-back-from-access-log-button" class="w-full mb-4 btn-base btn-neutral focus:outline-none focus:ring-2">
+                Indietro
+            </button>
+            <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Storico Accessi</h2>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800 mb-4">
+                <strong>ℹ️ Info:</strong> Ultimi accessi di dirigenti, mister e ospiti alla società
+            </div>
+            
+            <div id="access-log-list" class="space-y-4">
+                <!-- Access log items will be populated here -->
+            </div>
+            <button id="back-from-access-log-button" class="w-full mt-6 btn-base btn-neutral focus:outline-none focus:ring-2">
+                Indietro
+            </button>
+        </div>
+
         <!-- Attendance Summary View -->
         <div id="attendance-view" class="hidden">
             <button id="top-back-from-attendance-button" class="w-full mb-4 btn-base btn-neutral focus:outline-none focus:ring-2">
@@ -3137,6 +3156,8 @@
             const esciButton = document.getElementById('esci-button');
             const backFromHistoryButton = document.getElementById('back-from-history-button');
             const topBackFromHistoryButton = document.getElementById('top-back-from-history-button');
+            const backFromAccessLogButton = document.getElementById('back-from-access-log-button');
+            const topBackFromAccessLogButton = document.getElementById('top-back-from-access-log-button');
             const backFromAttendanceButton = document.getElementById('back-from-attendance-button');
             const topBackFromAttendanceButton = document.getElementById('top-back-from-attendance-button');
             const historyList = document.getElementById('history-list');
@@ -5405,6 +5426,150 @@
                 // Re-render players to apply already-called-today styling
                 if (userRole === 'mister') {
                     renderPlayers();
+                }
+            }
+
+            // ========================================
+            // ACCESS LOG FUNCTIONS
+            // ========================================
+            
+            /**
+             * Log access to Firestore
+             * Records: codice società, codice dirigente/mister, role, timestamp
+             */
+            async function logAccess(role, userCode = null) {
+                try {
+                    if (!window.db || !window.collection || !window.addDoc || !currentCompanyDocumentId) {
+                        console.log('⚠️ Access log not available (missing Firestore or company ID)');
+                        return;
+                    }
+                    
+                    const accessLogBasePath = `societa/${currentCompanyDocumentId}`;
+                    const accessLogRef = window.collection(window.db, `${accessLogBasePath}/access_log`);
+                    
+                    const accessData = {
+                        codiceSocieta: currentCompanyCode || 'N/A',
+                        role: role, // 'mister', 'dirigente', 'guest'
+                        userCode: userCode || 'N/A', // codice mister/dirigente if available
+                        timestamp: new Date().toISOString(),
+                        societaDocumentId: currentCompanyDocumentId
+                    };
+                    
+                    await window.addDoc(accessLogRef, accessData);
+                    console.log('✅ Access logged:', accessData);
+                } catch (error) {
+                    console.error('❌ Error logging access:', error);
+                }
+            }
+            
+            /**
+             * Load and display access log
+             */
+            async function loadAccessLog() {
+                try {
+                    if (!window.db || !window.collection || !window.getDocs) {
+                        console.error('❌ Firestore not available');
+                        return;
+                    }
+                    
+                    const accessLogList = document.getElementById('access-log-list');
+                    if (!accessLogList) {
+                        console.error('❌ Access log list element not found');
+                        return;
+                    }
+                    
+                    const accessLogBasePath = `societa/${currentCompanyDocumentId}`;
+                    const accessLogRef = window.collection(window.db, `${accessLogBasePath}/access_log`);
+                    
+                    // Get all access logs and sort by timestamp descending
+                    const querySnapshot = await window.getDocs(accessLogRef);
+                    
+                    if (querySnapshot.empty) {
+                        accessLogList.innerHTML = '<p class="text-center text-gray-500">Nessun accesso registrato.</p>';
+                        return;
+                    }
+                    
+                    const accessLogs = [];
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        accessLogs.push({ ...data, id: doc.id });
+                    });
+                    
+                    // Sort by timestamp descending (most recent first)
+                    accessLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    
+                    // Display access logs
+                    accessLogList.innerHTML = '';
+                    accessLogs.forEach(log => {
+                        const item = document.createElement('div');
+                        item.className = 'bg-white p-4 rounded-lg shadow-md border border-gray-200';
+                        
+                        const timestamp = new Date(log.timestamp);
+                        const dateStr = timestamp.toLocaleDateString('it-IT', { 
+                            day: '2-digit', 
+                            month: '2-digit', 
+                            year: 'numeric' 
+                        });
+                        const timeStr = timestamp.toLocaleTimeString('it-IT', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                        });
+                        
+                        // Role badge color
+                        let roleBadgeClass = 'bg-blue-100 text-blue-800';
+                        let roleLabel = log.role;
+                        if (log.role === 'dirigente') {
+                            roleBadgeClass = 'bg-orange-100 text-orange-800';
+                            roleLabel = 'Dirigente';
+                        } else if (log.role === 'mister') {
+                            roleBadgeClass = 'bg-green-100 text-green-800';
+                            roleLabel = 'Mister';
+                        } else if (log.role === 'guest') {
+                            roleBadgeClass = 'bg-yellow-100 text-yellow-800';
+                            roleLabel = 'Ospite';
+                        }
+                        
+                        item.innerHTML = `
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="px-3 py-1 rounded-full text-sm font-semibold ${roleBadgeClass}">${roleLabel}</span>
+                                <span class="text-sm text-gray-600">${dateStr} - ${timeStr}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-sm mt-3">
+                                <div>
+                                    <span class="font-semibold text-gray-700">Codice Società:</span>
+                                    <span class="text-gray-900 ml-1">${log.codiceSocieta}</span>
+                                </div>
+                                ${log.userCode && log.userCode !== 'N/A' ? `
+                                <div>
+                                    <span class="font-semibold text-gray-700">Codice Utente:</span>
+                                    <span class="text-gray-900 ml-1">${log.userCode}</span>
+                                </div>
+                                ` : ''}
+                            </div>
+                        `;
+                        
+                        accessLogList.appendChild(item);
+                    });
+                    
+                    console.log(`📋 Loaded ${accessLogs.length} access log entries`);
+                } catch (error) {
+                    console.error('❌ Error loading access log:', error);
+                    const accessLogList = document.getElementById('access-log-list');
+                    if (accessLogList) {
+                        accessLogList.innerHTML = '<p class="text-center text-red-500">Errore nel caricamento dello storico accessi.</p>';
+                    }
+                }
+            }
+            
+            /**
+             * Show access log view
+             */
+            function showAccessLogView() {
+                hideAllScreens();
+                const accessLogView = document.getElementById('access-log-view');
+                if (accessLogView) {
+                    accessLogView.classList.remove('hidden');
+                    loadAccessLog();
                 }
             }
 
@@ -8153,6 +8318,9 @@
                     isGuestUser = true;
                     userRole = 'guest';
                     
+                    // Log guest access
+                    logAccess('guest');
+                    
                     // V9.10: Training attendance button - COMMENTED OUT - Feature removed
                     // Hide training attendance button for guests by default
                     // trainingAttendanceButton.classList.add('hidden');
@@ -8219,6 +8387,23 @@
                     }
                     
                     console.log('🏢 Normal company login - full UI enabled');
+                }
+                
+                // Setup company name click handler for dirigente users
+                if (isDirigente()) {
+                    companyNameDisplay.style.cursor = 'pointer';
+                    companyNameDisplay.title = 'Clicca per vedere lo storico accessi';
+                    // Remove existing listener if any (using a flag)
+                    if (!companyNameDisplay.hasAccessLogListener) {
+                        companyNameDisplay.addEventListener('click', () => {
+                            console.log('📊 Opening access log view');
+                            showAccessLogView();
+                        });
+                        companyNameDisplay.hasAccessLogListener = true;
+                    }
+                } else {
+                    companyNameDisplay.style.cursor = 'default';
+                    companyNameDisplay.title = '';
                 }
                 
                 companyWelcomeScreen.classList.remove('hidden');
@@ -8291,6 +8476,8 @@
                 // trainingAttendanceView.classList.add('hidden');
                 campionatoView.classList.add('hidden');
                 moduloView.classList.add('hidden'); // V8.12
+                const accessLogView = document.getElementById('access-log-view');
+                if (accessLogView) accessLogView.classList.add('hidden');
             }
 
             // V9.9: Fetch injured players from Firestore
@@ -11458,6 +11645,16 @@
                     companyCoaches = await loadCompanyCoaches();
                     companyDirectors = await loadCompanyDirectors();
                     
+                    // Log access for mister/dirigente
+                    // Try to get user code from coaches or directors
+                    let userCode = null;
+                    if (userRole === 'mister' && companyCoaches.length > 0) {
+                        userCode = companyCoaches[0]; // Use first coach as representative
+                    } else if (userRole === 'dirigente' && companyDirectors.length > 0) {
+                        userCode = companyDirectors[0]; // Use first director as representative
+                    }
+                    await logAccess(userRole, userCode);
+                    
                     // Use document ID as app ID (fallback to company code for demo mode)
                     const companyAppId = currentCompanyDocumentId || currentCompanyCode;
                     localStorage.setItem('convocazioniAppId', companyAppId);
@@ -11514,6 +11711,15 @@
                             companyPlayers = await loadCompanyPlayers();
                             companyCoaches = await loadCompanyCoaches();
                             companyDirectors = await loadCompanyDirectors();
+                            
+                            // Log access for biometric login
+                            let userCode = null;
+                            if (userRole === 'mister' && companyCoaches.length > 0) {
+                                userCode = companyCoaches[0];
+                            } else if (userRole === 'dirigente' && companyDirectors.length > 0) {
+                                userCode = companyDirectors[0];
+                            }
+                            await logAccess(userRole, userCode);
                             
                             const companyAppId = currentCompanyDocumentId || currentCompanyCode;
                             localStorage.setItem('convocazioniAppId', companyAppId);
@@ -12371,6 +12577,27 @@
                 }
                 historyPreviousView = null; // reset for next time
             });
+            
+            // Access log back button event listeners
+            if (backFromAccessLogButton) {
+                backFromAccessLogButton.addEventListener('click', () => {
+                    const accessLogView = document.getElementById('access-log-view');
+                    if (accessLogView) {
+                        accessLogView.classList.add('hidden');
+                    }
+                    showCompanyWelcome();
+                });
+            }
+            
+            if (topBackFromAccessLogButton) {
+                topBackFromAccessLogButton.addEventListener('click', () => {
+                    const accessLogView = document.getElementById('access-log-view');
+                    if (accessLogView) {
+                        accessLogView.classList.add('hidden');
+                    }
+                    showCompanyWelcome();
+                });
+            }
             
             // History period filter event listener
             const historyPeriodSelect = document.getElementById('history-period-select');
