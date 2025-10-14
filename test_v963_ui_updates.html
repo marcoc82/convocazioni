@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test V9.63 - UI Updates</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeInScale {
+            from {
+                transform: translate(-50%, -50%) scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+        
+        #update-notification {
+            animation: fadeInScale 0.3s ease-out;
+        }
+        
+        #update-reload-button {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        #update-reload-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        #update-reload-button:active {
+            transform: translateY(0);
+        }
+
+        /* Welcome button styles */
+        .btn-circular {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), 0 0 12px rgba(0, 0, 0, 0.1);
+            border: 3px solid #ffffff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-circular:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 0 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-risultati-circular-old {
+            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+        }
+
+        .btn-risultati-circular-new {
+            background: linear-gradient(135deg, #FCD34D 0%, #A3E635 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">🎨 Test V9.63 - UI Updates</h1>
+            <p class="text-gray-600">Confronto visivo delle modifiche implementate</p>
+        </div>
+
+        <!-- Update Notification Comparison -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">1️⃣ Notifica Aggiornamento App</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- OLD Version -->
+                <div>
+                    <h3 class="font-bold text-red-600 mb-4 text-lg">❌ PRIMA (Banner in alto)</h3>
+                    <div class="border-2 border-gray-200 rounded-lg p-4 bg-gray-50 relative h-64">
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg rounded p-3">
+                            <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-2 flex-1">
+                                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    <div class="flex-1">
+                                        <p class="font-bold text-sm leading-tight">🎉 Nuova versione disponibile!</p>
+                                        <p class="text-xs opacity-90">Clicca per aggiornare</p>
+                                    </div>
+                                </div>
+                                <button class="bg-white text-blue-700 hover:bg-blue-50 font-bold py-2 px-3 rounded-lg text-xs whitespace-nowrap">
+                                    Aggiorna Ora
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-center text-sm text-gray-500">
+                            <p>📍 Banner orizzontale</p>
+                            <p>📍 Posizionato in alto</p>
+                            <p>📍 Colore blu</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW Version -->
+                <div>
+                    <h3 class="font-bold text-green-600 mb-4 text-lg">✅ DOPO (Popup centrato)</h3>
+                    <div class="border-2 border-green-200 rounded-lg p-4 bg-gray-50 relative h-64 flex items-center justify-center">
+                        <div class="bg-gray-900 text-white rounded-2xl shadow-2xl p-6 max-w-xs">
+                            <div class="flex flex-col items-center text-center gap-4">
+                                <div class="bg-blue-600 rounded-full p-3">
+                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-lg mb-2">🎉 Nuova versione disponibile!</p>
+                                    <p class="text-sm text-gray-300">Aggiorna ora per accedere alle ultime novità</p>
+                                </div>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl w-full">
+                                    Aggiorna Ora
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center text-sm text-green-600 font-semibold">
+                        <p>✨ Popup centrato</p>
+                        <p>✨ Sfondo scuro (gray-900)</p>
+                        <p>✨ Più visibile e leggibile</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features List -->
+            <div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 class="font-bold text-green-800 mb-2">✅ Miglioramenti implementati:</h4>
+                <ul class="text-sm text-green-700 space-y-1">
+                    <li>✓ Popup centrato al centro dello schermo invece di banner in alto</li>
+                    <li>✓ Sfondo scuro (gray-900) più visibile e ben definito</li>
+                    <li>✓ Icona in evidenza con sfondo blu arrotondato</li>
+                    <li>✓ Testo più grande e leggibile</li>
+                    <li>✓ Pulsante di conferma più prominente</li>
+                    <li>✓ Animazione fadeIn + scale per effetto moderno</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Risultati Button Comparison -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">2️⃣ Bottone "Risultati"</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- OLD Version -->
+                <div>
+                    <h3 class="font-bold text-red-600 mb-4 text-lg">❌ PRIMA (Giallo uniforme)</h3>
+                    <div class="flex flex-col items-center gap-4">
+                        <button class="btn-circular btn-risultati-circular-old">
+                            Risultati
+                        </button>
+                        <div class="text-center">
+                            <p class="text-sm font-mono bg-gray-100 px-3 py-1 rounded">#FCD34D → #FBBF24</p>
+                            <p class="text-xs text-gray-600 mt-1">Giallo → Giallo scuro</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW Version -->
+                <div>
+                    <h3 class="font-bold text-green-600 mb-4 text-lg">✅ DOPO (Giallo sfumato verso verde)</h3>
+                    <div class="flex flex-col items-center gap-4">
+                        <button class="btn-circular btn-risultati-circular-new">
+                            Risultati
+                        </button>
+                        <div class="text-center">
+                            <p class="text-sm font-mono bg-gray-100 px-3 py-1 rounded">#FCD34D → #A3E635</p>
+                            <p class="text-xs text-green-600 mt-1 font-semibold">Giallo → Verde lime</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color explanation -->
+            <div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 class="font-bold text-green-800 mb-2">✅ Gradiente aggiornato:</h4>
+                <ul class="text-sm text-green-700 space-y-1">
+                    <li>✓ Colore iniziale: <span class="font-mono bg-yellow-200 px-2 py-0.5 rounded">#FCD34D</span> (giallo soft) - INVARIATO</li>
+                    <li>✓ Colore finale: <span class="font-mono bg-lime-300 px-2 py-0.5 rounded">#A3E635</span> (verde lime) - NUOVO</li>
+                    <li>✓ Effetto: sfumatura che vira dal giallo verso il verde</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Demo Interactive -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">🧪 Demo Interattiva</h2>
+            
+            <div class="text-center">
+                <button id="show-popup-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all">
+                    Mostra Popup Aggiornamento
+                </button>
+                <p class="text-sm text-gray-600 mt-2">Clicca per vedere il nuovo popup in azione</p>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 Riepilogo V9.63</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-green-700 mb-2">✅ Modifiche Implementate</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>✅ Popup aggiornamento centrato e scuro</li>
+                        <li>✅ Bottone "Risultati" con gradiente giallo-verde</li>
+                        <li>✅ Animazione fadeInScale per popup</li>
+                        <li>✅ Design più moderno e visibile</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="font-bold text-blue-700 mb-2">📦 File Modificati</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li>• index.html (CSS + HTML)</li>
+                        <li>• manifest.json (versione → V9.63)</li>
+                        <li>• service-worker.js (cache → v9.63)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Demo (hidden by default) -->
+    <div id="demo-popup" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-900 text-white rounded-2xl shadow-2xl z-[9999] hidden max-w-md w-11/12 md:w-full">
+        <div class="p-6 md:p-8">
+            <div class="flex flex-col items-center text-center gap-4">
+                <div class="bg-blue-600 rounded-full p-4">
+                    <svg class="w-8 h-8 md:w-10 md:h-10 text-white animate-spin" style="animation-duration: 3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-bold text-lg md:text-xl mb-2">🎉 Nuova versione disponibile!</p>
+                    <p class="text-sm md:text-base text-gray-300">Aggiorna ora per accedere alle ultime novità e miglioramenti</p>
+                </div>
+                <button id="close-demo-btn" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3 px-8 rounded-xl transition-all duration-200 text-base md:text-lg w-full">
+                    Aggiorna Ora
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Backdrop -->
+    <div id="backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-[9998] hidden"></div>
+
+    <script>
+        // Interactive demo
+        const showBtn = document.getElementById('show-popup-btn');
+        const closeBtn = document.getElementById('close-demo-btn');
+        const popup = document.getElementById('demo-popup');
+        const backdrop = document.getElementById('backdrop');
+
+        showBtn.addEventListener('click', () => {
+            popup.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            popup.classList.add('hidden');
+            backdrop.classList.add('hidden');
+        });
+
+        backdrop.addEventListener('click', () => {
+            popup.classList.add('hidden');
+            backdrop.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

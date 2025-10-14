@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<!-- Version: V9.62 - Added "Gol Fatti" field in player statistics modal (visible only for POLIS) -->
+<!-- Version: V9.63 - Updated PWA update notification to centered dark popup; Changed "Risultati" button gradient to yellow-green -->
+<!-- V9.62 Changes: Added "Gol Fatti" field in player statistics modal (visible only for POLIS) -->
 <!-- V9.61 Changes:
      1. Welcome page: removed shadow and semi-transparent background
      2. Dark grey text for better readability
@@ -743,7 +744,7 @@
         }
         
         .btn-risultati-circular {
-            background: linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%);
+            background: linear-gradient(135deg, #FCD34D 0%, #A3E635 100%);
         }
         
         .btn-gestione {
@@ -783,13 +784,13 @@
         
         /* PWA Update Notification Animation */
         /* PWA Update Notification Animations */
-        @keyframes slideDown {
+        @keyframes fadeInScale {
             from {
-                transform: translateY(-100%);
+                transform: translate(-50%, -50%) scale(0.9);
                 opacity: 0;
             }
             to {
-                transform: translateY(0);
+                transform: translate(-50%, -50%) scale(1);
                 opacity: 1;
             }
         }
@@ -804,12 +805,11 @@
         }
         
         #update-notification {
-            animation: slideDown 0.4s ease-out;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: fadeInScale 0.3s ease-out;
         }
         
         #update-notification.show {
-            display: block !important;
+            display: flex !important;
         }
         
         #update-reload-button {
@@ -835,21 +835,21 @@
 </head>
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
     
-    <!-- PWA Update Notification Banner -->
-    <div id="update-notification" class="fixed top-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg z-50 hidden">
-        <div class="container mx-auto px-3 py-3 md:px-4 md:py-4">
-            <div class="flex items-center justify-between gap-3 max-w-4xl mx-auto">
-                <div class="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
-                    <!-- Icon with animation -->
-                    <svg class="w-5 h-5 md:w-6 md:h-6 flex-shrink-0 animate-spin" style="animation-duration: 3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- PWA Update Notification Popup (Centered, Dark) -->
+    <div id="update-notification" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-900 text-white rounded-2xl shadow-2xl z-[9999] hidden max-w-md w-11/12 md:w-full">
+        <div class="p-6 md:p-8">
+            <div class="flex flex-col items-center text-center gap-4">
+                <!-- Icon with animation -->
+                <div class="bg-blue-600 rounded-full p-4">
+                    <svg class="w-8 h-8 md:w-10 md:h-10 text-white animate-spin" style="animation-duration: 3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                     </svg>
-                    <div class="flex-1 min-w-0">
-                        <p class="font-bold text-sm md:text-base leading-tight">🎉 Nuova versione disponibile!</p>
-                        <p class="text-xs md:text-sm opacity-90 leading-tight mt-0.5">Clicca per aggiornare e scoprire le novità</p>
-                    </div>
                 </div>
-                <button id="update-reload-button" class="bg-white text-blue-700 hover:bg-blue-50 active:bg-blue-100 font-bold py-2 px-3 md:py-2.5 md:px-5 rounded-lg transition-all duration-200 text-xs md:text-sm flex-shrink-0 whitespace-nowrap">
+                <div>
+                    <p class="font-bold text-lg md:text-xl mb-2">🎉 Nuova versione disponibile!</p>
+                    <p class="text-sm md:text-base text-gray-300">Aggiorna ora per accedere alle ultime novità e miglioramenti</p>
+                </div>
+                <button id="update-reload-button" class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold py-3 px-8 rounded-xl transition-all duration-200 text-base md:text-lg w-full">
                     Aggiorna Ora
                 </button>
             </div>
@@ -885,7 +885,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.62</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.63</span>
             </div>
         </div>
 
