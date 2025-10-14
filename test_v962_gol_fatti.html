@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V9.62 - Test Gol Fatti in Player Modal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .player-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .player-modal.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .player-modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 1200px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .player-modal.show .player-modal-content {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">🧪 V9.62 - Test Gol Fatti Feature</h1>
+        
+        <!-- Test Description -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 Test Requirements</h2>
+            <div class="space-y-2">
+                <p class="text-gray-700"><strong>Feature:</strong> Add "Gol Fatti" field in player statistics modal</p>
+                <p class="text-gray-700"><strong>Visibility:</strong> Only for POLIS company</p>
+                <p class="text-gray-700"><strong>Data Source:</strong> Firebase Realtime Database - gol.json</p>
+                <p class="text-gray-700"><strong>Endpoint:</strong> https://polis-2013-default-rtdb.europe-west1.firebasedatabase.app/gol.json</p>
+                <p class="text-gray-700"><strong>Location:</strong> Below player name in modal header</p>
+            </div>
+        </div>
+
+        <!-- Test Scenarios -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎯 Test Scenarios</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Scenario 1: POLIS Company -->
+                <div class="border border-green-300 rounded-lg p-4 bg-green-50">
+                    <h3 class="font-bold text-lg mb-2 text-green-800">✅ Scenario 1: POLIS Company</h3>
+                    <button onclick="testPolisCompany()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                        Open Modal (POLIS)
+                    </button>
+                    <p class="text-sm text-gray-600 mt-2"><strong>Expected:</strong> "Gol Fatti" field visible with data from Firebase</p>
+                </div>
+
+                <!-- Scenario 2: Non-POLIS Company -->
+                <div class="border border-blue-300 rounded-lg p-4 bg-blue-50">
+                    <h3 class="font-bold text-lg mb-2 text-blue-800">❌ Scenario 2: Non-POLIS Company</h3>
+                    <button onclick="testNonPolisCompany()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                        Open Modal (Other Company)
+                    </button>
+                    <p class="text-sm text-gray-600 mt-2"><strong>Expected:</strong> "Gol Fatti" field hidden</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expected Behavior -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">✅ Expected Behavior</h2>
+            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                <li>Player name displayed as before</li>
+                <li>For POLIS: "⚽ Gol Fatti: X" appears below player name</li>
+                <li>For non-POLIS: "Gol Fatti" field is hidden</li>
+                <li>All other statistics remain unchanged</li>
+                <li>Data fetched from Firebase gol.json endpoint</li>
+                <li>Shows "N/D" if data not available</li>
+            </ul>
+        </div>
+
+        <!-- Visual Comparison -->
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎨 Visual Changes</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border border-gray-300 rounded-lg p-4">
+                    <h3 class="font-bold mb-2">Before (V9.61)</h3>
+                    <div class="bg-gray-100 p-4 rounded">
+                        <p class="text-xl font-bold">ROSSI MARIO</p>
+                        <p class="text-sm text-gray-500">Close button →</p>
+                    </div>
+                </div>
+                <div class="border border-green-300 rounded-lg p-4 bg-green-50">
+                    <h3 class="font-bold mb-2 text-green-800">After (V9.62 - POLIS)</h3>
+                    <div class="bg-white p-4 rounded">
+                        <p class="text-xl font-bold">ROSSI MARIO</p>
+                        <p class="text-sm text-gray-600 mt-1">⚽ Gol Fatti: <span class="font-semibold">5</span></p>
+                        <p class="text-sm text-gray-500">Close button →</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Modal -->
+    <div id="player-modal" class="player-modal">
+        <div class="player-modal-content">
+            <div class="p-6">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800" id="modal-player-name">Player Name</h2>
+                        <!-- V9.62: Gol Fatti field (visible only for POLIS) -->
+                        <p class="text-sm text-gray-600 mt-1 hidden" id="modal-player-goals">⚽ Gol Fatti: <span class="font-semibold" id="modal-goals-value">N/D</span></p>
+                    </div>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Mock Content -->
+                <div class="bg-gray-100 p-6 rounded-lg">
+                    <p class="text-center text-gray-600">Other player statistics would appear here...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock current company data
+        let currentCompanyData = null;
+
+        // Modal elements
+        const modal = document.getElementById('player-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const modalPlayerName = document.getElementById('modal-player-name');
+        const modalPlayerGoals = document.getElementById('modal-player-goals');
+        const modalGoalsValue = document.getElementById('modal-goals-value');
+
+        // Normalize player name function (similar to the one in index.html)
+        function normalizePlayerName(name) {
+            return name.replace(/^\d+\s*/, '').trim().toUpperCase();
+        }
+
+        // Open modal function
+        async function openPlayerModal(playerName, isPolis) {
+            modalPlayerName.textContent = playerName;
+            
+            // V9.62: Fetch and display goals data for POLIS company only
+            const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+            const isPolisCompany = companyName === 'POLIS';
+            
+            if (modalPlayerGoals && modalGoalsValue) {
+                if (isPolisCompany) {
+                    // Show the goals field
+                    modalPlayerGoals.classList.remove('hidden');
+                    
+                    try {
+                        const FIREBASE_GOL_URL = 'https://polis-2013-default-rtdb.europe-west1.firebasedatabase.app/gol.json';
+                        const response = await fetch(FIREBASE_GOL_URL);
+                        if (response.ok) {
+                            const golData = await response.json() || {};
+                            console.log('⚽ [V9.62] Dati gol caricati da Firebase Realtime Database:', golData);
+                            
+                            // Try to find goals for this player
+                            let goals = 'N/D';
+                            
+                            // Try exact match first
+                            if (golData[playerName] !== undefined && golData[playerName] !== null) {
+                                goals = golData[playerName];
+                            } else {
+                                // Try normalized match (case-insensitive and without leading numbers)
+                                const normalizedPlayerName = normalizePlayerName(playerName);
+                                for (const key in golData) {
+                                    if (normalizePlayerName(key) === normalizedPlayerName) {
+                                        goals = golData[key];
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            modalGoalsValue.textContent = goals;
+                        } else {
+                            modalGoalsValue.textContent = 'N/D';
+                        }
+                    } catch (error) {
+                        console.error('⚽ [V9.62] Errore nel caricamento dei dati gol:', error);
+                        modalGoalsValue.textContent = 'N/D';
+                    }
+                } else {
+                    // Hide the goals field for non-POLIS companies
+                    modalPlayerGoals.classList.add('hidden');
+                }
+            }
+            
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePlayerModal() {
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // Test scenarios
+        function testPolisCompany() {
+            currentCompanyData = { name: 'POLIS' };
+            openPlayerModal('10 ROSSI MARIO', true);
+        }
+
+        function testNonPolisCompany() {
+            currentCompanyData = { name: 'OTHER COMPANY' };
+            openPlayerModal('10 ROSSI MARIO', false);
+        }
+
+        // Event listeners
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', closePlayerModal);
+        }
+    </script>
+</body>
+</html>

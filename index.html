@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<!-- Version: V9.61 - Welcome page: removed shadow and semi-transparent background, dark grey text for better readability -->
+<!-- Version: V9.62 - Added "Gol Fatti" field in player statistics modal (visible only for POLIS) -->
+<!-- V9.61 Changes:
+     1. Welcome page: removed shadow and semi-transparent background
+     2. Dark grey text for better readability
+-->
 <!-- V9.58 Changes:
      1. Added PWA service worker update notification with visible banner
      2. Fixed automatic reload issue - now only reloads when user clicks "Aggiorna Ora"
@@ -881,7 +885,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.61</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.62</span>
             </div>
         </div>
 
@@ -2349,7 +2353,11 @@
             <div class="p-6">
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
-                    <h2 class="text-2xl font-bold text-gray-800" id="modal-player-name">Player Name</h2>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800" id="modal-player-name">Player Name</h2>
+                        <!-- V9.62: Gol Fatti field (visible only for POLIS) -->
+                        <p class="text-sm text-gray-600 mt-1 hidden" id="modal-player-goals">⚽ Gol Fatti: <span class="font-semibold" id="modal-goals-value">N/D</span></p>
+                    </div>
                     <button id="close-modal" class="text-gray-400 hover:text-gray-600 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -5915,6 +5923,55 @@
                 }
                 if (modalTrainingSessionsInPlayer) {
                     modalTrainingSessionsInPlayer.innerHTML = generateTrainingList(trainingData.recentSessions);
+                }
+                
+                // V9.62: Fetch and display goals data (Gol Fatti) for POLIS company only
+                const modalPlayerGoals = document.getElementById('modal-player-goals');
+                const modalGoalsValue = document.getElementById('modal-goals-value');
+                const companyName = currentCompanyData?.name || currentCompanyData?.data?.nome || '';
+                const isPolisCompany = companyName === 'POLIS';
+                
+                if (modalPlayerGoals && modalGoalsValue) {
+                    if (isPolisCompany) {
+                        // Show the goals field
+                        modalPlayerGoals.classList.remove('hidden');
+                        
+                        try {
+                            const FIREBASE_GOL_URL = 'https://polis-2013-default-rtdb.europe-west1.firebasedatabase.app/gol.json';
+                            const response = await fetch(FIREBASE_GOL_URL);
+                            if (response.ok) {
+                                const golData = await response.json() || {};
+                                console.log(`⚽ [V9.62] Dati gol caricati da Firebase Realtime Database:`, golData);
+                                
+                                // Try to find goals for this player
+                                let goals = 'N/D';
+                                
+                                // Try exact match first
+                                if (golData[playerName] !== undefined && golData[playerName] !== null) {
+                                    goals = golData[playerName];
+                                } else {
+                                    // Try normalized match (case-insensitive and without leading numbers)
+                                    const normalizedPlayerName = normalizePlayerName(playerName);
+                                    for (const key in golData) {
+                                        if (normalizePlayerName(key) === normalizedPlayerName) {
+                                            goals = golData[key];
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                modalGoalsValue.textContent = goals;
+                            } else {
+                                modalGoalsValue.textContent = 'N/D';
+                            }
+                        } catch (error) {
+                            console.error('⚽ [V9.62] Errore nel caricamento dei dati gol:', error);
+                            modalGoalsValue.textContent = 'N/D';
+                        }
+                    } else {
+                        // Hide the goals field for non-POLIS companies
+                        modalPlayerGoals.classList.add('hidden');
+                    }
                 }
                 
                 playerModal.classList.add('show');
