@@ -90,7 +90,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc, getDocs, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, updateDoc, increment, deleteDoc, getDocs, arrayUnion, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Espone le funzioni Firebase Auth globalmente per evitare ReferenceError
@@ -122,6 +122,8 @@
             window.deleteDoc = deleteDoc;
             window.arrayUnion = arrayUnion;
             window.getDocs = getDocs;
+            window.query = query;
+            window.where = where;
         } else {
             console.error("Firebase configuration not available. Some features will not work.");
         }
@@ -1429,7 +1431,7 @@
             <h2 class="text-2xl font-bold text-gray-800 text-center mb-4">Storico Accessi</h2>
             
             <div class="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800 mb-4">
-                <strong>ℹ️ Info:</strong> Ultimi accessi di dirigenti, mister e ospiti alla società
+                <strong>ℹ️ Info:</strong> Ultimo accesso per ciascun tipo di utente (dirigenti, mister e ospiti)
             </div>
             
             <div id="access-log-list" class="space-y-4">
@@ -5447,6 +5449,29 @@
                     const accessLogBasePath = `societa/${currentCompanyDocumentId}`;
                     const accessLogRef = window.collection(window.db, `${accessLogBasePath}/access_log`);
                     
+                    // Delete previous accesses of the same role
+                    if (window.query && window.where && window.getDocs && window.deleteDoc && window.doc) {
+                        try {
+                            const q = window.query(accessLogRef, window.where('role', '==', role));
+                            const querySnapshot = await window.getDocs(q);
+                            
+                            // Delete all previous accesses of this role
+                            const deletePromises = [];
+                            querySnapshot.forEach(doc => {
+                                const docRef = window.doc(window.db, `${accessLogBasePath}/access_log`, doc.id);
+                                deletePromises.push(window.deleteDoc(docRef));
+                            });
+                            
+                            if (deletePromises.length > 0) {
+                                await Promise.all(deletePromises);
+                                console.log(`🗑️ Deleted ${deletePromises.length} previous access(es) for role: ${role}`);
+                            }
+                        } catch (deleteError) {
+                            console.error('⚠️ Error deleting previous accesses:', deleteError);
+                            // Continue even if deletion fails
+                        }
+                    }
+                    
                     const accessData = {
                         codiceSocieta: currentCompanyCode || 'N/A',
                         role: role, // 'mister', 'dirigente', 'guest'
@@ -5463,7 +5488,7 @@
             }
             
             /**
-             * Load and display access log
+             * Load and display access log (only last access for each role type)
              */
             async function loadAccessLog() {
                 try {
@@ -5481,22 +5506,34 @@
                     const accessLogBasePath = `societa/${currentCompanyDocumentId}`;
                     const accessLogRef = window.collection(window.db, `${accessLogBasePath}/access_log`);
                     
-                    // Get all access logs and sort by timestamp descending
+                    // Get all access logs
                     const querySnapshot = await window.getDocs(accessLogRef);
                     
                     if (querySnapshot.empty) {
-                        accessLogList.innerHTML = '<p class="text-center text-gray-500">Nessun accesso registrato.</p>';
+                        accessLogList.innerHTML = '<p class="text-center text-gray-500">Nessun dato disponibile.</p>';
                         return;
                     }
                     
-                    const accessLogs = [];
+                    // Group accesses by role and keep only the most recent for each
+                    const accessByRole = {};
                     querySnapshot.forEach(doc => {
                         const data = doc.data();
-                        accessLogs.push({ ...data, id: doc.id });
+                        const role = data.role;
+                        
+                        // If we don't have this role yet, or if this access is more recent
+                        if (!accessByRole[role] || new Date(data.timestamp) > new Date(accessByRole[role].timestamp)) {
+                            accessByRole[role] = { ...data, id: doc.id };
+                        }
                     });
                     
-                    // Sort by timestamp descending (most recent first)
+                    // Convert to array and sort by timestamp descending
+                    const accessLogs = Object.values(accessByRole);
                     accessLogs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    
+                    if (accessLogs.length === 0) {
+                        accessLogList.innerHTML = '<p class="text-center text-gray-500">Nessun dato disponibile.</p>';
+                        return;
+                    }
                     
                     // Display access logs
                     accessLogList.innerHTML = '';
@@ -5551,7 +5588,7 @@
                         accessLogList.appendChild(item);
                     });
                     
-                    console.log(`📋 Loaded ${accessLogs.length} access log entries`);
+                    console.log(`📋 Loaded ${accessLogs.length} access log entries (last access for each role)`);
                 } catch (error) {
                     console.error('❌ Error loading access log:', error);
                     const accessLogList = document.getElementById('access-log-list');
