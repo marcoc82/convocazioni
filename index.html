@@ -835,6 +835,18 @@
         
     </style>
 </head>
+   <script>
+  window.DEBUG_LOG = false; // Imposta a true per vedere i log
+
+  ['log', 'warn', 'error', 'info'].forEach(function(method) {
+    const original = console[method];
+    console[method] = function(...args) {
+      if (window.DEBUG_LOG) {
+        original.apply(console, args);
+      }
+    };
+  });
+</script>  
 <body class="bg-gray-100 p-4 min-h-screen flex flex-col items-center justify-center">
     
     <!-- PWA Update Notification Popup (Centered, Dark) -->
