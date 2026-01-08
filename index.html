@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Version: V9.69 - messo come default stagione corrente nei filtri -->
 <!-- Version: V9.68 - aggiunto filtro stagione corrente -->
 <!-- Version: V9.67 - adattamento tasti pagina benvenuto su telefono -->
 <!-- Version: V9.66 - Updated access log to show only user type and date/time (removed company code and user code) -->
@@ -914,7 +915,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.68</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.69</span>
             </div>
         </div>
 
@@ -1674,11 +1675,11 @@
                     <!-- Period Selection -->
                     <div class="flex gap-2 mb-4">
                         <select id="report-period-select" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
-			    <option value="season">Stagione corrente</option>
+			    <option value="season" selected>Stagione corrente</option>
                             <option value="all">Tutti i periodi</option>
                             <option value="week">Settimana corrente</option>
                             <option value="month">Mese corrente</option>
-                            <option value="year" selected>Anno corrente</option>
+                            <option value="year">Anno corrente</option>
                         </select>
                         <button id="refresh-report-button" class="btn-base btn-primary px-4 py-2 rounded-lg font-medium">
                             Aggiorna
