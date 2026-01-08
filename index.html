@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Version: V9.68 - aggiunto filtro stagione corrente -->
 <!-- Version: V9.67 - adattamento tasti pagina benvenuto su telefono -->
 <!-- Version: V9.66 - Updated access log to show only user type and date/time (removed company code and user code) -->
 <!-- V9.62 Changes: Added "Gol Fatti" field in player statistics modal (visible only for POLIS) -->
@@ -913,7 +914,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.67</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.68</span>
             </div>
         </div>
 
@@ -1665,6 +1666,7 @@
                     <!-- Period Selection -->
                     <div class="flex gap-2 mb-4">
                         <select id="report-period-select" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+			    <option value="season">Stagione corrente</option>
                             <option value="all">Tutti i periodi</option>
                             <option value="week">Settimana corrente</option>
                             <option value="month">Mese corrente</option>
@@ -1702,6 +1704,7 @@
                     <!-- Sessions Period Selection -->
                     <div class="flex gap-2 mb-4">
                         <select id="sessions-period-select" class="flex-1 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+			    <option value="season">Stagione corrente</option>
                             <option value="all">Tutti i periodi</option>
                             <option value="week" selected>Settimana corrente</option>
                             <option value="month">Mese corrente</option>
@@ -3721,6 +3724,30 @@
                     .replace(/\s+/g, ' '); // Collapse multiple spaces to single space
             }
 
+// Funzione helper per ottenere il range della stagione corrente (15 Ago - 14 Ago)
+            function getCurrentSeasonRange() {
+                const now = new Date();
+                let startYear, endYear;
+
+                // Se siamo dopo il 15 agosto (mese 7 perchè 0-indexed), la stagione è iniziata quest'anno
+                // Esempio: 20 Ottobre 2025 -> Inizio 2025, Fine 2026
+                // Esempio: 10 Gennaio 2026 -> Inizio 2025, Fine 2026
+                if (now.getMonth() > 7 || (now.getMonth() === 7 && now.getDate() >= 15)) {
+                    startYear = now.getFullYear();
+                    endYear = now.getFullYear() + 1;
+                } else {
+                    startYear = now.getFullYear() - 1;
+                    endYear = now.getFullYear();
+                }
+
+                // Dal 15 Agosto dell'anno di inizio
+                const startDate = new Date(startYear, 7, 15, 0, 0, 0, 0); 
+                // Al 14 Agosto dell'anno di fine
+                const endDate = new Date(endYear, 7, 14, 23, 59, 59, 999); 
+
+                return { start: startDate, end: endDate };
+            }
+
             // Initial Firebase setup
              async function initApp() {
                 if (window.auth) {
@@ -5166,6 +5193,13 @@
                 weekOption.value = 'week';
                 weekOption.textContent = 'Settimana corrente';
                 periodSelect.appendChild(weekOption);
+// --- AGGIUNGERE QUI ---
+                // Add "Stagione corrente" option
+                const seasonOption = document.createElement('option');
+                seasonOption.value = 'season';
+                seasonOption.textContent = 'Stagione corrente';
+                periodSelect.appendChild(seasonOption);
+                // ---------------------
                 
                 // Add "Tutti i periodi" option
                 const allOption = document.createElement('option');
@@ -5214,6 +5248,12 @@
                     if (!matchDateStr || matchDateStr === 'N/D') {
                         // If no match date, use createdAt
                         const createdDate = new Date(item.createdAt);
+// --- NUOVA LOGICA PER STAGIONE ---
+                    if (period === 'season') {
+                        const { start, end } = getCurrentSeasonRange();
+                        return dateToCheck >= start && dateToCheck <= end;
+                    }
+                    // ---------------------------------
                         if (period === 'week') {
                             const startOfWeek = new Date(now);
                             const day = startOfWeek.getDay();
@@ -5278,6 +5318,7 @@
                         'all': 'Tutti i periodi',
                         'week': 'Settimana corrente',
                         'month': 'Mese corrente'
+			'season': 'Stagione corrente'
                     };
                     
                     // V9.14: Handle specific month display
@@ -8964,6 +9005,15 @@
                     if (selectedPeriod === 'all') return true;
                     
                     const sessionDate = new Date(session.date);
+// --- AGGIUNGERE QUESTO BLOCCO ---
+                    if (selectedPeriod === 'season') {
+                        const { start, end } = getCurrentSeasonRange();
+                        // Imposta l'ora della sessione per confronto corretto o usa solo data
+                        const checkDate = new Date(sessionDate);
+                        checkDate.setHours(12,0,0,0); // Sicurezza per evitare problemi di fuso orario
+                        return checkDate >= start && checkDate <= end;
+                    }
+                    // ---------------------------------
                     if (selectedPeriod === 'week') {
                         // Get start of current week (Monday)
                         const startOfWeek = new Date(now);
@@ -9355,6 +9405,14 @@
                     if (selectedPeriod === 'all') return true;
                     
                     const sessionDate = new Date(session.date);
+// --- AGGIUNGERE QUESTO BLOCCO ---
+                    if (selectedPeriod === 'season') {
+                        const { start, end } = getCurrentSeasonRange();
+                        const checkDate = new Date(sessionDate);
+                        checkDate.setHours(12,0,0,0);
+                        return checkDate >= start && checkDate <= end;
+                    }
+                    // ---------------------------------
                     if (selectedPeriod === 'week') {
                         // Get start of current week (Monday)
                         const startOfWeek = new Date(now);
