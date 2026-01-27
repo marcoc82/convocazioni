@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Version: V9.70 - risolto problema reset disponibilità, tolto localstorage -->
 <!-- Version: V9.69 - messo come default stagione corrente nei filtri -->
 <!-- Version: V9.68 - aggiunto filtro stagione corrente -->
 <!-- Version: V9.67 - adattamento tasti pagina benvenuto su telefono -->
@@ -915,7 +916,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.69</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.70</span>
             </div>
         </div>
 
@@ -3548,30 +3549,36 @@ if (attendancePeriodSelect) {
                 return needsReset;
             }
             
-            // Reset unavailable players in Firebase
-            async function resetUnavailablePlayersInFirebase() {
-                if (!window.db || !currentCompanyDocumentId) {
-                    console.log('⚠️ Cannot reset: Firebase not available or company not set');
-                    return;
-                }
-                
-                try {
-                    const availabilityBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${appId}/public/data`;
-                    const unavailableDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "marco_unavailable");
-                    
-                    // Clear the unavailable players data
-                    await window.setDoc(unavailableDocRef, { players: {} }, { merge: true });
-                    console.log('✅ Weekly reset: Unavailable players cleared from Firebase');
-                    
-                    // Clear local Map
-                    unavailablePlayers = new Map();
-                    renderPlayers(); // Re-render players
-                    updateUnavailablePlayersView(); // Update view
-                    updateResetTimestampDisplay(); // Update reset timestamp display
-                } catch (error) {
-                    console.error('❌ Error resetting unavailable players:', error);
-                }
-            }
+           async function resetUnavailablePlayersInFirebase() {
+    if (!window.db || !currentCompanyDocumentId) {
+        console.log('⚠️ Cannot reset: Firebase not available or company not set');
+        return;
+    }
+    
+    try {
+        const availabilityBasePath = currentCompanyDocumentId ? `societa/${currentCompanyDocumentId}` : `artifacts/${appId}/public/data`;
+        const unavailableDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "marco_unavailable");
+        
+        const now = new Date().toISOString();
+
+        // Resetta i giocatori MA salva la data attuale come "lastWeeklyReset"
+        await window.setDoc(unavailableDocRef, { 
+            players: {},
+            lastWeeklyReset: now, // IMPORTANTE: Salviamo quando è avvenuto il reset
+            lastSaved: now
+        }, { merge: true });
+
+        console.log('✅ Weekly reset: Unavailable players cleared from Firebase');
+        
+        // Clear local Map
+        unavailablePlayers = new Map();
+        renderPlayers(); 
+        updateUnavailablePlayersView(); 
+        // updateResetTimestampDisplay(); // Opzionale se lo usi
+    } catch (error) {
+        console.error('❌ Error resetting unavailable players:', error);
+    }
+}
             
             // V9.12: Calculate current week training attendance for each player
             function calculateCurrentWeekTrainingAttendance() {
@@ -4864,33 +4871,60 @@ if (attendancePeriodSelect) {
                 });
                 unsubscribeListeners.push(attendanceUnsub);
                 
-                // Listener for Marco's unavailable players list - using document ID path
-                const unavailableDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "marco_unavailable");
-                console.log(`📍 Percorso completo subcollection availability: ${availabilityBasePath}/availability/marco_unavailable`);
-                const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) => {
-                    // Check if weekly reset is needed
-                    const needsReset = checkAndResetWeeklyUnavailability();
-                    
-                    if (needsReset) {
-                        console.log('🔄 Weekly reset triggered - clearing unavailable players');
-                        await resetUnavailablePlayersInFirebase();
-                        return; // The reset will trigger this listener again with empty data
-                    }
-                    
-                    if (docSnap.exists() && docSnap.data().players) {
-                        unavailablePlayers = new Map(Object.entries(docSnap.data().players));
-                        console.log(`✅ Caricata availability subcollection da: ${availabilityBasePath}/availability/marco_unavailable (${unavailablePlayers.size} giocatori non disponibili)`);
-                        // Update unavailability save timestamp if available
-                        if (docSnap.data().lastSaved) {
-                            updateUnavailabilitySaveTimestampDisplay(docSnap.data().lastSaved);
-                        }
-                    } else {
-                        unavailablePlayers = new Map();
-                        console.log(`📝 Subcollection 'availability' vuota o non trovata per società document ID ${currentCompanyDocumentId}`);
-                    }
-                    renderPlayers(); // Re-render players with new unavailable status
-                    updateUnavailablePlayersView(); // Update Mister's view
-                });
+                // Listener for Marco's unavailable players list
+const unavailableDocRef = window.doc(window.db, `${availabilityBasePath}/availability`, "marco_unavailable");
+const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) => {
+    
+    // --- NUOVA LOGICA DI RESET (Server-Side Check) ---
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        
+        // Prendiamo la data dell'ultimo reset o dell'ultimo salvataggio
+        // Se non esiste nessuna data, assumiamo che sia oggi per evitare reset accidentali al primo avvio
+        const lastDateStr = data.lastWeeklyReset || data.lastSaved; 
+        
+        if (lastDateStr) {
+            const now = new Date();
+            const lastDate = new Date(lastDateStr);
+            
+            // Funzione per ottenere l'inizio della settimana (Domenica ore 00:00)
+            const getLastSunday = (d) => {
+                const date = new Date(d);
+                const day = date.getDay(); // 0 = Domenica
+                const diff = date.getDate() - day; // Sottrai i giorni per tornare a Domenica
+                const sunday = new Date(date.setDate(diff));
+                sunday.setHours(0, 0, 0, 0);
+                return sunday;
+            };
+
+            const currentWeekStart = getLastSunday(now);
+            const lastDataWeekStart = getLastSunday(lastDate);
+
+            // SE la domenica di questa settimana è successiva alla domenica dei dati salvati
+            // ALLORA significa che siamo in una nuova settimana -> RESET
+            if (currentWeekStart.getTime() > lastDataWeekStart.getTime()) {
+                console.log('🔄 Nuova settimana rilevata dal server -> Eseguo Reset Automatico');
+                // IMPORTANTE: Disabilita il listener temporaneamente o assicurati che il reset
+                // aggiorni la data (fatto nel punto 1) per evitare loop infiniti
+                await resetUnavailablePlayersInFirebase();
+                return; // Ci fermiamo qui, il reset farà scattare di nuovo il listener con i dati puliti
+            }
+        }
+    }
+    // ------------------------------------------------
+
+    // Logica standard di caricamento dati (il resto del tuo codice)
+    if (docSnap.exists() && docSnap.data().players) {
+        unavailablePlayers = new Map(Object.entries(docSnap.data().players));
+        if (docSnap.data().lastSaved) {
+            updateUnavailabilitySaveTimestampDisplay(docSnap.data().lastSaved);
+        }
+    } else {
+        unavailablePlayers = new Map();
+    }
+    renderPlayers(); 
+    updateUnavailablePlayersView(); 
+});
                 unsubscribeListeners.push(unavailableUnsub);
                 
                 // Listener for notes - using document ID path like giocatori and availability
