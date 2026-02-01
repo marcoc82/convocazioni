@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Version: V9.73 - aggiunto tasto per eliminare una sessione di allenamento -->
 <!-- Version: V9.70 - risolto problema reset disponibilità, tolto localstorage -->
 <!-- Version: V9.69 - messo come default stagione corrente nei filtri -->
 <!-- Version: V9.68 - aggiunto filtro stagione corrente -->
@@ -916,7 +917,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.72</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.73</span>
             </div>
         </div>
 
@@ -9131,6 +9132,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
             }
             
             // Create a training session card (V8.11: collapsible with accordion behavior, show present/absent when collapsed)
+            // Modified: Added delete button support
             function createTrainingSessionCard(session, index, expandByDefault = false) {
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-xl shadow-sm border border-gray-200';
@@ -9162,12 +9164,10 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 
                 // V8.11: Build collapsible card HTML (support for expandByDefault, show present/absent when collapsed)
                 let cardHTML = `
-                    <!-- Card Header (always visible, clickable) -->
                     <div class="card-header p-4 cursor-pointer hover:bg-gray-50 rounded-xl transition-colors" data-session-id="${session.id}">
                         <div class="flex justify-between items-center">
                             <div class="flex-1">
                                 <h4 class="text-lg font-semibold text-gray-800">📅 ${formattedDate}</h4>
-                                <!-- V8.11: Show present/absent count when collapsed -->
                                 <div class="attendance-summary text-sm mt-1 ${expandByDefault ? 'hidden' : ''}">
                                     <span class="text-green-600 font-semibold">Presenti: ${presentCount}</span>
                                     <span class="ml-3 text-red-600 font-semibold">Assenti: ${absentCount}</span>
@@ -9175,6 +9175,11 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                             </div>
                             <div class="flex items-center gap-2">
                                 ${session.isDemo ? '<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Demo</span>' : ''}
+                                
+                                <button class="delete-session-btn text-gray-400 hover:text-red-600 font-bold p-2 rounded transition-colors z-10" title="Elimina sessione">
+                                    🗑️
+                                </button>
+
                                 <svg class="expand-icon w-6 h-6 text-gray-600 transform transition-transform ${expandByDefault ? 'rotate-180' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                 </svg>
@@ -9182,7 +9187,6 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                         </div>
                     </div>
                     
-                    <!-- Card Content (collapsible) -->
                     <div class="card-content ${expandByDefault ? '' : 'hidden'} p-4 pt-0">
                         <p class="text-sm text-gray-600 mb-3">🕐 Orario: ${session.time}</p>
                         
@@ -9250,6 +9254,12 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     if (actionButtons) {
                         actionButtons.style.display = 'none';
                     }
+
+                    // NUOVO: Nascondi anche il pulsante elimina per gli ospiti
+                    const deleteBtn = card.querySelector('.delete-session-btn');
+                    if (deleteBtn) {
+                        deleteBtn.style.display = 'none';
+                    }
                 }
                 
                 // V8.11: Add click handler for collapsible functionality with accordion behavior
@@ -9305,6 +9315,16 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 markAllPresentBtn.addEventListener('click', () => markAllAttendance(session.id, true));
                 markAllAbsentBtn.addEventListener('click', () => markAllAttendance(session.id, false));
                 saveAttendanceBtn.addEventListener('click', () => saveSessionAttendance(session.id));
+                
+                // NUOVO: Listener per il pulsante elimina
+                const deleteBtn = card.querySelector('.delete-session-btn');
+                if (deleteBtn) {
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Evita che si apra la card quando clicchi il cestino
+                        // Chiama la funzione globale che hai aggiunto prima
+                        deleteTrainingSession(session.id);
+                    });
+                }
                 
                 return card;
             }
@@ -9371,6 +9391,38 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 } catch (error) {
                     console.error('❌ Error saving attendance:', error);
                     alert('❌ Errore nel salvataggio delle presenze');
+                }
+            }
+            // Delete a training session
+            async function deleteTrainingSession(sessionId) {
+                // 1. Chiedi conferma
+                if (!confirm("Sei sicuro di voler eliminare questa sessione? L'operazione è irreversibile.")) {
+                    return;
+                }
+
+                try {
+                    console.log(`🗑️ Deleting session ${sessionId}...`);
+
+                    // 2. Elimina da Firebase (se non siamo in demo)
+                    if (window.db && currentCompanyDocumentId) {
+                        // NOTA: Ho corretto il percorso basandomi sul tuo codice precedente
+                        // Usa "trainingSessions" invece di "training"
+                        await window.deleteDoc(window.doc(window.db, `societa/${currentCompanyDocumentId}/trainingSessions/${sessionId}`));
+                        console.log('✅ Session deleted from Firebase');
+                    }
+
+                    // 3. Aggiorna l'array locale (così non serve ricaricare la pagina)
+                    trainingSessions = trainingSessions.filter(s => s.id !== sessionId);
+
+                    // 4. Aggiorna l'interfaccia
+                    renderTrainingSessions();
+                    loadAllenamentiReport(); // Aggiorna i grafici/report
+                    
+                    alert('✅ Sessione eliminata con successo!');
+
+                } catch (error) {
+                    console.error("❌ Error deleting session:", error);
+                    alert("Errore durante l'eliminazione: " + error.message);
                 }
             }
             
