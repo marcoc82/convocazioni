@@ -5298,12 +5298,15 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     periodSelect.appendChild(option);
                 });
                 
-                // Select current month by default on first load or if previous selection was 'month'
-                if (monthsArray.includes(currentMonthKey) && (isFirstLoad || currentValue === 'month')) {
-                    periodSelect.value = currentMonthKey;
-                } else if (currentValue && !isFirstLoad) {
-                    // Restore previous selection if it's not first load and not 'month'
+                // MODIFICA: Imposta 'week' (Settimana corrente) come default al primo caricamento
+                if (isFirstLoad) {
+                    periodSelect.value = 'week';
+                } else if (currentValue) {
+                    // Se l'utente aveva già scelto qualcosa, mantieni la sua scelta
                     periodSelect.value = currentValue;
+                } else {
+                    // Sicurezza: se non c'è nulla, metti settimana
+                    periodSelect.value = 'week';
                 }
             }
             
