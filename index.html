@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- Version: V9.76 - modificato il tasto risultati con il tasto partite che porta su app stakick, pasti tornei e app genitori -->
 <!-- Version: V9.75 - modificato il tasto risultati con il tasto partite che porta su app stakick -->
 <!-- Version: V9.73 - aggiunto tasto per eliminare una sessione di allenamento -->
 <!-- Version: V9.70 - risolto problema reset disponibilità, tolto localstorage -->
@@ -851,7 +852,92 @@
         .hidden {
             display: none !important;
         }
-        
+  
+      /* --- STILI PER LA FINESTRA PARTITE (MODALE) --- */
+
+/* La finestra principale (sfondo scuro) */
+#link-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999; /* Sta sopra a tutto */
+    background-color: rgba(0, 0, 0, 0.75); /* Sfondo nero semi-trasparente */
+    
+    /* Per centrare il contenuto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Classe per nascondere la finestra */
+#link-modal.hidden {
+    display: none !important;
+}
+
+/* Il box bianco centrale */
+#link-modal .bg-white {
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px; /* Larghezza massima su PC */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    text-align: center;
+    position: relative;
+    z-index: 10000;
+}
+
+/* Titolo */
+#modal-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #111;
+    margin-bottom: 20px;
+}
+
+/* I pulsanti colorati */
+#link-modal a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+#link-modal a:active {
+    transform: scale(0.98); /* Effetto click */
+}
+
+/* Colori specifici dei pulsanti */
+/* Nota: uso nth-of-type per selezionarli in ordine */
+#link-modal a:nth-of-type(1) { background-color: #9333ea; } /* Viola - Stakick */
+#link-modal a:nth-of-type(2) { background-color: #f97316; } /* Arancione - Pasti */
+#link-modal a:nth-of-type(3) { background-color: #16a34a; } /* Verde - Stats */
+
+/* Tasto Annulla */
+#link-modal button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+}
     </style>
 </head>
    <script>
@@ -918,7 +1004,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.75</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.77</span>
             </div>
         </div>
 
@@ -957,9 +1043,9 @@
                     <button id="allenamenti-button" class="btn-circular btn-allenamenti-circular" aria-label="Allenamenti">
                         <span class="btn-circular-label"><span class="button-label-shadow">Allenamenti</span></span>
                     </button>
-                    <button id="area-polis2013-button" class="btn-circular btn-risultati-circular" aria-label="Partite">
-                        <span class="btn-circular-label"><span class="button-label-shadow">Partite</span></span>
-                    </button>
+                    <button id="area-polis2013-button" onclick="openLinkModal()" class="btn-circular btn-risultati-circular" aria-label="Partite">
+    <span class="btn-circular-label"><span class="button-label-shadow">Partite e tornei</span></span>
+</button>
                     
                     <!-- Row 4: Gestione Squadra and Esci -->
                     <button id="btn-gestione-squadra" class="btn-circular btn-gestione" aria-label="Gestione Squadra">
@@ -11825,17 +11911,13 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 showPlayerManagement();
             });
 
-            // Risultati button handler - Opens Polis2013 site in new tab (no pre-filled code)
-            // This button is ALWAYS visible to ALL users regardless of company
+            // Risultati button handler - Apre la nuova finestra di scelta (Modale)
             areaPolis2013Button.addEventListener('click', () => {
                 if (navigator.vibrate) navigator.vibrate(50);
-                console.log('🔗 Opening Risultati (Polis2013 page)...');
+                console.log('🔗 Apertura menu scelta partite...');
                 
-                // Open main page in new tab (without pre-filled code)
-                // Users must manually enter their access code
-                const url = 'https://marcoc82.github.io/polis2013/';
-                console.log('🔗 Opening:', url);
-                window.open(url, '_blank');
+                // Apre la modale con i 3 pulsanti
+                openLinkModal(); 
             });
 
             companyLogoutButton.addEventListener('click', () => {
@@ -14089,6 +14171,15 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 console.log('📱 [BACK BUTTON] Initial state:', initialView);
             }
         });
+
+// --- FUNZIONI PER IL MENU PARTITE ---
+function openLinkModal() {
+    document.getElementById('link-modal').classList.remove('hidden');
+}
+
+function closeLinkModal() {
+    document.getElementById('link-modal').classList.add('hidden');
+}
     </script>
     
     <!-- PWA Service Worker Registration and Install Prompt -->
@@ -14243,6 +14334,45 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
             console.log('🚀 App in esecuzione come PWA');
         }
     </script>
+
+<div id="link-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeLinkModal()"></div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+            
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="text-center">
+                    <h3 class="text-xl leading-6 font-bold text-gray-900 mb-6" id="modal-title">
+                        Scegli dove andare
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <a href="https://marcoc82.github.io/polis2013/" target="_blank" class="w-full flex items-center justify-center p-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-purple-600 hover:bg-purple-700 transition transform hover:-translate-y-1">
+                            <span class="mr-3 text-2xl">⚽</span> STAKICK
+                        </a>
+                        
+                        <a href="https://organizzatore-pasti-torneo.web.app/" target="_blank" class="w-full flex items-center justify-center p-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-orange-500 hover:bg-orange-600 transition transform hover:-translate-y-1">
+                            <span class="mr-3 text-2xl">🍝</span> PASTI TORNEO
+                        </a>
+
+                        <a href="https://risultati-e86a4.firebaseapp.com/" target="_blank" class="w-full flex items-center justify-center p-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-green-600 hover:bg-green-700 transition transform hover:-translate-y-1">
+                            <span class="mr-3 text-2xl">📊</span> TEAM STATS
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-100 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm" onclick="closeLinkModal()">
+                    Annulla
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
 
