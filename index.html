@@ -1029,7 +1029,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.80</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.79</span>
             </div>
         </div>
 
@@ -14199,22 +14199,13 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
 
 // --- FUNZIONI PER IL MENU PARTITE ---
 function openLinkModal() {
-    const modal = document.getElementById('link-modal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        modal.style.display = 'flex'; // Forza la visualizzazione se il CSS fa i capricci
-    } else {
-        console.error("Modale non trovato!");
-    }
+    document.getElementById('link-modal').classList.remove('hidden');
 }
 
 function closeLinkModal() {
-    const modal = document.getElementById('link-modal');
-    if (modal) {
-        modal.classList.add('hidden');
-        modal.style.display = 'none';
-    }
-}    </script>
+    document.getElementById('link-modal').classList.add('hidden');
+}
+    </script>
     
     <!-- PWA Service Worker Registration and Install Prompt -->
     <script>
@@ -14369,35 +14360,50 @@ function closeLinkModal() {
         }
     </script>
 
-<div id="link-modal" class="hidden">
-    <div class="bg-white">
+<div id="link-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         
-        <h3 id="modal-title">Scegli Dove Andare</h3>
-        
-        <a href="https://marcoc82.github.io/polis2013/" target="_blank">
-            <img src="logo-stakick.png" class="custom-icon" alt="Stakick">
-            STAKICK
-        </a>
-        
-        <a href="https://organizzatore-pasti-torneo.web.app/" target="_blank">
-            <img src="TORNEO.png" class="custom-icon" alt="Pasti">
-            PASTI TORNEO
-        </a>
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeLinkModal()"></div>
 
-        <a href="https://risultati-e86a4.firebaseapp.com/" target="_blank">
-            <img src="STATS.png" class="custom-icon" alt="Stats"> 
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+            
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="text-center">
+                    <h3 class="text-xl leading-6 font-bold text-gray-900 mb-6" id="modal-title">
+                        Scegli dove andare
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <a href="https://marcoc82.github.io/polis2013/" target="_blank">
+    <img src="logo-stakick.png" class="custom-icon" alt="Icona Stakick">
+    STAKICK
+</a>
+                        
+                        <a href="https://organizzatore-pasti-torneo.web.app/" target="_blank">
+    <img src="TORNEO.png" class="custom-icon" alt="Icona Pasti">
+    PASTI TORNEO
+</a>
+
+                        <a href="https://risultati-e86a4.firebaseapp.com/" target="_blank">
+            <img src="STATS.png" class="custom-icon" alt="Stats Icon"> 
             TEAM STATS
         </a>
-        
-        <button type="button" onclick="closeLinkModal()">
-            ANNULLA
-        </button>
-
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-100 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm" onclick="closeLinkModal()">
+                    Annulla
+                </button>
+            </div>
+        </div>
     </div>
 </div>
-
 </body>
 </html>
+
 
 
 
