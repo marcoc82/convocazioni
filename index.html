@@ -853,7 +853,7 @@
             display: none !important;
         }
   
-     /* --- STILE FINESTRA PARTITE (Colori Personalizzati e Annulla Integrato) --- */
+      /* --- STILE FINESTRA PARTITE (Versione Larga & Tasti Grandi) --- */
 
 #link-modal {
     position: fixed;
@@ -862,7 +862,7 @@
     right: 0;
     bottom: 0;
     z-index: 99999;
-    background-color: rgba(0, 0, 0, 0.85); /* Sfondo scuro */
+    background-color: rgba(0, 0, 0, 0.85); /* Sfondo molto scuro */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -875,105 +875,101 @@
     pointer-events: none;
 }
 
-/* La scatola bianca principale */
+/* La scatola bianca */
 #link-modal .bg-white {
     background-color: #ffffff;
-    border-radius: 25px; /* Bordi più arrotondati */
-    padding: 35px 30px; /* Più spazio interno */
+    border-radius: 20px;
+    padding: 30px;
     
-    /* Larghezza */
-    width: 92%;          
-    max-width: 550px;
+    /* MODIFICA LARGHEZZA: Ora occupa quasi tutto lo schermo */
+    width: 95%;          
+    max-width: 650px;    /* Molto più largo su PC */
     
-    box-shadow: 0 30px 70px rgba(0,0,0,0.7);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
     text-align: center;
     margin: 0 auto;
-    display: flex;
-    flex-direction: column; /* Dispone gli elementi in colonna */
 }
 
 /* Titolo */
 #modal-title {
-    font-size: 1.8rem;
+    font-size: 1.8rem; /* Titolo più grande */
     font-weight: 900;
-    color: #222;
+    color: #111;
     margin-bottom: 30px;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
-/* I Pulsanti Principali (Link) */
+/* I Pulsanti */
 #link-modal a {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* Centrati orizzontalmente */
     width: 100%;
-    padding: 22px 20px;
-    margin-bottom: 18px;
-    border-radius: 18px;
+    
+    /* MODIFICA ALTEZZA TASTI */
+    padding: 25px 20px;  /* Molto spaziati verticalmente */
+    margin-bottom: 20px;
+    
+    border-radius: 15px;
     text-decoration: none;
     color: white;
-    font-weight: 800;
-    font-size: 1.6rem; /* Testo molto grande */
-    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-    transition: transform 0.1s, box-shadow 0.1s;
-    border: 2px solid transparent; /* Bordo trasparente per effetto hover */
+    font-weight: 800; /* Font molto grassetto */
+    
+    /* MODIFICA GRANDEZZA TESTO */
+    font-size: 1.5rem;   
+    
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: transform 0.1s;
 }
 
 #link-modal a:active {
-    transform: scale(0.97);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transform: scale(0.98);
 }
 
-/* --- COLORI PERSONALIZZATI --- */
+/* Colori Sfumati */
+#link-modal a:nth-of-type(1) { background: linear-gradient(to right, #8b5cf6, #6d28d9); } /* Viola */
+#link-modal a:nth-of-type(2) { background: linear-gradient(to right, #f97316, #c2410c); } /* Arancio */
+#link-modal a:nth-of-type(3) { background: linear-gradient(to right, #22c55e, #15803d); } /* Verde */
 
-/* Pulsante 1: STAKICK -> NERO */
-#link-modal a:nth-of-type(1) {
-    background: linear-gradient(to bottom right, #333333, #000000);
-}
-
-/* Pulsante 2: PASTI TORNEO -> BLU */
-#link-modal a:nth-of-type(2) {
-    background: linear-gradient(to bottom right, #2563eb, #1d4ed8);
-}
-
-/* Pulsante 3: TEAM STATS -> ARANCIONE */
-#link-modal a:nth-of-type(3) {
-    background: linear-gradient(to bottom right, #f97316, #ea580c);
-    margin-bottom: 25px; /* Più spazio sotto l'ultimo tasto prima di Annulla */
-}
-
-/* Icone Emoji */
+/* Icone Emoji (per i primi due tasti) */
 #link-modal a span.emoji-icon {
-    font-size: 2.2rem;
+    font-size: 2rem;
     margin-right: 20px;
 }
 
-/* Icona Immagine (Team Stats) */
+/* TUA ICONA PERSONALIZZATA (Immagine) */
 #link-modal a img.custom-icon {
-    height: 45px;
-    width: auto;
+    height: 40px;      /* Altezza icona */
+    width: auto;       /* Larghezza automatica */
     margin-right: 20px;
-    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.3));
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); /* Leggera ombra sull'icona */
 }
 
-/* Tasto ANNULLA (Integrato come testo) */
+/* Tasto Annulla */
 #link-modal button {
-    background: none;
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f3f4f6;
+    color: #4b5563;
     border: none;
-    padding: 10px;
-    color: #666;
+    border-radius: 10px;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+    width: 100%;
     cursor: pointer;
-    text-decoration: underline; /* Sottolineato per sembrare un link */
-    align-self: center; /* Centrato */
-    transition: color 0.2s;
 }
+    </style>
+</head>
+   <script>
+  window.DEBUG_LOG = false; // Imposta a true per vedere i log
 
-#link-modal button:hover {
-    color: #000; /* Diventa nero al passaggio del mouse */
-}
+  ['log', 'warn', 'error', 'info'].forEach(function(method) {
+    const original = console[method];
+    console[method] = function(...args) {
+      if (window.DEBUG_LOG) {
+        original.apply(console, args);
+      }
     };
   });
 </script>  
@@ -1029,7 +1025,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.79</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.78</span>
             </div>
         </div>
 
@@ -14375,15 +14371,13 @@ function closeLinkModal() {
                     </h3>
                     
                     <div class="space-y-4">
-                        <a href="https://marcoc82.github.io/polis2013/" target="_blank">
-    <img src="logo-stakick.png" class="custom-icon" alt="Icona Stakick">
-    STAKICK
-</a>
+                        <a href="https://marcoc82.github.io/polis2013/" target="_blank" class="w-full flex items-center justify-center p-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-purple-600 hover:bg-purple-700 transition transform hover:-translate-y-1">
+                            <span class="mr-3 text-2xl">⚽</span> STAKICK
+                        </a>
                         
-                        <a href="https://organizzatore-pasti-torneo.web.app/" target="_blank">
-    <img src="TORNEO.png" class="custom-icon" alt="Icona Pasti">
-    PASTI TORNEO
-</a>
+                        <a href="https://organizzatore-pasti-torneo.web.app/" target="_blank" class="w-full flex items-center justify-center p-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-orange-500 hover:bg-orange-600 transition transform hover:-translate-y-1">
+                            <span class="mr-3 text-2xl">🍝</span> PASTI TORNEO
+                        </a>
 
                         <a href="https://risultati-e86a4.firebaseapp.com/" target="_blank">
             <img src="STATS.png" class="custom-icon" alt="Stats Icon"> 
