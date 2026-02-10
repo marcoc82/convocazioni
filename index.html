@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Version: V9.76 - modificato il tasto risultati con il tasto partite che porta su app stakick, pasti tornei e app genitori -->
+<!-- Version: V9.77 - modificato il tasto risultati con il tasto partite che porta su app stakick, pasti tornei e app genitori -->
 <!-- Version: V9.75 - modificato il tasto risultati con il tasto partite che porta su app stakick -->
 <!-- Version: V9.73 - aggiunto tasto per eliminare una sessione di allenamento -->
 <!-- Version: V9.70 - risolto problema reset disponibilità, tolto localstorage -->
@@ -853,114 +853,111 @@
             display: none !important;
         }
   
-      /* --- NUOVO STILE FINESTRA PARTITE (RESPONSIVE) --- */
+      /* --- STILE FINESTRA PARTITE (Versione Larga & Tasti Grandi) --- */
 
-/* 1. Il contenitore principale che copre tutto lo schermo */
 #link-modal {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 99999; /* Altissimo per stare sopra a tutto */
-    background-color: rgba(0, 0, 0, 0.8); /* Sfondo scuro deciso */
-    
-    /* Questo centra la finestra perfettamente nel mezzo */
+    z-index: 99999;
+    background-color: rgba(0, 0, 0, 0.85); /* Sfondo molto scuro */
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    /* Nasconde se ha la classe hidden */
     opacity: 1;
-    visibility: visible;
     transition: opacity 0.3s ease;
 }
 
 #link-modal.hidden {
     opacity: 0;
-    visibility: hidden;
-    pointer-events: none; /* Impedisce click quando nascosto */
+    pointer-events: none;
 }
 
-/* 2. La scatola bianca (la finestra vera e propria) */
+/* La scatola bianca */
 #link-modal .bg-white {
     background-color: #ffffff;
-    border-radius: 16px;
-    padding: 25px;
+    border-radius: 20px;
+    padding: 30px;
     
-    /* DIMENSIONI: Qui sta il trucco per non farla "stretta" */
-    width: 90%;           /* Occupa quasi tutto lo schermo su mobile */
-    max-width: 500px;     /* Ma non diventa gigante su PC */
-    min-width: 300px;     /* Non diventa mai troppo piccola */
+    /* MODIFICA LARGHEZZA: Ora occupa quasi tutto lo schermo */
+    width: 95%;          
+    max-width: 650px;    /* Molto più largo su PC */
     
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5); /* Ombra elegante */
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6);
     text-align: center;
-    position: relative;
-    
-    /* Resetta eventuali margini strani ereditati */
-    margin: 0 auto; 
+    margin: 0 auto;
 }
 
-/* 3. Titolo */
+/* Titolo */
 #modal-title {
-    font-size: 1.5rem; /* Un po' più grande */
-    font-weight: 800;
-    color: #1f2937;
-    margin-bottom: 25px;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 15px;
+    font-size: 1.8rem; /* Titolo più grande */
+    font-weight: 900;
+    color: #111;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* 4. I pulsanti */
+/* I Pulsanti */
 #link-modal a {
     display: flex;
     align-items: center;
-    justify-content: center; /* Testo centrato */
+    justify-content: center; /* Centrati orizzontalmente */
     width: 100%;
-    padding: 18px; /* Più alti per essere cliccati meglio */
-    margin-bottom: 15px;
-    border-radius: 12px;
+    
+    /* MODIFICA ALTEZZA TASTI */
+    padding: 25px 20px;  /* Molto spaziati verticalmente */
+    margin-bottom: 20px;
+    
+    border-radius: 15px;
     text-decoration: none;
     color: white;
-    font-weight: bold;
-    font-size: 1.2rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    transition: transform 0.1s, box-shadow 0.1s;
+    font-weight: 800; /* Font molto grassetto */
+    
+    /* MODIFICA GRANDEZZA TESTO */
+    font-size: 1.5rem;   
+    
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: transform 0.1s;
 }
 
-/* Effetto premuto */
 #link-modal a:active {
-    transform: scale(0.96);
-    box-shadow: none;
+    transform: scale(0.98);
 }
 
-/* Colori pulsanti */
-#link-modal a:nth-of-type(1) { background: linear-gradient(135deg, #9333ea, #7e22ce); } /* Viola sfumato */
-#link-modal a:nth-of-type(2) { background: linear-gradient(135deg, #f97316, #ea580c); } /* Arancio sfumato */
-#link-modal a:nth-of-type(3) { background: linear-gradient(135deg, #16a34a, #15803d); } /* Verde sfumato */
+/* Colori Sfumati */
+#link-modal a:nth-of-type(1) { background: linear-gradient(to right, #8b5cf6, #6d28d9); } /* Viola */
+#link-modal a:nth-of-type(2) { background: linear-gradient(to right, #f97316, #c2410c); } /* Arancio */
+#link-modal a:nth-of-type(3) { background: linear-gradient(to right, #22c55e, #15803d); } /* Verde */
 
-/* Icone dentro i pulsanti */
-#link-modal a span {
-    margin-right: 15px;
-    font-size: 1.5rem;
+/* Icone Emoji (per i primi due tasti) */
+#link-modal a span.emoji-icon {
+    font-size: 2rem;
+    margin-right: 20px;
 }
 
-/* 5. Tasto Annulla */
+/* TUA ICONA PERSONALIZZATA (Immagine) */
+#link-modal a img.custom-icon {
+    height: 40px;      /* Altezza icona */
+    width: auto;       /* Larghezza automatica */
+    margin-right: 20px;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); /* Leggera ombra sull'icona */
+}
+
+/* Tasto Annulla */
 #link-modal button {
-    margin-top: 10px;
-    padding: 12px;
+    margin-top: 15px;
+    padding: 15px;
     background-color: #f3f4f6;
     color: #4b5563;
     border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 1.2rem;
     width: 100%;
-    font-size: 1rem;
-}
-
-#link-modal button:hover {
-    background-color: #e5e7eb;
+    cursor: pointer;
 }
     </style>
 </head>
@@ -1028,7 +1025,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.77</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.78</span>
             </div>
         </div>
 
@@ -14382,9 +14379,10 @@ function closeLinkModal() {
                             <span class="mr-3 text-2xl">🍝</span> PASTI TORNEO
                         </a>
 
-                        <a href="https://risultati-e86a4.firebaseapp.com/" target="_blank" class="w-full flex items-center justify-center p-4 border border-transparent rounded-lg shadow-md text-lg font-bold text-white bg-green-600 hover:bg-green-700 transition transform hover:-translate-y-1">
-                            <span class="mr-3 text-2xl">📊</span> TEAM STATS
-                        </a>
+                        <a href="https://risultati-e86a4.firebaseapp.com/" target="_blank">
+            <img src="STATS.png" class="custom-icon" alt="Stats Icon"> 
+            TEAM STATS
+        </a>
                     </div>
                 </div>
             </div>
