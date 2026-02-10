@@ -853,90 +853,114 @@
             display: none !important;
         }
   
-      /* --- STILI PER LA FINESTRA PARTITE (MODALE) --- */
+      /* --- NUOVO STILE FINESTRA PARTITE (RESPONSIVE) --- */
 
-/* La finestra principale (sfondo scuro) */
+/* 1. Il contenitore principale che copre tutto lo schermo */
 #link-modal {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9999; /* Sta sopra a tutto */
-    background-color: rgba(0, 0, 0, 0.75); /* Sfondo nero semi-trasparente */
+    right: 0;
+    bottom: 0;
+    z-index: 99999; /* Altissimo per stare sopra a tutto */
+    background-color: rgba(0, 0, 0, 0.8); /* Sfondo scuro deciso */
     
-    /* Per centrare il contenuto */
+    /* Questo centra la finestra perfettamente nel mezzo */
     display: flex;
     align-items: center;
     justify-content: center;
+    
+    /* Nasconde se ha la classe hidden */
     opacity: 1;
+    visibility: visible;
     transition: opacity 0.3s ease;
 }
 
-/* Classe per nascondere la finestra */
 #link-modal.hidden {
-    display: none !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; /* Impedisce click quando nascosto */
 }
 
-/* Il box bianco centrale */
+/* 2. La scatola bianca (la finestra vera e propria) */
 #link-modal .bg-white {
     background-color: #ffffff;
-    border-radius: 15px;
-    padding: 20px;
-    width: 90%;
-    max-width: 400px; /* Larghezza massima su PC */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    border-radius: 16px;
+    padding: 25px;
+    
+    /* DIMENSIONI: Qui sta il trucco per non farla "stretta" */
+    width: 90%;           /* Occupa quasi tutto lo schermo su mobile */
+    max-width: 500px;     /* Ma non diventa gigante su PC */
+    min-width: 300px;     /* Non diventa mai troppo piccola */
+    
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5); /* Ombra elegante */
     text-align: center;
     position: relative;
-    z-index: 10000;
+    
+    /* Resetta eventuali margini strani ereditati */
+    margin: 0 auto; 
 }
 
-/* Titolo */
+/* 3. Titolo */
 #modal-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #111;
-    margin-bottom: 20px;
+    font-size: 1.5rem; /* Un po' più grande */
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 15px;
 }
 
-/* I pulsanti colorati */
+/* 4. I pulsanti */
 #link-modal a {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* Testo centrato */
     width: 100%;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 10px;
+    padding: 18px; /* Più alti per essere cliccati meglio */
+    margin-bottom: 15px;
+    border-radius: 12px;
     text-decoration: none;
     color: white;
     font-weight: bold;
-    font-size: 1.1rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    transition: transform 0.2s;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: transform 0.1s, box-shadow 0.1s;
 }
 
+/* Effetto premuto */
 #link-modal a:active {
-    transform: scale(0.98); /* Effetto click */
+    transform: scale(0.96);
+    box-shadow: none;
 }
 
-/* Colori specifici dei pulsanti */
-/* Nota: uso nth-of-type per selezionarli in ordine */
-#link-modal a:nth-of-type(1) { background-color: #9333ea; } /* Viola - Stakick */
-#link-modal a:nth-of-type(2) { background-color: #f97316; } /* Arancione - Pasti */
-#link-modal a:nth-of-type(3) { background-color: #16a34a; } /* Verde - Stats */
+/* Colori pulsanti */
+#link-modal a:nth-of-type(1) { background: linear-gradient(135deg, #9333ea, #7e22ce); } /* Viola sfumato */
+#link-modal a:nth-of-type(2) { background: linear-gradient(135deg, #f97316, #ea580c); } /* Arancio sfumato */
+#link-modal a:nth-of-type(3) { background: linear-gradient(135deg, #16a34a, #15803d); } /* Verde sfumato */
 
-/* Tasto Annulla */
+/* Icone dentro i pulsanti */
+#link-modal a span {
+    margin-right: 15px;
+    font-size: 1.5rem;
+}
+
+/* 5. Tasto Annulla */
 #link-modal button {
     margin-top: 10px;
-    padding: 10px 20px;
+    padding: 12px;
     background-color: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    color: #4b5563;
+    border: none;
     border-radius: 8px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     width: 100%;
+    font-size: 1rem;
+}
+
+#link-modal button:hover {
+    background-color: #e5e7eb;
 }
     </style>
 </head>
