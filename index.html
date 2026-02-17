@@ -1025,7 +1025,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.81</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.82</span>
             </div>
         </div>
 
@@ -6698,28 +6698,39 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     
                     // V9.27: Display only player name without jersey number
                     const playerNameOnly = player.name.replace(/^\d+\s*/, '').trim();
-                    
+
+                    // --- NUOVO CODICE: Dividiamo il nome per mandarlo a capo ---
+                    const nameParts = playerNameOnly.split(' ');
+                    const cognome = nameParts[0] || '';
+                    const nome = nameParts.slice(1).join(' ') || '';
+                    // -----------------------------------------------------------
+
                     // V9.28: Determine if this is the top player (highest count)
                     const isTopPlayer = index === 0 && player.count > 0;
-                    const topPlayerBadge = isTopPlayer ? '<span class="top-player-badge">🏆 Top Player</span>' : '';
-                    
+                    const topPlayerBadge = isTopPlayer ? '<span class="top-player-badge ml-2 inline-block align-middle">🏆 Top Player</span>' : '';
+
                     // V9.28: Create progress bar for percentage
                     const progressBarHTML = createProgressBar(player.percentage);
-                    
+
                     // V9.39: Create progress bar for availability percentage
                     let availabilityProgressBarHTML = '';
                     if (isPolisCompany && player.availabilityPercentage !== 'N/D') {
-                        availabilityProgressBarHTML = createProgressBar(player.availabilityPercentage);
+                    availabilityProgressBarHTML = createProgressBar(player.availabilityPercentage);
                     }
-                    
+
                     const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            <span class="player-name-clickable">${playerNameOnly}</span>${topPlayerBadge}
-                        </td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"><span class="presence-count" data-target="${player.count}">0</span>${arrowIcon}</td>
-                        <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}</td>
-                        ${isPolisCompany ? `<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.availabilityPercentage !== 'N/D' ? availabilityProgressBarHTML : 'N/D'}</td>` : ''}
+                    row.innerHTML = `  
+                    <td class="px-2 sm:px-6 py-4 text-sm font-medium text-gray-900 leading-tight"> <span class="player-name-clickable inline-block align-middle"> 
+                    <div class="uppercase">${cognome}</div> 
+                    <div class="text-xs text-gray-500 font-normal">${nome} </div> </span>${topPlayerBadge}
+                    </td> 
+                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center"><span class="presence-count" data-target="${player.count}">0</span>${arrowIcon}
+                    </td> 
+                    <td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${progressBarHTML}
+                    </td>
+                    ${isPolisCompany ?`<td class="px-2 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">${player.availabilityPercentage !== 'N/D' ? availabilityProgressBarHTML : 'N/D'}
+                    </td>
+                    ` : ''}
                     `;
                     
                     attendanceList.appendChild(row);
@@ -10908,7 +10919,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 torneiStatsTableBody.innerHTML = displayData.map(player => `
                     <tr>
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">${player.name}</td>
-                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${torneiCount}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.totalTornei}</td>
                         <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.presences}</td>
                         <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>
                     </tr>
