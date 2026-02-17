@@ -1025,7 +1025,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.80</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.81</span>
             </div>
         </div>
 
@@ -7061,10 +7061,29 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                         
                         // V9.27: Display only player name without jersey number
                         const playerNameOnly = player.name.replace(/^\d+\s*/, '').trim();
-                        
+
+                        // --- NUOVO CODICE PER ANDARE A CAPO ---
+                        // Dividiamo la stringa al primo spazio. 
+                        // La prima parola diventa "cognome", tutto il resto diventa "nome".
+                        const firstSpaceIndex = playerNameOnly.indexOf(' ');
+                        let cognomeHtml = playerNameOnly;
+                        let nomeHtml = '';
+
+                        if (firstSpaceIndex !== -1) {
+                            cognomeHtml = playerNameOnly.substring(0, firstSpaceIndex);
+                            nomeHtml = playerNameOnly.substring(firstSpaceIndex + 1);
+                        }
+
+                        // Costruiamo il blocco HTML con il <br> per andare a capo e un po' di stile
+                        const nomeFormattatoHTML = `
+                            <span class="font-bold text-gray-800">${cognomeHtml}</span><br>
+                            <span class="text-xs text-gray-500 font-normal">${nomeHtml}</span>
+                        `;
+                        // --- FINE NUOVO CODICE ---
+
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td class="${cellPadding} whitespace-nowrap text-sm font-medium text-gray-900">${playerNameOnly}</td>
+                            <td class="${cellPadding} whitespace-nowrap text-sm font-medium text-gray-900">${nomeFormattatoHTML}</td>
                             <td class="${cellPadding} whitespace-nowrap text-sm text-gray-500 text-center"><span class="presence-count" data-target="${player.count}">0</span>${arrowIcon}</td>
                             ${availabilityCell}
                         `;
@@ -10889,7 +10908,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 torneiStatsTableBody.innerHTML = displayData.map(player => `
                     <tr>
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">${player.name}</td>
-                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.totalTornei}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500 text-center">${torneiCount}</td>
                         <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.presences}</td>
                         <td class="px-4 py-3 text-sm text-gray-500 text-center">${player.availabilityPercentage}${player.availabilityPercentage !== 'N/D' ? '%' : ''}</td>
                     </tr>
@@ -10949,7 +10968,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                             },
                             title: {
                                 display: true,
-                                text: 'Statistiche Tornei - Top 15',
+                                text: 'Statistiche Tornei',
                                 font: {
                                     size: window.innerWidth < 640 ? 14 : 18
                                 }
