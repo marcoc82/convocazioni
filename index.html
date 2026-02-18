@@ -9781,10 +9781,10 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     if (b.percentage !== a.percentage) {
                         return b.percentage - a.percentage; // Tertiary sort: attendance percentage descending
                     }
-                    // Quaternary sort: alphabetically by name (ignoring jersey number)
-                    const nameA = a.player.replace(/^\d+\s*/, '').trim();
-                    const nameB = b.player.replace(/^\d+\s*/, '').trim();
-                    return nameA.localeCompare(nameB, 'it');
+                    // Quaternary sort: alphabetically by name (ignoring jersey number and dots)
+                    const nameA = a.player.replace(/^[0-9.]+\s*/, '').trim();
+                    const nameB = b.player.replace(/^[0-9.]+\s*/, '').trim();
+                    return nameA.localeCompare(nameB, 'it');   
                 });
                 
                 // V9.55: Ranking arrows - Compare with last training of previous week
