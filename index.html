@@ -8307,8 +8307,8 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     const formattedStatuses = statusArray.map(s => formatStatusForDisplay(s));
                     const statusText = formattedStatuses.join(', ');
                     
-                    // V9.50: Remove player number (everything before and including first space after digits)
-                    const playerNameOnly = player.replace(/^\d+\s+/, '').trim();
+                    // Rimuove numeri, punti e spazi iniziali
+                    const playerNameOnly = player.replace(/^[0-9.]+\s+/, '').trim();
                     
                     // V9.10: Add icons for Infortunato and Squalificato
                     let playerDisplayName = playerNameOnly;
