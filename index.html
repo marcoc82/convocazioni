@@ -1025,7 +1025,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.84</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.85</span>
             </div>
         </div>
 
@@ -6588,9 +6588,9 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     if (b.percentage !== a.percentage) {
                         return b.percentage - a.percentage; // Tertiary sort: attendance percentage descending
                     }
-                    // Quaternary sort: alphabetically by name (ignoring jersey number)
-                    const nameA = a.name.replace(/^\d+\s*/, '').trim();
-                    const nameB = b.name.replace(/^\d+\s*/, '').trim();
+                    // Quaternary sort: alphabetically by name (ignoring jersey number and dots)
+                    const nameA = a.name.replace(/^[0-9.]+\s*/, '').trim();
+                    const nameB = b.name.replace(/^[0-9.]+\s*/, '').trim();
                     return nameA.localeCompare(nameB, 'it');
                 });
 
@@ -6696,8 +6696,8 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                         }
                     }
                     
-                    // V9.27: Display only player name without jersey number
-                    const playerNameOnly = player.name.replace(/^\d+\s*/, '').trim();
+                    // V9.27: Display only player name without jersey number and dots
+                    const playerNameOnly = player.name.replace(/^[0-9.]+\s*/, '').trim();
 
                     // --- NUOVO CODICE: Dividiamo il nome per mandarlo a capo ---
                     const nameParts = playerNameOnly.split(' ');
@@ -7070,8 +7070,8 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                             }
                         }
                         
-                        // V9.27: Display only player name without jersey number
-                        const playerNameOnly = player.name.replace(/^\d+\s*/, '').trim();
+                        // V9.27: Display only player name without jersey number and dots
+                        const playerNameOnly = player.name.replace(/^[0-9.]+\s*/, '').trim();
 
                         // --- NUOVO CODICE PER ANDARE A CAPO ---
                         // Dividiamo la stringa al primo spazio. 
@@ -7267,8 +7267,8 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     // V7.4: Calculate percentage of convocation (rounded up to integer)
                     const percentage = totalMatches > 0 ? Math.ceil((player.count / totalMatches) * 100) : 0;
                     
-                    // V9.27: Display only player name without jersey number
-                    const playerNameOnly = player.name.replace(/^\d+\s*/, '').trim();
+                    // V9.27: Display only player name without jersey number and dots
+                    const playerNameOnly = player.name.replace(/^[0-9.]+\s*/, '').trim();
                     
                     // V9.28: Determine if this is the top player (highest count)
                     const isTopPlayer = index === 0 && player.count > 0;
@@ -9906,8 +9906,8 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                         if (b.percentage !== a.percentage) {
                             return b.percentage - a.percentage;
                         }
-                        const nameA = a.player.replace(/^\d+\s*/, '').trim();
-                        const nameB = b.player.replace(/^\d+\s*/, '').trim();
+                        const nameA = a.player.replace(/^[0-9.]+\s*/, '').trim();
+                        const nameB = b.player.replace(/^[0-9.]+\s*/, '').trim();
                         return nameA.localeCompare(nameB, 'it');
                     });
                     
