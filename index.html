@@ -10152,7 +10152,8 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
             renderCompanyPlayers();
             showMessage("Giocatore modificato. Ricorda di salvare!", "text-green-600");
         }
-    } else {
+    } 
+    else {
         // Handle new object format
         // CORRETTO: aggiornato il testo del prompt anche qui
         const newNumero = prompt('Numero giocatore (lascia vuoto se non lo ha):', player.numero || '');
@@ -12324,7 +12325,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 
                 renderCompanyPlayers();
                 showMessage("Giocatore aggiunto alla lista. Ricorda di salvare!", "text-blue-600");
-            });
+            };
 
             savePlayersButton.addEventListener('click', async () => {
                 if (companyPlayers.length === 0) {
