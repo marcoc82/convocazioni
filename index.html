@@ -7377,6 +7377,11 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     li.textContent = displayName;
                     li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
                     li.dataset.player = playerKey;
+
+                    // Se il giocatore è nella lista dei selezionati (array locale), metti lo sfondo azzurro
+                    if (userRole === 'mister' && selectedPlayers.includes(playerKey)) {
+                    li.classList.add('selected-mister');
+                    }
                     
                     // Check if player was already called up today FIRST (highest priority for Mister view)
                     if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
@@ -8323,7 +8328,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 }
                 
                 if (allUnavailablePlayers.size === 0) {
-                    unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessuna disponibilità registrata.</li>';
+                    unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessuna indisponibilità registrata.</li>';
                     return;
                 }
                 
