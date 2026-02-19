@@ -1025,7 +1025,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.86</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.87</span>
             </div>
         </div>
 
@@ -10076,9 +10076,12 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                         const formattedDate = birthDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
                         
                         // V7.6: Player name in bold, icon next to matricola
+                        // Prepariamo la stringa del numero solo se esiste
+                        const numeroDaMostrare = player.numero ? `${player.numero} ` : '';
+                        
                         playerDisplay = `
                             <div class="text-gray-700">
-                                <div class="font-bold">${player.numero} ${player.nome}</div>
+                                <div class="font-bold">${numeroDaMostrare}${player.nome}</div>
                                 <div class="text-sm text-gray-500">
                                     📅 ${formattedDate} | 🆔 ${player.matricola}
                                 </div>
@@ -10126,51 +10129,57 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
             };
 
             window.editPlayer = async function(index) {
-                const player = companyPlayers[index];
-                
-                if (typeof player === 'string') {
-                    // Handle legacy format
-                    const parts = player.split(' ');
-                    const numero = parts[0];
-                    const nome = parts.slice(1).join(' ');
-                    
-                    const newNumero = prompt('Numero giocatore:', numero);
-                    if (newNumero === null) return; // User cancelled
-                    
-                    const newNome = prompt('Nome giocatore:', nome);
-                    if (newNome === null) return; // User cancelled
-                    
-                    if (newNumero.trim() && newNome.trim()) {
-                        companyPlayers[index] = `${newNumero.trim()} ${newNome.trim()}`;
-                        renderCompanyPlayers();
-                        showMessage("Giocatore modificato. Ricorda di salvare!", "text-green-600");
-                    }
-                } else {
-                    // Handle new object format
-                    const newNumero = prompt('Numero giocatore:', player.numero);
-                    if (newNumero === null) return;
-                    
-                    const newNome = prompt('Nome giocatore:', player.nome);
-                    if (newNome === null) return;
-                    
-                    const newDataNascita = prompt('Data nascita (YYYY-MM-DD):', player.dataNascita);
-                    if (newDataNascita === null) return;
-                    
-                    const newMatricola = prompt('Matricola:', player.matricola);
-                    if (newMatricola === null) return;
-                    
-                    if (newNumero.trim() && newNome.trim() && newDataNascita.trim() && newMatricola.trim()) {
-                        companyPlayers[index] = {
-                            numero: newNumero.trim(),
-                            nome: newNome.trim(),
-                            dataNascita: newDataNascita.trim(),
-                            matricola: newMatricola.trim()
-                        };
-                        renderCompanyPlayers();
-                        showMessage("Giocatore modificato. Ricorda di salvare!", "text-green-600");
-                    }
-                }
+    const player = companyPlayers[index];
+    
+    if (typeof player === 'string') {
+        // Handle legacy format
+        const parts = player.split(' ');
+        const numero = parts[0];
+        const nome = parts.slice(1).join(' ');
+        
+        // CORRETTO: usiamo 'numero' invece di 'player.numero'
+        const newNumero = prompt('Numero giocatore (lascia vuoto se non lo ha):', numero || '');
+        if (newNumero === null) return;
+        
+        const newNome = prompt('Nome giocatore:', nome);
+        if (newNome === null) return; // User cancelled
+        
+        // CORRETTO: togliamo l'obbligo del newNumero.trim()
+        if (newNome.trim()) {
+            // Se c'è un numero aggiungiamo lo spazio, altrimenti salviamo solo il nome
+            const stringaDaSalvare = newNumero.trim() ? `${newNumero.trim()} ${newNome.trim()}` : newNome.trim();
+            companyPlayers[index] = stringaDaSalvare;
+            renderCompanyPlayers();
+            showMessage("Giocatore modificato. Ricorda di salvare!", "text-green-600");
+        }
+    } else {
+        // Handle new object format
+        // CORRETTO: aggiornato il testo del prompt anche qui
+        const newNumero = prompt('Numero giocatore (lascia vuoto se non lo ha):', player.numero || '');
+        if (newNumero === null) return;
+        
+        const newNome = prompt('Nome giocatore:', player.nome);
+        if (newNome === null) return;
+        
+        const newDataNascita = prompt('Data nascita (YYYY-MM-DD):', player.dataNascita);
+        if (newDataNascita === null) return;
+        
+        const newMatricola = prompt('Matricola:', player.matricola);
+        if (newMatricola === null) return;
+        
+        // Questo lo avevi fatto perfettamente!
+        if (newNome.trim() && newDataNascita.trim() && newMatricola.trim()) {
+            companyPlayers[index] = {
+                numero: newNumero.trim(),
+                nome: newNome.trim(),
+                dataNascita: newDataNascita.trim(),
+                matricola: newMatricola.trim()
             };
+            renderCompanyPlayers();
+            showMessage("Giocatore modificato. Ricorda di salvare!", "text-green-600");
+        }
+    }
+};
 
             function renderCompanyCoaches() {
                 companyCoachesList.innerHTML = '';
@@ -12274,27 +12283,27 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 const dataNascita = playerDataNascitaInput.value.trim();
                 const matricola = playerMatricolaInput.value.trim();
                 
-                // Validate required fields
-                if (!numero || !nome || !dataNascita || !matricola) {
-                    showMessage("Tutti i campi sono obbligatori: numero, nome, data di nascita, matricola.", "text-red-600");
+                // Validate required fields (abbiamo tolto !numero)
+                if (!nome || !dataNascita || !matricola) {
+                    showMessage("Nome, data di nascita e matricola sono obbligatori.", "text-red-600");
                     return;
                 }
                 
-                // Check if number is already used
-                const playerExists = companyPlayers.some(player => {
-                    // Handle both old string format and new object format
-                    if (typeof player === 'string') {
-                        const playerNumber = player.split(' ')[0];
-                        return playerNumber === numero;
-                    } else {
-                        return player.numero === numero;
+                // Check if number is already used (SOLO se il numero è stato inserito)
+                if (numero !== "") {
+                    const playerExists = companyPlayers.some(player => {
+                        if (typeof player === 'string') {
+                            const playerNumber = player.split(' ')[0];
+                            return playerNumber === numero;
+                        } else {
+                            return player.numero === numero;
+                        }
+                    });
+                    
+                    if (playerExists) {
+                        showMessage(`Giocatore con numero ${numero} già presente nella lista.`, "text-red-600");
+                        return;
                     }
-                });
-                
-                if (playerExists) {
-                    showMessage(`Giocatore con numero ${numero} già presente nella lista.`, "text-red-600");
-                    return;
-                }
                 
                 // Create player object
                 const newPlayer = {
