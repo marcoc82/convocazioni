@@ -7421,25 +7421,8 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                         li.textContent = `🟥 ${displayName}`;
                     }
                 }
+                  
                         
-                        // V9.12: Add automatic training status if exists
-                        if (autoTrainingStatus) {
-                            finalStatuses.push(autoTrainingStatus);
-                        }
-                        
-                        // Apply styling if there are any statuses
-                        if (finalStatuses.length > 0) {
-                            applyPlayerStatusStyle(li, finalStatuses);
-                            
-                            // V9.10: Add icons for Infortunato and Squalificato in player badge
-                            if (finalStatuses.includes('Infortunato')) {
-                                li.textContent = `🚑 ${displayName}`;
-                            } else if (finalStatuses.includes('Squalificato')) {
-                                li.textContent = `🟥 ${displayName}`;
-                            }
-                        }
-                    }
-
                     li.addEventListener('click', () => {
                         if (userRole === 'mister') {
                             // V9.13: Check if there are sessions in current week
