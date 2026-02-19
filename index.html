@@ -1025,7 +1025,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.87</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.90</span>
             </div>
         </div>
 
@@ -7405,40 +7405,52 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
 
         // --- EVENT LISTENER CLICK ---
         li.addEventListener('click', () => {
-            if (userRole === 'mister') {
-                const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
-                const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
-                const hasManualStatus = unavailablePlayers.has(playerKey);
-
-                if (hasManualStatus || autoTrainingStatus) {
-                    let combinedStatus = [];
-                    if (hasManualStatus) {
-                        const status = unavailablePlayers.get(playerKey);
-                        const manualStatuses = Array.isArray(status) ? status : [status];
-                        combinedStatus = hasCurrentWeekSessions ? 
-                            manualStatuses.filter(s => s !== 'Zero allenamenti' && s !== 'Solo 1 allenamento' && s !== 'Solo 2 allenamenti') : 
-                            manualStatuses;
-                    }
-                    if (autoTrainingStatus) combinedStatus.push(autoTrainingStatus);
-                    showUnavailablePlayerModal(playerKey, combinedStatus.length === 1 ? combinedStatus[0] : combinedStatus);
-                    return;
-                }
-
-                if (isPlayerCalledToday(playerKey)) {
-                    showAlreadyCalledModal(playerKey);
-                    return;
-                }
-
-                // Toggle selezione azzurra
-                li.classList.toggle('selected-mister');
-                if (typeof updateSelectedPlayersLiveList === 'function') {
-                    updateSelectedPlayersLiveList(playerKey, li.classList.contains('selected-mister'));
-                }
-            } else if (isDirigente()) {
-                tempPlayerName = playerKey;
-                showModal();
+    if (userRole === 'mister') {
+        // --- 1. SE È GIÀ SELEZIONATO (AZZURRO), TOGLILO SEMPRE ---
+        if (li.classList.contains('selected-mister')) {
+            li.classList.remove('selected-mister');
+            if (typeof updateSelectedPlayersLiveList === 'function') {
+                updateSelectedPlayersLiveList(playerKey, false);
             }
-        });
+            return; // Esci subito dopo aver rimosso
+        }
+
+        // --- 2. CONTROLLO INDISPONIBILITÀ (Solo se stiamo cercando di aggiungerlo) ---
+        const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
+        const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
+        const hasManualStatus = unavailablePlayers.has(playerKey);
+
+        if (hasManualStatus || autoTrainingStatus) {
+            let combinedStatus = [];
+            if (hasManualStatus) {
+                const status = unavailablePlayers.get(playerKey);
+                const manualStatuses = Array.isArray(status) ? status : [status];
+                combinedStatus = hasCurrentWeekSessions ? 
+                    manualStatuses.filter(s => s !== 'Zero allenamenti' && s !== 'Solo 1 allenamento' && s !== 'Solo 2 allenamenti') : 
+                    manualStatuses;
+            }
+            if (autoTrainingStatus) combinedStatus.push(autoTrainingStatus);
+            showUnavailablePlayerModal(playerKey, combinedStatus.length === 1 ? combinedStatus[0] : combinedStatus);
+            return;
+        }
+
+        // --- 3. CONTROLLO GIÀ CONVOCATO (Solo se stiamo cercando di aggiungerlo) ---
+        if (isPlayerCalledToday(playerKey)) {
+            showAlreadyCalledModal(playerKey);
+            return;
+        }
+
+        // --- 4. AGGIUNGI SELEZIONE ---
+        li.classList.add('selected-mister');
+        if (typeof updateSelectedPlayersLiveList === 'function') {
+            updateSelectedPlayersLiveList(playerKey, true);
+        }
+
+    } else if (isDirigente()) {
+        tempPlayerName = playerKey;
+        showModal();
+    }
+});
 
         playersList.appendChild(li);
     });
