@@ -7331,128 +7331,118 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
             }
 
             function renderPlayers() {
-                playersList.innerHTML = '';
-                const playersToRender = companyPlayers.length > 0 ? companyPlayers : players;
-                playersToRender.forEach(player => {
-                    const li = document.createElement('li');
-                    
-                    let displayName, playerKey;
-                    if (typeof player === 'string') {
-                    // VECCHIO FORMATO: "10. ROSSI MARIO" -> diventa "ROSSI MARIO"
-                    playerKey = player;
-                    displayName = player.replace(/^[0-9.]+\s*/, '').trim(); 
-                }   else {
-                    // NUOVO FORMATO: oggetto -> prende solo il nome
-                    playerKey = `${player.numero} ${player.nome}`;
-                    displayName = player.nome; // Usiamo direttamente player.nome che è già pulito
-                }
-                    
-                    li.textContent = displayName;
-                    li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
-                    li.dataset.player = playerKey;
-                    
-                    // Check if player was already called up today FIRST (highest priority for Mister view)
-                    if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
-                        li.classList.add('already-called-today');
-                    }
-                    // Check for unavailable players (only if not already called today)
-                    else {
-                        // V9.13: Check if there are sessions in current week
-                        const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
-                        
-                        // V9.12: Calculate automatic training status (only if sessions exist)
-                        const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
-                        let finalStatuses = [];
-                        
-                        // Get manual statuses from unavailablePlayers
-                        if (unavailablePlayers.has(playerKey)) {
-                            const status = unavailablePlayers.get(playerKey);
-                            const manualStatuses = Array.isArray(status) ? status : [status];
-                            
-                            if (hasCurrentWeekSessions) {
-                                // V9.12: If sessions exist, filter out training statuses (they're auto-calculated)
-                                const filteredManualStatuses = manualStatuses.filter(s => 
-                                    s !== 'Zero allenamenti' && 
-                                    s !== 'Solo 1 allenamento' && 
-                                    s !== 'Solo 2 allenamenti'
-                                );
-                                finalStatuses = filteredManualStatuses;
-                            } else {
-                                // V9.13: If NO sessions exist, keep all manual statuses including training ones
-                                finalStatuses = manualStatuses;
-                            }
-                        }
-                        
-                        // V9.12: Add automatic training status if exists
-                        if (autoTrainingStatus) {
-                            finalStatuses.push(autoTrainingStatus);
-                        }
-                        
-                        // Apply styling if there are any statuses
-                        if (finalStatuses.length > 0) {
-                            applyPlayerStatusStyle(li, finalStatuses);
-                            
-                            // V9.10: Add icons for Infortunato and Squalificato in player badge
-                            if (finalStatuses.includes('Infortunato')) {
-                                li.textContent = `🚑 ${displayName}`;
-                            } else if (finalStatuses.includes('Squalificato')) {
-                                li.textContent = `🟥 ${displayName}`;
-                            }
-                        }
-                    }
+    playersList.innerHTML = '';
+    const playersToRender = companyPlayers.length > 0 ? companyPlayers : players;
 
-                    li.addEventListener('click', () => {
-                        if (userRole === 'mister') {
-                            // V9.13: Check if there are sessions in current week
-                            const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
-                            
-                            // V9.12: Check for both manual unavailability and automatic training status
-                            const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
-                            const hasManualStatus = unavailablePlayers.has(playerKey);
-                            
-                            if (hasManualStatus || autoTrainingStatus) {
-                                // Build combined status for display
-                                let combinedStatus = [];
-                                if (hasManualStatus) {
-                                    const status = unavailablePlayers.get(playerKey);
-                                    const manualStatuses = Array.isArray(status) ? status : [status];
-                                    
-                                    if (hasCurrentWeekSessions) {
-                                        // V9.12: If sessions exist, filter out training statuses (auto-calculated)
-                                        combinedStatus = manualStatuses.filter(s => 
-                                            s !== 'Zero allenamenti' && 
-                                            s !== 'Solo 1 allenamento' && 
-                                            s !== 'Solo 2 allenamenti'
-                                        );
-                                    } else {
-                                        // V9.13: If NO sessions exist, keep all manual statuses including training ones
-                                        combinedStatus = manualStatuses;
-                                    }
-                                }
-                                if (autoTrainingStatus) {
-                                    combinedStatus.push(autoTrainingStatus);
-                                }
-                                
-                                showUnavailablePlayerModal(playerKey, combinedStatus.length === 1 ? combinedStatus[0] : combinedStatus);
-                                return; // Don't allow selection of unavailable players (unless forzato)
-                            }
-                            
-                            // Check if player was already called up today
-                            if (isPlayerCalledToday(playerKey)) {
-                                showAlreadyCalledModal(playerKey);
-                                return; // Show confirmation modal instead of direct selection
-                            }
-                            
-                            li.classList.toggle('selected-mister');
-                            updateSelectedPlayersLiveList(playerKey, li.classList.contains('selected-mister'));
-                        } else if (isDirigente()) {
-                            tempPlayerName = playerKey;
-                            showModal();
-                        }
-                    });
-                    playersList.appendChild(li);
-                });
+    playersToRender.forEach(player => {
+        const li = document.createElement('li');
+        let displayName, playerKey;
+
+        // --- GESTIONE CHIAVE E NOME ---
+        if (typeof player === 'string') {
+            playerKey = player.trim();
+            displayName = player.replace(/^[0-9.]+\s*/, '').trim(); 
+        } else {
+            // Se il numero esiste e non è vuoto lo usiamo, altrimenti usiamo solo il nome
+            const numeroPulito = (player.numero && player.numero.toString().trim()) ? player.numero.toString().trim() : "";
+            const nomePulito = player.nome ? player.nome.trim() : "";
+
+            if (numeroPulito !== "") {
+                playerKey = `${numeroPulito} ${nomePulito}`;
+            } else {
+                playerKey = nomePulito;
             }
+            displayName = nomePulito;
+        }
+
+        li.textContent = displayName;
+        li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
+        li.dataset.player = playerKey;
+
+        // --- 1. COLORE AZZURRO (Selezione live del Mister) ---
+        // Se il giocatore è nell'elenco dei selezionati, deve essere azzurro
+        if (userRole === 'mister' && typeof selectedPlayers !== 'undefined' && selectedPlayers.includes(playerKey)) {
+            li.classList.add('selected-mister');
+        }
+
+        // --- 2. CONTROLLO GIÀ CONVOCATO (Grigio/Stato salvato) ---
+        if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
+            li.classList.add('already-called-today');
+        } 
+        
+        // --- 3. CONTROLLO INDISPONIBILITÀ ---
+        else {
+            const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
+            const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
+            let finalStatuses = [];
+
+            if (unavailablePlayers.has(playerKey)) {
+                const status = unavailablePlayers.get(playerKey);
+                const manualStatuses = Array.isArray(status) ? status : [status];
+
+                if (hasCurrentWeekSessions) {
+                    finalStatuses = manualStatuses.filter(s => 
+                        s !== 'Zero allenamenti' && s !== 'Solo 1 allenamento' && s !== 'Solo 2 allenamenti'
+                    );
+                } else {
+                    finalStatuses = manualStatuses;
+                }
+            }
+
+            if (autoTrainingStatus) {
+                finalStatuses.push(autoTrainingStatus);
+            }
+
+            if (finalStatuses.length > 0) {
+                applyPlayerStatusStyle(li, finalStatuses);
+                if (finalStatuses.includes('Infortunato')) {
+                    li.textContent = `🚑 ${displayName}`;
+                } else if (finalStatuses.includes('Squalificato')) {
+                    li.textContent = `🟥 ${displayName}`;
+                }
+            }
+        }
+
+        // --- EVENT LISTENER CLICK ---
+        li.addEventListener('click', () => {
+            if (userRole === 'mister') {
+                const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
+                const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
+                const hasManualStatus = unavailablePlayers.has(playerKey);
+
+                if (hasManualStatus || autoTrainingStatus) {
+                    let combinedStatus = [];
+                    if (hasManualStatus) {
+                        const status = unavailablePlayers.get(playerKey);
+                        const manualStatuses = Array.isArray(status) ? status : [status];
+                        combinedStatus = hasCurrentWeekSessions ? 
+                            manualStatuses.filter(s => s !== 'Zero allenamenti' && s !== 'Solo 1 allenamento' && s !== 'Solo 2 allenamenti') : 
+                            manualStatuses;
+                    }
+                    if (autoTrainingStatus) combinedStatus.push(autoTrainingStatus);
+                    showUnavailablePlayerModal(playerKey, combinedStatus.length === 1 ? combinedStatus[0] : combinedStatus);
+                    return;
+                }
+
+                if (isPlayerCalledToday(playerKey)) {
+                    showAlreadyCalledModal(playerKey);
+                    return;
+                }
+
+                // Toggle selezione azzurra
+                li.classList.toggle('selected-mister');
+                if (typeof updateSelectedPlayersLiveList === 'function') {
+                    updateSelectedPlayersLiveList(playerKey, li.classList.contains('selected-mister'));
+                }
+            } else if (isDirigente()) {
+                tempPlayerName = playerKey;
+                showModal();
+            }
+        });
+
+        playersList.appendChild(li);
+    });
+}
 
             function updateSelectedPlayersLiveList(playerName, isSelected) {
                 const liveId = `live-${playerName.replace(/\s+/g, '-')}`;
