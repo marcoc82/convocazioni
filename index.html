@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- Version: V9.90 - MESSO NOMI E COGNOMI DEI GIOCATORI A CAPO E MESSO NON OBBLIGATORIO IL NUMERO NELLA CREAZIONE GIOCATORE -->
 <!-- Version: V9.77 - modificato il tasto risultati con il tasto partite che porta su app stakick, pasti tornei e app genitori -->
 <!-- Version: V9.75 - modificato il tasto risultati con il tasto partite che porta su app stakick -->
 <!-- Version: V9.73 - aggiunto tasto per eliminare una sessione di allenamento -->
@@ -863,7 +862,7 @@
     right: 0;
     bottom: 0;
     z-index: 99999;
-    background-color: rgba(242, 238, 238, 0.85); /* Sfondo molto scuro */
+    background-color: rgba(0, 0, 0, 0.85); /* Sfondo molto scuro */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1026,18 +1025,16 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.90</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.87</span>
             </div>
         </div>
 
         <!-- Company Welcome Screen -->
         <div id="company-welcome-screen" class="hidden">
-            <div class="flex justify-center mb-6">
-                <img id="animated-logo" src="logo Rosterkick.png" alt="Rosterkick Logo" class="w-32 h-32 object-contain">
-            </div>
+            <h2 class="text-xl font-semibold text-center text-gray-700 mb-4">Benvenuto</h2>
             <!-- Guest Role Indicator -->
             <div id="guest-role-indicator" class="mb-4 p-3 bg-yellow-100 border border-yellow-200 rounded-lg text-yellow-800 text-sm font-medium text-center hidden">
-                👤 Accesso Ospite - Funzionalità Limitate!
+                👤 Accesso Ospite - Funzionalità Limitate
             </div>
             <div class="p-6 bg-blue-50 rounded-xl mb-6 shadow-sm border border-blue-200 text-center">
                 <h3 id="company-name-display" class="text-2xl font-bold text-blue-800 mb-2"></h3>
@@ -1095,9 +1092,6 @@
                     </button>
                 </div>
             </div>
-            <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.90</span>
-            </div>
         </div>
 
         <!-- Password Entry Screen -->
@@ -1139,9 +1133,6 @@
                 </div>
             </form>
             <div id="password-entry-message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
-            <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.90</span>
-            </div>
         </div>
         
         <!-- Change Password Modal -->
@@ -1185,7 +1176,7 @@
             <div class="p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-700 mb-4">Categoria Squadra</h3>
                 <div class="mb-4">
-                    <label for="team-categoria" class="block text-sm font-medium text-gray-700">Categoria</label>
+                    <label for="team-categoria" class="block text-sm font-medium text-gray-700">🏆 Categoria</label>
                     <input type="text" id="team-categoria" placeholder="Inserisci categoria (es. Juniores, Senior, etc.)" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                 </div>
             </div>
@@ -1233,11 +1224,11 @@
             <div id="players-content" class="hidden p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label for="player-numero" class="block text-sm font-medium text-gray-700">🔢 Numero(non obbligatorio)</label>
+                        <label for="player-numero" class="block text-sm font-medium text-gray-700">🔢 Numero</label>
                         <input type="number" id="player-numero" placeholder="10" min="1" max="99" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
                     <div>
-                        <label for="player-nome" class="block text-sm font-medium text-gray-700">👤 Cognome e Nome</label>
+                        <label for="player-nome" class="block text-sm font-medium text-gray-700">👤 Nome</label>
                         <input type="text" id="player-nome" placeholder="ROSSI MARIO" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     </div>
                     <div>
@@ -1274,8 +1265,8 @@
             </div>
             <div id="coaches-content" class="hidden p-6 bg-gray-50 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <div class="flex flex-col gap-4 mb-4">
-                    <input type="text" id="new-coach-input" placeholder="Cognome e Nome Mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
-                    <input type="text" id="new-coach-matricola-input" placeholder="Matricola Mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <input type="text" id="new-coach-input" placeholder="Nome mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
+                    <input type="text" id="new-coach-matricola-input" placeholder="Matricola mister" class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500">
                     <button id="add-coach-button" class="w-full btn-base btn-success focus:outline-none focus:ring-2">
                         Aggiungi Mister
                     </button>
@@ -1319,9 +1310,6 @@
             <button id="back-from-players-button" class="w-full btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
-            <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.90</span>
-            </div>
         </div>
 
         <!-- Name Entry Screen (deprecated, keeping for compatibility) -->
@@ -1527,9 +1515,6 @@
                 ESCI
             </button>
             <div id="message-area" class="mt-4 text-center text-sm font-medium text-gray-600 hidden"></div>
-            <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.90</span>
-            </div>
         </div>
 
         <!-- Success Popup -->
@@ -1574,9 +1559,6 @@
             <button id="back-from-history-button" class="w-full mt-6 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
-            <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.90</span>
-            </div>
         </div>
 
         <!-- Access Log View (Storico Accessi) -->
@@ -1596,9 +1578,6 @@
             <button id="back-from-access-log-button" class="w-full mt-6 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
-            <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.90</span>
-            </div>
         </div>
 
         <!-- Attendance Summary View -->
@@ -1731,9 +1710,6 @@
             <button id="back-from-attendance-button" class="w-full mt-6 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
-            <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.90</span>
-            </div>
         </div>
 
         <!-- V9.10: Training Attendance View - COMMENTED OUT - No longer needed -->
@@ -1879,9 +1855,6 @@
             <button id="back-from-allenamenti-button" class="w-full mt-6 btn-base btn-neutral focus:outline-none focus:ring-2">
                 Indietro
             </button>
-            <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.90</span>
-            </div>
         </div>
 
         <!-- Add Training Session Modal (V8.11) -->
@@ -7357,37 +7330,31 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 }
             }
 
-            playersToRender.forEach(player => {
-    const li = document.createElement('li');
-    let displayName, playerKey;
-
-    if (typeof player === 'string') {
-        playerKey = player.trim();
-        displayName = player.replace(/^[0-9.]+\s*/, '').trim(); 
-    } else {
-        // Gestiamo il numero se esiste, altrimenti usiamo solo il nome
-        const num = (player.numero && player.numero.trim()) ? player.numero.trim() : "";
-        const nom = player.nome ? player.nome.trim() : "";
-        
-        // Se il numero c'è, la chiave è "10 Nome", altrimenti è solo "Nome"
-        playerKey = num ? `${num} ${nom}` : nom;
-        displayName = nom;
-    }
-
-    li.textContent = displayName;
-    li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
-    li.dataset.player = playerKey;
-
-    // 1. Coloriamo di AZZURRO se è selezionato ora (Mister sta cliccando)
-    if (userRole === 'mister' && selectedPlayers.includes(playerKey)) {
-        li.classList.add('selected-mister');
-    }
-
-    // 2. Coloriamo se è GIÀ SALVATO nel database oggi
-    // IMPORTANTE: Usa playerKey, non player.nome, per essere precisi!
-    if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
-        li.classList.add('already-called-today');
-    }
+            function renderPlayers() {
+                playersList.innerHTML = '';
+                const playersToRender = companyPlayers.length > 0 ? companyPlayers : players;
+                playersToRender.forEach(player => {
+                    const li = document.createElement('li');
+                    
+                    let displayName, playerKey;
+                    if (typeof player === 'string') {
+                    // VECCHIO FORMATO: "10. ROSSI MARIO" -> diventa "ROSSI MARIO"
+                    playerKey = player;
+                    displayName = player.replace(/^[0-9.]+\s*/, '').trim(); 
+                }   else {
+                    // NUOVO FORMATO: oggetto -> prende solo il nome
+                    playerKey = `${player.numero} ${player.nome}`;
+                    displayName = player.nome; // Usiamo direttamente player.nome che è già pulito
+                }
+                    
+                    li.textContent = displayName;
+                    li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
+                    li.dataset.player = playerKey;
+                    
+                    // Check if player was already called up today FIRST (highest priority for Mister view)
+                    if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
+                        li.classList.add('already-called-today');
+                    }
                     // Check for unavailable players (only if not already called today)
                     else {
                         // V9.13: Check if there are sessions in current week
@@ -7485,6 +7452,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     });
                     playersList.appendChild(li);
                 });
+            }
 
             function updateSelectedPlayersLiveList(playerName, isSelected) {
                 const liveId = `live-${playerName.replace(/\s+/g, '-')}`;
@@ -8328,7 +8296,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 }
                 
                 if (allUnavailablePlayers.size === 0) {
-                    unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessuna indisponibilità registrata.</li>';
+                    unavailablePlayersList.innerHTML = '<li class="text-sm italic text-red-500">Nessuna disponibilità registrata.</li>';
                     return;
                 }
                 
@@ -9238,7 +9206,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     container.innerHTML = `
                         <div class="text-center py-8 text-gray-500">
                             <p class="text-lg">Nessun allenamento programmato</p>
-                            <p class="text-sm mt-2">Usa il pulsante "+" per aggiungere un allenamento</p>
+                            <p class="text-sm mt-2">Usa il pulsante "+ Nuovo" per aggiungere un allenamento</p>
                         </div>
                     `;
                     return;
