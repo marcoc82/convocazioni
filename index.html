@@ -7374,46 +7374,53 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     displayName = player.nome; // Usiamo direttamente player.nome che è già pulito
                 }
                     
-                    li.textContent = displayName;
-                    li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
-                    li.dataset.player = playerKey;
+                li.textContent = displayName;
+                li.className = 'player-item p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200';
+                li.dataset.player = playerKey;
 
-                    // Se il giocatore è nella lista dei selezionati (array locale), metti lo sfondo azzurro
-                    if (userRole === 'mister' && selectedPlayers.includes(playerKey)) {
+                // 1. Controllo Selezione Live (Azzurro)
+                if (userRole === 'mister' && selectedPlayers.includes(playerKey)) {
                     li.classList.add('selected-mister');
-                    }
+                }
+                
+                // 2. Controllo se già convocato a sistema
+                if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
+                    li.classList.add('already-called-today');
+                }
+
+                // 3. Controllo Stati e Disponibilità (Sempre eseguito se non è Mister o se vuoi vedere icone)
+                // Rimuoviamo l'else per assicurarci che i calcoli vengano fatti sempre
+                const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
+                const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
+                let finalStatuses = [];
+                
+                if (unavailablePlayers.has(playerKey)) {
+                    const status = unavailablePlayers.get(playerKey);
+                    const manualStatuses = Array.isArray(status) ? status : [status];
                     
-                    // Check if player was already called up today FIRST (highest priority for Mister view)
-                    if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
-                        li.classList.add('already-called-today');
+                    if (hasCurrentWeekSessions) {
+                        finalStatuses = manualStatuses.filter(s => 
+                            s !== 'Zero allenamenti' && 
+                            s !== 'Solo 1 allenamento' && 
+                            s !== 'Solo 2 allenamenti'
+                        );
+                    } else {
+                        finalStatuses = manualStatuses;
                     }
-                    // Check for unavailable players (only if not already called today)
-                    else {
-                        // V9.13: Check if there are sessions in current week
-                        const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
-                        
-                        // V9.12: Calculate automatic training status (only if sessions exist)
-                        const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
-                        let finalStatuses = [];
-                        
-                        // Get manual statuses from unavailablePlayers
-                        if (unavailablePlayers.has(playerKey)) {
-                            const status = unavailablePlayers.get(playerKey);
-                            const manualStatuses = Array.isArray(status) ? status : [status];
-                            
-                            if (hasCurrentWeekSessions) {
-                                // V9.12: If sessions exist, filter out training statuses (they're auto-calculated)
-                                const filteredManualStatuses = manualStatuses.filter(s => 
-                                    s !== 'Zero allenamenti' && 
-                                    s !== 'Solo 1 allenamento' && 
-                                    s !== 'Solo 2 allenamenti'
-                                );
-                                finalStatuses = filteredManualStatuses;
-                            } else {
-                                // V9.13: If NO sessions exist, keep all manual statuses including training ones
-                                finalStatuses = manualStatuses;
-                            }
-                        }
+                }
+                
+                if (autoTrainingStatus) {
+                    finalStatuses.push(autoTrainingStatus);
+                }
+                
+                if (finalStatuses.length > 0) {
+                    applyPlayerStatusStyle(li, finalStatuses);
+                    if (finalStatuses.includes('Infortunato')) {
+                        li.textContent = `🚑 ${displayName}`;
+                    } else if (finalStatuses.includes('Squalificato')) {
+                        li.textContent = `🟥 ${displayName}`;
+                    }
+                }
                         
                         // V9.12: Add automatic training status if exists
                         if (autoTrainingStatus) {
