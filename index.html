@@ -1031,10 +1031,12 @@
 
         <!-- Company Welcome Screen -->
         <div id="company-welcome-screen" class="hidden">
-            <h2 class="text-xl font-semibold text-center text-gray-700 mb-4">Benvenuto</h2>
+            <div class="flex justify-center mb-6">
+                <img id="animated-logo" src="logo Rosterkick.png" alt="Rosterkick Logo" class="w-32 h-32 object-contain opacity-0 transform translate-y-[-100px]">
+            </div>
             <!-- Guest Role Indicator -->
             <div id="guest-role-indicator" class="mb-4 p-3 bg-yellow-100 border border-yellow-200 rounded-lg text-yellow-800 text-sm font-medium text-center hidden">
-                👤 Accesso Ospite - Funzionalità Limitate
+                👤 Accesso Ospite - Funzionalità Limitate!
             </div>
             <div class="p-6 bg-blue-50 rounded-xl mb-6 shadow-sm border border-blue-200 text-center">
                 <h3 id="company-name-display" class="text-2xl font-bold text-blue-800 mb-2"></h3>
@@ -9206,7 +9208,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     container.innerHTML = `
                         <div class="text-center py-8 text-gray-500">
                             <p class="text-lg">Nessun allenamento programmato</p>
-                            <p class="text-sm mt-2">Usa il pulsante "+ Nuovo" per aggiungere un allenamento</p>
+                            <p class="text-sm mt-2">Usa il pulsante "+" per aggiungere un allenamento</p>
                         </div>
                     `;
                     return;
