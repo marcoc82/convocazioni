@@ -6433,24 +6433,28 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
 
             // Function to load and display attendance summary from Firestore
             async function loadAttendance(querySnapshot) {
-                console.log(`📊 [DIAGNOSTIC] loadAttendance chiamata, caricamento dati presenze...`);
-                attendanceList.innerHTML = '';
-                
-                // Calculate total attendance from convocationHistory (sum of all categories)
-                const attendanceData = {};
-                convocationHistory.forEach(convocation => {
-                    const players = convocation.players || [];
-                    players.forEach(player => {
-                        // Handle both old string format and new object format
-                        let playerKey;
-                        if (typeof player === 'string') {
-                            playerKey = player;
-                        } else {
-                            playerKey = `${player.numero} ${player.nome}`;
-                        }
-                        attendanceData[playerKey] = (attendanceData[playerKey] || 0) + 1;
-                    });
+            console.log(`📊 [DIAGNOSTIC] loadAttendance chiamata, caricamento dati presenze...`);
+            attendanceList.innerHTML = '';
+            
+            const attendanceData = {};
+            convocationHistory.forEach(convocation => {
+                const players = convocation.players || [];
+                players.forEach(player => {
+                    let playerKey;
+                    if (typeof player === 'string') {
+                        playerKey = player.trim();
+                    } else {
+                        // --- CORREZIONE 1: Gestione numero assente ---
+                        const numero = (player.numero && player.numero.toString().trim() !== "") 
+                            ? player.numero.toString().trim() 
+                            : "";
+                        const nome = player.nome ? player.nome.trim() : "";
+                        playerKey = numero ? `${numero} ${nome}` : nome;
+                    }
+                    playerKey = playerKey.trim();
+                    attendanceData[playerKey] = (attendanceData[playerKey] || 0) + 1;
                 });
+            });
                 
                 // Use companyPlayers instead of global players array to show correct company data
                 const playersToShow = companyPlayers.length > 0 ? companyPlayers : players;
@@ -6518,18 +6522,20 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     }
                 }
                 
-                // V9.16: Build player data with availability percentages before sorting
+                // V9.16: Build player data
                 const playersWithData = playersToShow.map(p => {
-                    // Handle both old string format and new object format
                     let playerName, playerKey;
                     if (typeof p === 'string') {
-                        // Old format: "10 ROSSI MARIO"
-                        playerName = p;
-                        playerKey = p;
+                        playerName = p.trim();
+                        playerKey = p.trim();
                     } else {
-                        // New format: object with numero, nome, etc.
-                        playerName = `${p.numero} ${p.nome}`;
-                        playerKey = playerName; // Use the display name as key for compatibility
+                        // --- CORREZIONE 2: Consistenza con la logica sopra ---
+                        const numero = (p.numero && p.numero.toString().trim() !== "") 
+                            ? p.numero.toString().trim() 
+                            : "";
+                        const nome = p.nome ? p.nome.trim() : "";
+                        playerName = numero ? `${numero} ${nome}` : nome;
+                        playerKey = playerName;
                     }
                     
                     const count = attendanceData[playerKey] || 0;
