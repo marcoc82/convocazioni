@@ -6898,30 +6898,30 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
             // V9.56: Added ranking arrows logic for filtered tables
             function populateAttendanceTable(tableElement, players, attendanceData, tableType, availabilityData, availabilityDataNormalized) {
                 const sortedPlayers = players.map(p => {
-                // Handle both old string format and new object format
-                let playerName, playerKey;
-                if (typeof p === 'string') {
-                    // Old format: "10 ROSSI MARIO"
-                    playerName = p.trim();
-                    playerKey = p.trim();
-                } else {
-                    // --- NUOVA LOGICA PER GIOCATORI SENZA NUMERO ---
-                    // Se il numero esiste ed è valido lo usiamo, altrimenti stringa vuota
-                    const numero = (p.numero && p.numero.toString().trim() !== "") 
-                        ? p.numero.toString().trim() 
-                        : "";
-                    const nome = p.nome ? p.nome.trim() : "";
+                    // Handle both old string format and new object format
+                    let playerName, playerKey;
+                    if (typeof p === 'string') {
+                        // Old format: "10 ROSSI MARIO"
+                        playerName = p.trim();
+                        playerKey = p.trim();
+                    } else {
+                        // --- NUOVA LOGICA PER GIOCATORI SENZA NUMERO ---
+                        // Se il numero esiste ed è valido lo usiamo, altrimenti stringa vuota
+                        const numero = (p.numero && p.numero.toString().trim() !== "") 
+                            ? p.numero.toString().trim() 
+                            : "";
+                        const nome = p.nome ? p.nome.trim() : "";
+                        
+                        // Se c'è il numero facciamo "10 ROSSI", se no solo "ROSSI"
+                        playerName = numero ? `${numero} ${nome}` : nome;
+                        playerKey = playerName; 
+                    }
                     
-                    // Se c'è il numero facciamo "10 ROSSI", se no solo "ROSSI"
-                    playerName = numero ? `${numero} ${nome}` : nome;
-                    playerKey = playerName; 
-                }
-                
-                return {
-                    name: playerName,
-                    count: attendanceData[playerKey] || 0
-                };
-            }).sort((a, b) => b.count - a.count);
+                    return {
+                        name: playerName,
+                        count: attendanceData[playerKey] || 0
+                    };
+                }).sort((a, b) => b.count - a.count);
 
                 // V9.56: Calculate rankings considering ties (same count = same rank)
                 const currentRanking = [];
@@ -7048,14 +7048,14 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                         if (hasAvailabilityData) {
                             let availabilityPercentage = 'N/D';
                             
-                            // Try exact match first
-                            let rawValue = availabilityData[player.name];
-                            
-                            // If no exact match, try normalized match (strips leading numbers)
-                            if (rawValue === undefined && availabilityDataNormalized) {
-                                const normalizedPlayerName = normalizePlayerName(player.name);
-                                rawValue = availabilityDataNormalized[normalizedPlayerName];
-                            }
+                            // Try exact match first (usiamo playerKey che è già pulito)
+                                let rawValue = availabilityData[playerKey]; 
+
+                                // If no exact match, try normalized match
+                                if (rawValue === undefined && availabilityDataNormalized) {
+                                    const normalizedPlayerName = normalizePlayerName(playerKey);
+                                    rawValue = availabilityDataNormalized[normalizedPlayerName];
+                                }
                             
                             // Process the value if found - rounded up to integer (no decimals)
                             if (rawValue !== undefined && rawValue !== null) {
