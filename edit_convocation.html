@@ -419,33 +419,40 @@
             updateSelectedPlayersList();
         }
 
-        function togglePlayer(playerName) {
+        function togglePlayer(playerName, li) {
+    // 1. Aggiunge o rimuove dal Set
     if (selectedPlayers.has(playerName)) {
         selectedPlayers.delete(playerName);
         console.log(`➖ Rimosso: ${playerName}`);
+        
+        // Ritorna allo stile grigio (non selezionato)
+        if (li) {
+            li.classList.remove('bg-blue-100', 'border-blue-500', 'shadow-sm');
+            li.classList.add('bg-gray-50', 'border-gray-200');
+            // Rimuove la spunta se presente
+            const check = li.querySelector('.text-blue-600');
+            if (check) check.remove();
+        }
     } else {
         selectedPlayers.add(playerName);
         console.log(`➕ Aggiunto: ${playerName}`);
+        
+        // Applica lo stile blu (selezionato)
+        if (li) {
+            li.classList.add('bg-blue-100', 'border-blue-500', 'shadow-sm');
+            li.classList.remove('bg-gray-50', 'border-gray-200');
+            // Aggiunge la spunta visiva
+            if (!li.querySelector('.text-blue-600')) {
+                const flexDiv = li.querySelector('.flex');
+                if (flexDiv) {
+                    flexDiv.insertAdjacentHTML('beforeend', '<span class="text-blue-600 font-bold">✓</span>');
+                }
+            }
+        }
     }
     
-    // 1. Aggiorna il contatore (con controllo per evitare ReferenceError)
-    if (typeof updateSelectedCount === "function") {
-        updateSelectedPlayersList();
-    } else {
-        console.warn("⚠️ La funzione updateSelectedCount non è definita.");
-    }
-    
-    // 2. Recupero input di ricerca per il refresh della lista
-    const searchField = document.getElementById('player-search');
-    const currentSearch = searchField ? searchField.value.toLowerCase() : "";
-    
-    // 3. Filtra e ridisegna
-    const filtered = companyPlayers.filter(p => {
-        const fullName = p.numero ? `${p.numero} ${p.nome}` : p.nome;
-        return fullName.toLowerCase().includes(currentSearch);
-    });
-    
-    renderPlayers(filtered);
+    // 2. Aggiorna la lista testuale in alto
+    updateSelectedPlayersList();
 }
         function updateSelectedPlayersList() {
             selectedCountSpan.textContent = selectedPlayers.size;
