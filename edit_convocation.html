@@ -428,20 +428,23 @@
         console.log(`➕ Aggiunto: ${playerName}`);
     }
     
-    // 1. Aggiorna il contatore visivo (nel tuo file si chiama così)
-    updateSelectedCount();
+    // 1. Aggiorna il contatore (con controllo per evitare ReferenceError)
+    if (typeof updateSelectedCount === "function") {
+        updateSelectedPlayersList();
+    } else {
+        console.warn("⚠️ La funzione updateSelectedCount non è definita.");
+    }
     
-    // 2. Recuperiamo l'input di ricerca per evitare l'errore "not defined"
+    // 2. Recupero input di ricerca per il refresh della lista
     const searchField = document.getElementById('player-search');
     const currentSearch = searchField ? searchField.value.toLowerCase() : "";
     
-    // 3. Filtriamo la lista in base alla ricerca attuale
+    // 3. Filtra e ridisegna
     const filtered = companyPlayers.filter(p => {
         const fullName = p.numero ? `${p.numero} ${p.nome}` : p.nome;
         return fullName.toLowerCase().includes(currentSearch);
     });
     
-    // 4. Ridisegniamo i quadratini
     renderPlayers(filtered);
 }
         function updateSelectedPlayersList() {
