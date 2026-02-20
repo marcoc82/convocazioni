@@ -233,24 +233,25 @@
                 
                 companyPlayers = [];
                 giocatoriSnapshot.forEach((doc) => {
-    const giocatoreData = doc.data();
-    if (giocatoreData.nome && typeof giocatoreData.nome === 'object') {
-        const numero = giocatoreData.nome.numero;
-        const nome = giocatoreData.nome.nome;
-        const dataNascita = giocatoreData.nome.dataNascita;
-        const matricola = giocatoreData.nome.matricola;
-        
-        // MODIFICA: Basta che ci sia il nome, il numero può essere vuoto
-        if (nome) { 
-            companyPlayers.push({
-                numero: numero || '', // Se non c'è, mettiamo stringa vuota
-                nome: nome,
-                dataNascita: dataNascita || 'N/D',
-                matricola: matricola || 'N/D'
+                const giocatoreData = doc.data();
+                if (giocatoreData.nome && typeof giocatoreData.nome === 'object') {
+                // Usiamo .trim() per togliere spazi vuoti prima e dopo il testo
+                const numero = giocatoreData.nome.numero ? giocatoreData.nome.numero.toString().trim() : '';
+                const nome = giocatoreData.nome.nome ? giocatoreData.nome.nome.trim() : '';
+                const dataNascita = giocatoreData.nome.dataNascita;
+                const matricola = giocatoreData.nome.matricola;
+                
+                if (nome) { 
+                    companyPlayers.push({
+                        numero: numero, // Sarà una stringa vuota se il numero non c'è
+                        nome: nome,
+                        dataNascita: dataNascita || 'N/D',
+                        matricola: matricola || 'N/D'
+                    });
+                    // console.log(`Aggiunto: ${numero ? numero : '[Senza Numero]'} ${nome}`);
+                }
+                }
             });
-        }
-    }
-});
                 if (companyPlayers.length === 0) {
                     console.warn('⚠️ [DEBUG] Nessun giocatore trovato nella subcollection!');
                     console.warn('   📍 Verifica che esistano documenti in: societa/' + companyDocId + '/giocatori');
@@ -374,84 +375,76 @@
 
         function loadPlayers() {
             console.log('🔄 [DEBUG] loadPlayers() - Popolamento lista giocatori nella UI');
-            console.log('   📊 Giocatori disponibili:', companyPlayers.length);
-            
             playersListUl.innerHTML = '';
             
             if (!companyPlayers || companyPlayers.length === 0) {
-                console.warn('⚠️ [DEBUG] Nessun giocatore disponibile da mostrare');
                 playersListUl.innerHTML = '<li class="col-span-full text-center text-gray-500">Nessun giocatore disponibile</li>';
                 return;
             }
 
-            // Sort giocatori by numero
+            // Ordiniamo: i numeri in ordine, e quelli senza numero in fondo alfabeticamente
             const sortedPlayers = [...companyPlayers].sort((a, b) => {
-                const numA = parseInt(a.numero) || 0;
-                const numB = parseInt(b.numero) || 0;
+                const numA = parseInt(a.numero);
+                const numB = parseInt(b.numero);
+                
+                if (isNaN(numA) && isNaN(numB)) return a.nome.localeCompare(b.nome);
+                if (isNaN(numA)) return 1;
+                if (isNaN(numB)) return -1;
                 return numA - numB;
             });
 
-            console.log('   📋 Lista giocatori ordinata per numero');
-            sortedPlayers.forEach((player, index) => {
-                const playerName = `${player.numero} ${player.nome}`;
-                if (index < 5) {
-                    console.log(`   ${index + 1}. ${playerName}`);
-                }
+            sortedPlayers.forEach((player) => {
+                // MODIFICA CRUCIALE: Costruiamo il nome senza spazi extra se manca il numero
+                const playerName = (player.numero && player.numero.toString().trim() !== "") 
+                    ? `${player.numero.toString().trim()} ${player.nome.trim()}` 
+                    : player.nome.trim();
+
                 const li = document.createElement('li');
-                li.textContent = playerName;
-                li.className = 'p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors';
                 li.dataset.player = playerName;
                 
                 // Mark as selected if in original selection
                 if (selectedPlayers.has(playerName)) {
-                    li.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
-                    li.classList.remove('bg-white', 'text-gray-800', 'hover:bg-blue-50');
+                    // Usiamo classi azzurre coerenti
+                    li.className = 'p-3 bg-blue-500 text-white rounded-lg shadow-sm border border-blue-600 cursor-pointer hover:bg-blue-600 transition-colors flex justify-between items-center';
+                    li.innerHTML = `<span>${playerName}</span><span class="font-bold">✓</span>`;
+                } else {
+                    li.className = 'p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors';
+                    li.textContent = playerName;
                 }
                 
                 li.addEventListener('click', () => togglePlayer(playerName, li));
                 playersListUl.appendChild(li);
             });
 
-            if (sortedPlayers.length > 5) {
-                console.log(`   ... e altri ${sortedPlayers.length - 5} giocatori`);
-            }
-            console.log('✅ [DEBUG] Lista giocatori popolata correttamente nella UI');
+            console.log('✅ [DEBUG] Lista giocatori popolata correttamente');
             updateSelectedPlayersList();
         }
 
-        function togglePlayer(playerName, li) {
-    // 1. Aggiunge o rimuove dal Set
+        function togglePlayer(playerName, liElement) {
+    // Usiamo il nome esattamente come arriva, è già pulito da loadPlayers
     if (selectedPlayers.has(playerName)) {
+        // --- RIMUOVI IL GIOCATORE ---
         selectedPlayers.delete(playerName);
         console.log(`➖ Rimosso: ${playerName}`);
         
-        // Ritorna allo stile grigio (non selezionato)
-        if (li) {
-            li.classList.remove('bg-blue-100', 'border-blue-500', 'shadow-sm');
-            li.classList.add('bg-gray-50', 'border-gray-200');
-            // Rimuove la spunta se presente
-            const check = li.querySelector('.text-blue-600');
-            if (check) check.remove();
+        if (liElement) {
+            // Torna allo stile bianco/grigio
+            liElement.className = 'p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors';
+            liElement.textContent = playerName; // Toglie la spunta rimettendo solo il testo
         }
     } else {
+        // --- AGGIUNGI IL GIOCATORE ---
         selectedPlayers.add(playerName);
         console.log(`➕ Aggiunto: ${playerName}`);
         
-        // Applica lo stile blu (selezionato)
-        if (li) {
-            li.classList.add('bg-blue-100', 'border-blue-500', 'shadow-sm');
-            li.classList.remove('bg-gray-50', 'border-gray-200');
-            // Aggiunge la spunta visiva
-            if (!li.querySelector('.text-blue-600')) {
-                const flexDiv = li.querySelector('.flex');
-                if (flexDiv) {
-                    flexDiv.insertAdjacentHTML('beforeend', '<span class="text-blue-600 font-bold">✓</span>');
-                }
-            }
+        if (liElement) {
+            // Passa allo stile blu con spunta
+            liElement.className = 'p-3 bg-blue-500 text-white rounded-lg shadow-sm border border-blue-600 cursor-pointer hover:bg-blue-600 transition-colors flex justify-between items-center';
+            liElement.innerHTML = `<span>${playerName}</span><span class="font-bold">✓</span>`;
         }
     }
     
-    // 2. Aggiorna la lista testuale in alto
+    // Aggiorna la lista testuale di riepilogo
     updateSelectedPlayersList();
 }
         function updateSelectedPlayersList() {
