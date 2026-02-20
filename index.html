@@ -6876,13 +6876,13 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 }
                 
                 // Populate Amichevoli table
-                populateAttendanceTable(attendanceListAmichevoli, playersToShow, amichevoliData, 'Amichevoli', null, null);
+                await populateAttendanceTable(attendanceListAmichevoli, playersToShow, amichevoliData, 'Amichevoli', null, null);
                 
                 // Populate Tornei table with availability data for POLIS
                 await populateAttendanceTable(attendanceListTornei, playersToShow, torneiData, 'Tornei', isPolisCompany ? dispTorneiData : null, isPolisCompany ? dispTorneiDataNormalized : null);
                 
                 // Populate Campionato table
-                populateAttendanceTable(attendanceListCampionato, playersToShow, campionatoData, 'Campionato', null, null);
+                await populateAttendanceTable(attendanceListCampionato, playersToShow, campionatoData, 'Campionato', null, null);
                 
                 console.log(`📊 [DIAGNOSTIC] Tabelle presenze filtrate aggiornate`);
                 
