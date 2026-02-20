@@ -6879,7 +6879,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 populateAttendanceTable(attendanceListAmichevoli, playersToShow, amichevoliData, 'Amichevoli', null, null);
                 
                 // Populate Tornei table with availability data for POLIS
-                populateAttendanceTable(attendanceListTornei, playersToShow, torneiData, 'Tornei', isPolisCompany ? dispTorneiData : null, isPolisCompany ? dispTorneiDataNormalized : null);
+                await populateAttendanceTable(attendanceListTornei, playersToShow, torneiData, 'Tornei', isPolisCompany ? dispTorneiData : null, isPolisCompany ? dispTorneiDataNormalized : null);
                 
                 // Populate Campionato table
                 populateAttendanceTable(attendanceListCampionato, playersToShow, campionatoData, 'Campionato', null, null);
@@ -6896,7 +6896,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
             // Helper function to populate a specific attendance table
             // V7.9: Added availabilityData and availabilityDataNormalized parameters for Tornei table (uses global normalizePlayerName)
             // V9.56: Added ranking arrows logic for filtered tables
-            function populateAttendanceTable(tableElement, players, attendanceData, tableType, availabilityData, availabilityDataNormalized) {
+            async function populateAttendanceTable(tableElement, players, attendanceData, tableType, availabilityData, availabilityDataNormalized) {
                 const sortedPlayers = players.map(p => {
                     // Handle both old string format and new object format
                     let playerName, playerKey;
