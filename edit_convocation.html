@@ -233,53 +233,24 @@
                 
                 companyPlayers = [];
                 giocatoriSnapshot.forEach((doc) => {
-                    const giocatoreData = doc.data();
-                    
-                    console.log('   📄 Giocatore documento:', {
-                        id: doc.id,
-                        nomeObject: giocatoreData.nome
-                    });
-                    
-                    // Extract fields directly from giocatoreData.nome object
-                    // giocatoreData.nome is an object containing {nome, numero, matricola, dataNascita}
-                    if (giocatoreData.nome && typeof giocatoreData.nome === 'object') {
-                        const numero = giocatoreData.nome.numero;
-                        const nome = giocatoreData.nome.nome;
-                        const dataNascita = giocatoreData.nome.dataNascita;
-                        const matricola = giocatoreData.nome.matricola;
-                        
-                        console.log('   ℹ️ Dati estratti da giocatoreData.nome:', {
-                            numero,
-                            nome,
-                            dataNascita,
-                            matricola
-                        });
-                        
-                        // Validate and store giocatore object - only add if both numero and nome exist
-                        if (numero && nome) {
-                            companyPlayers.push({
-                                numero: numero,
-                                nome: nome,
-                                dataNascita: dataNascita || 'N/D',
-                                matricola: matricola || 'N/D'
-                            });
-                            console.log(`   ➕ Giocatore aggiunto: ${numero} ${nome}`);
-                        } else {
-                            console.warn('   ⚠️ Giocatore ignorato (mancano numero o nome):', {
-                                id: doc.id,
-                                numero: numero || 'MANCANTE',
-                                nome: nome || 'MANCANTE'
-                            });
-                        }
-                    } else {
-                        console.warn('   ⚠️ Giocatore ignorato (campo nome non è un oggetto):', {
-                            id: doc.id,
-                            nomeType: typeof giocatoreData.nome,
-                            nomeValue: giocatoreData.nome
-                        });
-                    }
-                });
-                
+    const giocatoreData = doc.data();
+    if (giocatoreData.nome && typeof giocatoreData.nome === 'object') {
+        const numero = giocatoreData.nome.numero;
+        const nome = giocatoreData.nome.nome;
+        const dataNascita = giocatoreData.nome.dataNascita;
+        const matricola = giocatoreData.nome.matricola;
+        
+        // MODIFICA: Basta che ci sia il nome, il numero può essere vuoto
+        if (nome) { 
+            companyPlayers.push({
+                numero: numero || '', // Se non c'è, mettiamo stringa vuota
+                nome: nome,
+                dataNascita: dataNascita || 'N/D',
+                matricola: matricola || 'N/D'
+            });
+        }
+    }
+});
                 if (companyPlayers.length === 0) {
                     console.warn('⚠️ [DEBUG] Nessun giocatore trovato nella subcollection!');
                     console.warn('   📍 Verifica che esistano documenti in: societa/' + companyDocId + '/giocatori');
