@@ -428,17 +428,20 @@
         console.log(`➕ Aggiunto: ${playerName}`);
     }
     
-    // 1. Aggiorna il contatore visivo (es: "Selezionati: 5")
-    updateSelectedPlayersList();
+    // 1. Aggiorna il contatore visivo (nel tuo file si chiama così)
+    updateSelectedCount();
     
-    // 2. Ricarica la lista per aggiornare i colori (quadratini blu/grigi)
-    // Usiamo la ricerca attuale se l'utente sta filtrando i nomi
-    const currentSearch = searchInput.value.toLowerCase();
+    // 2. Recuperiamo l'input di ricerca per evitare l'errore "not defined"
+    const searchField = document.getElementById('player-search');
+    const currentSearch = searchField ? searchField.value.toLowerCase() : "";
+    
+    // 3. Filtriamo la lista in base alla ricerca attuale
     const filtered = companyPlayers.filter(p => {
         const fullName = p.numero ? `${p.numero} ${p.nome}` : p.nome;
         return fullName.toLowerCase().includes(currentSearch);
     });
     
+    // 4. Ridisegniamo i quadratini
     renderPlayers(filtered);
 }
         function updateSelectedPlayersList() {
