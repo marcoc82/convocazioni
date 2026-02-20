@@ -5650,7 +5650,6 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 });
 
                 // Listener sui pulsanti "Distinta" per singole convocazioni
-                if (canAccessDistinta()) {
                     const distintaButtons = historyList.querySelectorAll('.distinta-history-btn');
                     distintaButtons.forEach(btn => {
                         btn.addEventListener('click', (e) => {
@@ -5674,7 +5673,6 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                             }
                         });
                     });
-                }
                 
                 // Update filtered attendance tables after loading history data
                 updateAttendanceTables();
