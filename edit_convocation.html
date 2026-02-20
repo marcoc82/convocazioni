@@ -180,10 +180,7 @@
         if (!convocationId || !companyDocId || !userRole) {
             showMessage("Parametri mancanti. Torna allo storico.", "text-red-600");
             setTimeout(() => goBack(), 2000);
-        } else if (userRole !== 'mister' && userRole !== 'marco' && userRole !== 'dirigente') {
-            showMessage("Non sei autorizzato a modificare le convocazioni.", "text-red-600");
-            setTimeout(() => goBack(), 2000);
-        }
+        } 
 
         function showMessage(message, colorClass) {
             messageArea.textContent = message;
