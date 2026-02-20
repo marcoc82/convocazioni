@@ -11369,49 +11369,57 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
     const extendedPlayers = getExtendedPlayerData();
     
     players.forEach(playerString => {
-        const parts = playerString.trim().split(' ');
+        // 1. Pulizia iniziale e divisione della stringa
+        const trimmedString = playerString.trim();
+        const parts = trimmedString.split(/\s+/); // Divide per uno o più spazi
+        
         let number = '';
-        let name = '';
+        let nameToSearch = '';
 
-        // CONTROLLO: La prima parte è un numero?
+        // 2. Logica di estrazione Numero vs Nome
         if (!isNaN(parts[0]) && parts.length > 1) {
-            // Caso con numero: "10 ROSSI MARIO"
+            // Caso: "10 ROSSI MARIO"
             number = parts[0];
-            name = parts.slice(1).join(' ');
+            nameToSearch = parts.slice(1).join(' ').trim();
         } else {
-            // Caso senza numero: "ROSSI MARIO"
-            number = ''; // Lascia vuoto
-            name = playerString; // Il nome è l'intera stringa
+            // Caso: "ROSSI MARIO" (senza numero)
+            number = '';
+            nameToSearch = trimmedString;
         }
         
-        // Cerchiamo i dati estesi usando il nome corretto
+        // 3. RICERCA AVANZATA: Cerchiamo il giocatore nel database dei "giocatori società"
         const extendedData = extendedPlayers.find(p => {
-            const pFull = `${p.nome} ${p.cognome}`.trim().toLowerCase();
-            const searchName = name.trim().toLowerCase();
-            const searchFull = playerString.trim().toLowerCase();
+            const searchLower = nameToSearch.toLowerCase();
+            const dbNameLower = (p.name || "").toLowerCase();
+            const dbFullNameLower = `${p.cognome || ''} ${p.nome || ''}`.trim().toLowerCase();
+            const dbFullNameInverted = `${p.nome || ''} ${p.cognome || ''}`.trim().toLowerCase();
             
-            return p.name === name || 
-                   p.name === playerString || 
-                   pFull === searchName ||
-                   pFull === searchFull;
+            // Verifica tutte le combinazioni possibili per trovare il match
+            return dbNameLower === searchLower || 
+                   dbFullNameLower === searchLower || 
+                   dbFullNameInverted === searchLower ||
+                   (p.numero && p.numero.toString() === number && dbFullNameLower.includes(searchLower));
         });
         
+        // 4. Formattazione Data di Nascita
         let birthDate = '___/___/______';
-        if (extendedData?.dataNascita) {
-            const date = new Date(extendedData.dataNascita);
+        if (extendedData && (extendedData.dataNascita || extendedData.data_nascita)) {
+            const rawDate = extendedData.dataNascita || extendedData.data_nascita;
+            const date = new Date(rawDate);
             if (!isNaN(date.getTime())) {
                 birthDate = date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
             } else {
-                birthDate = extendedData.dataNascita;
+                birthDate = rawDate; // Se non è un oggetto Date, usa la stringa così com'è
             }
         }
         
+        // 5. Recupero Matricola
         const matricola = extendedData?.matricola || '__________';
         
         rows += `
             <tr style="border-bottom: 1px solid #000;">
                 <td style="padding: 6px 4px; border: 1px solid #000; font-size: 11px; text-align: center; line-height: 1.3;">${number}</td>
-                <td style="padding: 6px 4px; border: 1px solid #000; font-size: 11px; text-align: center; line-height: 1.3;">${name}</td>
+                <td style="padding: 6px 4px; border: 1px solid #000; font-size: 11px; text-align: center; line-height: 1.3;">${nameToSearch.toUpperCase()}</td>
                 <td style="padding: 6px 4px; border: 1px solid #000; font-size: 11px; text-align: center; line-height: 1.3;">${birthDate}</td>
                 <td style="padding: 6px 4px; border: 1px solid #000; font-size: 11px; text-align: center; line-height: 1.3;">${matricola}</td>
                 <td style="padding: 6px 4px; border: 1px solid #000; font-size: 11px; text-align: center; line-height: 1.3;"></td>
