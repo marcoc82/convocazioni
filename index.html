@@ -1025,7 +1025,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.97</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.98</span>
             </div>
         </div>
 
@@ -6905,28 +6905,37 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
             // V9.56: Added ranking arrows logic for filtered tables
             async function populateAttendanceTable(tableElement, players, attendanceData, tableType, availabilityData, availabilityDataNormalized) {
                 const sortedPlayers = players.map(p => {
-                    // Handle both old string format and new object format
-                    let playerName, playerKey;
+                    let playerName, playerKey, fallbackKey;
+
                     if (typeof p === 'string') {
-                        // Old format: "10 ROSSI MARIO"
                         playerName = p.trim();
                         playerKey = p.trim();
+                        fallbackKey = p.replace(/^[0-9.]+\s*/, '').trim(); 
                     } else {
-                        // --- NUOVA LOGICA PER GIOCATORI SENZA NUMERO ---
-                        // Se il numero esiste ed è valido lo usiamo, altrimenti stringa vuota
                         const numero = (p.numero && p.numero.toString().trim() !== "") 
                             ? p.numero.toString().trim() 
                             : "";
                         const nome = p.nome ? p.nome.trim() : "";
                         
-                        // Se c'è il numero facciamo "10 ROSSI", se no solo "ROSSI"
+                        fallbackKey = nome; // Il nostro nome di scorta senza numero
                         playerName = numero ? `${numero} ${nome}` : nome;
                         playerKey = playerName; 
                     }
                     
+                    // --- FIX PROBLEMA 2: SOMMIAMO I CONTEGGI ---
+                    // Cerchiamo le presenze col nome completo (es. "10 Mario")
+                    let totalCount = attendanceData[playerKey] || 0;
+                    
+                    // Se il nome completo è diverso dal nome base (quindi ha un numero),
+                    // cerchiamo e sommiamo anche le vecchie presenze salvate solo come "Mario"
+                    if (playerKey !== fallbackKey) {
+                        totalCount += (attendanceData[fallbackKey] || 0);
+                    }
+                    
                     return {
                         name: playerName,
-                        count: attendanceData[playerKey] || 0
+                        fallbackName: fallbackKey, // Lo salviamo per dopo
+                        count: totalCount // Usiamo il totale unito!
                     };
                 }).sort((a, b) => b.count - a.count);
 
@@ -6937,11 +6946,9 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     if (i > 0) {
                         const prevPlayer = sortedPlayers[i - 1];
                         const currPlayer = sortedPlayers[i];
-                        // Check if tied (same count)
                         if (prevPlayer.count !== currPlayer.count) {
-                            currentRank = i + 1; // Move to next rank if not tied
+                            currentRank = i + 1; 
                         }
-                        // Otherwise keep same rank (tied)
                     }
                     currentRanking.push({
                         name: sortedPlayers[i].name,
@@ -6949,7 +6956,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     });
                 }
 
-                // V9.56: Get last week's ranking from localStorage (company-specific and table-specific)
+                // V9.56: Get last week's ranking from localStorage
                 const companyKey = currentCompanyCode || 'default';
                 const storageKey = `lastWeekRanking${tableType}_${companyKey}`;
                 const lastWeekRankingStr = localStorage.getItem(storageKey);
@@ -6963,7 +6970,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     }
                 }
 
-                // V9.56: Check if we need to update the weekly snapshot (every Monday)
+                // V9.56: Check if we need to update the weekly snapshot
                 const now = new Date();
                 const updateStorageKey = `lastRankingUpdate${tableType}_${companyKey}`;
                 const lastUpdateStr = localStorage.getItem(updateStorageKey);
@@ -6972,11 +6979,10 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                 if (!lastUpdateStr) {
                     shouldUpdate = true;
                 } else {
-                    // Helper function to get Monday of a given week
                     const getMondayOfWeek = (date) => {
                         const d = new Date(date);
                         const day = d.getDay();
-                        const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+                        const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
                         d.setDate(diff);
                         d.setHours(0, 0, 0, 0);
                         return d;
@@ -6986,14 +6992,12 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     const currentWeekMonday = getMondayOfWeek(now);
                     const lastUpdateWeekMonday = getMondayOfWeek(lastUpdate);
 
-                    // Update only if we're in a different week (comparing Mondays)
                     if (currentWeekMonday.getTime() !== lastUpdateWeekMonday.getTime()) {
                         shouldUpdate = true;
                     }
                 }
 
                 if (shouldUpdate) {
-                    // Store current ranking as new baseline (company-specific and table-specific)
                     const rankingMap = {};
                     currentRanking.forEach(item => {
                         rankingMap[item.name] = item.rank;
@@ -7006,25 +7010,21 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     console.log(`📊 [V9.56] Updated weekly ranking snapshot for ${tableType} - ${companyKey}`);
                 }
 
-                // V9.56: Calculate rank changes
                 const rankChanges = {};
                 currentRanking.forEach(item => {
                     const lastRank = lastWeekRanking[item.name];
                     if (lastRank !== undefined) {
-                        const change = lastRank - item.rank; // Positive means moved up
+                        const change = lastRank - item.rank; 
                         rankChanges[item.name] = change;
                     }
                 });
 
                 const hasAvailabilityData = availabilityData !== null && availabilityData !== undefined;
                 const colSpan = hasAvailabilityData ? 3 : 2;
-                
-                // V8.6: Use responsive padding for tornei table
                 const isTorneiTable = tableType === 'Tornei';
                 const cellPadding = isTorneiTable ? 'px-2 sm:px-6 py-4' : 'px-6 py-4';
 
                 if (sortedPlayers.length === 0) {
-                    // Show empty state message only if no players at all
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td colspan="${colSpan}" class="${cellPadding} text-center text-gray-500 italic">
@@ -7033,9 +7033,7 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     `;
                     tableElement.appendChild(row);
                 } else {
-                    // Show ALL players including those with 0 attendance
                     sortedPlayers.forEach(player => {
-                        // V9.56: Calculate arrow icon based on rank change
                         const rankChange = rankChanges[player.name];
                         let arrowIcon = '';
                         if (rankChange !== undefined) {
@@ -7044,33 +7042,35 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                             } else if (rankChange < 0) {
                                 arrowIcon = '<span style="color: #ef4444; margin-left: 4px;">🔽</span>';
                             } else {
-                                // rankChange === 0: same position
                                 arrowIcon = '<span style="color: #6b7280; margin-left: 4px;">=</span>';
                             }
                         }
                         
                         let availabilityCell = '';
                         
-                        // V7.9: Add availability percentage for Tornei table if data is available (uses global normalizePlayerName)
                         if (hasAvailabilityData) {
                             let availabilityPercentage = 'N/D';
                             
-                            // Try exact match first (usiamo playerKey che è già pulito)
-                                let rawValue = availabilityData[playerKey]; 
+                            // Doppio controllo anche per la disponibilità
+                            let rawValue = availabilityData[player.name]; 
+                            if (rawValue === undefined && player.name !== player.fallbackName) {
+                                rawValue = availabilityData[player.fallbackName];
+                            }
 
-                                // If no exact match, try normalized match
-                                if (rawValue === undefined && availabilityDataNormalized) {
-                                    const normalizedPlayerName = normalizePlayerName(playerKey);
+                            if (rawValue === undefined && availabilityDataNormalized) {
+                                let normalizedPlayerName = normalizePlayerName(player.name);
+                                rawValue = availabilityDataNormalized[normalizedPlayerName];
+                                
+                                if (rawValue === undefined && player.name !== player.fallbackName) {
+                                    normalizedPlayerName = normalizePlayerName(player.fallbackName);
                                     rawValue = availabilityDataNormalized[normalizedPlayerName];
                                 }
+                            }
                             
-                            // Process the value if found - rounded up to integer (no decimals)
                             if (rawValue !== undefined && rawValue !== null) {
                                 if (typeof rawValue === 'number') {
-                                    // If value is between 0 and 1, multiply by 100, otherwise use as is, then round up
                                     availabilityPercentage = Math.ceil(rawValue <= 1 ? rawValue * 100 : rawValue);
                                 } else if (typeof rawValue === 'string') {
-                                    // Handle string numbers
                                     const numValue = parseFloat(rawValue);
                                     if (!isNaN(numValue)) {
                                         availabilityPercentage = Math.ceil(numValue <= 1 ? numValue * 100 : numValue);
@@ -7078,7 +7078,6 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                                 }
                             }
                             
-                            // V9.39: Create animated progress bar for availability percentage
                             if (availabilityPercentage !== 'N/D') {
                                 const availabilityProgressBarHTML = createProgressBar(availabilityPercentage);
                                 availabilityCell = `<td class="${cellPadding} whitespace-nowrap text-sm text-gray-500 text-center">${availabilityProgressBarHTML}</td>`;
@@ -7087,12 +7086,8 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                             }
                         }
                         
-                        // V9.27: Display only player name without jersey number and dots
                         const playerNameOnly = player.name.replace(/^[0-9.]+\s*/, '').trim();
 
-                        // --- NUOVO CODICE PER ANDARE A CAPO ---
-                        // Dividiamo la stringa al primo spazio. 
-                        // La prima parola diventa "cognome", tutto il resto diventa "nome".
                         const firstSpaceIndex = playerNameOnly.indexOf(' ');
                         let cognomeHtml = playerNameOnly;
                         let nomeHtml = '';
@@ -7102,12 +7097,10 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                             nomeHtml = playerNameOnly.substring(firstSpaceIndex + 1);
                         }
 
-                        // Costruiamo il blocco HTML con il <br> per andare a capo e un po' di stile
                         const nomeFormattatoHTML = `
                             <span class="font-bold text-gray-800">${cognomeHtml}</span><br>
                             <span class="text-xs text-gray-500 font-normal">${nomeHtml}</span>
                         `;
-                        // --- FINE NUOVO CODICE ---
 
                         const row = document.createElement('tr');
                         row.innerHTML = `
@@ -7119,12 +7112,10 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
                     });
                 }
                 
-                // V9.40: Animate progress bar percentage texts in filtered tables
                 setTimeout(() => {
                     animateProgressBarTexts();
                 }, 100);
                 
-                // Animate presence count numbers in filtered tables
                 setTimeout(() => {
                     const presenceCounts = document.querySelectorAll('.presence-count');
                     presenceCounts.forEach(element => {
