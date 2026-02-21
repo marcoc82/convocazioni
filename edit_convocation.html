@@ -399,7 +399,7 @@
             });
 
             sortedPlayers.forEach((player) => {
-                // MODIFICA CRUCIALE: Costruiamo il nome senza spazi extra se manca il numero
+                // Costruiamo il nome ufficiale (con il numero, se presente)
                 const playerName = (player.numero && player.numero.toString().trim() !== "") 
                     ? `${player.numero.toString().trim()} ${player.nome.trim()}` 
                     : player.nome.trim();
@@ -407,12 +407,27 @@
                 const li = document.createElement('li');
                 li.dataset.player = playerName;
                 
-                // Mark as selected if in original selection
+                // --- FIX PROBLEMA 3: Controllo flessibile ---
+                let isSelected = false;
+                
+                // 1. Controllo standard (cerca ad es. "10 Mario")
                 if (selectedPlayers.has(playerName)) {
-                    // Usiamo classi azzurre coerenti
+                    isSelected = true;
+                } 
+                // 2. Controllo di fallback (cerca ad es. "Mario" se è stato salvato senza numero per errore)
+                else if (selectedPlayers.has(player.nome.trim())) {
+                    isSelected = true;
+                    // Auto-correzione: rimuoviamo il nome sbagliato e mettiamo quello giusto per quando salverai!
+                    selectedPlayers.delete(player.nome.trim());
+                    selectedPlayers.add(playerName);
+                }
+                
+                if (isSelected) {
+                    // Stile azzurro per i selezionati
                     li.className = 'p-3 bg-blue-500 text-white rounded-lg shadow-sm border border-blue-600 cursor-pointer hover:bg-blue-600 transition-colors flex justify-between items-center';
                     li.innerHTML = `<span>${playerName}</span><span class="font-bold">✓</span>`;
                 } else {
+                    // Stile bianco/grigio per i non selezionati
                     li.className = 'p-3 bg-white text-gray-800 rounded-lg shadow-sm border border-gray-200 cursor-pointer hover:bg-blue-50 transition-colors';
                     li.textContent = playerName;
                 }
@@ -553,7 +568,7 @@
     </script>
     <!-- Application Version - Only visible on login screen -->
     <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-        <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 1.1</span>
+        <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 1.2</span>
     </div>
 </body>
 </html>

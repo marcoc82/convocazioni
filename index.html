@@ -1025,7 +1025,7 @@
             
             <!-- Application Version - Only visible on login screen -->
             <div class="mt-6 pt-4 border-t border-gray-200 text-center">
-                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.96</span>
+                <span class="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">V 9.97</span>
             </div>
         </div>
 
@@ -7353,23 +7353,28 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
 
     playersToRender.forEach(player => {
         const li = document.createElement('li');
-        let displayName, playerKey;
+        let displayName, playerKey, nomeSenzaNumero; // <-- Aggiunta variabile per il nome di riserva
 
         // --- GESTIONE CHIAVE E NOME ---
         if (typeof player === 'string') {
             playerKey = player.trim();
-            displayName = player.replace(/^[0-9.]+\s*/, '').trim(); 
-        } else {
-            // Se il numero esiste e non è vuoto lo usiamo, altrimenti usiamo solo il nome
+            nomeSenzaNumero = player.replace(/^[0-9.]+\s*/, '').trim(); 
+            displayName = nomeSenzaNumero;
+        } 
+        else {
             const numeroPulito = (player.numero && player.numero.toString().trim()) ? player.numero.toString().trim() : "";
             const nomePulito = player.nome ? player.nome.trim() : "";
 
+            // Salviamo il nome base per i controlli di emergenza (fallback)
+            nomeSenzaNumero = nomePulito; 
+
             if (numeroPulito !== "") {
-                playerKey = `${numeroPulito} ${nomePulito}`;
-            } else {
-                playerKey = nomePulito;
+                playerKey = `${numeroPulito} ${nomePulito}`; // Es: "10 Mario"
+            } 
+            else {
+                playerKey = nomePulito; // Es: "Mario"
             }
-            displayName = nomePulito;
+            displayName = nomePulito; // Mostriamo a schermo sempre solo il nome
         }
 
         li.textContent = displayName;
@@ -7377,24 +7382,38 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
         li.dataset.player = playerKey;
 
         // --- 1. COLORE AZZURRO (Selezione live del Mister) ---
-        // Se il giocatore è nell'elenco dei selezionati, deve essere azzurro
-        if (userRole === 'mister' && typeof selectedPlayers !== 'undefined' && selectedPlayers.includes(playerKey)) {
+        // DOPPIO CONTROLLO: cerchiamo sia "10 Mario" che "Mario"
+        const isSelected = userRole === 'mister' && typeof selectedPlayers !== 'undefined' && 
+                           (selectedPlayers.includes(playerKey) || selectedPlayers.includes(nomeSenzaNumero));
+        
+        if (isSelected) {
             li.classList.add('selected-mister');
         }
 
         // --- 2. CONTROLLO GIÀ CONVOCATO (Grigio/Stato salvato) ---
-        if (userRole === 'mister' && isPlayerCalledToday(playerKey)) {
+        // FIX PROBLEMA 1: Controllo doppio. Se risulta chiamato col numero o senza numero, diventa grigio.
+        const isCalledToday = isPlayerCalledToday(playerKey) || isPlayerCalledToday(nomeSenzaNumero);
+        
+        if (userRole === 'mister' && isCalledToday) {
             li.classList.add('already-called-today');
         } 
         
         // --- 3. CONTROLLO INDISPONIBILITÀ ---
         else {
             const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
-            const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
+            
+            // Controllo doppio anche per gli allenamenti
+            const autoTrainingStatus = hasCurrentWeekSessions ? 
+                (getAutomaticTrainingStatus(playerKey) || getAutomaticTrainingStatus(nomeSenzaNumero)) : null;
+            
             let finalStatuses = [];
 
-            if (unavailablePlayers.has(playerKey)) {
-                const status = unavailablePlayers.get(playerKey);
+            // Controllo doppio per gli stati manuali
+            const hasManualStatus = unavailablePlayers.has(playerKey) || unavailablePlayers.has(nomeSenzaNumero);
+
+            if (hasManualStatus) {
+                // Recuperiamo lo stato usando la chiave che ha funzionato
+                const status = unavailablePlayers.get(playerKey) || unavailablePlayers.get(nomeSenzaNumero);
                 const manualStatuses = Array.isArray(status) ? status : [status];
 
                 if (hasCurrentWeekSessions) {
@@ -7422,52 +7441,57 @@ const unavailableUnsub = window.onSnapshot(unavailableDocRef, async (docSnap) =>
 
         // --- EVENT LISTENER CLICK ---
         li.addEventListener('click', () => {
-    if (userRole === 'mister') {
-        // --- 1. SE È GIÀ SELEZIONATO (AZZURRO), TOGLILO SEMPRE ---
-        if (li.classList.contains('selected-mister')) {
-            li.classList.remove('selected-mister');
-            if (typeof updateSelectedPlayersLiveList === 'function') {
-                updateSelectedPlayersLiveList(playerKey, false);
+            if (userRole === 'mister') {
+                
+                // --- 1. SE È GIÀ SELEZIONATO (AZZURRO), TOGLILO SEMPRE ---
+                if (li.classList.contains('selected-mister')) {
+                    li.classList.remove('selected-mister');
+                    if (typeof updateSelectedPlayersLiveList === 'function') {
+                        updateSelectedPlayersLiveList(playerKey, false);
+                        // Per sicurezza, puliamo anche l'eventuale "doppione" salvato male
+                        updateSelectedPlayersLiveList(nomeSenzaNumero, false);
+                    }
+                    return; 
+                }
+
+                // --- 2. CONTROLLO INDISPONIBILITÀ (Solo in aggiunta) ---
+                const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
+                const autoTrainingStatus = hasCurrentWeekSessions ? 
+                    (getAutomaticTrainingStatus(playerKey) || getAutomaticTrainingStatus(nomeSenzaNumero)) : null;
+                const hasManualStatus = unavailablePlayers.has(playerKey) || unavailablePlayers.has(nomeSenzaNumero);
+
+                if (hasManualStatus || autoTrainingStatus) {
+                    let combinedStatus = [];
+                    if (hasManualStatus) {
+                        const status = unavailablePlayers.get(playerKey) || unavailablePlayers.get(nomeSenzaNumero);
+                        const manualStatuses = Array.isArray(status) ? status : [status];
+                        combinedStatus = hasCurrentWeekSessions ? 
+                            manualStatuses.filter(s => s !== 'Zero allenamenti' && s !== 'Solo 1 allenamento' && s !== 'Solo 2 allenamenti') : 
+                            manualStatuses;
+                    }
+                    if (autoTrainingStatus) combinedStatus.push(autoTrainingStatus);
+                    showUnavailablePlayerModal(playerKey, combinedStatus.length === 1 ? combinedStatus[0] : combinedStatus);
+                    return;
+                }
+
+                // --- 3. CONTROLLO GIÀ CONVOCATO (Solo in aggiunta) ---
+                if (isPlayerCalledToday(playerKey) || isPlayerCalledToday(nomeSenzaNumero)) {
+                    showAlreadyCalledModal(playerKey);
+                    return;
+                }
+
+                // --- 4. AGGIUNGI SELEZIONE ---
+                li.classList.add('selected-mister');
+                if (typeof updateSelectedPlayersLiveList === 'function') {
+                    // FIX PROBLEMA 2 (STATISTICHE): Forziamo l'aggiornamento usando la chiave esatta con numero!
+                    updateSelectedPlayersLiveList(playerKey, true);
+                }
+
+            } else if (isDirigente()) {
+                tempPlayerName = playerKey;
+                showModal();
             }
-            return; // Esci subito dopo aver rimosso
-        }
-
-        // --- 2. CONTROLLO INDISPONIBILITÀ (Solo se stiamo cercando di aggiungerlo) ---
-        const hasCurrentWeekSessions = hasCurrentWeekTrainingSessions();
-        const autoTrainingStatus = hasCurrentWeekSessions ? getAutomaticTrainingStatus(playerKey) : null;
-        const hasManualStatus = unavailablePlayers.has(playerKey);
-
-        if (hasManualStatus || autoTrainingStatus) {
-            let combinedStatus = [];
-            if (hasManualStatus) {
-                const status = unavailablePlayers.get(playerKey);
-                const manualStatuses = Array.isArray(status) ? status : [status];
-                combinedStatus = hasCurrentWeekSessions ? 
-                    manualStatuses.filter(s => s !== 'Zero allenamenti' && s !== 'Solo 1 allenamento' && s !== 'Solo 2 allenamenti') : 
-                    manualStatuses;
-            }
-            if (autoTrainingStatus) combinedStatus.push(autoTrainingStatus);
-            showUnavailablePlayerModal(playerKey, combinedStatus.length === 1 ? combinedStatus[0] : combinedStatus);
-            return;
-        }
-
-        // --- 3. CONTROLLO GIÀ CONVOCATO (Solo se stiamo cercando di aggiungerlo) ---
-        if (isPlayerCalledToday(playerKey)) {
-            showAlreadyCalledModal(playerKey);
-            return;
-        }
-
-        // --- 4. AGGIUNGI SELEZIONE ---
-        li.classList.add('selected-mister');
-        if (typeof updateSelectedPlayersLiveList === 'function') {
-            updateSelectedPlayersLiveList(playerKey, true);
-        }
-
-    } else if (isDirigente()) {
-        tempPlayerName = playerKey;
-        showModal();
-    }
-});
+        });
 
         playersList.appendChild(li);
     });
